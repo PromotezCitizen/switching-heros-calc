@@ -1,0 +1,10 @@
+{
+  "title": "전용 무기",
+  "owner": "주인 히어로",
+  "star": "초월 ★",
+  "level": "강화 레벨",
+  "notOwned": "없음",
+  "unknownOwner": "무기 {{id}}",
+  "starLabel": "{{name}} 전용 무기 초월 ★",
+  "levelLabel": "{{name}} 전용 무기 강화 레벨"
+}

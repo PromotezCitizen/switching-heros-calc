@@ -1,0 +1,64 @@
+{
+  "title": "펫",
+  "ownedTitle": "보유 펫",
+  "ownedHelp": "펫마다 등급 버튼 → 성 버튼. 없음 = 미보유. 보유한 모든 펫의 효과가 붙습니다 (앱 코드 확정).",
+  "gradeNone": "없음",
+  "starText": "{{star}}성",
+  "notOwned": "미보유",
+  "equipTitle": "장착 펫·옵션",
+  "equipHelp": "펫 그림을 누르면 펫 고르기 창. \"리더\" 버튼 = 리더 칸 (리더 효과는 leaderStatValue1 만 계산, 앱 코드 확정. 상태이상 리더 효과는 스탯이 아니라 문구만). 장착 옵션은 펫 화면 \"장착 옵션\" 의 능력치와 값 그대로 (예: 물 속성 히어로의 전용 스킬 데미지 +50%). 장착 칸 펫만 적용 (앱 코드 확정). 6번째 옵션은 펫 SSS 등급 이상 해금.",
+  "slotName": "{{slot}}번 칸",
+  "slotPickLabel": "{{slot}}번 장착 펫",
+  "pickEmpty": "펫 고르기",
+  "pickTitle": "{{label}} 고르기",
+  "close": "닫기",
+  "none": "없음",
+  "usedInSlot": "{{slot}}번 칸에 장착 중",
+  "leader": "리더",
+  "leaderEffect": "리더 효과: {{effect}}",
+  "optionsTitle": "장착 옵션",
+  "optionStatLabel": "{{slot}}번 칸 {{number}}번 옵션",
+  "optionValueLabel": "{{slot}}번 칸 {{number}}번 값",
+  "valuePlaceholder": "값 %",
+  "optionNote": "보유 펫에서 이 펫의 등급·성을 고르면 옵션 칸이 열립니다.",
+  "leaderAilment": "{{kind}} {{count}}회마다 {{seconds}}초간 {{ailment}}",
+  "ailmentKinds": {
+    "attack": "일반공격",
+    "skill": "스킬"
+  },
+  "ailments": {
+    "blind": "실명",
+    "shock": "감전",
+    "stun": "기절"
+  },
+  "attributes": {
+    "Fire": "불 속성",
+    "Water": "물 속성",
+    "Earth": "땅 속성"
+  },
+  "petNames": {
+    "1": "코미",
+    "2": "스코르",
+    "3": "자크",
+    "4": "글로우",
+    "5": "봉황이",
+    "6": "스켈",
+    "101": "드라코",
+    "102": "코랄",
+    "103": "샤미",
+    "104": "모모",
+    "105": "누비",
+    "106": "펭크로우",
+    "201": "그롬",
+    "202": "바코",
+    "203": "코코",
+    "204": "렉스",
+    "205": "쿠보",
+    "206": "브루노"
+  },
+  "sources": {
+    "owned": "{{pet}} {{grade}} {{star}}성 보유",
+    "leader": "{{pet}} 리더",
+    "option": "{{pet}} 옵션 {{number}}"
+  }
+}

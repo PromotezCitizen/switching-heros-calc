@@ -1,0 +1,14 @@
+{
+  "title": "스킬",
+  "equipTitle": "장착 스킬 (1슬롯 히어로)",
+  "equipSlot": "{{slot}}번 칸",
+  "notEquipped": "없음",
+  "equippedLevelSum": "장착 스킬 레벨 합: {{sum}}",
+  "ownedTitle": "보유 스킬",
+  "job": "직업",
+  "grade": "등급",
+  "name": "스킬",
+  "level": "레벨",
+  "damage": "데미지",
+  "levelLabel": "{{name}} 레벨"
+}

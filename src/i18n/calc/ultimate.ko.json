@@ -1,0 +1,14 @@
+{
+  "title": "얼티밋 특성",
+  "equippedPets": "장착 펫: {{pets}}",
+  "countNone": "없음",
+  "petCount": "{{name}} {{count}}마리",
+  "skipped": "아직 계산에 들어가지 않는 얼티밋입니다: {{names}}",
+  "costumeSource": "{{name}} × 보유 코스튬 {{count}}개",
+  "petSource": "{{name}} ({{value}} ^ 장착 펫 {{count}}마리)",
+  "heroSource": "{{name}} ({{value}} ^ 편성 히어로 {{count}}명)",
+  "skillSource": "{{name}} ({{value}} ^ 장착 스킬 {{count}}개)",
+  "dungeonSource": "{{name}} × 클리어 단계 {{count}}",
+  "targetUnitSource": "{{name}} (1슬롯 히어로 전투 특화)",
+  "chanceSource": "{{name}} (확률 {{chance}}% > {{threshold}}%)"
+}

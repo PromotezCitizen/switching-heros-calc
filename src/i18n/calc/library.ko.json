@@ -1,0 +1,25 @@
+{
+  "title": "히어로의 기록",
+  "archiveTitle": "기록 보관소",
+  "archiveLevel": "레벨 {{level}} (자동)",
+  "levelPlaceholder": "레벨",
+  "books": {
+    "Swordsman": "검사 책",
+    "Fighter": "격투가 책",
+    "Archer": "궁수 책",
+    "Mage": "마법사 책"
+  },
+  "bookLevelLabel": "{{book}} 레벨",
+  "notLearned": "미습득",
+  "inheritTitle": "전승된 능력",
+  "inheritLocked": "기록 보관소 레벨 2부터 열립니다.",
+  "none": "없음",
+  "statLabel": "{{index}}번 능력치",
+  "valueLabel": "{{index}}번 값",
+  "valuePlaceholder": "값 %",
+  "sources": {
+    "archive": "기록 보관소 Lv{{level}}",
+    "book": "{{book}} Lv{{level}}",
+    "inherit": "전승된 능력 {{index}}번"
+  }
+}

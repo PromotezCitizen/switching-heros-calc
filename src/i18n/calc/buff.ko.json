@@ -1,0 +1,31 @@
+{
+  "title": "버프·연타 특성",
+  "berserkStacks": "광폭화 중첩",
+  "berserkStacksHint": "지금 쌓인 광폭화 중첩 수 (0~{{max}}) 를 넣습니다. 스킬 광폭화 특성을 찍었을 때만 계산합니다.",
+  "killerActive": "학살자 발동",
+  "status": "광폭화 {{stacks}}중첩 · 학살자 공격력 ×{{killer}}",
+  "berserkSource": "광폭화 {{stacks}}중첩",
+  "killerSource": "학살자",
+  "rushSource": "연타 폭주 (붙는 자리 추정)",
+  "chances": "연타 {{doubleAttack}}% · 스킬 콤보 {{skillCombo}}%",
+  "chancesHint": "다른 칸에 넣은 값으로 계산합니다. 연타·스킬 콤보 중첩은 늘 최대로 넣습니다.",
+  "doubleAttackStackSource": "가속 {{stacks}}중첩 (늘 최대)",
+  "doubleAttackFullStackSource": "연타의 분노 (연타 {{stacks}}중첩 늘 유지)",
+  "skillComboStackSource": "스킬 콤보 {{stacks}}중첩 (늘 최대, 액티브 스킬 최종 ×{{multiplier}}, 붙는 자리 추정)",
+  "onAttackSource": "{{source}} (몬스터 공격시 5초 버프)",
+  "superCriticalStrikeSource": "초월의 일격 (슈퍼 치명타 {{chance}}% 가 {{threshold}}% 초과, 유력)",
+  "finalAttackMultiplierSource": "전용 무기 초월 ★{{star}} 최대 중첩 공격력 ×{{multiplier}} (실측 확인)",
+  "exclusiveStackSource": "전용 무기 초월 ★{{star}} 공격력 {{stacks}}중첩 (늘 최대, 문구와 다르게 실측 확인)",
+  "food": "음식 효과",
+  "foodHint": "지금 켜진 음식 버프를 하나만 고릅니다 (음식끼리는 겹치지 않음, 한 번 먹으면 60분). 프로필 줄과 맞는지는 추정입니다.",
+  "foodNone": "없음",
+  "foodOption": "{{food}} {{percent}}%",
+  "foodSource": "음식 효과: {{food}}",
+  "foods": {
+    "strawberryJam": "딸기잼",
+    "strawberryJuice": "딸기 주스",
+    "strawberryTart": "딸기 타르트"
+  },
+  "attackEventBuff": "공격력 이벤트 버프 {{percent}}% (음식과 같이 켜짐, 붙는 스탯 공격력 % 는 추정)",
+  "attackEventBuffSource": "공격력 이벤트 버프"
+}

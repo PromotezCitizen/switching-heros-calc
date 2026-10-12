@@ -1,0 +1,53 @@
+{
+  "title": "캐릭터 각성",
+  "heroAwaken": "각성",
+  "heroAwakenValue": "{{value}}%",
+  "heroSection": "캐릭터",
+  "slots": {
+    "charName": "1슬롯 히어로",
+    "charName2": "2슬롯 히어로"
+  },
+  "pickEmpty": "히어로 고르기",
+  "pickButton": "{{slot}} 고르기",
+  "none": "없음",
+  "close": "닫기",
+  "grade": "등급",
+  "star": "성",
+  "gender": "$t(calc.hero.genders.{{gender}})",
+  "genders": {
+    "1": "남",
+    "2": "여"
+  },
+  "heroHint": "등급·성·각성은 아래 히어로 표에서 넣습니다. 고르기 창에는 히어로 표에서 가진 히어로만 나옵니다.",
+  "slotSummary": "1슬롯: 등급 {{grade}} · 성 {{star}} · 각성 {{awaken}} (공격력 +{{effect}}%)",
+  "exclusiveEquipped": "전용 무기 장착",
+  "sources": {
+    "baseAttackSpeed": "기본 공격속도 ({{hero}})",
+    "baseCriticalRate": "기본 치명타 확률 ({{hero}}, 기본값 (추정))",
+    "baseCriticalDamage": "기본 치명타 데미지 ({{hero}}, 기본값 (추정))"
+  },
+  "filter": {
+    "all": "전체",
+    "noMatch": "조건에 맞는 히어로가 없습니다."
+  },
+  "attributes": {
+    "Fire": "불 속성",
+    "Water": "물 속성",
+    "Earth": "땅 속성"
+  },
+  "jobs": {
+    "Swordsman": "검사",
+    "Fighter": "격투가",
+    "Archer": "궁수",
+    "Mage": "마법사"
+  },
+  "baseCheck": {
+    "title": "기본값 확인",
+    "tableBase": "수치표 기본값",
+    "screen": "화면 값",
+    "atk": "공격력",
+    "hp": "체력",
+    "same": "같음",
+    "different": "다름"
+  }
+}

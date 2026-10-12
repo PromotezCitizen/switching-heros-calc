@@ -1,0 +1,11 @@
+{
+  "title": "훈련",
+  "stageTitle": "훈련 단계",
+  "stageLabel": "훈련 단계 (게임 화면) (0~{{max}})",
+  "stageHelp": "게임 화면 단계 그대로 적습니다. 지금 진행 중인 단계이고, 이전 단계는 모두 최대 레벨로 계산합니다.",
+  "levelsTitle": "현재 단계 항목 레벨",
+  "levelDefault": "{{index}}번 항목 레벨",
+  "levelForStat": "{{stat}} 레벨 (0~{{max}})",
+  "levelsHelp": "항목 이름은 단계마다 바뀝니다 (공격력·체력 + 단계별 1개).",
+  "source": "훈련 {{stage}}단계"
+}

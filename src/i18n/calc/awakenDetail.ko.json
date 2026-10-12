@@ -1,0 +1,10 @@
+{
+  "title": "베르 각성",
+  "grade": "등급",
+  "star": "별",
+  "starLabel": "★{{star}}",
+  "stageNumber": "각성 {{level}}단계",
+  "levelLabel": "{{name}} 레벨",
+  "hitExcluded": "명중은 공격력·체력 계산과 관계없어 넣지 않습니다.",
+  "lineSource": "베르 각성 세부 스탯"
+}

@@ -1,0 +1,121 @@
+/**
+ * 특성·룬·베르 각성 세부·얼티밋 특성·버프 탭 묶음 (기존 stat-calc.html 내장 탭과 calcTabGroups 의 해당 줄들).
+ * 줄 출처 글은 번역 파일 (src/i18n/calc/<탭 id>.ko.json) 에서 i18next 로 만든다.
+ */
+import i18next from 'i18next';
+import { createElement, type ComponentType } from 'react';
+import { CONSTS } from '../../../CONSTS';
+import AwakenDetailPanel from '../../panels/AwakenDetailPanel';
+import BuffPanel from '../../panels/BuffPanel';
+import MasteryPanel from '../../panels/MasteryPanel';
+import RunePanel from '../../panels/RunePanel';
+import type { StatTables } from '../../../data/statTables';
+import type { Line } from '../../combine';
+import type { CalcTab, CalcValues, TabPanelProps } from '../../types';
+import { equippedSkillTypeCounts } from '../skill/skill';
+import { awakenDetailLines } from './awakenDetail';
+import { summaryTarget } from '../summary/summary';
+import {
+  buffLines,
+  exclusiveStackBuffLines,
+  finalAttackMultiplierLines,
+  normalMonsterFoodLines,
+  attackEventBuffLines,
+  onAttackBuffLines,
+  stackLines,
+  superCriticalStrikeLines,
+} from './buff';
+import { chancesFromLines, chanceUltimateLines } from './chances';
+import { masteryLines } from './mastery';
+import { runeLines } from './rune';
+import type { SourceLabel } from './sourceLabel';
+import {
+  equippedPetIds,
+  formationHeroAttributes,
+  formationHeroGenders,
+  slotHeroTargetUnit,
+  ultimateLines,
+} from './ultimate';
+
+const translateSource: SourceLabel = (translationKey, params) => i18next.t(translationKey, params ?? {});
+
+/** 버프 탭을 뺀 모든 탭의 줄 (합산 직전 모양). 버프 탭이 연타·스킬 콤보 등 확률을 계산하는 데 쓴다 */
+export type OtherTabLines = (values: CalcValues, tables: StatTables) => Line[];
+
+/** 버프 패널에 다른 탭 줄을 모으는 함수를 넘긴다 (패널이 탭 목록을 import 하면 고리가 생김) */
+function buffPanelWith(otherTabLines: OtherTabLines): ComponentType<TabPanelProps> {
+  return function BuffTabPanel(props: TabPanelProps) {
+    return createElement(BuffPanel, { ...props, otherTabLines });
+  };
+}
+
+/**
+ * 버프 탭 줄은 다른 탭 줄 (연타·공격속도·확률 합) 이 필요해서, 탭 목록 (tabs.ts) 이 그 줄을 모으는 함수와
+ * 다른 탭들이 쓰는 표 이름 (otherTableNames) 을 넘긴다. 버프 탭은 그 표 전부 + 이 묶음 탭들의 표를 불러야 줄이 맞다
+ */
+export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableNames: readonly string[] = []): CalcTab[] => {
+  const ownTabs: CalcTab[] = [
+    {
+      id: 'mastery',
+      // 얼티밋 특성 줄도 특성 탭에서 만든다 (얼티밋은 특성 나무에서 켜고 끔, 따로 칸 없음). 펫·히어로·스킬 표는 얼티밋 개수용
+      tableNames: ['Mastery', 'Pet', 'Character', CONSTS.skill.TABLE],
+      Panel: MasteryPanel,
+      lines: (values, tables) => [
+        ...(tables.Mastery ? masteryLines(values, tables.Mastery, translateSource) : []),
+        ...(tables.Mastery && tables.Pet
+          ? ultimateLines(
+              values,
+              tables.Mastery,
+              tables.Pet,
+              equippedPetIds(values),
+              translateSource,
+              formationHeroGenders(values, tables),
+              formationHeroAttributes(values, tables),
+              { skillTypeCounts: equippedSkillTypeCounts(values, tables), targetUnit: slotHeroTargetUnit(values, tables) },
+            ).lines
+          : []),
+      ],
+    },
+    {
+      id: 'rune',
+      tableNames: ['AttributeRune'],
+      Panel: RunePanel,
+      lines: (values, tables) => (tables.AttributeRune ? runeLines(values, tables.AttributeRune, translateSource) : []),
+    },
+    {
+      id: 'awakenDetail',
+      tableNames: ['Awaken'],
+      Panel: AwakenDetailPanel,
+      lines: (values, tables) => awakenDetailLines(values, tables, translateSource),
+    },
+  ];
+  const buffTableNames = [...new Set(['Mastery', ...ownTabs.flatMap((tab) => tab.tableNames), ...otherTableNames])];
+  return [
+    ...ownTabs,
+    {
+      id: 'buff',
+      tableNames: buffTableNames,
+      Panel: buffPanelWith(otherTabLines),
+      lines: (values, tables) => {
+        // 음식 효과·공격력 이벤트 버프·최종 공격력 ×5 는 특성 표 없이도 줄이 된다
+        const foodLines = [...normalMonsterFoodLines(values, translateSource), ...attackEventBuffLines(values, translateSource)];
+        const multiplierLines = [
+          ...exclusiveStackBuffLines(values, translateSource, tables),
+          ...finalAttackMultiplierLines(values, translateSource, tables),
+        ];
+        if (!tables.Mastery) return [...foodLines, ...multiplierLines];
+        const otherLines = otherTabLines(values, tables);
+        const chances = chancesFromLines(otherLines, values, tables);
+        return [
+          ...buffLines(values, tables.Mastery, translateSource, chances.doubleAttack),
+          ...stackLines(values, tables.Mastery, translateSource, chances.doubleAttack, chances.skillCombo),
+          ...chanceUltimateLines(values, tables.Mastery, chances, translateSource),
+          ...superCriticalStrikeLines(values, tables.Mastery, translateSource, chances.superCritical),
+          ...onAttackBuffLines(otherLines, summaryTarget(values), translateSource),
+          ...multiplierLines,
+          ...foodLines,
+        ];
+      },
+    },
+  ];
+};

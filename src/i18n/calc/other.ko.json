@@ -1,0 +1,13 @@
+{
+  "fields": {
+    "profileIconAtk": { "label": "공격력 증가", "example": "예: 5,019%" },
+    "fairyBondLevel": { "label": "요정의 유대 레벨" },
+    "heroAwakenLevel": { "label": "히어로 각성 레벨" }
+  },
+  "sources": {
+    "profileIcon": "프로필 아이콘 (화면 값)",
+    "affinity": "호감도 {{hero}} Lv{{level}}",
+    "heroAwaken": "히어로 각성 Lv{{level}} ({{hero}})",
+    "fairyBlessing": "별자리 요정의 축복 (요정의 유대 Lv {{level}})"
+  }
+}

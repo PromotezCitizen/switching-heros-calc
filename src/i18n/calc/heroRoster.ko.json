@@ -1,0 +1,13 @@
+{
+  "title": "히어로",
+  "hero": "히어로",
+  "grade": "등급",
+  "star": "성",
+  "awaken": "각성",
+  "affinity": "호감도",
+  "notOwned": "없음",
+  "gradeLabel": "{{name}} 등급",
+  "starLabel": "{{name}} 성",
+  "awakenLabel": "{{name}} 각성",
+  "affinityLabel": "{{name}} 호감도 레벨"
+}

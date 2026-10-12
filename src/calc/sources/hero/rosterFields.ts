@@ -1,0 +1,23 @@
+/**
+ * 히어로 표 · 전용 무기 표의 칸 이름. 히어로마다 등급·성·캐릭터 각성, 전용 무기마다 초월 ★.
+ * 등급이 비었으면 미보유, ★ 가 비었으면 미보유 (기본값 비어 있음)
+ */
+export function rosterGradeField(charId: string): string {
+  return `heroOwnedGrade_${charId}`;
+}
+export function rosterStarField(charId: string): string {
+  return `heroOwnedStar_${charId}`;
+}
+export function rosterAwakenField(charId: string): string {
+  return `heroOwnedAwaken_${charId}`;
+}
+export function rosterAffinityField(charId: string): string {
+  return `heroOwnedAffinity_${charId}`;
+}
+export function exclusiveOwnedStarField(weaponId: string): string {
+  return `exclusiveOwnedStar_${weaponId}`;
+}
+/** 전용 무기마다 강화 레벨 (계산에는 1슬롯 히어로 무기 줄 값만 씀. 1슬롯 히어로를 바꿔도 다시 넣지 않게 무기마다 저장) */
+export function exclusiveOwnedLevelField(weaponId: string): string {
+  return `exclusiveOwnedLevel_${weaponId}`;
+}

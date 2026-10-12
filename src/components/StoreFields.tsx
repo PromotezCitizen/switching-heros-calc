@@ -1,0 +1,144 @@
+import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Checkbox, Group, NumberInput, Text, TextInput } from '@mantine/core';
+import { parseGameNumber } from '../calc/gameNumber';
+import { CONSTS } from '../CONSTS';
+import ChoiceChips, { type ChoiceOption } from './ChoiceChips';
+import HelpHint from './HelpHint';
+import { useStoreValue } from './useStoreValue';
+
+/** 라벨 오른쪽에 ? 안내를 붙인다. 안내가 없으면 라벨만 */
+function labelWithHint(label: string, hint?: ReactNode): ReactNode {
+  if (!hint) return label;
+  return (
+    <Group gap={4} component="span" wrap="nowrap">
+      {label}
+      <HelpHint>{hint}</HelpHint>
+    </Group>
+  );
+}
+
+interface FieldBase {
+  /** 저장소 칸 이름 (접두사 포함, 예: 'calc.artifactTotalAtk') */
+  storeKey: string;
+  label: string;
+  /** 값 찾는 곳 안내 (? 버튼) */
+  hint?: ReactNode;
+}
+
+interface GameNumberFieldProps extends FieldBase {
+  /** 입력 예시 (placeholder) */
+  example?: string;
+}
+
+/** 게임 큰 수 표기 ("5.14N%", "8.97DC") 입력 칸. 비어 있지 않은데 읽을 수 없으면 오류 표시 */
+export function GameNumberField({ storeKey, label, hint, example }: GameNumberFieldProps) {
+  const { t: translate } = useTranslation();
+  const [text, setText] = useStoreValue(storeKey);
+  const unreadable = !!text && text.trim() !== '' && parseGameNumber(text) === null;
+  return (
+    <TextInput
+      label={labelWithHint(label, hint)}
+      placeholder={example}
+      value={text ?? ''}
+      error={unreadable ? translate('common.invalidGameNumber') : undefined}
+      onChange={(event) => setText(event.currentTarget.value)}
+    />
+  );
+}
+
+/**
+ * 게임의 누적 목록("이름 … 값")과 같은 모양의 한 줄: 왼쪽 이름, 오른쪽 입력 칸.
+ * 게임 창과 같은 순서로 세로로 늘어놓으면 한 줄씩 옮겨 적기 쉽다
+ */
+export function GameNumberRow({ storeKey, label, hint, example }: GameNumberFieldProps) {
+  const { t: translate } = useTranslation();
+  const [text, setText] = useStoreValue(storeKey);
+  const unreadable = !!text && text.trim() !== '' && parseGameNumber(text) === null;
+  return (
+    <Group justify="space-between" align="flex-start" wrap="nowrap" gap="md">
+      <Group gap={4} wrap="nowrap" pt={6} style={{ flex: 1, minWidth: 0 }}>
+        <Text size="sm">{label}</Text>
+        {hint && <HelpHint>{hint}</HelpHint>}
+      </Group>
+      <TextInput
+        aria-label={label}
+        placeholder={example}
+        value={text ?? ''}
+        w={CONSTS.display.LIST_INPUT_WIDTH}
+        error={unreadable ? translate('common.invalidGameNumber') : undefined}
+        onChange={(event) => setText(event.currentTarget.value)}
+      />
+    </Group>
+  );
+}
+
+interface IntegerFieldProps extends FieldBase {
+  /** 라벨을 화면에 보이지 않게 하고(접근성 이름만 유지) 안내 글자로 대신한다. 칸 위의 한 줄을 아낀다 */
+  hideLabel?: boolean;
+  /** 안내 글자 (hideLabel 일 때 라벨 대신 보임) */
+  placeholder?: string;
+  min?: number;
+  max?: number;
+  /** 저장된 값이 없을 때 보여 줄 값 */
+  fallback?: number;
+}
+
+/** 정수·소수 숫자 칸 (레벨, 층, 개수 등). 저장소에는 글로 저장하고 읽을 때 숫자로 바꾼다 */
+export function NumberField({
+  storeKey,
+  label,
+  hint,
+  hideLabel,
+  placeholder,
+  min = 0,
+  max,
+  fallback = 0,
+}: IntegerFieldProps) {
+  const [text, setText] = useStoreValue(storeKey);
+  const parsed = text === undefined || text === '' ? NaN : Number(text);
+  return (
+    <NumberInput
+      label={hideLabel ? undefined : labelWithHint(label, hint)}
+      aria-label={hideLabel ? label : undefined}
+      placeholder={placeholder}
+      min={min}
+      max={max}
+      hideControls
+      allowNegative={min < 0}
+      value={Number.isFinite(parsed) ? parsed : fallback}
+      onChange={(next) => setText(String(next))}
+    />
+  );
+}
+
+interface SelectFieldProps extends FieldBase {
+  options: ChoiceOption[];
+  disabled?: boolean;
+}
+
+/** 고르기 칸: 선택지가 모두 보이는 버튼 묶음 (드롭다운 쓰지 않음). 저장된 값이 없으면 첫 항목 */
+export function SelectField({ storeKey, label, hint, options, disabled }: SelectFieldProps) {
+  const [text, setText] = useStoreValue(storeKey);
+  return (
+    <ChoiceChips
+      label={labelWithHint(label, hint)}
+      value={text ?? options[0]?.value ?? ''}
+      options={options}
+      disabled={disabled}
+      onChange={setText}
+    />
+  );
+}
+
+/** 켬/끔 체크 칸. 저장소에는 'true' / 'false' 글로 저장. 저장된 값이 없을 때는 defaultChecked */
+export function FlagField({ storeKey, label, hint, defaultChecked = false }: FieldBase & { defaultChecked?: boolean }) {
+  const [text, setText] = useStoreValue(storeKey);
+  return (
+    <Checkbox
+      label={labelWithHint(label, hint)}
+      checked={text === undefined ? defaultChecked : text === 'true'}
+      onChange={(event) => setText(String(event.currentTarget.checked))}
+    />
+  );
+}

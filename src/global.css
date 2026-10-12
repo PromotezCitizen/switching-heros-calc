@@ -1,0 +1,8 @@
+/* 페이지 전체 스크롤바만 숨긴다 (스크롤 동작은 그대로). 표·목록 안쪽 스크롤바는 건드리지 않는다 */
+html {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}

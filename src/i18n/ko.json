@@ -1,0 +1,107 @@
+{
+  "page": {
+    "calc": "계산식 확인기",
+    "hunting": "사냥 계산기",
+    "viewer": "스탯 모아 보기",
+    "guide": "계산기 값 찾는 곳"
+  },
+  "common": {
+    "help": "값 찾는 곳 안내",
+    "invalidGameNumber": "읽을 수 없는 값입니다. 게임 화면 그대로 입력하세요 (예: 5.14N%)"
+  },
+  "calc": {
+    "groups": {
+      "summary": "종합",
+      "hero": "히어로",
+      "growth": "성장",
+      "equipment": "장비",
+      "card": "몬스터 카드",
+      "pet": "펫",
+      "collection": "수집·기타",
+      "battle": "버프·프로필"
+    },
+    "intro": "콘텐츠마다 게임 화면에 보이는 레벨이나 값을 넣으세요. 넣은 값은 이 기기에 저장됩니다.",
+    "loadFailed": "스탯 설명 문구를 불러오지 못했습니다. 스탯 이름으로 표시합니다.",
+    "tableLoadFailed": "수치표를 불러오지 못했습니다.",
+    "artifact": {
+      "title": "연성 능력치 합계",
+      "help": "연성 화면 '능력치 합계' 목록 값 그대로 입력합니다 (누적 값). 게임 목록과 같은 순서로 적습니다. 명중은 계산식에서 빼므로 비워 두어도 됩니다. ① 표시가 붙은 유니크 옵션 7개 (무자비·매직 가드·연타·슈퍼 치명타·관통·스위칭 부스트·스킬 콤보) 는 장비끼리 더한 값입니다. 목록에 없는 옵션은 비워 둡니다.",
+      "sources": {
+        "artifactTotalAtk": "능력치 합계: 공격력 증가",
+        "artifactTotalHp": "능력치 합계: 체력 증가",
+        "artifactTotalSmite": "능력치 합계: 무자비",
+        "artifactTotalBarrier": "능력치 합계: 매직 가드",
+        "artifactTotalDoubleAttack": "능력치 합계: 연타",
+        "artifactTotalSuperCritical": "능력치 합계: 슈퍼 치명타",
+        "artifactTotalSpearAttack": "능력치 합계: 관통",
+        "artifactTotalSwitchingBoost": "능력치 합계: 스위칭 부스트",
+        "artifactTotalSkillCombo": "능력치 합계: 스킬 콤보",
+        "artifactTotalCharSkill": "능력치 합계: 전용 스킬 데미지 증가",
+        "artifactTotalChangeSkill": "능력치 합계: 교체 스킬 데미지 증가",
+        "artifactTotalCritDmg": "능력치 합계: 치명타 데미지 증가",
+        "artifactTotalBuffSkill": "능력치 합계: 버프 스킬 데미지 증가",
+        "artifactTotalActiveSkill": "능력치 합계: 액티브 스킬 데미지 증가",
+        "artifactTotalNormal": "능력치 합계: 일반 몬스터에게 주는 데미지 증가",
+        "artifactTotalBoss": "능력치 합계: 보스 몬스터에게 주는 데미지 증가",
+        "artifactTotalHero": "능력치 합계: 히어로 몬스터에게 주는 데미지 증가"
+      },
+      "fields": {
+        "artifactTotalAtk": { "label": "공격력 증가", "example": "예: 5.14N%" },
+        "artifactTotalHp": { "label": "체력 증가", "example": "예: 4.9N%" },
+        "artifactTotalSmite": { "label": "무자비", "example": "예: 81.82%" },
+        "artifactTotalBarrier": { "label": "매직 가드", "example": "예: 24.57%" },
+        "artifactTotalDoubleAttack": { "label": "연타", "example": "예: 24.55%" },
+        "artifactTotalSuperCritical": { "label": "슈퍼 치명타", "example": "예: 16.26%" },
+        "artifactTotalSpearAttack": { "label": "관통", "example": "예: 25.13%" },
+        "artifactTotalSwitchingBoost": { "label": "스위칭 부스트", "example": "예: 16.44%" },
+        "artifactTotalSkillCombo": { "label": "스킬 콤보", "example": "예: 8.37%" },
+        "artifactTotalCharSkill": { "label": "전용 스킬 데미지 증가", "example": "예: 14.1A%" },
+        "artifactTotalChangeSkill": { "label": "교체 스킬 데미지 증가", "example": "예: 14.1A%" },
+        "artifactTotalCritDmg": { "label": "치명타 데미지 증가", "example": "예: 14.1A%" },
+        "artifactTotalBuffSkill": { "label": "버프 스킬 데미지 증가", "example": "예: 14.1A%" },
+        "artifactTotalActiveSkill": { "label": "액티브 스킬 데미지 증가", "example": "예: 14.1A%" },
+        "artifactTotalNormal": { "label": "일반 몬스터에게 주는 데미지 증가", "example": "예: 14.1A%" },
+        "artifactTotalBoss": { "label": "보스 몬스터에게 주는 데미지 증가", "example": "예: 14.1A%" },
+        "artifactTotalHero": { "label": "히어로 몬스터에게 주는 데미지 증가", "example": "예: 14.1A%" }
+      }
+    }
+  },
+  "account": {
+    "open": "공통 입력",
+    "title": "공통 입력 (VIP·길드·요정)",
+    "description": "여러 계산기가 같이 쓰는 값입니다. 한 번 입력하면 모든 페이지에 적용됩니다.",
+    "vipLevel": "VIP 레벨",
+    "guildLevel": "길드 레벨",
+    "fairyLevel": "요정의 유대 레벨",
+    "guildSkill": "길드 스킬 (스테이지 경험치·골드·정수 1~5)",
+    "fairyOn": "요정의 축복 켜짐",
+    "guildSkillRow": "스킬 {{number}} (레벨당 +{{percent}}%)",
+    "guildSkillLocked": "길드 레벨 {{level}}부터 길드 스킬이 열립니다."
+  },
+  "hunting": {
+    "intro": "오프라인 보상을 받는 층과 직접 사냥할 층을 비교해, 직접 사냥이 이득이 되려면 분당 몇 마리를 잡아야 하는지 층마다 보여 줍니다.",
+    "accountHint": "VIP·길드·요정 값은 위쪽 '공통 입력'에서 입력합니다.",
+    "offlineTitle": "오프라인",
+    "adOn": "광고 시청",
+    "offlinePackageOn": "오프라인 보상 증가 패키지",
+    "offlineFloor": "오프라인 보상을 받는 층",
+    "otherAlways": "출처를 모르는 상시 보너스 % (경험치·골드)",
+    "onlineTitle": "직접 사냥 보너스",
+    "food": "요리",
+    "foodNone": "없음",
+    "eventOn": "이벤트 +100%",
+    "packageOn": "패키지 +100%",
+    "scanTitle": "검사할 직접 사냥 층",
+    "lowestProfitableFloor": "{{resource}}: 분당 {{kills}}마리를 잡으면 {{floor}}층까지 내려가도 이득입니다.",
+    "noProfitableFloor": "{{resource}}: 분당 {{kills}}마리로는 오프라인보다 이득인 층이 없습니다.",
+    "scanStep": "간격",
+    "myKills": "내가 잡는 분당 처치 수 (선택)",
+    "resultTitle": "층별 필요한 분당 처치 수",
+    "floor": "층",
+    "resource": { "exp": "경험치", "gold": "골드", "ess": "정수" },
+    "offlineSummary": "오프라인 효율: 분당 {{kills}}마리",
+    "tooManyRows": "층이 너무 많아 처음 {{limit}}줄만 보여 줍니다. 간격을 늘려 주세요.",
+    "loading": "층별 보상 표를 불러오는 중입니다.",
+    "loadFailed": "층별 보상 표를 불러오지 못했습니다."
+  }
+}

@@ -70,6 +70,15 @@ export const SUMMARY_CONSTS = {
     BARRIER: 'barrier',
     BARRIER_ADD: 'barrierAddVal',
   },
+  /**
+   * 성별 공격력 % (히어로 성별에 맞는 것만 공격력 증가에 들어감): Character 표 gender 1 = 남 → 0x1c2 `_per_Male_AttackDamage`,
+   * 2 = 여 → 0x1c3 `_per_Female_AttackDamage` (묶음 A m2708 이 대상 유닛 성별이 1 / 2 일 때만 수용, 분기 확정 · 이름 대응 유력 —
+   * atk-gap-remaining-scope.md 2절). 값은 영혼 단조 표의 두 이름 (SoulForge statType) 으로 들어옴
+   */
+  GENDER_ATTACK_STATS: {
+    '1': '_per_Male_AttackDamage',
+    '2': '_per_Female_AttackDamage',
+  } as Record<string, string>,
   /** 직업·속성 변형 꼬리말 */
   VARIANT_SUFFIXES: {
     ATTACK: 'AttackDamage',

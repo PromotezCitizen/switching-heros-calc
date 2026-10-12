@@ -9,6 +9,7 @@ import { heroFirstRow, heroGradeChoices, heroStarChoices, resolveChoice } from '
 import { HeroImage } from '../sources/hero/HeroPicker';
 import { exclusiveWeapons, rosterHeroes, type ExclusiveWeapon, type RosterHero } from '../sources/hero/roster';
 import {
+  exclusiveMissionReceivedStarField,
   exclusiveOwnedLevelField,
   exclusiveOwnedStarField,
   rosterAffinityField,
@@ -159,17 +160,28 @@ interface ExclusiveWeaponRowProps {
   /** 칸 값 (초월 ★ · 강화 레벨) */
   star: string | undefined;
   level: string | undefined;
+  /** 받은 초월 미션 ★ (비어 있으면 초월 ★ 까지 받은 것으로 침) */
+  missionStar: string | undefined;
   tables: StatTables;
   setValue: TabPanelProps['setValue'];
 }
 
 /** 전용 무기 표 한 줄 (memo: 칸 하나를 바꾸면 그 줄만 다시 그린다) */
-const ExclusiveWeaponRow = memo(function ExclusiveWeaponRow({ weapon, owner, star, level, tables, setValue }: ExclusiveWeaponRowProps) {
+const ExclusiveWeaponRow = memo(function ExclusiveWeaponRow({
+  weapon,
+  owner,
+  star,
+  level,
+  missionStar,
+  tables,
+  setValue,
+}: ExclusiveWeaponRowProps) {
   const { t: translate } = useTranslation();
   const ownerName = owner?.name ?? translate('calc.exclusiveWeapon.unknownOwner', { id: weapon.weaponId });
   const starField = exclusiveOwnedStarField(weapon.weaponId);
   const owned = !!star;
   const levelField = exclusiveOwnedLevelField(weapon.weaponId);
+  const missionStarField = exclusiveMissionReceivedStarField(weapon.weaponId);
   return (
     <Table.Tr style={{ opacity: owned ? undefined : CONSTS.heroWeaponCardPet.ui.UNUSED_OPACITY }}>
       <Table.Td>
@@ -207,6 +219,22 @@ const ExclusiveWeaponRow = memo(function ExclusiveWeaponRow({ weapon, owner, sta
           onChange={(next) => setValue(levelField, String(next))}
         />
       </Table.Td>
+      <Table.Td>
+        {/* 받은 초월 미션 ★: 비워 두면 초월 ★ 까지 받은 것으로 계산 */}
+        <NumberInput
+          size="xs"
+          w={NUMBER_WIDTH}
+          hideControls
+          min={0}
+          max={weapon.maxStar}
+          allowNegative={false}
+          allowDecimal={false}
+          placeholder={star ?? ''}
+          aria-label={translate('calc.exclusiveWeapon.missionStarLabel', { name: ownerName })}
+          value={missionStar ?? ''}
+          onChange={(next) => setValue(missionStarField, String(next))}
+        />
+      </Table.Td>
     </Table.Tr>
   );
 });
@@ -231,6 +259,7 @@ export function ExclusiveWeaponRosterPanel({ values, setValue, tables }: TabPane
             <Table.Th>{translate('calc.exclusiveWeapon.owner')}</Table.Th>
             <Table.Th>{translate('calc.exclusiveWeapon.star')}</Table.Th>
             <Table.Th>{translate('calc.exclusiveWeapon.level')}</Table.Th>
+            <Table.Th>{translate('calc.exclusiveWeapon.missionStar')}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -241,6 +270,7 @@ export function ExclusiveWeaponRosterPanel({ values, setValue, tables }: TabPane
               owner={heroById.get(weapon.charId)}
               star={values[exclusiveOwnedStarField(weapon.weaponId)]}
               level={values[exclusiveOwnedLevelField(weapon.weaponId)]}
+              missionStar={values[exclusiveMissionReceivedStarField(weapon.weaponId)]}
               tables={tables}
               setValue={setValue}
             />

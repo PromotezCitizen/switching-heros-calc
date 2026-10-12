@@ -17,6 +17,23 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
   CORE_RUNE_KEY: 'core',
   /** 속성 룬 레벨 상한 = (코어 룬 레벨 + 1) × 이 값 (게임 화면 규칙, 기존 HTML 550) */
   ATTRIBUTE_RUNE_LEVELS_PER_CORE: 10,
+  /**
+   * 속성 룬 연구실 (제공자 T1262 m6782 (다), stat-provider-formulas.md 3-3절): 속성 (불 · 물 · 땅) 마다 연구실 레벨 (사전에 없으면 1) 로
+   * 표 Lab 의 (속성, 레벨) 행 하나를 찾아 그 행의 보상 스탯 · 값을 한 번 넣는다 (누적 값이라 낮은 레벨 행을 더하지 않음, 레벨 1 행은 보상 없음).
+   * 연구실 해금 (ContentsUnlock 82, 조건 RuneMax) 판정은 따라가지 않아 레벨을 넣은 속성만 계산한다 (표 열 대응은 유력).
+   * 칸 이름 = 접두사 + 속성 (runeLab_Fire), 비어 있음 = 입력 전 (계산하지 않음)
+   */
+  LAB: {
+    TABLE: 'AttributeRuneLab',
+    ATTRIBUTES: ['Fire', 'Water', 'Earth'],
+    FIELD_PREFIX: 'runeLab_',
+    ATTRIBUTE_COLUMN: 'attType',
+    LEVEL_COLUMN: 'lv',
+    STAT_COLUMN: 'rwdStat',
+    VALUE_COLUMN: 'rwdValue',
+    /** 레벨 입력 칸 폭 (px) */
+    INPUT_WIDTH: 120,
+  },
   /** 룬 아이콘 (public/icons/Atlas_AttributeRune/): 속성 룬 슬롯 n = ICON_rune<n + 1>, 코어 = ICON_center_rune */
   RUNE_ICON_PREFIX: 'ICON_rune',
   RUNE_ICON_SLOT_OFFSET: 1,
@@ -151,6 +168,45 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     CRITICAL_RATE: 'criticalRate',
     /** 스킬 콤보 4중첩 "다음 액티브 스킬의 최종 데미지" 를 넣는 스탯 (액티브 스킬 데미지 특성 23 과 같은 이름, 붙는 자리 추정) */
     ACTIVE_SKILL_PERCENT: '_per_ActiveSkillDamage',
+    /** 치명타 데미지 합 계열 (스탯 0x15, 기본 120 에 더함) */
+    CRITICAL_DAMAGE_SUM: 'criticalDmg',
+    /** 특성 204 관통의 맹공: 관통 발동 시 3초간 공격속도 % (복리 10중첩) */
+    SPEAR_ATTACK_SPEED_UP: 'spearAttackToAtkSpdUp',
+    /** 특성 13 추진력: 값은 발동 확률이고 공격속도에는 고정 +50 이 반영된다 */
+    DOUBLE_ATTACK_SPEED_UP: 'doubleAttackSpdUp',
+    /** 특성 9 야성 강화: 광폭화 중 공격속도 % */
+    BERSERK_ADD_SPEED: 'berserkAddSpd',
+    /** 특성 58 우격다짐: 무자비 발동 시 3초간 공격속도 % */
+    SMITE_ADD_SPEED: 'smiteAddSpd',
+    /** 특성 309 약점 사냥: 무자비 발동 시 3초간 치명타 확률 % (복리 10중첩) */
+    SMITE_CRITICAL_RATE_UP: 'smiteToCriticalRateUp',
+    /** 특성 109 연쇄 작렬: 슈퍼 치명타 발동 시 치명타 데미지 % (복리 10중첩, 치명타 데미지 합 C 에 더함) */
+    SUPER_CRITICAL_CHAIN: 'superCriticalToDmgUp2',
+    /** 특성 63 흘러넘치는 체력: 체력이 가득이면 공격력 % */
+    BARRIER_FULL_DAMAGE: 'barrierAddDmgFull',
+    /** 특성 108 한계 돌파: 슈퍼 치명타 100% 초과 후 10% 마다 공격력 % */
+    SUPER_CRITICAL_OVER_DAMAGE: 'superCriticalToDmgUp1',
+    /** 특성 202 초과된 힘: 관통 100% 초과 시 공격력 % */
+    SPEAR_ATTACK_OVER_DAMAGE: 'spearAttackToDmgUp1',
+    /** 특성 307 무자비 폭주: 무자비 100% 초과 시 공격력 % (대상 상태이상 조건은 넣지 않음, 사용자 결정) */
+    SMITE_OVER_DAMAGE: 'smiteToDmgUp1',
+  },
+  /**
+   * 전투 중 최대 상태 몫 (사용자 결정: 중첩·켜짐은 최대 상태, 입력 칸 없음).
+   * 식 근거: combat0113.py 44~149 (기계어 정리 x10101-1057-gamecode.md 2절, crit-dmg-atkspeed-gamecode.md), 화면 4시점 일치 확인
+   */
+  BATTLE: {
+    /** 복리 중첩 수: 204 (공격속도)·309 (치명타 확률)·109 (치명타 데미지) 모두 최대 10중첩 (특성 설명문) */
+    COMPOUND_STACKS: 10,
+    /** 추진력 13 이 올리는 공격속도 % (설명문 "공격속도 +50%". 표 값 100 은 발동 확률. 식 코드는 못 읽었고 화면 일치로 정함) */
+    DOUBLE_ATTACK_SPEED_UP_PERCENT: 50,
+    /** 관통이 이 % 를 넘으면 초과된 힘 202 */
+    SPEAR_ATTACK_THRESHOLD: 100,
+    /** 무자비가 이 % 를 넘으면 무자비 폭주 307 */
+    SMITE_THRESHOLD: 100,
+    /** 슈퍼 치명타가 이 % 를 넘은 만큼, 넘은 이 % 마다 한계 돌파 108 한 단계 */
+    SUPER_CRITICAL_OVER_THRESHOLD: 100,
+    SUPER_CRITICAL_OVER_STEP: 10,
   },
   /** 직업·속성 공격속도 스탯 = 직업 + 이 글, 속성 + 이 글 (예: Archer_AttackSpeed, WaterHero_AttackSpeed) */
   JOB_ATTACK_SPEED_SUFFIX: '_AttackSpeed',
@@ -179,7 +235,7 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
   /**
    * 공격력 이벤트 버프 (서버 표 Item itemId 15 = ItemBuffStageAtk, double1 = 200 %, double2 = 60분, 이름 "공격력 버프").
    * 음식이 아니라 이벤트 구매 버프라 음식과 같이 켜진다 (사용자 확인). 표 string1 이 비어 있어 붙는 스탯은 표에 없음:
-   * 공격력 % 로 넣는 것은 추정 (02:48 저장 ×3, gap-atk-increase-provider.md 5절)
+   * 공격력 % 로 넣는 것은 02:48 저장 ×3 (gap-atk-increase-provider.md 5절) 과 2026-10-12 01:54 공격력 증가 화면 일치로 확인
    */
   ATTACK_EVENT_BUFF: { itemId: 15, stat: '_per_attackDamage', percent: 200 },
 

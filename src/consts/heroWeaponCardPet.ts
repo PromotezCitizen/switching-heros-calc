@@ -87,8 +87,36 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     GRADE_ORDER: ['B', 'A', 'S', 'SS', 'SSS', 'R', 'SR', 'SSR', 'UR', 'URP', 'UUR', 'XR', 'XRP', 'LR', 'LRP', 'IR'] as readonly string[],
     /** 스탯 꼬리말: SSS 카드 장착 수만큼 곱함 */
     SSS_CARD_COUNT_SUFFIX: '_SSSMonsterCardCnt',
-    /** 스탯 꼬리말: 전투 조건 효과 (처치 중첩·주위 적 수) — 합산에서 뺌 */
+    /**
+     * 스탯 꼬리말 → 그 등급 이상 카드 장착 수만큼 곱함 (게임 m2688 @33ec108 이 장착 카드의 등급 번호가 > 6 / > 7 / > 10 / > 11 / > 13 / > 15 인 장수를 세어
+     * 0x54~ 의 6개 이름에 1 + (v − 1) × 장수 로 곱함: SSS=7, R=8, UR=11, URP=12, XR=14, LR=16. 별 무관.
+     * SSS 는 확정, 나머지 5개 등급 번호 대응은 문턱 순서와 이름 순서가 같다는 근거의 유력 — work_collect/README.md 1-1, functions.md m2688, stat-ids.md 548행)
+     */
+    CARD_COUNT_SUFFIX_GRADES: {
+      _SSSMonsterCardCnt: 'SSS',
+      _RMonsterCardCnt: 'R',
+      _URMonsterCardCnt: 'UR',
+      _URPMonsterCardCnt: 'URP',
+      _XRMonsterCardCnt: 'XR',
+      _LRMonsterCardCnt: 'LR',
+    } as Record<string, string>,
+    /**
+     * 스탯 꼬리말: 전투 조건 효과 — 합산에서 뺌 (처치 중첩 `_per_attackDamage_Kill` 은 아래 KILL_STAT 으로 따로 합산).
+     * 그 밖의 조건 이름 (_HeroSwap·_MonsterCntShort·_BossTimeShort·_NearSingleEnemy·_StageBoss·_MyHp70Long 공격력, attackSpeed_Kill·criticalRate_Kill)
+     * 은 기계어 정리 문서에 식이 없어 읽지 않은 코드로 남김 (합산에서 뺀 채)
+     */
     BATTLE_CONDITION_SUFFIXES: ['_Kill', '_MonsterCntLong'],
+    /**
+     * 카드 2번 처치 중첩 (T410 m2276 @33d1320): 컨테이너의 `_per_attackDamage_Kill` 값 v 를 최대 5중첩 선형으로 공격력 % 에 넣는다
+     * (1 + (v − 1) × 5, 사용자 결정: 최대 상태). 값 140 → ×8
+     */
+    KILL_STAT: '_per_attackDamage_Kill',
+    KILL_MAX_STACKS: 5,
+    /** 카드 3번 스킬 사용 중첩 (T410 m2308 @33ce078): 합 계열 `attackDamage_useSkill` 값 v % 를 최대 5중첩 선형으로 공격력 % 에 넣는다. 값 160 → ×9 */
+    USE_SKILL_STAT: 'attackDamage_useSkill',
+    USE_SKILL_MAX_STACKS: 5,
+    /** 최종 공격력 증가에 넣는 스탯 (0x61) */
+    ATTACK_PERCENT_STAT: '_per_attackDamage',
     /** 스탯 꼬리말: 주위 적 수 조건 효과. 종합 탭 "적 수 5 이상" 을 켜면 이 꼬리말을 뗀 일반 스탯으로 합산 (유력, gap-atk-increase-provider.md 4-5) */
     ENEMY_COUNT_SUFFIX: '_MonsterCntLong',
   },
@@ -103,6 +131,28 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     /** 상태이상 리더 효과의 스탯 앞부분 (스탯이 아니라 문구만) */
     AILMENT_LEADER_PREFIX: 'pet_hero_',
     THUMBNAIL_PREFIX: 'Atlas_Pet/Pet_thum_',
+    /**
+     * 펫 지역 (제공자 T1286 m6886 @3072ddc, stat-provider-formulas.md 3-16절 · combat-power-petregion-gamecode.md 3절):
+     * 마지막 단계 (표에 다음 레벨 행이 없는) 보유 펫이 UNLOCK_PET_COUNT 마리 이상일 때만 열리고, 열리면 지역 3개를 모두 합산한다.
+     * 지역 하나 = 공격력 % · 체력 % 에 각각 표 PetRegion 의 지역 레벨 행 traitAtk · traitHp × (1 + f).
+     * f = 그 지역 속성의 마지막 단계 펫 수 N 으로 Option 표 PET_PLACEMENT_PER_<N> (N > 6 이면 6) ÷ 100, N = 0 이면 0 (f 의 식은 유력).
+     * 지역 번호 ↔ 속성 = 1 불 · 2 물 · 3 땅 (m2692 의 이름 순서, 유력). 오라 슬롯 효과는 장착 오라를 몰라 넣지 않음
+     */
+    REGION: {
+      TABLE: 'PetRegion',
+      LEVEL_COLUMN: 'regionLv',
+      ATTACK_COLUMN: 'traitAtk',
+      HP_COLUMN: 'traitHp',
+      ATTRIBUTES: ['Fire', 'Water', 'Earth'],
+      UNLOCK_PET_COUNT: 1,
+      PLACEMENT_TABLE: 'Option',
+      PLACEMENT_KEY_PREFIX: 'PET_PLACEMENT_PER_',
+      PLACEMENT_KEY_COLUMN: 'key',
+      PLACEMENT_VALUE_COLUMN: 'valueDouble1',
+      PLACEMENT_MAX_COUNT: 6,
+      ATTACK_STAT: '_per_attackDamage',
+      HP_STAT: '_per_hp',
+    },
   },
 
   /** 속성 아이콘 (던전 속성 아이콘 D1 불·D2 물·D3 땅) */
@@ -123,9 +173,13 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     /** 한 줄로 놓는 편성 칸 하나의 폭 (px). 6칸이 칸 폭을 넘치면 가로 스크롤 */
     CARD_SLOT_WIDTH: 200,
     PET_SLOT_WIDTH: 260,
+    /** 펫 지역 레벨 칸 하나의 폭 (px) */
+    REGION_INPUT_WIDTH: 150,
     /** 웨폰 링크 직업 카드 최소 폭 (넓으면 4개 한 줄) · 레벨 칸 폭 (px) */
     LINK_CARD_MIN_WIDTH: 150,
     LINK_LEVEL_INPUT_WIDTH: 72,
+    /** 일반 무기 강화 레벨 칸 하나의 최소 폭 (px) */
+    NORMAL_WEAPON_INPUT_MIN_WIDTH: 90,
     /** 히어로의 기록 책 카드 최소 폭 (사용자 지정 160) */
     BOOK_CARD_MIN_WIDTH: 160,
     /** 쓰지 않는 칸·미보유 카드의 흐림 정도 */

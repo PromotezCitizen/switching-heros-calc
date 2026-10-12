@@ -68,6 +68,32 @@ export function maxNormalWeaponLevelSum(tables: StatTables, job: string): number
     .reduce((sum: number, row) => sum + Number(row.maxLv), EMPTY_LEVEL);
 }
 
+/** 일반 무기 한 개의 실제 강화 레벨을 넣는 칸 (무기 탭, 칸 이름 = 접두사 + 무기 번호 weaponId) */
+export const NORMAL_WEAPON_LEVEL_FIELD_PREFIX = 'normalWeaponLevel_';
+export function normalWeaponLevelFieldId(weaponId: string): string {
+  return `${NORMAL_WEAPON_LEVEL_FIELD_PREFIX}${weaponId}`;
+}
+
+/**
+ * 일반 무기 한 개의 강화 레벨. 칸이 비어 있으면 최대 레벨 (사용자 결정 "전부 최대 레벨" 가정을 칸이 비었을 때 그대로 씀),
+ * 값을 넣으면 그 값 (0 ~ 최대 레벨, 소수 버림)
+ */
+export function normalWeaponLevel(values: CalcValues, row: TableRow): number {
+  const maxLevel = Number(row.maxLv);
+  const text = values[normalWeaponLevelFieldId(row.weaponId)];
+  if (text === undefined || String(text).trim() === '') return maxLevel;
+  return Math.min(Math.max(Math.floor(Number(text) || EMPTY_LEVEL), EMPTY_LEVEL), maxLevel);
+}
+
+/** 직업 일반 무기 합산 레벨 = 그 직업 일반 무기 강화 레벨 합 (게임 m2690. 칸이 빈 무기는 최대 레벨로 침) */
+export function normalWeaponLevelSum(values: CalcValues, tables: StatTables, job: string): number {
+  const table = tables[WEAPON_JOB_TABLE];
+  if (!table) return EMPTY_LEVEL;
+  return tableRows(table)
+    .filter((row) => row.job === job)
+    .reduce((sum: number, row) => sum + normalWeaponLevel(values, row), EMPTY_LEVEL);
+}
+
 export function relicLinkFieldId(field: string): string {
   return `relicLink_${field}`;
 }
@@ -162,7 +188,7 @@ export function relicMultiplier(
   if (linkField?.startsWith(WEAPON_LEVEL_LINK_PREFIX)) {
     // 서버 문구는 "합산 레벨 10당" 이지만 게임 코드 m2690 은 합을 100 으로 나눈 몫 (gap-atk-increase-provider.md 4-4)
     const job = linkField.slice(WEAPON_LEVEL_LINK_PREFIX.length);
-    return Math.floor(maxNormalWeaponLevelSum(tables, job) / WEAPON_LEVEL_DIVISOR);
+    return Math.floor(normalWeaponLevelSum(values, tables, job) / WEAPON_LEVEL_DIVISOR);
   }
   if (linkField && linkField in ROSTER_COUNT_LINKS) {
     let count = rosterCounts.get(linkField);
@@ -183,12 +209,15 @@ export function relicMultiplier(
   return null;
 }
 
-/** 연동 유물이 실제로 올리는 스탯 (예: _relic_rune_dmg_1 → 공격력 %, 직업 무기 레벨 → 그 직업 공격력 %) */
+/**
+ * 연동 유물이 실제로 올리는 스탯 (예: _relic_rune_dmg_1 → 공격력 %).
+ * 직업 일반 무기 합산 레벨 유물 (99·100·101·102) 은 4직업 모두 공격력 % (`_per_attackDamage`) 에 곱한다:
+ * 게임 m2690 이 직업마다 `_per_<직업>_HaveWeaponsLv100` 값 v 로 1 + (v − 1) × N 을 0x61 에 곱함 (x10101-1057-gamecode.md 2절, 대상이 직업이 아님)
+ */
 export function relicTargetStat(stat: string): string {
   if (/^_relic_\w+_dmg(_\d)?$/.test(stat)) return '_per_attackDamage';
   if (/^_relic_\w+_hp(_\d)?$/.test(stat)) return '_per_hp';
-  const weaponMatch = /^_per_(\w+)_HaveWeaponsLv100$/.exec(stat);
-  if (weaponMatch) return `_per_${weaponMatch[1]}_AttackDamage`;
+  if (/^_per_(\w+)_HaveWeaponsLv100$/.test(stat)) return '_per_attackDamage';
   const plainMatch = /^(_per_(?:attackDamage|hp|hit))_\w+$/.exec(stat);
   if (plainMatch) return plainMatch[1];
   return stat;

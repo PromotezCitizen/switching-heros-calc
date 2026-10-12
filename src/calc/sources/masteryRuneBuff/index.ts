@@ -12,8 +12,10 @@ import RunePanel from '../../panels/RunePanel';
 import type { StatTables } from '../../../data/statTables';
 import type { Line } from '../../combine';
 import type { CalcTab, CalcValues, TabPanelProps } from '../../types';
-import { equippedSkillTypeCounts } from '../skill/skill';
+import { cardStackLines } from '../heroWeaponCardPet/card';
+import { equippedSkillTypeCounts, skillOptionLines } from '../skill/skill';
 import { awakenDetailLines } from './awakenDetail';
+import { battleDamageLines, chancesWithBattleState } from './battleState';
 import { summaryTarget } from '../summary/summary';
 import {
   buffLines,
@@ -25,9 +27,9 @@ import {
   stackLines,
   superCriticalStrikeLines,
 } from './buff';
-import { chancesFromLines, chanceUltimateLines } from './chances';
+import { chanceUltimateLines } from './chances';
 import { masteryLines } from './mastery';
-import { runeLines } from './rune';
+import { runeLabLines, runeLines } from './rune';
 import type { SourceLabel } from './sourceLabel';
 import {
   equippedPetIds,
@@ -78,9 +80,12 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
     },
     {
       id: 'rune',
-      tableNames: ['AttributeRune'],
+      tableNames: ['AttributeRune', CONSTS.masteryRuneBuff.LAB.TABLE],
       Panel: RunePanel,
-      lines: (values, tables) => (tables.AttributeRune ? runeLines(values, tables.AttributeRune, translateSource) : []),
+      lines: (values, tables) => [
+        ...(tables.AttributeRune ? runeLines(values, tables.AttributeRune, translateSource) : []),
+        ...runeLabLines(values, tables, translateSource),
+      ],
     },
     {
       id: 'awakenDetail',
@@ -103,15 +108,23 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
           ...exclusiveStackBuffLines(values, translateSource, tables),
           ...finalAttackMultiplierLines(values, translateSource, tables),
         ];
-        if (!tables.Mastery) return [...foodLines, ...multiplierLines];
+        // 다발 화살 252 옵션 (적중마다 공격력 % 최대 5중첩) 도 전투 중 몫이라 버프 탭 줄이다
+        const optionLines = skillOptionLines(values, translateSource);
+        if (!tables.Mastery) return [...foodLines, ...multiplierLines, ...optionLines];
         const otherLines = otherTabLines(values, tables);
-        const chances = chancesFromLines(otherLines, values, tables);
+        // 전투 중 최대 상태 공격속도·치명타 확률·치명타 데미지 줄이 연타·슈퍼 치명타 단계 계산에 먼저 들어간다
+        const { chances, battleLines } = chancesWithBattleState(otherLines, values, tables, tables.Mastery, translateSource);
         return [
+          ...battleLines,
           ...buffLines(values, tables.Mastery, translateSource, chances.doubleAttack),
           ...stackLines(values, tables.Mastery, translateSource, chances.doubleAttack, chances.skillCombo),
+          ...battleDamageLines(values, tables.Mastery, translateSource, chances),
+          // 카드 2번·3번 전투 중 중첩 (최대 5중첩): 다른 탭 줄에 남아 있는 카드 줄에서 읽는다
+          ...cardStackLines(otherLines, translateSource),
           ...chanceUltimateLines(values, tables.Mastery, chances, translateSource),
           ...superCriticalStrikeLines(values, tables.Mastery, translateSource, chances.superCritical),
           ...onAttackBuffLines(otherLines, summaryTarget(values), translateSource),
+          ...optionLines,
           ...multiplierLines,
           ...foodLines,
         ];

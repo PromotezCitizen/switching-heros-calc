@@ -2,6 +2,7 @@ import { artifactTab } from './sources/artifactTab';
 import { heroTabs } from './sources/hero';
 import { heroWeaponCardPetTabs } from './sources/heroWeaponCardPet';
 import { masteryRuneBuffTabs } from './sources/masteryRuneBuff';
+import { providerTabs } from './sources/providers';
 import { skillTab } from './sources/skill';
 import { SUMMARY_TAB_ID, summaryTab } from './sources/summary';
 import { textLinesTabs } from './sources/textLines';
@@ -16,7 +17,7 @@ const BUFF_TAB_ID = 'buff';
 
 /** 특성·룬·버프 묶음 앞뒤의 탭 (버프 탭이 이 탭들의 표를 같이 불러 줄을 계산한다) */
 const TABS_BEFORE_BUFF_GROUP: CalcTab[] = [...heroTabs, artifactTab, ...trainingRelicTabs];
-const TABS_AFTER_BUFF_GROUP: CalcTab[] = [...heroWeaponCardPetTabs, skillTab, ...textLinesTabs];
+const TABS_AFTER_BUFF_GROUP: CalcTab[] = [...heroWeaponCardPetTabs, skillTab, ...textLinesTabs, ...providerTabs];
 
 /**
  * 계산식 확인기에 나오는 콘텐츠 탭 목록 (화면 순서).

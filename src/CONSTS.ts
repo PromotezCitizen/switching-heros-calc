@@ -2,6 +2,7 @@
 import { HERO_CONSTS } from './consts/hero';
 import { HERO_WEAPON_CARD_PET_CONSTS } from './consts/heroWeaponCardPet';
 import { MASTERY_RUNE_BUFF_CONSTS } from './consts/masteryRuneBuff';
+import { PROVIDER_CONSTS } from './consts/providers';
 import { SKILL_CONSTS } from './consts/skill';
 import { SUMMARY_CONSTS } from './consts/summary';
 import { TEXT_LINES_CONSTS } from './consts/textLines';
@@ -16,6 +17,7 @@ export const CONSTS = {
   heroWeaponCardPet: HERO_WEAPON_CARD_PET_CONSTS,
   skill: SKILL_CONSTS,
   summary: SUMMARY_CONSTS,
+  providers: PROVIDER_CONSTS,
 
   common: {
     PERCENT_DIVISOR: 100,
@@ -49,11 +51,15 @@ export const CONSTS = {
     ess: [14, 15, 22, 50],
   },
 
-  /** 요정의 축복 EXP·골드 % = min(최대, 기본 + 레벨당 × (레벨 − 1)) — 서버 표 AdsBuff buff3·buff4 */
+  /**
+   * 요정의 축복 EXP·골드 % = min(최대, 기본 + 레벨당 × (레벨 − 1)) — 서버 표 AdsBuff buff3·buff4.
+   * 사냥 보상에는 이 값이 TIMES 번 들어간다 (게임 보상 배율 함수가 제공자 컨테이너와 최종 컨테이너에서 두 번 읽음, hunting-always-bonus.md)
+   */
   fairy: {
     BASE_PERCENT: 25,
     PER_LEVEL_PERCENT: 0.1,
     MAX_PERCENT: 50,
+    TIMES: 2,
   },
 
   /** 길드 스킬 "스테이지 경험치·골드·정수 1~5": 스킬 n 은 레벨당 +2n%, 열리는 길드 레벨 unlock */
@@ -77,7 +83,6 @@ export const CONSTS = {
 
   /** 사냥 계산기 입력 기본값 */
   huntingDefaults: {
-    otherAlways: 50,
     offlineFloor: 7632,
     scanStep: 1,
     myKills: 0,

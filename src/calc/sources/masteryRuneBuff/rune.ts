@@ -4,12 +4,12 @@
  * 표가 커서 행 객체를 만들지 않고 열 번호로 한 번만 훑어 표마다 결과를 보관한다.
  */
 import { CONSTS } from '../../../CONSTS';
-import type { RawTable } from '../../../data/statTables';
+import { tableRows, type RawTable, type StatTables } from '../../../data/statTables';
 import type { Line } from '../../combine';
 import type { CalcValues } from '../../types';
 import type { SourceLabel } from './sourceLabel';
 
-const { RUNE_KEY_PREFIX, CORE_RUNE_KEY, ATTRIBUTE_RUNE_LEVELS_PER_CORE, MIN_LEVEL } = CONSTS.masteryRuneBuff;
+const { RUNE_KEY_PREFIX, CORE_RUNE_KEY, ATTRIBUTE_RUNE_LEVELS_PER_CORE, MIN_LEVEL, LAB } = CONSTS.masteryRuneBuff;
 /** 표에서 코어 룬의 slot 값 (빈칸) */
 const CORE_SLOT = '';
 
@@ -75,6 +75,35 @@ export function runeLevelLimit(rune: AttributeRune, values: CalcValues): number 
 
 export function runeName(rune: AttributeRune, sourceLabel: SourceLabel): string {
   return sourceLabel(`calc.rune.names.${rune.key}`, { defaultValue: rune.key });
+}
+
+/** 속성 룬 연구실 레벨 칸 이름 */
+export function runeLabField(attribute: string): string {
+  return `${LAB.FIELD_PREFIX}${attribute}`;
+}
+
+/**
+ * 속성 룬 연구실 줄: 레벨을 넣은 속성마다 표 Lab 의 (속성, 레벨) 행 하나의 보상 스탯 · 값 (게임 T1262 m6782 (다)).
+ * 레벨이 비었거나 0 이면 입력 전이라 줄 없음. 행에 보상이 없거나 (레벨 1) 표에 없으면 줄 없음
+ */
+export function runeLabLines(values: CalcValues, tables: StatTables, sourceLabel: SourceLabel): Line[] {
+  const table = tables[LAB.TABLE];
+  if (!table) return [];
+  const rows = tableRows(table);
+  const lines: Line[] = [];
+  for (const attribute of LAB.ATTRIBUTES) {
+    const level = Math.floor(Number(values[runeLabField(attribute)]) || MIN_LEVEL);
+    if (level < 1) continue;
+    const row = rows.find((record) => record[LAB.ATTRIBUTE_COLUMN] === attribute && Number(record[LAB.LEVEL_COLUMN]) === level);
+    const value = row ? Number(row[LAB.VALUE_COLUMN]) : 0;
+    if (!row || !row[LAB.STAT_COLUMN] || !value) continue;
+    lines.push({
+      source: sourceLabel('calc.rune.labSource', { attribute: sourceLabel(`calc.rune.labAttributes.${attribute}`), level }),
+      stat: row[LAB.STAT_COLUMN],
+      value,
+    });
+  }
+  return lines;
 }
 
 /** 레벨이 있는 룬마다 한 줄 (값은 log) */

@@ -1,6 +1,6 @@
 /**
  * 캐릭터 각성 탭: 히어로 선택 · 1슬롯 등급·성 · 캐릭터 각성 단계 · 기본값 확인.
- * 효과 줄 = 1슬롯 히어로 기본 공격속도·기본 치명타 확률·치명타 데미지 (character.ts, 치명타 둘은 추정) + 캐릭터 각성 한 줄 (계산은 textLines/other.ts heroAwakenLines).
+ * 효과 줄 = 1슬롯 히어로 기본 공격속도·기본 치명타 확률·치명타 데미지 (character.ts, 치명타 둘은 게임 코드의 기본 상수) + 캐릭터 각성 한 줄 (계산은 textLines/other.ts heroAwakenLines).
  * 히어로 이름은 다른 탭도 읽는다
  */
 import i18next from 'i18next';

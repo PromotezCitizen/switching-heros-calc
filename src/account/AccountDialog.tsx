@@ -12,6 +12,8 @@ const GUILD_LEVEL_OPTIONS = Array.from({ length: CONSTS.guild.SKILL_MAX_LEVEL + 
   value: String(level),
   label: String(level),
 }));
+/** 요정의 축복 값이 있는 자원 (정수는 요정 값이 없음) */
+const HUNTING_FAIRY_RESOURCES = RESOURCES.filter((resource) => resource !== 'ess');
 const FIRST_SKILL_UNLOCK = Math.min(...CONSTS.guild.SKILLS.map((skill) => skill.unlock));
 
 /** 여러 페이지가 같이 쓰는 계정 값 (VIP·길드·요정)을 한 곳에서 입력하는 창 */
@@ -40,6 +42,20 @@ export default function AccountDialog() {
               <NumberField storeKey={ACCOUNT_KEYS.fairyLevel} label={translate('account.fairyLevel')} />
               <FlagField storeKey={ACCOUNT_KEYS.fairyOn} label={translate('account.fairyOn')} defaultChecked />
             </Stack>
+          </SimpleGrid>
+          {/* 사냥 보상용 요정의 축복: 광고 제거면 경험치·골드 둘 다 상시, 아니면 칸마다 따로 켬 (정수는 요정 값 없음) */}
+          <Text fw={600} size="sm">
+            {translate('account.huntingFairy')}
+          </Text>
+          <SimpleGrid cols={{ base: 1, sm: 3 }}>
+            <FlagField storeKey={ACCOUNT_KEYS.adRemoved} label={translate('account.adRemoved')} hint={translate('account.adRemovedHint')} />
+            {HUNTING_FAIRY_RESOURCES.map((resource) => (
+              <FlagField
+                key={resource}
+                storeKey={ACCOUNT_KEYS.huntingFairyOn(resource)}
+                label={translate('account.huntingFairyOn', { resource: translate(`hunting.resource.${resource}`) })}
+              />
+            ))}
           </SimpleGrid>
           <Text fw={600} size="sm">
             {translate('account.guildSkill')}

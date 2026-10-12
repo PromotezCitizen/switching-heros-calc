@@ -16,9 +16,16 @@ const {
   SSS_GRADE,
   GRADE_ORDER,
   SSS_CARD_COUNT_SUFFIX,
+  CARD_COUNT_SUFFIX_GRADES,
   BATTLE_CONDITION_SUFFIXES,
   ENEMY_COUNT_SUFFIX,
+  KILL_STAT,
+  KILL_MAX_STACKS,
+  USE_SKILL_STAT,
+  USE_SKILL_MAX_STACKS,
+  ATTACK_PERCENT_STAT,
 } = CONSTS.heroWeaponCardPet.card;
+const PERCENT_DIVISOR = CONSTS.common.PERCENT_DIVISOR;
 
 export const CARD_SET_BONUS_FIELD = 'relicLink_cardSetBonus';
 export const CARD_SLOT_NUMBERS = Array.from({ length: SLOTS }, (_, index) => index + 1);
@@ -218,8 +225,20 @@ export function cardSlotGradeStars(values: CalcValues, tables: StatTables): Card
  * — claude-docs/app_dump/il2cpp_analysis/work_collect/README.md 1-1
  */
 export function sssCardCount(slotGradeStars: CardSlotGradeStar[]): number {
-  const sssRank = GRADE_ORDER.indexOf(SSS_GRADE);
-  return slotGradeStars.filter((slot) => GRADE_ORDER.indexOf(slot.grade) >= sssRank).length;
+  return cardCountAtLeast(slotGradeStars, SSS_GRADE);
+}
+
+/** 장착 카드 중 등급이 grade 이상인 칸 수 (별 무관, 편성 칸이 비었거나 맞는 행이 없으면 세지 않음) */
+export function cardCountAtLeast(slotGradeStars: CardSlotGradeStar[], grade: string): number {
+  const rank = GRADE_ORDER.indexOf(grade);
+  return slotGradeStars.filter((slot) => GRADE_ORDER.indexOf(slot.grade) >= rank).length;
+}
+
+/** "…MonsterCardCnt" 이름마다 쓰는 등급별 장착 수 (등급 → 그 등급 이상 장수) */
+export function cardCountsByGrade(slotGradeStars: CardSlotGradeStar[]): Record<string, number> {
+  return Object.fromEntries(
+    Object.values(CARD_COUNT_SUFFIX_GRADES).map((grade) => [grade, cardCountAtLeast(slotGradeStars, grade)]),
+  );
 }
 
 export interface ExpandedLines {
@@ -229,15 +248,18 @@ export interface ExpandedLines {
 }
 
 /**
- * 몬스터 카드 "SSS 카드 장착 수 × n%" (꼬리말 _SSSMonsterCardCnt) → 기본 스탯 + n × 장착 SSS 장수.
- * 처치 중첩 (_Kill)·주위 적 수 (_MonsterCntLong) 줄은 스탯 이름만 skippedStats 에 모은다 (줄은 그대로 돌려줌).
- * 단 enemyCountReached (적 수 5 이상 칸 켜짐, 처음 꺼짐) 면 _MonsterCntLong 줄은 꼬리말을 뗀 일반 스탯 줄로 바꿔 합산한다
+ * 몬스터 카드 "N 등급 이상 카드 장착 수 × n%" (꼬리말 _SSSMonsterCardCnt·_RMonsterCardCnt·_URMonsterCardCnt …) → 기본 스탯 + n × 그 등급 이상 장수.
+ * SSS 장수는 sssCards, 그 밖 등급 장수는 gradeCounts (등급 → 장수, cardCountsByGrade) 로 받는다.
+ * 주위 적 수 (_MonsterCntLong)·그 밖 전투 조건 줄은 스탯 이름만 skippedStats 에 모은다 (줄은 그대로 돌려줌).
+ * 단 enemyCountReached (적 수 5 이상 칸 켜짐, 처음 꺼짐) 면 _MonsterCntLong 줄은 꼬리말을 뗀 일반 스탯 줄로 바꿔 합산한다.
+ * 처치 중첩 (_per_attackDamage_Kill) 줄도 여기서는 그대로 두고 이름만 모은다 (전투 중 중첩이라 버프 탭이 cardStackLines 로 따로 넣는다)
  */
 export function countExpandedLines(
   lines: Line[],
   sssCards: number,
   label: SourceLabel,
   enemyCountReached = false,
+  gradeCounts: Record<string, number> = {},
 ): ExpandedLines {
   const skipped = new Set<string>();
   const expanded = lines.map((item): Line => {
@@ -249,15 +271,50 @@ export function countExpandedLines(
         stat: stat.slice(0, -ENEMY_COUNT_SUFFIX.length),
       };
     }
-    if (stat.endsWith(SSS_CARD_COUNT_SUFFIX) && item.value) {
+    const countSuffix = Object.keys(CARD_COUNT_SUFFIX_GRADES).find((suffix) => stat.endsWith(suffix));
+    if (countSuffix && item.value) {
+      const grade = CARD_COUNT_SUFFIX_GRADES[countSuffix];
+      const count = countSuffix === SSS_CARD_COUNT_SUFFIX ? sssCards : (gradeCounts[grade] ?? 0);
       return {
-        source: label('calc.card.sources.sssExpanded', { source: item.source, count: sssCards }),
-        stat: stat.slice(0, -SSS_CARD_COUNT_SUFFIX.length),
-        value: item.value * sssCards,
+        source:
+          countSuffix === SSS_CARD_COUNT_SUFFIX
+            ? label('calc.card.sources.sssExpanded', { source: item.source, count })
+            : label('calc.card.sources.gradeExpanded', { source: item.source, grade, count }),
+        stat: stat.slice(0, -countSuffix.length),
+        value: item.value * count,
       };
     }
     if (BATTLE_CONDITION_SUFFIXES.some((suffix) => stat.endsWith(suffix))) skipped.add(stat);
     return item;
   });
   return { lines: expanded, skippedStats: [...skipped] };
+}
+
+/**
+ * 카드 전투 중 중첩 줄 (버프 탭이 다른 탭 줄 otherLines 에서 읽어 넣음, 사용자 결정: 최대 상태):
+ * - 카드 2번 처치 중첩 `_per_attackDamage_Kill` (T410 m2276 @33d1320): 컨테이너 값 v (같은 이름 줄은 먼저 곱해 합침) 를 5중첩 선형으로 공격력 % 에 → 1 + (v − 1) × 5. 값 140 → ×8
+ * - 카드 3번 스킬 사용 중첩 `attackDamage_useSkill` (T410 m2308 @33ce078): 합 계열 값 합 % 를 5중첩 선형으로 공격력 % 에 → 1 + 값 / 100 × 5. 값 160 → ×9
+ */
+export function cardStackLines(otherLines: Line[], label: SourceLabel): Line[] {
+  const stackLines: Line[] = [];
+  const killLines = otherLines.filter((item) => item.stat === KILL_STAT && item.value);
+  if (killLines.length) {
+    const factor = killLines.reduce((product, item) => product * (1 + (item.value as number) / PERCENT_DIVISOR), 1);
+    stackLines.push({
+      source: label('calc.card.sources.killStacks', { stacks: KILL_MAX_STACKS }),
+      stat: ATTACK_PERCENT_STAT,
+      value: (factor - 1) * KILL_MAX_STACKS * PERCENT_DIVISOR,
+    });
+  }
+  const useSkillSum = otherLines
+    .filter((item) => item.stat === USE_SKILL_STAT)
+    .reduce((sum, item) => sum + Number(item.value || 0), 0);
+  if (useSkillSum) {
+    stackLines.push({
+      source: label('calc.card.sources.useSkillStacks', { stacks: USE_SKILL_MAX_STACKS }),
+      stat: ATTACK_PERCENT_STAT,
+      value: useSkillSum * USE_SKILL_MAX_STACKS,
+    });
+  }
+  return stackLines;
 }

@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { Card, Group, Image, NumberInput, Stack, Table, Text, TextInput } from '@mantine/core';
+import { Accordion, Card, Group, Image, NumberInput, Stack, Table, Text, TextInput } from '@mantine/core';
 import AutoGrid from '../../components/AutoGrid';
 import SectionTitle from '../../components/SectionTitle';
 import { CONSTS } from '../../CONSTS';
 import { formatLog } from '../gameNumber';
-import { heroByName } from '../sources/heroWeaponCardPet/shared';
+import { heroByName, rowsOf } from '../sources/heroWeaponCardPet/shared';
 import { slotHeroName } from '../sources/hero/character';
+import { normalWeaponLevelFieldId, normalWeaponLevelSum } from '../sources/trainingRelic/relic';
 import {
   LINK_STAR_FIELD,
   NORMAL_EQUIP_FIELD,
@@ -25,7 +26,7 @@ import StatValueRows, { allStatChoices } from './heroWeaponCardPet/StatValueRows
 
 const { JOBS, MIN_NUMBER } = CONSTS.heroWeaponCardPet;
 const { LINK_STAR_MAX, LINK_ICONS } = CONSTS.heroWeaponCardPet.weapon;
-const { CARD_ICON_SIZE, LINK_CARD_MIN_WIDTH, LINK_LEVEL_INPUT_WIDTH } = CONSTS.heroWeaponCardPet.ui;
+const { CARD_ICON_SIZE, LINK_CARD_MIN_WIDTH, LINK_LEVEL_INPUT_WIDTH, NORMAL_WEAPON_INPUT_MIN_WIDTH } = CONSTS.heroWeaponCardPet.ui;
 
 /** 무기: 전용 무기·웨폰 링크·누적 능력치·일반 무기·무기 옵션 (소울포지는 탭 따로) */
 export default function WeaponPanel({ values, setValue, tables, descriptions }: TabPanelProps) {
@@ -40,7 +41,8 @@ export default function WeaponPanel({ values, setValue, tables, descriptions }: 
   );
   // 장착 효과는 1슬롯 히어로가 전용 무기를 꼈을 때만 (캐릭터 각성 칸의 "전용 무기 장착")
   const exclusiveEffect = usesExclusiveWeapon(values, tables) ? exclusiveWeaponEffectFromValues(values, tables) : null;
-  const possess = normalWeaponPossessEffect(tables);
+  const possess = normalWeaponPossessEffect(tables, values);
+  const normalWeaponRows = rowsOf(tables, 'WeaponJob');
   const exclusiveHero = usesExclusiveWeapon(values, tables) ? heroByName(tables, slotHeroName(values, tables)) : undefined;
   const optionRowNumbers = Array.from({ length: openOptionSlots(values, tables) }, (_, index) => index + 1);
   const totalAtk = weaponTotalAtk(values, tables);
@@ -136,6 +138,51 @@ export default function WeaponPanel({ values, setValue, tables, descriptions }: 
             : '-'}
         </Text>
       </Group>
+      {/* 일반 무기 실제 강화 레벨 (보유 효과·직업 일반 무기 합산 레벨 유물 계산에 쓰임). 비우면 최대 레벨로 계산 */}
+      {normalWeaponRows.length > 0 && (
+        <Accordion variant="contained">
+          <Accordion.Item value="normalWeaponLevels">
+            <Accordion.Control>{translate('calc.weapon.normalLevelsOpen')}</Accordion.Control>
+            <Accordion.Panel>
+              <Stack gap="sm">
+                <Text size="xs" c="dimmed">
+                  {translate('calc.weapon.normalLevelsHint')}
+                </Text>
+                {JOBS.map((job) => {
+                  const jobRows = normalWeaponRows.filter((row) => row.job === job);
+                  return (
+                    <Stack key={job} gap={4}>
+                      <Text size="sm" fw={600}>
+                        {translate('calc.weapon.normalLevelsJob', {
+                          job: translate(`calc.weapon.jobs.${job}`),
+                          sum: normalWeaponLevelSum(values, tables, job),
+                        })}
+                      </Text>
+                      <AutoGrid minItemWidth={NORMAL_WEAPON_INPUT_MIN_WIDTH}>
+                        {jobRows.map((row) => (
+                          <NumberInput
+                            key={row.weaponId}
+                            size="xs"
+                            hideControls
+                            min={MIN_NUMBER}
+                            max={Number(row.maxLv)}
+                            allowNegative={false}
+                            allowDecimal={false}
+                            label={translate('calc.weapon.normalLevelLabel', { grade: row.grade, star: row.star })}
+                            placeholder={row.maxLv}
+                            value={values[normalWeaponLevelFieldId(row.weaponId)] ?? ''}
+                            onChange={(next) => setValue(normalWeaponLevelFieldId(row.weaponId), String(next))}
+                          />
+                        ))}
+                      </AutoGrid>
+                    </Stack>
+                  );
+                })}
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+        </Accordion>
+      )}
 
       <SectionTitle>{translate('calc.weapon.optionTitle')}</SectionTitle>
       {/* 열린 칸만 (전용 무기 장착 + 강화 레벨 10 / 20 / 50 / 200 / 800 / 1,200 / 2,500 / 7,500) */}

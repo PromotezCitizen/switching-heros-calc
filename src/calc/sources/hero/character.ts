@@ -139,8 +139,8 @@ export function heroBaseAttackSpeedLines(
 }
 
 /**
- * 1슬롯 히어로의 기본 치명타 확률·치명타 데미지 (합 계열) 줄. 둘 다 표에 없는 추정 값 (consts 의 근거 참고),
- * 히어로마다 같은지도 확인 못 함. 히어로를 안 골랐으면 줄이 없다
+ * 1슬롯 히어로의 기본 치명타 확률 1.0·치명타 데미지 (합 계열) 120 줄. 둘 다 표에 없고 게임 코드의 상수다 (consts 의 근거 참고).
+ * 히어로마다 같은 값인지는 에이카 한 명만 확인 (게임 코드는 히어로를 가르지 않는 상수로 읽음). 히어로를 안 골랐으면 줄이 없다
  */
 export function heroBaseCriticalLines(
   values: CalcValues,

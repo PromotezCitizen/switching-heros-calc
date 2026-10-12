@@ -59,6 +59,12 @@
   "sources": {
     "owned": "{{pet}} {{grade}} {{star}}성 보유",
     "leader": "{{pet}} 리더",
-    "option": "{{pet}} 옵션 {{number}}"
-  }
+    "option": "{{pet}} 옵션 {{number}}",
+    "region": "펫 지역 {{attribute}} Lv{{level}} 지역 특성"
+  },
+  "regionTitle": "펫 지역",
+  "regionHelp": "마지막 단계 (2성 SSS 등급) 펫을 1마리 이상 보유하면 열립니다. 펫 지역 화면의 지역 레벨을 속성마다 넣으면 지역 특성이 공격력·체력에 붙습니다 (비우면 그 지역은 계산하지 않음). 지역 특성은 같은 속성 마지막 단계 펫 수로 더 올라갑니다.",
+  "regionLocked": "아직 열리지 않음: 마지막 단계 펫 {{count}}마리 (1마리 이상 필요)",
+  "regionUnlocked": "열림: 마지막 단계 펫 {{count}}마리",
+  "regionLevelLabel": "{{attribute}} 지역 레벨"
 }

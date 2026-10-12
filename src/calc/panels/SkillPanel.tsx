@@ -4,6 +4,8 @@ import { CONSTS } from '../../CONSTS';
 import HorizontalScrollRow from '../../components/HorizontalScrollRow';
 import LazySelect from '../../components/LazySelect';
 import SectionTitle from '../../components/SectionTitle';
+import { SelectField } from '../../components/StoreFields';
+import { CALC_KEY_PREFIX } from '../storeKeys';
 import {
   SKILL_EQUIP_SLOT_NUMBERS,
   equipChoices,
@@ -16,8 +18,9 @@ import {
 } from '../sources/skill/skill';
 import type { TabPanelProps } from '../types';
 
-const { MAX_LEVEL, LEVEL_INPUT_WIDTH, EQUIP_SELECT_WIDTH, TABLE_MIN_WIDTH } = CONSTS.skill;
+const { MAX_LEVEL, LEVEL_INPUT_WIDTH, EQUIP_SELECT_WIDTH, TABLE_MIN_WIDTH, ARROW_BARRAGE_OPTION } = CONSTS.skill;
 const NOT_EQUIPPED = '';
+const NO_OPTION = '';
 
 /** 스킬: 1슬롯 히어로 장착 5칸 (보유 스킬 중 그 직업) + 보유 스킬마다 레벨 (비우면 미보유) */
 export default function SkillPanel({ values, setValue, tables }: TabPanelProps) {
@@ -44,6 +47,18 @@ export default function SkillPanel({ values, setValue, tables }: TabPanelProps) 
         ))}
       </HorizontalScrollRow>
       <Text size="sm">{translate('calc.skill.equippedLevelSum', { sum: equippedSkillLevelSum(values) })}</Text>
+
+      <SectionTitle>{translate('calc.skill.optionTitle')}</SectionTitle>
+      {/* 스킬 옵션 창에서 다발 화살 (252) 에 붙은 "적중마다 5초간 공격력 N% 증가 (최대 5중첩)" 옵션의 값. 비워 두면 옵션 없음 */}
+      <SelectField
+        storeKey={CALC_KEY_PREFIX + ARROW_BARRAGE_OPTION.FIELD}
+        label={translate('calc.skill.optionArrowBarrage')}
+        hint={translate('calc.skill.optionArrowBarrageHint', { stacks: ARROW_BARRAGE_OPTION.MAX_STACKS })}
+        options={[
+          { value: NO_OPTION, label: translate('calc.skill.optionNone') },
+          ...ARROW_BARRAGE_OPTION.PERCENTS.map((percent) => ({ value: String(percent), label: `${percent}%` })),
+        ]}
+      />
 
       <SectionTitle>{translate('calc.skill.ownedTitle')}</SectionTitle>
       <Table.ScrollContainer minWidth={TABLE_MIN_WIDTH}>

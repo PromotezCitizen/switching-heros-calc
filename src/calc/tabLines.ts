@@ -7,19 +7,20 @@ import { CONSTS } from '../CONSTS';
 import type { StatTables } from '../data/statTables';
 import { readFlag } from '../store/storedValues';
 import { withoutExcludedStats, type Line } from './combine';
-import { cardSlotGradeStars, countExpandedLines, sssCardCount } from './sources/heroWeaponCardPet';
+import { cardCountsByGrade, cardSlotGradeStars, countExpandedLines, sssCardCount } from './sources/heroWeaponCardPet';
 import type { CalcTab, CalcValues } from './types';
 
 const { ENEMY_COUNT_FIELD } = CONSTS.summary;
 
 export function expandedTabLines(tabs: readonly CalcTab[], values: CalcValues, tables: StatTables): Line[] {
   const lines = tabs.flatMap((tab) => tab.lines(values, tables));
-  const sssCards = sssCardCount(cardSlotGradeStars(values, tables));
+  const slotGradeStars = cardSlotGradeStars(values, tables);
   const expanded = countExpandedLines(
     lines,
-    sssCards,
+    sssCardCount(slotGradeStars),
     (translationKey, params) => i18next.t(translationKey, params ?? {}),
     readFlag(values, ENEMY_COUNT_FIELD),
+    cardCountsByGrade(slotGradeStars),
   );
   return withoutExcludedStats(expanded.lines);
 }

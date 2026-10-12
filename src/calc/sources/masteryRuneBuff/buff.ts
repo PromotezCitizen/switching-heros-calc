@@ -88,7 +88,8 @@ export function combinedSum(combined: Record<string, CombinedStat>, stat: string
  * 특성 42 초월적 기량 (notActiveAttackSpeed) 은 장착 스킬에 액티브가 하나도 없을 때만 더한다 (전투 중 조건 아님, 상시).
  * 근거: 게임 코드 m2695 @33f4bdc 가 1슬롯 히어로 장착 스킬 중 종류 2 (액티브) 가 없고 값이 0 이 아니면 공격속도에 더함,
  * 15:28 전투 직전 화면 1,786 = 1,736 + 50 (work_collect/README.md 2-1).
- * 전투 중에만 오르는 공격속도 (버프 등) 는 출처를 몰라 넣지 않는다
+ * 전투 중에만 오르는 공격속도 (관통의 맹공 204 복리 10중첩·추진력 13 +50·야성 강화 9·우격다짐 58, 최대 상태) 는 특성 탭 줄로 이미 합쳐져
+ * 이 합에 들어온다 (battleState.ts battleStatLines, 2026-10-12 01:54 화면 2,193.37 과 일치)
  */
 export function attackSpeedPercent(
   combined: Record<string, CombinedStat>,
@@ -138,7 +139,7 @@ export function doubleAttackRushPercent(masteryTable: RawTable, values: CalcValu
 
 /**
  * 연타·스킬 콤보 중첩 줄 (사용자 결정 "연타, 스킬콤보는 상시 최대중첩": 칸 없이 늘 최대 중첩).
- * - 가속 (doubleAttackDmgUp): 중첩당 공격력 % × 10 (광폭화처럼 중첩끼리 더함, 추정)
+ * - 가속 (doubleAttackDmgUp): 중첩당 공격력 % × 10 (광폭화처럼 중첩끼리 선형 합, combat-buff-sources.md 확정, 2026-10-12 01:54 화면 일치)
  * - 연타의 분노 (doubleAttackToDmgUp3): 10중첩 달성 시 공격력 % → 늘 붙음
  * - 스킬 콤보: 4중첩이면 다음 액티브 스킬 최종 데미지 × 8 → 늘 붙음 (붙는 스탯 추정)
  * 연타·스킬 콤보 확률이 0 이면 중첩이 쌓이지 않으므로 줄 없음

@@ -4,14 +4,23 @@
    지금은 손으로 관리하는 파일이다. 생성 스크립트로 다시 만들면 이 변경이 사라지니 다시 만들지 말 것 */
 import { describe, expect, it } from 'vitest';
 import { combineLines, type CombinedStat, type Line } from '../../combine';
-import type { RawTable, StatTables } from '../../../data/statTables';
+import { tableRows, type RawTable, type StatTables } from '../../../data/statTables';
 import relicTable from '../../../../public/data/tables/Relic.json';
 import trainingTable from '../../../../public/data/tables/Training.json';
 import weaponJobTable from '../../../../public/data/tables/WeaponJob.json';
 import characterTable from '../../../../public/data/tables/Character.json';
 import weaponCharTable from '../../../../public/data/tables/WeaponChar.json';
 import relicText from '../../../i18n/calc/relic.ko.json';
-import { lowerGradeRelicFill, maxNormalWeaponLevelSum, relicLines, relicMultiplier } from './relic';
+import {
+  lowerGradeRelicFill,
+  maxNormalWeaponLevelSum,
+  normalWeaponLevel,
+  normalWeaponLevelFieldId,
+  normalWeaponLevelSum,
+  relicLines,
+  relicMultiplier,
+  relicTargetStat,
+} from './relic';
 import { trainingLines, trainingMaxStage, trainingSlotRows } from './training';
 
 /**
@@ -67,6 +76,62 @@ describe('유물 101 일반 무기 합산 레벨 개수', () => {
     }
     expect(maxNormalWeaponLevelSum(tables, 'Archer')).toBe(7750);
     expect(relicMultiplier('_per_Archer_HaveWeaponsLv100', {}, tables)).toBe(77);
+  });
+});
+
+describe('유물 99·100·101·102 일반 무기 합산 레벨: 4직업 모두 공격력 % 에 곱함 + 실제 강화 레벨 합 (m2690)', () => {
+  const JOBS = ['Swordsman', 'Fighter', 'Archer', 'Mage'];
+  const jobRows = (job: string) => tableRows(tables.WeaponJob).filter((row) => row.job === job);
+  /** 그 직업 무기의 강화 레벨을 앞 무기부터 최대 레벨로 채워 합이 total 이 되게 하고 나머지는 0 으로 둔 입력 (테스트 안에서 만든 입력) */
+  function levelsSummingTo(job: string, total: number): Record<string, string> {
+    let remaining = total;
+    const values: Record<string, string> = {};
+    for (const row of jobRows(job)) {
+      const level = Math.min(Number(row.maxLv), remaining);
+      values[normalWeaponLevelFieldId(row.weaponId)] = String(level);
+      remaining -= level;
+    }
+    return values;
+  }
+
+  it('무기 칸을 비우면 최대 레벨 합 7,750 → N = 77, 직업마다 같음 (예전 가정과 같은 값)', () => {
+    for (const job of JOBS) {
+      expect(normalWeaponLevelSum({}, tables, job)).toBe(maxNormalWeaponLevelSum(tables, job));
+      expect(relicMultiplier(`_per_${job}_HaveWeaponsLv100`, {}, tables)).toBe(77);
+    }
+  });
+
+  it('실제 강화 레벨 합 1,234 → N = 12, 다른 직업은 칸이 비어 그대로 77', () => {
+    const values = levelsSummingTo('Swordsman', 1234);
+    expect(normalWeaponLevelSum(values, tables, 'Swordsman')).toBe(1234);
+    expect(relicMultiplier('_per_Swordsman_HaveWeaponsLv100', values, tables)).toBe(12);
+    expect(relicMultiplier('_per_Archer_HaveWeaponsLv100', values, tables)).toBe(77);
+  });
+
+  it('칸에 0 을 넣으면 그 무기는 0 레벨 (비운 칸과 다름), 최대 레벨 넘는 값은 최대로 자름', () => {
+    const [first] = jobRows('Mage');
+    const zero = { [normalWeaponLevelFieldId(first.weaponId)]: '0' };
+    expect(normalWeaponLevelSum(zero, tables, 'Mage')).toBe(maxNormalWeaponLevelSum(tables, 'Mage') - Number(first.maxLv));
+    expect(normalWeaponLevel({ [normalWeaponLevelFieldId(first.weaponId)]: '99999' }, first)).toBe(Number(first.maxLv));
+  });
+
+  it('직업별 유물 4개가 모두 _per_attackDamage 에 값 x N 으로 들어간다 (직업 이름 공격력 아님)', () => {
+    expect(relicTargetStat('_per_Swordsman_HaveWeaponsLv100')).toBe('_per_attackDamage');
+    expect(relicTargetStat('_per_Fighter_HaveWeaponsLv100')).toBe('_per_attackDamage');
+    expect(relicTargetStat('_per_Archer_HaveWeaponsLv100')).toBe('_per_attackDamage');
+    expect(relicTargetStat('_per_Mage_HaveWeaponsLv100')).toBe('_per_attackDamage');
+    const weaponRelics = tableRows(tables.Relic).filter((row) => /_HaveWeaponsLv100$/.test(row.statType));
+    expect(weaponRelics.map((row) => row.statType).sort()).toEqual(JOBS.map((job) => `_per_${job}_HaveWeaponsLv100`).sort());
+    const values: Record<string, string> = Object.fromEntries(weaponRelics.map((row) => [`relic_${row.relicId}`, '5']));
+    const lines = relicLines(values, tables, relicSources).filter((line) => line.source.includes('× 77'));
+    expect(lines).toHaveLength(4);
+    for (const line of lines) {
+      expect(line.stat).toBe('_per_attackDamage');
+      expect(line.value).toBeCloseTo(22.1375, 9);
+    }
+    // 4개를 곱하면 직업 하나에만 들어가던 예전보다 크다 (x10101-1057-gamecode.md: 다른 3직업 몫 로그 0.74392)
+    const combined = combineLines(lines);
+    expect(combined._per_attackDamage.log).toBeCloseTo(4 * Math.log10(1 + 22.1375 / 100), 9);
   });
 });
 
@@ -180,10 +245,10 @@ describe('유물', () => {
       { source: "마칸의 심장 Lv5 × 3", stat: "_per_hp", value: 0.8624999999999999 },
       { source: "빛을 잃은 펜던트 Lv5 × 3", stat: "_per_attackDamage", value: 0.8624999999999999 },
       { source: "영혼의 파편 Lv5 × 3", stat: "_per_hit", value: 0.8624999999999999 },
-      { source: "절망의 가시 Lv5 × 77", stat: "_per_Swordsman_AttackDamage", value: 22.1375 },
-      { source: "천둥의 깃 Lv5 × 77", stat: "_per_Fighter_AttackDamage", value: 22.1375 },
-      { source: "바포메트의 두상 Lv5 × 77", stat: "_per_Archer_AttackDamage", value: 22.1375 },
-      { source: "깃털 가면 Lv5 × 77", stat: "_per_Mage_AttackDamage", value: 22.1375 },
+      { source: "절망의 가시 Lv5 × 77", stat: "_per_attackDamage", value: 22.1375 },
+      { source: "천둥의 깃 Lv5 × 77", stat: "_per_attackDamage", value: 22.1375 },
+      { source: "바포메트의 두상 Lv5 × 77", stat: "_per_attackDamage", value: 22.1375 },
+      { source: "깃털 가면 Lv5 × 77", stat: "_per_attackDamage", value: 22.1375 },
       { source: "보라 포도송이 Lv5 × 37", stat: "_per_attackDamage", value: 103.6 },
       { source: "염소 해골 잎 Lv5 × 37", stat: "_per_hp", value: 103.6 },
       { source: "봉인된 서판 Lv5 × 176", stat: "_per_attackDamage", value: 96.80000000000001 },
@@ -232,15 +297,12 @@ describe('유물', () => {
       { source: "유물의 축복", stat: "_per_hp", value: 44281426111100080 },
     ]);
     expectCombined(lines, {
-      "_per_attackDamage": { kind: "multiply", log: 17.22565767868552, sum: 0, count: 25 },
+      /* 직업 일반 무기 합산 레벨 유물 4개 (각 log 0.086849026292592) 가 직업 이름이 아니라 공격력 % 에 곱해져 29줄 */
+      "_per_attackDamage": { kind: "multiply", log: 17.22565767868552 + 4 * 0.086849026292592, sum: 0, count: 29 },
       "_per_hp": { kind: "multiply", log: 18.151335623371367, sum: 0, count: 26 },
       "attackSpeed": { kind: "sum", log: 0, sum: 4.75, count: 1 },
       "criticalRate": { kind: "sum", log: 0, sum: 0.8125, count: 1 },
       "_per_hit": { kind: "multiply", log: 0.05002974812757109, sum: 0, count: 2 },
-      "_per_Swordsman_AttackDamage": { kind: "multiply", log: 0.086849026292592, sum: 0, count: 1 },
-      "_per_Fighter_AttackDamage": { kind: "multiply", log: 0.086849026292592, sum: 0, count: 1 },
-      "_per_Archer_AttackDamage": { kind: "multiply", log: 0.086849026292592, sum: 0, count: 1 },
-      "_per_Mage_AttackDamage": { kind: "multiply", log: 0.086849026292592, sum: 0, count: 1 },
       "_per_Mage_HeroMonsterDamage": { kind: "multiply", log: 0.24919835739111293, sum: 0, count: 1 },
       "_per_Mage_CriticalDmg": { kind: "multiply", log: 0.2576785748691845, sum: 0, count: 1 },
       "_per_WaterHero_BossMonsterDamage": { kind: "multiply", log: 0.22375545365724117, sum: 0, count: 1 },
@@ -266,10 +328,10 @@ describe('유물', () => {
       { source: "마칸의 심장 Lv5 × 3", stat: "_per_hp", value: 0.8624999999999999 },
       { source: "빛을 잃은 펜던트 Lv5 × 3", stat: "_per_attackDamage", value: 0.8624999999999999 },
       { source: "영혼의 파편 Lv5 × 3", stat: "_per_hit", value: 0.8624999999999999 },
-      { source: "절망의 가시 Lv5 × 77", stat: "_per_Swordsman_AttackDamage", value: 22.1375 },
-      { source: "천둥의 깃 Lv5 × 77", stat: "_per_Fighter_AttackDamage", value: 22.1375 },
-      { source: "바포메트의 두상 Lv5 × 77", stat: "_per_Archer_AttackDamage", value: 22.1375 },
-      { source: "깃털 가면 Lv5 × 77", stat: "_per_Mage_AttackDamage", value: 22.1375 },
+      { source: "절망의 가시 Lv5 × 77", stat: "_per_attackDamage", value: 22.1375 },
+      { source: "천둥의 깃 Lv5 × 77", stat: "_per_attackDamage", value: 22.1375 },
+      { source: "바포메트의 두상 Lv5 × 77", stat: "_per_attackDamage", value: 22.1375 },
+      { source: "깃털 가면 Lv5 × 77", stat: "_per_attackDamage", value: 22.1375 },
       { source: "보라 포도송이 Lv5 × 37", stat: "_per_attackDamage", value: 103.6 },
       { source: "염소 해골 잎 Lv5 × 37", stat: "_per_hp", value: 103.6 },
       { source: "봉인된 서판 Lv5 × 176", stat: "_per_attackDamage", value: 96.80000000000001 },
@@ -281,15 +343,11 @@ describe('유물', () => {
       { source: "유물의 축복", stat: "_per_hp", value: 7725080 },
     ]);
     expectCombined(lines, {
-      "_per_attackDamage": { kind: "multiply", log: 5.824311992882753, sum: 0, count: 8 },
+      "_per_attackDamage": { kind: "multiply", log: 5.824311992882753 + 4 * 0.086849026292592, sum: 0, count: 12 },
       "_per_hp": { kind: "multiply", log: 5.939922504557052, sum: 0, count: 9 },
       "attackSpeed": { kind: "sum", log: 0, sum: 4.75, count: 1 },
       "criticalRate": { kind: "sum", log: 0, sum: 0.8125, count: 1 },
       "_per_hit": { kind: "multiply", log: 0.05002974812757109, sum: 0, count: 2 },
-      "_per_Swordsman_AttackDamage": { kind: "multiply", log: 0.086849026292592, sum: 0, count: 1 },
-      "_per_Fighter_AttackDamage": { kind: "multiply", log: 0.086849026292592, sum: 0, count: 1 },
-      "_per_Archer_AttackDamage": { kind: "multiply", log: 0.086849026292592, sum: 0, count: 1 },
-      "_per_Mage_AttackDamage": { kind: "multiply", log: 0.086849026292592, sum: 0, count: 1 },
       "_per_Mage_HeroMonsterDamage": { kind: "multiply", log: 0.24919835739111293, sum: 0, count: 1 },
     });
     /* 기존 화면의 유물의 축복 칸: 유물의 축복7.73B / 보이는 연동 칸: relicLink_dispatchLevel, relicLink_ssHeroes, relicLink_sssHeroes, relicLink_equipSkillLevel, relicLink_weaponLevelSwordsman, relicLink_weaponLevelFighter, relicLink_weaponLevelArcher, relicLink_weaponLevelMage, relicLink_cardSetBonus */

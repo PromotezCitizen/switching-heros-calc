@@ -30,6 +30,7 @@ const {
   TARGET_KINDS,
   DEFAULT_TARGET,
   TARGET_STATS,
+  GENDER_ATTACK_STATS,
   ATTACK_INCREASE_FINAL_OFFSET_LOG,
 } = CONSTS.summary;
 
@@ -67,14 +68,12 @@ export const SUMMARY_ROW_IDS = [
 
 export type SummaryRowId = (typeof SUMMARY_ROW_IDS)[number];
 
-/** 계산 식을 화면 값으로 맞춰 보지 못한 줄 */
-const ESTIMATED_ROWS: ReadonlySet<SummaryRowId> = new Set<SummaryRowId>([
-  'finalAtk',
-  'atkIncrease',
-  'criticalRate',
-  'criticalDamage',
-  'normalMonster',
-]);
+/**
+ * 계산 식을 화면 값으로 맞춰 보지 못한 줄. 지금은 없다: 2026-10-12 01:54 전투 중 최대 상태 프로필 17줄 전부가
+ * 저장 JSON 입력으로 화면 반올림 범위 안에서 맞았다 (gameFormula0154.test.ts, 이전에 추정으로 표시하던
+ * 최종 공격력·공격력 증가·치명타 확률·치명타 데미지·일반 몬스터 포함). 맞춰 보지 못한 줄이 생기면 여기에 넣는다
+ */
+const ESTIMATED_ROWS: ReadonlySet<SummaryRowId> = new Set<SummaryRowId>([]);
 
 /** % 로 보이는 줄 (나머지는 그냥 수) */
 const PERCENT_ROWS: ReadonlySet<SummaryRowId> = new Set<SummaryRowId>(
@@ -123,9 +122,11 @@ function variantStats(hero: TableRow | undefined, suffix: string, prefix: string
  */
 export function attackIncreaseStats(hero: TableRow | undefined, target: SummaryTarget = DEFAULT_TARGET): string[] {
   const targetStats = TARGET_STATS[target];
+  const genderStat = hero ? GENDER_ATTACK_STATS[hero.gender] : undefined;
   return [
     STATS.ATTACK_PERCENT,
     ...variantStats(hero, VARIANT_SUFFIXES.ATTACK, PER_PREFIX),
+    ...(genderStat ? [genderStat] : []),
     targetStats.MONSTER_DAMAGE,
     ...variantStats(hero, targetStats.MONSTER_DAMAGE_VARIANT_SUFFIX, PER_PREFIX),
   ];

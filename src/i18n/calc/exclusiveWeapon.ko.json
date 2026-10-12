@@ -3,6 +3,8 @@
   "owner": "주인 히어로",
   "star": "초월 ★",
   "level": "강화 레벨",
+  "missionStar": "받은 초월 미션 ★",
+  "missionStarLabel": "{{name}} 전용 무기 받은 초월 미션 ★ (비우면 초월 ★ 까지 받음)",
   "notOwned": "없음",
   "unknownOwner": "무기 {{id}}",
   "starLabel": "{{name}} 전용 무기 초월 ★",

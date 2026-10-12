@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Card, Group, Image, Stack, Text } from '@mantine/core';
+import { Button, Card, Group, Image, NumberInput, Stack, Text } from '@mantine/core';
 import AutoGrid from '../../components/AutoGrid';
 import SectionTitle from '../../components/SectionTitle';
 import { CONSTS } from '../../CONSTS';
@@ -12,11 +12,14 @@ import {
   ownedPetField,
   ownedPetRow,
   petFirstRow,
+  maxStagePetCounts,
   petGroups,
   petOptionCount,
   petOptionStatField,
   petOptionStats,
   petOptionValueField,
+  petRegionLevelField,
+  petRegionUnlocked,
   petSlotField,
 } from '../sources/heroWeaponCardPet/pet';
 import { unique, type RowGroup } from '../sources/heroWeaponCardPet/shared';
@@ -28,8 +31,9 @@ import IconPicker, { TypeIcon, iconUrl } from './heroWeaponCardPet/IconPicker';
 import StatValueRows from './heroWeaponCardPet/StatValueRows';
 
 const { GRADE_STAR_SEPARATOR, ATTRIBUTE_ICONS } = CONSTS.heroWeaponCardPet;
-const { THUMBNAIL_PREFIX } = CONSTS.heroWeaponCardPet.pet;
-const { CARD_ICON_SIZE, PET_SLOT_WIDTH, UNUSED_OPACITY } = CONSTS.heroWeaponCardPet.ui;
+const { THUMBNAIL_PREFIX, REGION } = CONSTS.heroWeaponCardPet.pet;
+const REGION_ATTRIBUTES = REGION.ATTRIBUTES;
+const { CARD_ICON_SIZE, PET_SLOT_WIDTH, UNUSED_OPACITY, REGION_INPUT_WIDTH } = CONSTS.heroWeaponCardPet.ui;
 const { CARD_MIN_WIDTH } = CONSTS.display;
 /** 상태이상 리더 효과: pet_hero_<attack|skill>_<blind|shock|stun> (값1 = 횟수·확률, 값2 = 초, 추정) */
 const AILMENT_LEADER_PATTERN = /^pet_hero_(attack|skill)_(\w+)$/;
@@ -240,6 +244,8 @@ export default function PetPanel({ values, setValue, tables, descriptions }: Tab
   const groups = useMemo(() => petGroups(tables), [tables]);
   const leaderSlot = values[PET_LEADER_FIELD] ?? '';
   const slotPetsText = joinFieldValues(values, PET_SLOT_FIELDS);
+  const maxStageTotal = Object.values(maxStagePetCounts(values, tables)).reduce((sum, count) => sum + count, 0);
+  const regionUnlocked = petRegionUnlocked(values, tables);
 
   return (
     <Stack gap="md">
@@ -279,6 +285,33 @@ export default function PetPanel({ values, setValue, tables, descriptions }: Tab
         })}
       </HorizontalScrollRow>
       <Text size="sm" c="dimmed">{translate('calc.pet.equipHelp')}</Text>
+
+      <SectionTitle>{translate('calc.pet.regionTitle')}</SectionTitle>
+      <Text size="sm" c="dimmed">{translate('calc.pet.regionHelp')}</Text>
+      <Text size="sm">
+        {regionUnlocked
+          ? translate('calc.pet.regionUnlocked', { count: maxStageTotal })
+          : translate('calc.pet.regionLocked', { count: maxStageTotal })}
+      </Text>
+      {/* 지역 3개 한 줄 (좁으면 가로 스크롤): 속성마다 지역 레벨 */}
+      <HorizontalScrollRow itemWidth={REGION_INPUT_WIDTH}>
+        {REGION_ATTRIBUTES.map((attribute) => {
+          const attributeName = translate(`calc.pet.attributes.${attribute}`);
+          return (
+            <NumberInput
+              key={attribute}
+              size="xs"
+              hideControls
+              min={0}
+              allowNegative={false}
+              allowDecimal={false}
+              label={translate('calc.pet.regionLevelLabel', { attribute: attributeName })}
+              value={values[petRegionLevelField(attribute)] ?? ''}
+              onChange={(next) => setValue(petRegionLevelField(attribute), String(next))}
+            />
+          );
+        })}
+      </HorizontalScrollRow>
     </Stack>
   );
 }

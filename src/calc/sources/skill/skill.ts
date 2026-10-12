@@ -5,11 +5,12 @@
  */
 import { CONSTS } from '../../../CONSTS';
 import type { StatTables, TableRow } from '../../../data/statTables';
+import type { Line } from '../../combine';
 import type { CalcValues } from '../../types';
 import { heroFirstRow, slotHeroName } from '../hero/character';
 import { rowsOf } from '../heroWeaponCardPet/shared';
 
-const { TABLE, EQUIP_SLOTS, FIRST_LEVEL, ACTIVE_SKILL_TYPE } = CONSTS.skill;
+const { TABLE, EQUIP_SLOTS, FIRST_LEVEL, ACTIVE_SKILL_TYPE, ARROW_BARRAGE_OPTION } = CONSTS.skill;
 
 /** 보유 스킬 레벨 칸 (비었거나 0 = 미보유) */
 export function skillLevelField(skillId: string): string {
@@ -66,6 +67,28 @@ export function equippedSkillTypeCounts(values: CalcValues, tables: StatTables):
     if (skillType) counts[skillType] = (counts[skillType] ?? 0) + 1;
   }
   return counts;
+}
+
+/** 다발 화살 252 옵션으로 고른 값 % (옵션 없음·모르는 값이면 0) */
+export function arrowBarrageOptionPercent(values: CalcValues): number {
+  const chosen = Number(values[ARROW_BARRAGE_OPTION.FIELD]);
+  return (ARROW_BARRAGE_OPTION.PERCENTS as readonly number[]).includes(chosen) ? chosen : 0;
+}
+
+/**
+ * 스킬 옵션 줄: 다발 화살 252 옵션 "적중마다 5초간 공격력 {0}% 증가 (최대 5중첩)" 을 공격력 % 로 (값 × 최대 5중첩, 25% → ×2.25).
+ * 옵션을 안 골랐으면 줄 없음
+ */
+export function skillOptionLines(values: CalcValues, label: (key: string, params?: Record<string, string | number>) => string): Line[] {
+  const percent = arrowBarrageOptionPercent(values);
+  if (!percent) return [];
+  return [
+    {
+      source: label('calc.skill.optionSource', { percent, stacks: ARROW_BARRAGE_OPTION.MAX_STACKS }),
+      stat: CONSTS.summary.STATS.ATTACK_PERCENT,
+      value: percent * ARROW_BARRAGE_OPTION.MAX_STACKS,
+    },
+  ];
 }
 
 /** 장착 5칸에 액티브 스킬이 하나라도 있는가 (장착 스킬이 0개면 없음) */

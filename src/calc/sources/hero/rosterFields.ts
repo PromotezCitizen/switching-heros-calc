@@ -17,6 +17,13 @@ export function rosterAffinityField(charId: string): string {
 export function exclusiveOwnedStarField(weaponId: string): string {
   return `exclusiveOwnedStar_${weaponId}`;
 }
+/**
+ * 전용 무기마다 "받은 초월 미션 ★" (그 ★ 까지의 초월 미션 보상을 받음). 비어 있으면 초월 ★ 까지 받은 것으로 침.
+ * 게임은 받은 미션 번호 목록 (_receivedIds) 으로 계산하고, 미션이 ★ 순서로 열려 낮은 ★ 부터 받는다고 보아 가장 높은 ★ 하나로 받는다
+ */
+export function exclusiveMissionReceivedStarField(weaponId: string): string {
+  return `exclusiveMissionReceivedStar_${weaponId}`;
+}
 /** 전용 무기마다 강화 레벨 (계산에는 1슬롯 히어로 무기 줄 값만 씀. 1슬롯 히어로를 바꿔도 다시 넣지 않게 무기마다 저장) */
 export function exclusiveOwnedLevelField(weaponId: string): string {
   return `exclusiveOwnedLevel_${weaponId}`;

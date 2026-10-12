@@ -47,14 +47,14 @@ export const HERO_CONSTS = {
   BASE_ATTACK_SPEED_COLUMN: 'atkSpd',
   ATTACK_SPEED_STAT: 'attackSpeed',
   /**
-   * 기본 치명타 확률 % (추정): 표·저장 데이터 어디에도 없는 값. 02:06·02:13·02:48 프로필이 계산보다 늘 1.0 큼
-   * (gap-atk-critrate.md 3절). 앱 코드에서 확인 못 함
+   * 기본 치명타 확률 %: 표·저장 데이터에는 없고 게임 코드에 상수로 들어 있다 (합산기 T1282 m6859 의 스탯 0x13 기본 1.0, combat0113.py 50줄 · 기계어 확인).
+   * 02:06·02:13·02:48 프로필이 줄 합보다 늘 1.0 컸던 몫이 이것 (gap-atk-critrate.md 3절), 2026-10-12 01:54 화면 611.1895 와 소수 넷째 자리까지 일치
    */
   BASE_CRITICAL_RATE: 1,
   CRITICAL_RATE_STAT: 'criticalRate',
   /**
-   * 기본 치명타 데미지 합 계열 (추정): 표에 없는 값. 02:48 프로필 105.81B% = 합 계열 1,024 × 곱 계열 ÷ 100 에서
-   * 계산 합 904 와의 차 (gap-critdmg-normal.md 1-2). 앱 코드에서 확인 못 함
+   * 기본 치명타 데미지 합 계열: 표에 없고 게임 코드에 상수로 들어 있다 (합산기 T1282 m6859 의 기본 120, crit_check.py 33줄 · crit-dmg-atkspeed-gamecode.md 기계어 확인).
+   * 02:48 프로필 105.81B% 의 합 계열 차 (gap-critdmg-normal.md 1-2) 가 이 120 이고, 2026-10-12 01:54 화면 2.19C% 와 일치
    */
   BASE_CRITICAL_DAMAGE: 120,
   CRITICAL_DAMAGE_SUM_STAT: 'criticalDmg',

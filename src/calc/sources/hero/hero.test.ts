@@ -188,7 +188,7 @@ describe('히어로 탭', () => {
     expect(lines).toEqual([{ source: 'calc.hero.sources.baseAttackSpeed 에이카', stat: 'attackSpeed', value: 150 }]);
   });
 
-  it('기본 치명타 확률 1 · 치명타 데미지 합 계열 120 (둘 다 추정 기본값, 히어로를 안 고르면 없음)', () => {
+  it('기본 치명타 확률 1 · 치명타 데미지 합 계열 120 (둘 다 게임 코드 기본 상수, 히어로를 안 고르면 없음)', () => {
     const label = (key: string, params?: Record<string, string | number>) => `${key} ${params?.hero}`;
     expect(heroBaseCriticalLines({ charName: '에이카' }, tables, label)).toEqual([
       { source: 'calc.hero.sources.baseCriticalRate 에이카', stat: 'criticalRate', value: 1 },

@@ -20,8 +20,10 @@ const { offline, fairy, guild, onlineBonus } = CONSTS;
 export interface HuntingInputs {
   vipLevel: number;
   fairyLevel: number;
-  /** 출처를 모르는 상시 EXP·골드 보너스 % (실측으로 남는 몫) */
-  otherAlwaysPercent: number;
+  /** 광고 제거 구매: 요정의 축복이 경험치·골드 둘 다 영구 상시 켜짐 (hunting-always-bonus.md 4절) */
+  adRemoved: boolean;
+  /** 자원별 요정의 축복 켜짐 (광고 제거가 아닐 때 광고를 봐서 경험치·골드 칸을 따로 켬. 정수는 요정 값이 없음) */
+  fairyOn: Record<Resource, boolean>;
   guildLevel: number;
   /** 자원별 길드 스킬 1~5 레벨 */
   guildSkillLevels: Record<Resource, number[]>;
@@ -65,8 +67,15 @@ export function fairyBonus(fairyLevel: number): number {
   return level ? Math.min(fairy.MAX_PERCENT, fairy.BASE_PERCENT + fairy.PER_LEVEL_PERCENT * (level - 1)) : 0;
 }
 
+/**
+ * 요정의 축복 보너스 % = 표 값 × 2 (경험치·골드만, 정수 0).
+ * 게임 보상 배율 함수가 요정 값을 제공자 컨테이너와 최종 컨테이너에서 두 번 읽어 더한다 (hunting-always-bonus.md 결론).
+ * 켜진 칸만 적용하고, 켜진 칸은 온라인·오프라인 모두 들어간다 (온라인 효율 계산기 floor-calc/calc.js bonusPercent 와 같은 규칙)
+ */
 function alwaysBonus(inputs: HuntingInputs, resource: Resource): number {
-  return resource === 'ess' ? 0 : fairyBonus(inputs.fairyLevel) + Math.max(inputs.otherAlwaysPercent, 0);
+  if (resource === 'ess') return 0;
+  const fairyOn = inputs.adRemoved || inputs.fairyOn[resource];
+  return fairyOn ? fairyBonus(inputs.fairyLevel) * fairy.TIMES : 0;
 }
 
 export function guildBonus(inputs: HuntingInputs, resource: Resource): number {
@@ -89,9 +98,17 @@ export function onlineBonusPercent(inputs: HuntingInputs, resource: Resource): n
   );
 }
 
-/** 오프라인 보너스 합 %: 상시 + VIP + 길드 스킬 (요리·이벤트·패키지는 온라인 전용) */
+/**
+ * 오프라인 보너스 합 %: 상시 + VIP + 길드 스킬 + 상점 효과 패키지 (요리·이벤트는 온라인 전용).
+ * 효과 패키지는 보상 배율 함수의 켜짐 블록 밖에서 읽혀 오프라인에도 들어간다 (hunting-always-bonus.md 2절 5번, 사용자 결정)
+ */
 export function offlineBonusPercent(inputs: HuntingInputs, resource: Resource): number {
-  return alwaysBonus(inputs, resource) + vipOnlineBonus(inputs.vipLevel, resource) + guildBonus(inputs, resource);
+  return (
+    alwaysBonus(inputs, resource) +
+    vipOnlineBonus(inputs.vipLevel, resource) +
+    guildBonus(inputs, resource) +
+    (inputs.packageOn[resource] ? onlineBonus.PACKAGE_PERCENT : 0)
+  );
 }
 
 /** 오프라인 효율 = 초당 처치 수 × 광고 배수 */
@@ -174,7 +191,8 @@ function perResource<T>(value: () => T): Record<Resource, T> {
 export const EMPTY_INPUTS: HuntingInputs = {
   vipLevel: LEVEL,
   fairyLevel: LEVEL,
-  otherAlwaysPercent: PERCENT,
+  adRemoved: false,
+  fairyOn: perResource(() => false),
   guildLevel: LEVEL,
   guildSkillLevels: perResource(() => guild.SKILLS.map(() => LEVEL)),
   foodPercent: perResource(() => PERCENT),

@@ -32,6 +32,7 @@ import {
   stackLines,
   superCriticalStrikeLines,
 } from './buff';
+import { battleDamageLines, battleStatLines, chancesWithBattleState, compoundPercent } from './battleState';
 import { chancesFromLines, chanceUltimateLines } from './chances';
 import { masteryRuneBuffTabs } from './index';
 import { masteryTotals, masteryTraits, plainNumber } from './mastery';
@@ -126,7 +127,9 @@ const EXPECTED: Record<string, Record<string, ExpectedLine[]>> = {
     buff: [
       ['광폭화 5중첩', '_per_attackDamage', 'log', 2.1760912590556813],
       ['학살자', '_per_attackDamage', 'log', 2.1760912590556813],
-      ['연타 폭주 (붙는 자리 추정)', '_per_attackDamage', 'value', 210],
+      ['연타 폭주 (공격력 %)', '_per_attackDamage', 'value', 210],
+      // 과충전 연타 102 (Lv20 = 400) 는 연타 224.49 가 100 을 넘어서 공격력 % 줄이 생긴다 (combat0113.py 105)
+      ['과충전 연타 (연타 224.49% 가 100% 초과)', '_per_attackDamage', 'value', 400],
     ],
   },
   empty: {
@@ -153,7 +156,7 @@ const EXPECTED: Record<string, Record<string, ExpectedLine[]>> = {
     buff: [
       ['광폭화 5중첩', '_per_attackDamage', 'log', 2.1760912590556813],
       ['학살자', '_per_attackDamage', 'log', 2],
-      ['연타 폭주 (붙는 자리 추정)', '_per_attackDamage', 'value', 2.5],
+      ['연타 폭주 (공격력 %)', '_per_attackDamage', 'value', 2.5],
     ],
   },
 };
@@ -170,14 +173,24 @@ describe('탭 목록', () => {
   it('탭 id 와 쓰는 표', () => {
     expect(masteryRuneBuffTabs(() => []).map((tab) => [tab.id, tab.tableNames])).toEqual([
       ['mastery', ['Mastery', 'Pet', 'Character', 'Skill']],
-      ['rune', ['AttributeRune']],
+      ['rune', ['AttributeRune', 'AttributeRuneLab']],
       ['awakenDetail', ['Awaken']],
-      ['buff', ['Mastery', 'Pet', 'Character', 'Skill', 'AttributeRune', 'Awaken']],
+      ['buff', ['Mastery', 'Pet', 'Character', 'Skill', 'AttributeRune', 'AttributeRuneLab', 'Awaken']],
     ]);
   });
   it('버프 탭은 다른 탭들이 쓰는 표도 같이 부른다 (확률 계산에 다른 탭 줄이 필요)', () => {
     const buff = masteryRuneBuffTabs(() => [], ['Card', 'Pet', 'Relic']).find((tab) => tab.id === 'buff')!;
-    expect(buff.tableNames).toEqual(['Mastery', 'Pet', 'Character', 'Skill', 'AttributeRune', 'Awaken', 'Card', 'Relic']);
+    expect(buff.tableNames).toEqual([
+      'Mastery',
+      'Pet',
+      'Character',
+      'Skill',
+      'AttributeRune',
+      'AttributeRuneLab',
+      'Awaken',
+      'Card',
+      'Relic',
+    ]);
   });
 });
 
@@ -383,7 +396,7 @@ describe('연타 계산', () => {
     const spedUp: Line[] = [...eikaLines, { source: '전투 중 공격속도 몫', stat: 'attackSpeed', value: 289 }];
     const tab = masteryRuneBuffTabs(() => spedUp).find((item) => item.id === 'buff')!;
     const lines = tab.lines({ ...eika, ...masteryValues({ 103: 1 }) }, tables);
-    expect(lines).toEqual([{ source: '연타 폭주 (붙는 자리 추정)', stat: '_per_attackDamage', value: 2.5 * 11 }]);
+    expect(lines).toEqual([{ source: '연타 폭주 (공격력 %)', stat: '_per_attackDamage', value: 2.5 * 11 }]);
   });
 });
 
@@ -665,7 +678,7 @@ describe('음식 효과 (일반 몬스터 피해 3종, 하나만) · 공격력 �
     expect(tab.lines({ normalMonsterFood: 'strawberryJam' }, {})).toHaveLength(1);
   });
 
-  it('공격력 이벤트 버프 (Item 표 15, 공격력 +200%): 처음 = 꺼짐, 켜면 공격력 % 줄 (붙는 스탯은 추정)', () => {
+  it('공격력 이벤트 버프 (Item 표 15, 공격력 +200%): 처음 = 꺼짐, 켜면 공격력 % 줄 (2026-10-12 01:54 화면 일치로 확인)', () => {
     expect(attackEventBuffLines({}, (key) => key)).toEqual([]);
     expect(attackEventBuffLines({ attackEventBuff: 'true' }, (key) => key)).toEqual([
       { source: 'calc.buff.attackEventBuffSource', stat: '_per_attackDamage', value: 200 },
@@ -689,5 +702,109 @@ describe('음식 효과 (일반 몬스터 피해 3종, 하나만) · 공격력 �
       { source: '음식 효과: 딸기잼', stat: '_per_NormalMonsterDamage', value: 100 },
     ]);
     expect(tab.lines({}, tables)).toEqual([]);
+  });
+});
+
+/**
+ * 전투 중 최대 상태 몫 (사용자 결정: 입력 칸 없이 최대 중첩). 기대값은 게임 식 스크립트 combat0113.py · crit_check.py 의 값
+ * (복리 10중첩: 204 값 10 → +159.37, 309 값 5 → +62.89, 109 값 20 → +519.17. 곱: 63 값 50 → ×1.5, 102·202·307 값 400 → ×5, 108 값 50 x 1단계 → ×1.5).
+ * 입력은 이 테스트 안에서 만든다 (기본값에 기대지 않음)
+ */
+describe('전투 중 최대 상태 몫 (battleState.ts)', () => {
+  const label = (key: string) => key;
+  const level20 = (...rNos: number[]) => masteryValues(Object.fromEntries(rNos.map((rNo) => [rNo, 20])));
+  const sumOf = (lines: Line[], stat: string) => lines.filter((line) => line.stat === stat).reduce((sum, line) => sum + Number(line.value), 0);
+
+  it('복리 중첩 % = ((1 + 값/100)^10 − 1) x 100', () => {
+    expect(compoundPercent(10)).toBeCloseTo(159.3742, 4);
+    expect(compoundPercent(5)).toBeCloseTo(62.8895, 4);
+    expect(compoundPercent(20)).toBeCloseTo(519.1736, 4);
+    expect(compoundPercent(0)).toBe(0);
+  });
+
+  it('특성 Lv20 값: 204 = 10, 309 = 5, 109 = 20, 13 = 100 (발동 확률), 9 = 30, 58 = 50, 63 = 50, 108 = 50', () => {
+    const traits = masteryTraits(tables.Mastery);
+    const valueOf = (rNo: string) => {
+      const trait = traits.find((item) => item.rNo === rNo)!;
+      return trait.statValue + trait.statUpValue * 19;
+    };
+    expect([204, 309, 109, 13, 9, 58, 63, 108, 102, 202, 307].map((rNo) => valueOf(String(rNo)))).toEqual([
+      10, 5, 20, 100, 30, 50, 50, 50, 400, 400, 400,
+    ]);
+  });
+
+  it('공격속도: 204 복리 +159.37, 추진력 13 은 표 값 100 이 아니라 고정 +50, 9 +30, 58 +50 (합 289.37)', () => {
+    const lines = battleStatLines(level20(204, 13, 9, 58), tables.Mastery, label);
+    expect(lines.every((line) => line.stat === 'attackSpeed')).toBe(true);
+    expect(lines.map((line) => Number(line.value))).toEqual([expect.closeTo(159.3742, 4), 50, 30, 50]);
+    expect(sumOf(lines, 'attackSpeed')).toBeCloseTo(289.3742, 4);
+  });
+
+  it('치명타 확률은 309 복리 +62.89, 치명타 데미지는 109 복리 합 계열 +519.17', () => {
+    const lines = battleStatLines(level20(309, 109), tables.Mastery, label);
+    expect(sumOf(lines, 'criticalRate')).toBeCloseTo(62.8895, 4);
+    expect(sumOf(lines, 'criticalDmg')).toBeCloseTo(519.1736, 4);
+  });
+
+  it('특성을 안 찍었으면 줄 없음 (기본값 0)', () => {
+    expect(battleStatLines({}, tables.Mastery, label)).toEqual([]);
+    expect(battleDamageLines({}, tables.Mastery, label, { doubleAttack: 999, superCritical: 999, spearAttack: 999, smite: 999 })).toEqual([]);
+  });
+
+  it('63 흘러넘치는 체력 값 50 → 공격력 ×1.5 (확률과 상관없이 항상 켜짐)', () => {
+    const lines = battleDamageLines(level20(63), tables.Mastery, label, {});
+    expect(lines).toEqual([{ source: 'calc.buff.battle.barrierFullSource', stat: '_per_attackDamage', value: 50 }]);
+    expect(Math.pow(10, combineLines(lines)._per_attackDamage.log)).toBeCloseTo(1.5, 12);
+  });
+
+  it('102 과충전 연타 400 → ×5 는 연타가 100 을 넘을 때만 (100 이하면 없음)', () => {
+    const values = level20(102);
+    const over = battleDamageLines(values, tables.Mastery, label, { doubleAttack: 100.01 });
+    expect(Math.pow(10, combineLines(over)._per_attackDamage.log)).toBeCloseTo(5, 12);
+    expect(battleDamageLines(values, tables.Mastery, label, { doubleAttack: 100 })).toEqual([]);
+  });
+
+  it('202 초과된 힘 400 → ×5 는 관통이 100 을 넘을 때, 307 무자비 폭주 400 → ×5 는 무자비가 100 을 넘을 때 (상태이상 조건 없음)', () => {
+    const values = level20(202, 307);
+    const both = battleDamageLines(values, tables.Mastery, label, { spearAttack: 103.01, smite: 102.9 });
+    expect(both.map((line) => line.value)).toEqual([400, 400]);
+    expect(Math.pow(10, combineLines(both)._per_attackDamage.log)).toBeCloseTo(25, 9);
+    expect(battleDamageLines(values, tables.Mastery, label, { spearAttack: 100, smite: 99 })).toEqual([]);
+    expect(battleDamageLines(values, tables.Mastery, label, { spearAttack: 103.01 }).map((line) => line.value)).toEqual([400]);
+  });
+
+  it('108 한계 돌파: floor((슈퍼 치명타 − 100) / 10) 단계 x 값 (118.68 → 1단계 ×1.5, 130.91 → 3단계 ×2.5, 100.4 → 없음)', () => {
+    const values = level20(108);
+    const factorOf = (superCritical: number) => {
+      const lines = battleDamageLines(values, tables.Mastery, label, { superCritical });
+      return lines.length ? Math.pow(10, combineLines(lines)._per_attackDamage.log) : 1;
+    };
+    expect(factorOf(118.68)).toBeCloseTo(1.5, 12);
+    expect(factorOf(130.91)).toBeCloseTo(2.5, 12);
+    expect(factorOf(100.4)).toBe(1);
+  });
+
+  it('버프 탭 줄과 확률: 01:54 계정 규칙 — 공격속도 정적 1904 + 289.37 → 속도 과열 184단계, 연타 251.69, 치명타 확률 548.3 + 62.89 → 슈퍼 치명타 118.68 (combat_0154.txt)', () => {
+    const other: Line[] = [
+      { source: '공격속도 합', stat: 'attackSpeed', value: 1904 },
+      { source: '연타', stat: 'doubleAttack', value: 27.69 },
+      { source: '연타 추가', stat: 'doubleAttackAddPer', value: 40 },
+      { source: '속도 과열', stat: 'doubleAttackOverPer', value: 1 },
+      { source: '치명타 확률 합', stat: 'criticalRate', value: 548.3 },
+      { source: '슈퍼 치명타', stat: 'superCritical', value: 27.68 },
+      { source: '슈퍼 치명타 추가', stat: 'superCriticalAddPer', value: 40 },
+      { source: '꿰뚫기', stat: 'superCriticalOverPer', value: 1 },
+    ];
+    const values = { ...level20(204, 13, 9, 58, 309, 102, 108), skillLevel_53: '1', skillEquip_1: '53' };
+    // 액티브 스킬 하나를 장착해 초월적 기량 42 가 끼지 않게 한다
+    const { chances, battleLines } = chancesWithBattleState(other, values, tables, tables.Mastery, label);
+    expect(chances.doubleAttack).toBeCloseTo(251.69, 9);
+    expect(chances.superCritical).toBeCloseTo(118.68, 9);
+    expect(battleLines.length).toBe(5);
+    // 버프 탭 전체 줄에 battleLines 가 들어가고, 과충전 (연타 251.69 > 100) 과 한계 돌파 (1단계) 가 이어서 붙는다
+    const tab = masteryRuneBuffTabs(() => other).find((item) => item.id === 'buff')!;
+    const buffTabLines = tab.lines(values, tables);
+    expect(buffTabLines.filter((line) => line.stat === 'attackSpeed').length).toBe(4);
+    expect(buffTabLines.some((line) => line.source.startsWith('calc.buff.battle.overchargeSource') || line.source.startsWith('과충전 연타'))).toBe(true);
   });
 });

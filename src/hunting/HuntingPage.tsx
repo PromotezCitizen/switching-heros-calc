@@ -79,8 +79,9 @@ export default function HuntingPage() {
       Object.fromEntries(RESOURCES.map((resource) => [resource, build(resource)])) as Record<Resource, T>;
     return {
       vipLevel: account.vipLevel,
-      fairyLevel: account.fairyOn ? account.fairyLevel : CONSTS.emptyInput.LEVEL,
-      otherAlwaysPercent: readNumber(values, `${KEY_PREFIX}otherAlways`, DEFAULTS.otherAlways),
+      fairyLevel: account.fairyLevel,
+      adRemoved: account.adRemoved,
+      fairyOn: account.huntingFairyOn,
       guildLevel: account.guildLevel,
       guildSkillLevels: account.guildSkillLevels,
       foodPercent: perResource((resource) => readNumber(values, `${KEY_PREFIX}food.${resource}`)),
@@ -124,7 +125,6 @@ export default function HuntingPage() {
       <Paper withBorder p="md">
         <Title order={3} mb="sm">{translate('hunting.onlineTitle')}</Title>
         <Stack gap="sm">
-          {numberField('otherAlways', translate('hunting.otherAlways'))}
           <SimpleGrid cols={{ base: 1, md: 3 }}>
             {RESOURCES.map((resource) => (
               <Stack key={resource} gap="xs">

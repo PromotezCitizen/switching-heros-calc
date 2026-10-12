@@ -14,7 +14,7 @@ import { petLines } from './pet';
 import type { SourceLabel } from './shared';
 import { soulForgeLines, weaponLines } from './weapon';
 
-export { cardSlotGradeStars, countExpandedLines, sssCardCount } from './card';
+export { cardCountsByGrade, cardSlotGradeStars, cardStackLines, countExpandedLines, sssCardCount } from './card';
 export type { CardSlotGradeStar } from './card';
 export { equippedPetIds } from './pet';
 
@@ -48,7 +48,7 @@ export const heroWeaponCardPetTabs: CalcTab[] = [
   },
   {
     id: 'pet',
-    tableNames: ['Pet', 'DiceOption'],
+    tableNames: ['Pet', 'DiceOption', 'PetRegion', 'Option'],
     Panel: PetPanel,
     lines: (values, tables) => petLines(values, tables, sourceLabel),
   },

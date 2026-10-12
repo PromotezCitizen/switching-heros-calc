@@ -12,6 +12,7 @@ import { onAttackBuffLines } from '../masteryRuneBuff/buff';
 import savedValues from './testValues0213.json';
 import savedValues0248 from './testValues0248.json';
 import {
+  attackIncreaseStats,
   compareWithScreen,
   groupSubtotals,
   increaseLogs,
@@ -73,16 +74,18 @@ describe('종합: 02:13 사망 직후 프로필 창과 대조', () => {
   it('공격력 증가 배율 = 공격력 % × 직업·속성 공격력 % × 일반 몬스터 대미지 % 와 변형 (log ≈ 265.33)', () => {
     const lines = expandedTabLines(DEAD_TABS, DEAD_VALUES, tables);
     const hero = heroFirstRow(tables, slotHeroName(DEAD_VALUES, tables));
-    // 수정 뒤 값: 265.33 에서 전용 무기 장착 효과 ×2 (+0.3010, 유물 45) 와 유물 101 ÷100 (−0.6940) 이 바뀜 (gap-atk-increase-provider.md 4-3, 4-4)
-    expect(increaseLogs(lines, hero).attack).toBeCloseTo(264.94, 1);
-    // 화면과의 차이 = 이전 +0.1283 − 2 (×100 제거, 4-1) − 0.3906 (위 두 항목). 남는 −2.26 = 이 저장 시점의 음식 ×21 (1.3222) + 카드 4번 ×8 (0.9031) + 미확인 0.017
-    expect((rowsOf(DEAD_VALUES).atkIncrease.log as number) - screenLog('1.6CK%')).toBeCloseTo(-2.2623, 2);
+    // 수정 뒤 값: 265.33 에서 전용 무기 장착 효과 ×2 (+0.3010, 유물 45) 와 유물 101 ÷100 (−0.6940) 이 바뀜 (gap-atk-increase-provider.md 4-3, 4-4).
+    // 그 뒤 직업 일반 무기 합산 레벨 유물 4개를 모두 공격력 % 에 곱하게 고쳐 다른 3직업 몫 +0.7433 (x10101-1057-gamecode.md 2절 49행, 로그 0.74392) 이 늘어 264.94 → 265.68
+    expect(increaseLogs(lines, hero).attack).toBeCloseTo(265.68, 1);
+    // 화면과의 차이 = 이전 +0.1283 − 2 (×100 제거, 4-1) − 0.3906 (위 두 항목) + 0.7433 (다른 3직업 유물). 남는 −1.52 = 이 저장 시점의 음식 ×21 (1.3222) + 카드 4번 ×8 (0.9031) + 미확인 0.017 − 0.7433
+    expect((rowsOf(DEAD_VALUES).atkIncrease.log as number) - screenLog('1.6CK%')).toBeCloseTo(-1.519, 2);
   });
 
-  it('최종 공격력은 화면 217.28DD 보다 log 2.26 작다 (음식 ×21 + 카드 4번 ×8 + 미확인 0.017 이 이 입력에 없음)', () => {
+  it('최종 공격력은 화면 217.28DD 보다 log 1.52 작다 (음식 ×21 + 카드 4번 ×8 + 미확인 0.017 이 이 입력에 없음, 다른 3직업 유물 +0.744 가 들어간 뒤)', () => {
     const rows = rowsOf(DEAD_VALUES);
     // 식을 log(M) − 2 로 고침 (gap-atk-increase-provider.md 4-1, 6절). 이전에는 화면과 0.2 이내였으나 그것은 ×100 오류와 위 누락이 상쇄된 결과
-    expect((rows.finalAtk.log as number) - screenLog('217.28DD')).toBeCloseTo(-2.2645, 2);
+    // (−2.2645 에서 다른 3직업 일반 무기 합산 레벨 유물 +0.7439 가 늘어 −1.5206)
+    expect((rows.finalAtk.log as number) - screenLog('217.28DD')).toBeCloseTo(-1.5206, 2);
     expect(rows.atk.log).toBeCloseTo(screenLog('423.76B'), 4);
   });
 
@@ -115,14 +118,14 @@ describe('종합: 02:13 사망 직후 프로필 창과 대조', () => {
     expect(percentOf('switchingBoost')).toBeCloseTo(55.15, 6);
     expect(percentOf('smite')).toBeCloseTo(113.65, 6);
     expect(percentOf('barrier')).toBeCloseTo(46.75, 6);
-    // 치명타 확률: 줄 합 488.3 + 기본값 1 (추정) = 489.3 (02:06·02:48 화면 489.3 과 같음).
+    // 치명타 확률: 줄 합 488.3 + 기본값 1 (게임 코드 상수, T1282 m6859) = 489.3 (02:06·02:48 화면 489.3 과 같음).
     // 슈퍼 치명타 = 18.37 + 40 + 38단계 × 1 (02:06 화면 96.37 과 같음, 489.3 이어도 38단계)
     expect(percentOf('criticalRate')).toBeCloseTo(489.3, 6);
     expect(percentOf('superCritical')).toBeCloseTo(96.37, 6);
   });
 
   /**
-   * 치명타 데미지 = 합 계열 (훈련 879 + 유물 25 + 기본값 120 (추정)) × 곱 계열 (기본·궁수·물·체력 70% 카드) ÷ 100.
+   * 치명타 데미지 = 합 계열 (훈련 879 + 유물 25 + 기본값 120 (게임 코드 상수)) × 곱 계열 (기본·궁수·물·체력 70% 카드) ÷ 100.
    * 치명타 줄은 02:06·02:13·02:48 저장이 같아 (verify-2026-10-07-0248.md 4절) 스테이지 밖 02:48 화면 105.81B% 와 같아야 한다.
    * 02:06 화면 158.68B% 는 전투 중 ×1.4997 (출처 못 찾음) 이 붙은 값이라 대조하지 않는다
    */
@@ -171,7 +174,7 @@ describe('종합: 공격 대상 칸 (일반 / 보스 / 히어로 몬스터)', ()
     const boss = increaseLogs(lines, hero, 'boss').attack;
     const heroTarget = increaseLogs(lines, hero, 'hero').attack;
     expect(normal).toBeCloseTo(increaseLogs(lines, hero).attack, 12);
-    expect(normal).toBeCloseTo(264.94, 1);
+    expect(normal).toBeCloseTo(265.68, 1);
     expect(boss - normal).toBeCloseTo(targetLog('Boss') - targetLog('Normal'), 9);
     expect(heroTarget - normal).toBeCloseTo(targetLog('Hero') - targetLog('Normal'), 9);
     expect(Math.abs(boss - normal)).toBeGreaterThan(0.1);
@@ -291,6 +294,27 @@ function rows0248Values(values: CalcValues) {
   >;
 }
 
+describe('종합: 성별 공격력 % (묶음 A 의 0x1c2 남 · 0x1c3 여)', () => {
+  const female = { job: 'Archer', attribute: 'Water', gender: '2' };
+  const male = { job: 'Archer', attribute: 'Water', gender: '1' };
+  const lines = [
+    { source: '영혼 단조', stat: '_per_Female_AttackDamage', value: 100 },
+    { source: '영혼 단조', stat: '_per_Male_AttackDamage', value: 300 },
+  ];
+  it('히어로 성별에 맞는 성별 공격력 이름만 공격력 증가 이름에 든다', () => {
+    expect(attackIncreaseStats(female)).toContain('_per_Female_AttackDamage');
+    expect(attackIncreaseStats(female)).not.toContain('_per_Male_AttackDamage');
+    expect(attackIncreaseStats(male)).toContain('_per_Male_AttackDamage');
+    expect(attackIncreaseStats(male)).not.toContain('_per_Female_AttackDamage');
+    expect(attackIncreaseStats(undefined)).not.toContain('_per_Female_AttackDamage');
+  });
+  it('여자 히어로는 여자 몫 x2, 남자 히어로는 남자 몫 x4 만 곱한다', () => {
+    expect(increaseLogs(lines, female).attack).toBeCloseTo(Math.log10(2), 12);
+    expect(increaseLogs(lines, male).attack).toBeCloseTo(Math.log10(4), 12);
+    expect(increaseLogs(lines, undefined).attack).toBe(0);
+  });
+});
+
 describe('종합: 치명타 데미지 식', () => {
   it('합 계열 C × 곱 계열 D ÷ 100, 체력 70% 이상 카드 줄은 곱 계열. 합 계열이 없으면 0', () => {
     const lines = [
@@ -327,11 +351,11 @@ describe('종합: 02:48 프로필 화면 (219) 과 대조', () => {
     expect(Math.abs(criticalDamage?.differenceLog as number)).toBeLessThan(0.0001);
   });
 
-  it('공격력 증가 (대상 일반, 버프 탭 뺌) 는 화면 3.35CK% 보다 log 2.2428 작음 = 음식 ×21 (1.3222) + 카드 4번 ×8 (0.9031) + 미확인 0.0170', () => {
+  it('공격력 증가 (대상 일반, 버프 탭 뺌) 는 화면 3.35CK% 보다 log 1.4989 작음 = 음식 ×21 (1.3222) + 카드 4번 ×8 (0.9031) + 미확인 0.0170 − 다른 3직업 유물 0.7439', () => {
     const rows = rows0248(PROFILE_0248_VALUES);
     const attackIncrease = compareWithScreen(rows.atkIncrease.log, '3.35CK%');
-    // 이전 +0.1502 (거북 6장 규칙) − 2 (×100 제거) − 0.3930 (전용 무기 ×2 +0.3010, 유물 101 ÷100 −0.6940). gap-atk-increase-provider.md 4절·5절
-    expect(attackIncrease?.differenceLog).toBeCloseTo(-2.2428, 3);
+    // 이전 +0.1502 (거북 6장 규칙) − 2 (×100 제거) − 0.3930 (전용 무기 ×2 +0.3010, 유물 101 ÷100 −0.6940) + 0.7439 (일반 무기 합산 레벨 유물 4직업 모두 곱함). gap-atk-increase-provider.md 4절·5절, x10101-1057-gamecode.md 2절
+    expect(attackIncrease?.differenceLog).toBeCloseTo(-1.4989, 3);
   });
 
   it('02:48 공격력 증가: 공격력 이벤트 버프를 켜면 ×3, 적 수 5 이상을 켜면 카드 4번 ×8 만큼 화면과의 차이가 줄어든다 (이벤트 버프는 음식과 별도)', () => {

@@ -180,9 +180,11 @@ export default function SummaryPanel({ values, setValue, tables }: TabPanelProps
           </Table.Tbody>
         </Table>
       </Table.ScrollContainer>
-      <Text size="xs" c="dimmed">
-        {translate('calc.summary.estimatedHelp')}
-      </Text>
+      {rows.some((row) => row.estimated) && (
+        <Text size="xs" c="dimmed">
+          {translate('calc.summary.estimatedHelp')}
+        </Text>
+      )}
 
       <SectionTitle>{translate('calc.summary.subtotal.title')}</SectionTitle>
       <Text size="sm" c="dimmed">

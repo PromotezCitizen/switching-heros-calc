@@ -9,7 +9,8 @@ import type { Line } from '../../combine';
 import type { CalcValues } from '../../types';
 import { gradeStarValue, groupBy, rowsOf, screenLog, unique, type RowGroup, type SourceLabel } from './shared';
 
-const { SLOTS, OPTIONS, EXCLUDED_OPTION_STAT, AILMENT_LEADER_PREFIX } = CONSTS.heroWeaponCardPet.pet;
+const { SLOTS, OPTIONS, EXCLUDED_OPTION_STAT, AILMENT_LEADER_PREFIX, REGION: PET_REGION } = CONSTS.heroWeaponCardPet.pet;
+const PERCENT_DIVISOR = CONSTS.common.PERCENT_DIVISOR;
 
 export const PET_LEADER_FIELD = 'petLeader';
 export const PET_SLOT_NUMBERS = Array.from({ length: SLOTS }, (_, index) => index + 1);
@@ -76,6 +77,63 @@ export function petOptionCount(values: CalcValues, tables: StatTables, petId: st
   return row ? Number(row.optionCnt) : 0;
 }
 
+/** 펫 지역 레벨 칸 (속성마다 하나, 비어 있음·0 = 입력 전이라 그 지역은 계산하지 않음) */
+export function petRegionLevelField(attribute: string): string {
+  return `petRegionLevel_${attribute}`;
+}
+
+/** 속성별 "마지막 단계" 보유 펫 수 (고른 등급·성이 그 펫 표 행의 마지막인 펫, 게임 m5997 의 "다음 레벨 행이 없는 펫") */
+export function maxStagePetCounts(values: CalcValues, tables: StatTables): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const group of petGroups(tables)) {
+    const row = ownedPetRow(values, tables, group.key);
+    const lastRow = group.rows[group.rows.length - 1];
+    if (row && gradeStarValue(row) === gradeStarValue(lastRow)) {
+      counts[row.attribute] = (counts[row.attribute] ?? 0) + 1;
+    }
+  }
+  return counts;
+}
+
+/** 펫 지역이 열렸는가 = 마지막 단계 펫 수 합이 해금 조건 이상 (게임 문구 "2성 SSS등급 펫 1마리 이상 보유 시 해금") */
+export function petRegionUnlocked(values: CalcValues, tables: StatTables): boolean {
+  const total = Object.values(maxStagePetCounts(values, tables)).reduce((sum, count) => sum + count, 0);
+  return total >= PET_REGION.UNLOCK_PET_COUNT;
+}
+
+/** 지역 특성 배율 f = Option 표 PET_PLACEMENT_PER_<마지막 단계 펫 수> ÷ 100 (수 0 이면 0, 6 초과면 6번째) */
+function petRegionPlacementFactor(tables: StatTables, count: number): number {
+  if (count <= 0) return 0;
+  const key = `${PET_REGION.PLACEMENT_KEY_PREFIX}${Math.min(count, PET_REGION.PLACEMENT_MAX_COUNT)}`;
+  const row = rowsOf(tables, PET_REGION.PLACEMENT_TABLE).find((record) => record[PET_REGION.PLACEMENT_KEY_COLUMN] === key);
+  return row ? Number(row[PET_REGION.PLACEMENT_VALUE_COLUMN]) / PERCENT_DIVISOR : 0;
+}
+
+/** 지역 레벨 → 표 PetRegion 의 행 (없으면 undefined) */
+export function petRegionRow(tables: StatTables, level: number): TableRow | undefined {
+  return level > 0 ? rowsOf(tables, PET_REGION.TABLE).find((row) => Number(row[PET_REGION.LEVEL_COLUMN]) === level) : undefined;
+}
+
+/**
+ * 펫 지역 줄: 해금되었고 지역 레벨을 넣은 지역마다 공격력 % · 체력 % 한 줄씩 (표 값 × (1 + f)).
+ * 지역은 속성 상관없이 3개 모두 합산한다 (활성 영웅 속성 검사 없음)
+ */
+export function petRegionLines(values: CalcValues, tables: StatTables, label: SourceLabel): Line[] {
+  if (!petRegionUnlocked(values, tables)) return [];
+  const counts = maxStagePetCounts(values, tables);
+  const lines: Line[] = [];
+  for (const attribute of PET_REGION.ATTRIBUTES) {
+    const level = Math.floor(Number(values[petRegionLevelField(attribute)]) || 0);
+    const row = petRegionRow(tables, level);
+    if (!row) continue;
+    const factor = 1 + petRegionPlacementFactor(tables, counts[attribute] ?? 0);
+    const source = label('calc.pet.sources.region', { attribute: label(`calc.pet.attributes.${attribute}`), level });
+    lines.push({ source, stat: PET_REGION.ATTACK_STAT, value: Number(row[PET_REGION.ATTACK_COLUMN]) * factor });
+    lines.push({ source, stat: PET_REGION.HP_STAT, value: Number(row[PET_REGION.HP_COLUMN]) * factor });
+  }
+  return lines;
+}
+
 export function petLines(values: CalcValues, tables: StatTables, label: SourceLabel): Line[] {
   const lines: Line[] = [];
   const petName = (petId: string) => label(`calc.pet.petNames.${petId}`);
@@ -108,5 +166,6 @@ export function petLines(values: CalcValues, tables: StatTables, label: SourceLa
       }
     }
   }
+  lines.push(...petRegionLines(values, tables, label));
   return lines;
 }

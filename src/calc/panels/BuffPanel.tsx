@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { Stack, Text } from '@mantine/core';
 import { CONSTS } from '../../CONSTS';
 import { FlagField, NumberField, SelectField } from '../../components/StoreFields';
+import i18next from 'i18next';
+import { chancesWithBattleState } from '../sources/masteryRuneBuff/battleState';
 import { berserkStacks, killerLog } from '../sources/masteryRuneBuff/buff';
 import { chancesFromLines } from '../sources/masteryRuneBuff/chances';
 import type { OtherTabLines } from '../sources/masteryRuneBuff';
@@ -32,7 +34,13 @@ interface BuffPanelProps extends TabPanelProps {
 export default function BuffPanel({ values, tables, otherTabLines }: BuffPanelProps) {
   const { t: translate } = useTranslation();
   const masteryTable = tables.Mastery;
-  const chances = chancesFromLines(otherTabLines(values, tables), values, tables);
+  // 연타·스킬 콤보는 버프 탭 줄과 같이 전투 중 최대 상태 공격속도·치명타 확률까지 넣어 계산한다
+  const otherLines = otherTabLines(values, tables);
+  const chances = masteryTable
+    ? chancesWithBattleState(otherLines, values, tables, masteryTable, (translationKey, params) =>
+        i18next.t(translationKey, params ?? {}),
+      ).chances
+    : chancesFromLines(otherLines, values, tables);
 
   return (
     <Stack gap="xs">

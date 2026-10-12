@@ -97,6 +97,9 @@
     "slot": "{{slot}}번 {{card}} {{grade}} {{star}}성",
     "set": "{{name}} ({{count}}개)",
     "sssExpanded": "{{source}} × SSS 등급 이상 {{count}}장 (별 무관)",
-    "enemyCountReached": "{{source}} (적 수 조건 충족)"
+    "enemyCountReached": "{{source}} (적 수 조건 충족)",
+    "gradeExpanded": "{{source}} × {{grade}} 등급 이상 {{count}}장 (별 무관)",
+    "killStacks": "카드 처치 중첩 {{stacks}}중첩 (늘 최대, 선형)",
+    "useSkillStacks": "카드 스킬 사용 중첩 {{stacks}}중첩 (늘 최대, 선형)"
   }
 }

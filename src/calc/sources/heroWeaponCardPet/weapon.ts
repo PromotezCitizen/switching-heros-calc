@@ -3,18 +3,19 @@
  * (stat-calc-core.js weaponEffect, stat-calc.html weaponTranscendLines / calcTabGroups 의 전용 무기 묶음) → 효과 줄
  */
 import { CONSTS } from '../../../CONSTS';
-import type { StatTables } from '../../../data/statTables';
+import type { StatTables, TableRow } from '../../../data/statTables';
 import type { Line } from '../../combine';
 import type { CalcValues } from '../../types';
 import { slotHeroName } from '../hero/character';
 import { exclusiveWeapons, ownedExclusiveLevel, ownedExclusiveStar } from '../hero/roster';
-import { exclusiveOwnedStarField } from '../hero/rosterFields';
+import { exclusiveMissionReceivedStarField, exclusiveOwnedStarField } from '../hero/rosterFields';
 import { integerFieldValue } from '../trainingRelic/fieldNumbers';
 import {
   RELIC_MAX_GRADE_FIELD,
   RELIC_TABLE,
   relicGradeAllowed,
   relicGrades,
+  normalWeaponLevel,
   relicLevelFieldId,
   relicRows,
   relicValue,
@@ -44,6 +45,7 @@ export const LINK_STAR_FIELD = 'weaponLinkStar';
 const LINK_TRANSCEND_JOB = 'None';
 export const NORMAL_EQUIP_FIELD = 'normalWeaponAtk';
 export const SOUL_FORGE_FIELD = 'soulForgeLevel';
+const SOUL_FORGE_TABLE = 'SoulForge';
 
 export function linkLevelField(job: string): string {
   return `weaponLink_${job}Level`;
@@ -65,14 +67,15 @@ export interface NormalWeaponPossess {
 }
 
 /**
- * 일반 무기 보유 효과 (서버 표 WeaponJob): 무기마다 (보유 기본 + 보유 강화당 × 최대 레벨) % 를 × (1 + v/100) 로 곱함.
- * "전부 만렙" 가정 (사용자 결정). 곱한 배율 M 을 한 줄의 % 값 (M − 1) × 100 으로 바꿔 넣는다
+ * 일반 무기 보유 효과 (서버 표 WeaponJob): 무기마다 (보유 기본 + 보유 강화당 × 실제 강화 레벨) % 를 × (1 + v/100) 로 곱함
+ * (게임 m6836 @306b564 보유 루프, calc0113.py 391~397). 강화 레벨은 무기 탭의 무기별 칸 값이고, 칸이 비어 있으면 최대 레벨
+ * ("전부 만렙" 가정, 사용자 결정). 곱한 배율 M 을 한 줄의 % 값 (M − 1) × 100 으로 바꿔 넣는다
  */
-export function normalWeaponPossessEffect(tables: StatTables): NormalWeaponPossess | null {
+export function normalWeaponPossessEffect(tables: StatTables, values: CalcValues = {}): NormalWeaponPossess | null {
   const rows = rowsOf(tables, 'WeaponJob');
   if (!rows.length) return null;
   const multiplierLog = rows.reduce((sum, row) => {
-    const percent = Number(row.possAbilVal1) + Number(row.possAbilEnh1) * Number(row.maxLv);
+    const percent = Number(row.possAbilVal1) + Number(row.possAbilEnh1) * normalWeaponLevel(values, row);
     return sum + Math.log10(1 + percent / PERCENT_DIVISOR);
   }, 0);
   return {
@@ -91,15 +94,25 @@ export interface WeaponTotalAtk {
 }
 
 /**
+ * 전용 무기 하나에서 받은 초월 미션 ★: "받은 초월 미션 ★" 칸 (전용 무기 표) 값, 칸이 비어 있으면 초월 ★ 까지 받은 것으로 친다
+ * (게임은 받은 미션 번호 목록 _receivedIds 로 계산 — calc0113.py 323~328)
+ */
+export function receivedMissionStar(values: CalcValues, weaponId: string): number {
+  const received = values[exclusiveMissionReceivedStarField(weaponId)];
+  if (received !== undefined && String(received).trim() !== '') return Math.max(Math.floor(Number(received)) || 0, 0);
+  return Number(values[exclusiveOwnedStarField(weaponId)]) || 0;
+}
+
+/**
  * 무기 누적 능력치 공격력 % (claude-docs/react-port/weapon-total-source.md): 전용 무기마다 초월 미션 (표 ContentMission,
- * missionType WeaponChar_Trans) 중 condValue0 ≤ 그 무기 초월 ★ 인 공격력 보상을 (1 + v/100) 로 모두 곱한 배율 M → (M − 1) × 100.
- * 초월 미션 효과는 보유 효과 (게임 도움말 TransMission_Help_0001) 라 장착 여부와 상관없이 전용 무기 표에 ★ 를 넣은 무기 전부.
- * ★ 를 하나도 안 넣었거나 받은 보상이 없으면 null (줄 없음)
+ * missionType WeaponChar_Trans) 중 condValue0 ≤ 받은 초월 미션 ★ (receivedMissionStar) 인 공격력 보상을 (1 + v/100) 로 모두 곱한 배율 M → (M − 1) × 100.
+ * 초월 미션 효과는 보유 효과 (게임 도움말 TransMission_Help_0001) 라 장착 여부와 상관없이 전용 무기 표에 넣은 무기 전부.
+ * 받은 ★ 가 없으면 받은 보상이 없어 null (줄 없음)
  */
 export function weaponTotalAtk(values: CalcValues, tables: StatTables): WeaponTotalAtk | null {
-  // 한계: 몬스터 처치 미션이 밀린 계정은 다음 초월 미션이 안 열려 ★ 기준 값이 실제보다 클 수 있음
+  // 받은 ★ 칸이 비어 있으면 초월 ★ 도달 = 받음으로 가정한다 (몬스터 처치 미션이 밀린 계정은 실제보다 클 수 있어 칸으로 고칠 수 있음)
   const starOfWeapon = new Map(
-    exclusiveWeapons(tables).map((weapon) => [weapon.weaponId, Number(values[exclusiveOwnedStarField(weapon.weaponId)]) || 0]),
+    exclusiveWeapons(tables).map((weapon) => [weapon.weaponId, receivedMissionStar(values, weapon.weaponId)]),
   );
   let missionCount = 0;
   let multiplierLog = 0;
@@ -286,7 +299,7 @@ export function weaponTabLines(values: CalcValues, tables: StatTables, label: So
   if (equipLog !== null && !usesExclusiveWeapon(values, tables)) {
     lines.push({ source: label('calc.weapon.sources.normalEquip'), stat: '_per_attackDamage', log: equipLog });
   }
-  const possess = normalWeaponPossessEffect(tables);
+  const possess = normalWeaponPossessEffect(tables, values);
   if (possess) {
     lines.push({
       source: label('calc.weapon.sources.possess', { count: possess.weaponCount }),
@@ -313,13 +326,52 @@ export function openOptionSlots(values: CalcValues, tables: StatTables): number 
   return Math.min(OPTION_UNLOCK_LEVELS.filter((unlockLevel) => level >= unlockLevel).length, OPTION_ROWS);
 }
 
-/** 소울포지 (탭 따로): 고른 레벨 이하 행의 효과 전부 */
+/** 소울포지 슬롯 하나가 켜졌는지 넣는 칸 (슬롯 번호 statIdx 마다, 'true' = 활성. 게임 저장의 slotDataDic 에 있고 활성 횟수가 1 이상) */
+export function soulForgeSlotField(statIdx: string): string {
+  return `soulForgeSlot_${statIdx}`;
+}
+
+/** 소울포지 한 레벨의 표 행 (표 순서 그대로: 첫 행 = 기본 행 statIdx 비어 있음, 그 뒤 = 슬롯 행) */
+export function soulForgeLevelRows(tables: StatTables, level: number) {
+  return rowsOf(tables, SOUL_FORGE_TABLE).filter((row) => Number(row.lv) === level);
+}
+
+/** 슬롯 행인가 (statIdx 가 1 이상) */
+function isSoulForgeSlotRow(row: TableRow): boolean {
+  return Number(row.statIdx) >= 1;
+}
+
+/**
+ * 소울포지 (탭 따로): 게임 m6913 @3077214 (모드 0, stat-provider-formulas.md 3-20절 — 흐름 확정 · 열 이름 대응 유력).
+ * (가) 레벨 1 ~ 현재 − 1 (낮은 레벨은 슬롯 상관없이 전부): 그 레벨 마지막 행의 bonusValue = d9. 기본 행은 statValue 그대로,
+ *      슬롯 행은 d9 × statValue 를 각각 줄로.
+ * (나) 현재 레벨: 목록이 기본 행 + 슬롯 행 1개 이상일 때만. 켜진 슬롯 수 k 를 세고, 켜진 슬롯 행마다
+ *      statValue × (k >= 1 이면 목록[k] 의 bonusValue, 아니면 1). 현재 레벨의 기본 행은 넣지 않음 (다음 레벨이 되면 (가) 에서 들어감).
+ * 레벨이 비었으면 줄 없음. 슬롯은 레벨 칸 아래 "슬롯 켜짐" 칸 (기본 꺼짐) 에서 켠다
+ */
 export function soulForgeLines(values: CalcValues, tables: StatTables, label: SourceLabel): Line[] {
   const lines: Line[] = [];
   const soulForgeLevel = numberValue(values, SOUL_FORGE_FIELD);
-  for (const row of rowsOf(tables, 'SoulForge')) {
-    if (Number(row.lv) <= soulForgeLevel && row.statType && Number(row.statValue) > 0) {
-      lines.push({ source: label('calc.weapon.sources.soulForge', { level: row.lv }), stat: row.statType, value: Number(row.statValue) });
+  for (let level = 1; level < soulForgeLevel; level++) {
+    const rows = soulForgeLevelRows(tables, level);
+    if (!rows.length) continue;
+    const lastBonus = Number(rows[rows.length - 1].bonusValue) || 0;
+    for (const row of rows) {
+      const value = isSoulForgeSlotRow(row) ? lastBonus * Number(row.statValue) : Number(row.statValue);
+      if (row.statType && value) lines.push({ source: label('calc.weapon.sources.soulForge', { level }), stat: row.statType, value });
+    }
+  }
+  const currentRows = soulForgeLevelRows(tables, soulForgeLevel);
+  if (soulForgeLevel >= 1 && currentRows.length >= 2) {
+    const slotRows = currentRows.slice(1);
+    const activeRows = slotRows.filter((row) => values[soulForgeSlotField(row.statIdx)] === 'true');
+    const activeCount = activeRows.length;
+    const multiplier = activeCount >= 1 ? Number(currentRows[activeCount].bonusValue) || 1 : 1;
+    for (const row of activeRows) {
+      const value = Number(row.statValue) * multiplier;
+      if (row.statType && value) {
+        lines.push({ source: label('calc.weapon.sources.soulForgeSlot', { level: soulForgeLevel, count: activeCount }), stat: row.statType, value });
+      }
     }
   }
   return lines;

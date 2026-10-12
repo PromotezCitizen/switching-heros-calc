@@ -23,8 +23,8 @@
   "exclusiveEquipped": "전용 무기 장착",
   "sources": {
     "baseAttackSpeed": "기본 공격속도 ({{hero}})",
-    "baseCriticalRate": "기본 치명타 확률 ({{hero}}, 기본값 (추정))",
-    "baseCriticalDamage": "기본 치명타 데미지 ({{hero}}, 기본값 (추정))"
+    "baseCriticalRate": "기본 치명타 확률 ({{hero}}, 게임 코드 기본값)",
+    "baseCriticalDamage": "기본 치명타 데미지 ({{hero}}, 게임 코드 기본값)"
   },
   "filter": {
     "all": "전체",

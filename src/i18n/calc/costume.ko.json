@@ -1,9 +1,14 @@
 {
   "title": "코스튬 누적 능력치",
-  "help": "게임 화면 값 그대로 (코스튬 \"능력치 확인\").",
-  "source": "코스튬 누적 능력치 (화면 값)",
+  "help": "코스튬 \"능력치 확인\" 화면의 값을 단위와 %까지 그대로 넣으세요.",
+  "source": "코스튬 누적 능력치",
   "fields": {
-    "costumeAtk": { "label": "코스튬 공격력 증가", "example": "예: 13.08L%" },
-    "costumeCount": { "label": "보유 코스튬 수 (얼티밋 특성용)" }
+    "costumeAtk": {
+      "label": "코스튬 공격력 증가",
+      "example": "예: 13.08L%"
+    },
+    "costumeCount": {
+      "label": "보유 코스튬 수"
+    }
   }
 }

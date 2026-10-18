@@ -3,11 +3,11 @@
  * 기존 stat-calc-core.js characterBase (51~56), stat-calc.html refreshCharacterOptions (596~603),
  * currentCharacter·classHpLog (713~723). 화면·React 와 무관한 순수 함수
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type StatTables, type TableRow } from '../../../data/statTables';
-import { combineLines, type Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { rosterGradeField, rosterStarField } from './rosterFields';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type StatTables, type TableRow } from '@/data/statTables';
+import { combineLines, type Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { rosterGradeField, rosterStarField } from '@/calc/sources/hero/rosterFields';
 
 const {
   FIELDS,

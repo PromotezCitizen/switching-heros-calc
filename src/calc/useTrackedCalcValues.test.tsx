@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { useCalcStore } from '../store/useCalcStore';
-import { joinFieldValues, splitFieldValues, useTrackedCalcValues } from './useTrackedCalcValues';
+import { useCalcStore } from '@/store/useCalcStore';
+import { joinFieldValues, splitFieldValues, useTrackedCalcValues } from '@/calc/useTrackedCalcValues';
 
 describe('useTrackedCalcValues', () => {
   beforeEach(() => {

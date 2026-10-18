@@ -2,7 +2,7 @@
  * 사냥 계산기 계산 함수 (화면과 분리). 기존 switching-heroes-calc.html 의 식을 그대로 옮김.
  * 값이 10^308 을 넘는 층이 있어 보상은 전부 log10 값으로 다룬다.
  */
-import { CONSTS } from '../CONSTS';
+import { CONSTS } from '@/CONSTS';
 
 export type Resource = 'exp' | 'gold' | 'ess';
 export const RESOURCES: Resource[] = ['exp', 'gold', 'ess'];

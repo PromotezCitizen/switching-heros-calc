@@ -5,12 +5,12 @@
  *   앞 단계 = 표 Awaken 에서 현재 등급·별보다 단계 (awakenLv) 가 낮은 행 전부 (다 찍어야 다음 단계로 넘어감)
  * 명중은 계산에서 빼므로 칸도 만들지 않는다
  */
-import { CONSTS } from '../../../CONSTS';
-import type { StatTables } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { awakenStages, selectedAwakenStage, type AwakenStage } from '../../sources/hero/awaken';
-import type { SourceLabel } from './sourceLabel';
+import { CONSTS } from '@/CONSTS';
+import type { StatTables } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { awakenStages, selectedAwakenStage, type AwakenStage } from '@/calc/sources/hero/awaken';
+import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 
 const { STAT_COLUMN_NUMBERS } = CONSTS.hero.awakenDetail;
 const { PERCENT_DIVISOR, EXCLUDED_STATS } = CONSTS.common;

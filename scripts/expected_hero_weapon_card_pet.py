@@ -1,7 +1,7 @@
 """기존 htmls/stat-calc.html 에 같은 입력을 넣고 히어로의 기록·무기·몬스터 카드·펫·광산 줄을 읽어
 src/calc/sources/heroWeaponCardPet/expectedFromHtml.ts (vitest 기대값) 로 쓴다.
 
-실행: uv run --with playwright python react/scripts/expected_hero_weapon_card_pet.py
+실행: uv run --with playwright python stat-calc/scripts/expected_hero_weapon_card_pet.py
 기존 페이지는 claude-docs/serve_htmls.py 가 띄운 http://127.0.0.1:8765 를 쓴다 (계정 기본값 파일은 빈 값으로 바꿔 끼움).
 """
 import json
@@ -13,8 +13,8 @@ CHROMIUM = 'C:/Users/han/AppData/Local/ms-playwright/chromium-1217/chrome-win64/
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PAGE_URL = 'http://127.0.0.1:8765/stat-calc.html'
 EMPTY_DEFAULTS = 'window.STAT_CALC_DEFAULTS = {calc: {}, mastery: {}};'
-OUT = ROOT / 'react' / 'src' / 'calc' / 'sources' / 'heroWeaponCardPet' / 'expectedFromHtml.ts'
-TABLES = ROOT / 'react' / 'public' / 'data' / 'tables'
+OUT = ROOT / 'stat-calc' / 'src' / 'calc' / 'sources' / 'heroWeaponCardPet' / 'expectedFromHtml.ts'
+TABLES = ROOT / 'stat-calc' / 'public' / 'data' / 'tables'
 
 
 def table_rows(name):

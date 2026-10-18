@@ -2,14 +2,14 @@
  * 무기 (기존 stat-calc-sources.js buildWeapon / normalWeaponPossessEffect / renderWeapon) + 전용 무기
  * (stat-calc-core.js weaponEffect, stat-calc.html weaponTranscendLines / calcTabGroups 의 전용 무기 묶음) → 효과 줄
  */
-import { CONSTS } from '../../../CONSTS';
-import type { StatTables, TableRow } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { slotHeroName } from '../hero/character';
-import { exclusiveWeapons, ownedExclusiveLevel, ownedExclusiveStar } from '../hero/roster';
-import { exclusiveMissionReceivedStarField, exclusiveOwnedStarField } from '../hero/rosterFields';
-import { integerFieldValue } from '../trainingRelic/fieldNumbers';
+import { CONSTS } from '@/CONSTS';
+import type { StatTables, TableRow } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { slotHeroName } from '@/calc/sources/hero/character';
+import { exclusiveWeapons, ownedExclusiveLevel, ownedExclusiveStar } from '@/calc/sources/hero/roster';
+import { exclusiveMissionReceivedStarField, exclusiveOwnedStarField } from '@/calc/sources/hero/rosterFields';
+import { integerFieldValue } from '@/calc/sources/trainingRelic/fieldNumbers';
 import {
   RELIC_MAX_GRADE_FIELD,
   RELIC_TABLE,
@@ -19,8 +19,8 @@ import {
   relicLevelFieldId,
   relicRows,
   relicValue,
-} from '../trainingRelic/relic';
-import { heroByName, numberValue, rowsOf, screenLog, unique, type SourceLabel } from './shared';
+} from '@/calc/sources/trainingRelic/relic';
+import { heroByName, numberValue, rowsOf, screenLog, unique, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 
 const { JOBS } = CONSTS.heroWeaponCardPet;
 const {

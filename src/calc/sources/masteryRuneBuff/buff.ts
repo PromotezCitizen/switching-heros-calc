@@ -1,20 +1,20 @@
 /**
- * 버프·연타 특성 줄: 광폭화 (칸에 넣은 중첩), 학살자 (켰을 때), 연타 폭주, 음식 (일반 몬스터 피해 3종 중 하나만, 골랐을 때),
+ * 버프·연타 특성 줄: 광폭화 (특성을 찍었으면 늘 5중첩), 학살자 (켰을 때), 연타 폭주, 음식 (일반 몬스터 피해 3종 중 하나만, 골랐을 때),
  * 공격력 이벤트 버프 (켰을 때, 음식과 같이 켜짐).
  * 기존 stat-calc.html berserkStacks (622~625), overchargeLog·doubleAttackRushPercent (746~753),
  * killerLog·buffLines (788~798), multiplierPercentLog (736~740), stat-calc-core.js berserkMultiplier (151~156).
  * 연타 % 는 프로필 칸 대신 다른 탭 줄의 연타·공격속도 합으로 계산한다.
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type RawTable, type StatTables, type TableRow } from '../../../data/statTables';
-import { readFlag, readNumber } from '../../../store/storedValues';
-import { combineLines, type CombinedStat, type Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { heroFirstRow, slotHeroName } from '../hero/character';
-import { equippedExclusiveStar } from '../heroWeaponCardPet/weapon';
-import { hasEquippedActiveSkill } from '../skill/skill';
-import { learnedTraitValue, masteryLevel, masteryTraits, plainNumber } from './mastery';
-import type { SourceLabel } from './sourceLabel';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type RawTable, type StatTables, type TableRow } from '@/data/statTables';
+import { readFlag } from '@/store/storedValues';
+import { combineLines, type CombinedStat, type Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
+import { equippedExclusiveStar } from '@/calc/sources/heroWeaponCardPet/weapon';
+import { hasEquippedActiveSkill } from '@/calc/sources/skill/skill';
+import { learnedTraitValue, masteryLevel, masteryTraits, plainNumber } from '@/calc/sources/masteryRuneBuff/mastery';
+import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 
 const {
   BERSERK_MAX_STACKS,
@@ -31,7 +31,6 @@ const {
   STATS,
   JOB_ATTACK_SPEED_SUFFIX,
   ATTRIBUTE_ATTACK_SPEED_SUFFIX,
-  BERSERK_STACKS_FIELD,
   KILLER_ACTIVE_FIELD,
   NORMAL_MONSTER_FOOD_FIELD,
   NORMAL_MONSTER_FOODS,
@@ -52,13 +51,12 @@ export function multiplierPercentLog(multiplierLog: number): number {
 }
 
 /**
- * 광폭화 중첩 = 버프 탭 칸에 넣은 수 (0 ~ 최대, 소수 버림, 비었으면 0).
- * 스킬 광폭화 특성 (berserkSkillUse) 을 안 찍었으면 0
+ * 광폭화 중첩 = 스킬 광폭화 특성 (berserkSkillUse) 을 찍었으면 늘 최대 5중첩, 안 찍었으면 0
+ * (입력 칸 없음, 사용자 말 2026-10-05 "광폭화 5중첩밖에 안될건데", 옛 HTML berserkStacks 와 같음)
  */
 export function berserkStacks(masteryTable: RawTable, values: CalcValues): number {
   const skillTrait = masteryTraits(masteryTable).find((trait) => trait.statName === STATS.BERSERK_SKILL);
-  if (!skillTrait || !(masteryLevel(values, skillTrait) > 0)) return 0;
-  return Math.min(Math.max(Math.floor(readNumber(values, BERSERK_STACKS_FIELD)), 0), BERSERK_MAX_STACKS);
+  return skillTrait && masteryLevel(values, skillTrait) > 0 ? BERSERK_MAX_STACKS : 0;
 }
 
 /** 광폭화 중첩 배율 (log10) = log10(1 + 중첩당 % (표 berserk) × 중첩 / 100), 중첩은 0~5 */

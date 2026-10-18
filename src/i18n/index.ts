@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import ko from './ko.json';
+import ko from '@/i18n/ko.json';
 
 /**
  * 탭별 번역 조각: src/i18n/calc/<이름>.ko.json 의 내용이 translation.calc.<이름> 아래로 들어간다

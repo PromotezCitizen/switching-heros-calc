@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { Button, Modal, SimpleGrid, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { CONSTS } from '../CONSTS';
-import { FlagField, NumberField, SelectField } from '../components/StoreFields';
-import { RESOURCES } from '../hunting/huntingCalc';
-import { useCalcStore } from '../store/useCalcStore';
-import { readNumber } from '../store/storedValues';
-import { ACCOUNT_KEYS } from './accountKeys';
+import { CONSTS } from '@/CONSTS';
+import { FlagField, NumberField, SelectField } from '@/components/StoreFields';
+import { RESOURCES } from '@/hunting/huntingCalc';
+import { useCalcStore } from '@/store/useCalcStore';
+import { readNumber } from '@/store/storedValues';
+import { ACCOUNT_KEYS } from '@/account/accountKeys';
 
 const GUILD_LEVEL_OPTIONS = Array.from({ length: CONSTS.guild.SKILL_MAX_LEVEL + 1 }, (_, level) => ({
   value: String(level),

@@ -1,18 +1,18 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import '../../../i18n';
+import '@/i18n';
 import coreMasteryText from '../../../../public/data/tables/CoreMastery.json?raw';
 import figureStatText from '../../../../public/data/tables/FigureStat.json?raw';
 import attributeRuneText from '../../../../public/data/tables/AttributeRune.json?raw';
 import attributeRuneLabText from '../../../../public/data/tables/AttributeRuneLab.json?raw';
 import characterText from '../../../../public/data/tables/Character.json?raw';
 import skillText from '../../../../public/data/tables/Skill.json?raw';
-import type { RawTable, StatTables } from '../../../data/statTables';
-import { renderWithProviders } from '../../../test/renderWithProviders';
-import { masteryRuneBuffTabs } from '../masteryRuneBuff';
-import { skillTab } from '../skill';
-import type { CalcValues } from '../../types';
-import { providerTabs } from './index';
+import type { RawTable, StatTables } from '@/data/statTables';
+import { renderWithProviders } from '@/test/renderWithProviders';
+import { masteryRuneBuffTabs } from '@/calc/sources/masteryRuneBuff';
+import { skillTab } from '@/calc/sources/skill';
+import type { CalcValues } from '@/calc/types';
+import { providerTabs } from '@/calc/sources/providers/index';
 
 /** 새로 만든 칸이 그려지고 값을 바꾸면 setValue 가 맞는 칸 이름으로 불리는지 (입력은 시험 안에서 넣음) */
 const tables: StatTables = Object.fromEntries(
@@ -70,9 +70,10 @@ describe('코어 특성 · 피규어 · 룬 연구실 · 스킬 옵션 화면', 
     expect(setValue).toHaveBeenCalledWith('runeLab_Fire', '7');
   });
 
-  it('스킬 탭: 다발 화살 옵션 고르기 칸 (처음 없음)', () => {
+  it('스킬 탭: 장착 1~5번 칸은 아이콘으로 고르고, 보유 스킬은 직업별 카드 4장 (스킬 옵션 칸 없음)', () => {
     renderTab(skillTab, {});
-    expect(screen.getByText('다발 화살 옵션 (적중마다 공격력 증가)')).toBeTruthy();
-    expect(screen.getByText('25%')).toBeTruthy();
+    for (const slot of [1, 2, 3, 4, 5]) expect(screen.getByRole('button', { name: `${slot}번 칸` })).toBeTruthy();
+    for (const job of ['검사', '격투가', '궁수', '마법사']) expect(screen.getByText(job)).toBeTruthy();
+    expect(screen.queryByText(/다발 화살 옵션/)).toBeNull();
   });
 });

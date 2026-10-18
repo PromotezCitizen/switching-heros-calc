@@ -3,12 +3,12 @@
  * 기존 stat-calc-core.js masteryTraits·traitValue, stat-calc.html masteryLevel·learnedTraitValue·calcTabGroups 특성 부분.
  * 특성 레벨은 values 의 칸 `mastery_<rNo>` 에 둔다 (기존 HTML 은 별도 저장 키 stat-calc-mastery-v2).
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type RawTable } from '../../../data/statTables';
-import { readNumber } from '../../../store/storedValues';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import type { SourceLabel } from './sourceLabel';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type RawTable } from '@/data/statTables';
+import { readNumber } from '@/store/storedValues';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 
 const { MASTERY_KEY_PREFIX, ULTIMATE_TYPE_SUFFIX, PLAIN_NUMBER_DECIMALS, MIN_LEVEL } = CONSTS.masteryRuneBuff;
 
@@ -18,6 +18,8 @@ export interface MasteryTrait {
   group: string;
   ultimate: boolean;
   step: number;
+  /** 열리는 레벨 (특성 표 unlockLevel). 같은 레벨에 단계 두 개가 열리기도 해서 단계 이름 옆에 함께 보여 준다 */
+  unlockLevel: number;
   maxLevel: number;
   needPoint: number;
   statName: string;
@@ -45,6 +47,7 @@ export function masteryTraits(table: RawTable): MasteryTrait[] {
         group: row.masteryType.replace(ULTIMATE_TYPE_SUFFIX, ''),
         ultimate: row.masteryType.endsWith(ULTIMATE_TYPE_SUFFIX),
         step: Number(row.step),
+        unlockLevel: Number(row.unlockLevel),
         maxLevel: Number(row.maxLevel),
         needPoint: Number(row.needPoint),
         statName: row.statName,

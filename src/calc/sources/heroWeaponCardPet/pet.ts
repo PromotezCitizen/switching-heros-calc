@@ -3,11 +3,11 @@
  * 앱 코드 확정: 보유 효과 = 보유 펫 전부, 리더 = leaderStatValue1, 옵션 = 장착 칸만.
  * 옵션 선택지는 저장 순서와 상관없이 장착한 펫으로 매번 다시 계산한다
  */
-import { CONSTS } from '../../../CONSTS';
-import type { StatTables, TableRow } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { gradeStarValue, groupBy, rowsOf, screenLog, unique, type RowGroup, type SourceLabel } from './shared';
+import { CONSTS } from '@/CONSTS';
+import type { StatTables, TableRow } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { gradeStarValue, groupBy, rowsOf, screenLog, unique, type RowGroup, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 
 const { SLOTS, OPTIONS, EXCLUDED_OPTION_STAT, AILMENT_LEADER_PREFIX, REGION: PET_REGION } = CONSTS.heroWeaponCardPet.pet;
 const PERCENT_DIVISOR = CONSTS.common.PERCENT_DIVISOR;

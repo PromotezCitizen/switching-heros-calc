@@ -1,13 +1,13 @@
 import { fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import type { RawTable, StatTables } from '../../../data/statTables';
-import { useCalcStore } from '../../../store/useCalcStore';
-import { renderWithProviders } from '../../../test/renderWithProviders';
-import SummaryPanel from '../../panels/SummaryPanel';
-import { CALC_KEY_PREFIX } from '../../storeKeys';
-import { CALC_TABS } from '../../tabs';
-import type { CalcValues } from '../../types';
-import savedValues from './testValues0213.json';
+import type { RawTable, StatTables } from '@/data/statTables';
+import { useCalcStore } from '@/store/useCalcStore';
+import { renderWithProviders } from '@/test/renderWithProviders';
+import SummaryPanel from '@/calc/panels/SummaryPanel';
+import { CALC_KEY_PREFIX } from '@/calc/storeKeys';
+import { CALC_TABS } from '@/calc/tabs';
+import type { CalcValues } from '@/calc/types';
+import savedValues from '@/calc/sources/summary/testValues0213.json';
 
 const TABLE_FILES = import.meta.glob<string>('../../../../public/data/tables/*.json', { query: '?raw', import: 'default' });
 
@@ -57,7 +57,7 @@ describe('종합 탭 화면', () => {
   it('공격 대상이 보스면 안내가 보인다', () => {
     renderPanel({ summaryTarget: 'boss' });
     expect((screen.getByRole('radio', { name: '보스 몬스터' }) as HTMLInputElement).checked).toBe(true);
-    expect(screen.getByText(/화면 값 비교는 일반 몬스터일 때/)).toBeTruthy();
+    expect(screen.getByText(/게임 화면 값과 비교는 일반 몬스터일 때만/)).toBeTruthy();
   });
 
   it('하위 탭 소계 표', () => {

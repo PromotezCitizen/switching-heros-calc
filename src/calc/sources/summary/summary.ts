@@ -5,16 +5,16 @@
  * 대상 (일반 / 보스 / 히어로 몬스터) 은 종합 탭 대상 칸으로 고르고, 처음 값은 일반 (프로필 창이 일반 기준으로 맞음).
  * 화면·React 와 무관한 순수 함수
  */
-import { CONSTS } from '../../../CONSTS';
-import type { StatTables, TableRow } from '../../../data/statTables';
-import { combineLines, type CombinedStat, type Line } from '../../combine';
-import { parseGameNumber } from '../../gameNumber';
-import { expandedTabLines } from '../../tabLines';
-import type { CalcTab, CalcValues } from '../../types';
-import { selectedAwakenStage } from '../hero/awaken';
-import { classHpStats, heroBase, heroFirstRow, slotHeroName } from '../hero/character';
-import { attackSpeedPercent, doubleAttackPercent, multiplierPercentLog } from '../masteryRuneBuff/buff';
-import { hasEquippedActiveSkill } from '../skill/skill';
+import { CONSTS } from '@/CONSTS';
+import type { StatTables, TableRow } from '@/data/statTables';
+import { combineLines, type CombinedStat, type Line } from '@/calc/combine';
+import { parseGameNumber } from '@/calc/gameNumber';
+import { expandedTabLines } from '@/calc/tabLines';
+import type { CalcTab, CalcValues } from '@/calc/types';
+import { selectedAwakenStage } from '@/calc/sources/hero/awaken';
+import { classHpStats, heroBase, heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
+import { attackSpeedPercent, doubleAttackPercent, multiplierPercentLog } from '@/calc/sources/masteryRuneBuff/buff';
+import { hasEquippedActiveSkill } from '@/calc/sources/skill/skill';
 
 const {
   STATS,

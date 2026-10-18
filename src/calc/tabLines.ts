@@ -3,12 +3,12 @@
  * 연타·공격속도처럼 다른 탭 줄의 합이 필요한 계산이 쓴다
  */
 import i18next from 'i18next';
-import { CONSTS } from '../CONSTS';
-import type { StatTables } from '../data/statTables';
-import { readFlag } from '../store/storedValues';
-import { withoutExcludedStats, type Line } from './combine';
-import { cardCountsByGrade, cardSlotGradeStars, countExpandedLines, sssCardCount } from './sources/heroWeaponCardPet';
-import type { CalcTab, CalcValues } from './types';
+import { CONSTS } from '@/CONSTS';
+import type { StatTables } from '@/data/statTables';
+import { readFlag } from '@/store/storedValues';
+import { withoutExcludedStats, type Line } from '@/calc/combine';
+import { cardCountsByGrade, cardSlotGradeStars, countExpandedLines, sssCardCount } from '@/calc/sources/heroWeaponCardPet';
+import type { CalcTab, CalcValues } from '@/calc/types';
 
 const { ENEMY_COUNT_FIELD } = CONSTS.summary;
 

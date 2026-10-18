@@ -1,16 +1,16 @@
-import { artifactTab } from './sources/artifactTab';
-import { heroTabs } from './sources/hero';
-import { heroWeaponCardPetTabs } from './sources/heroWeaponCardPet';
-import { masteryRuneBuffTabs } from './sources/masteryRuneBuff';
-import { providerTabs } from './sources/providers';
-import { skillTab } from './sources/skill';
-import { SUMMARY_TAB_ID, summaryTab } from './sources/summary';
-import { textLinesTabs } from './sources/textLines';
-import { trainingRelicTabs } from './sources/trainingRelic';
-import { expandedTabLines } from './tabLines';
-import type { CalcTab, CalcValues } from './types';
-import type { StatTables } from '../data/statTables';
-import type { Line } from './combine';
+import { artifactTab } from '@/calc/sources/artifactTab';
+import { heroTabs } from '@/calc/sources/hero';
+import { heroWeaponCardPetTabs } from '@/calc/sources/heroWeaponCardPet';
+import { masteryRuneBuffTabs } from '@/calc/sources/masteryRuneBuff';
+import { providerTabs } from '@/calc/sources/providers';
+import { skillTab } from '@/calc/sources/skill';
+import { SUMMARY_TAB_ID, summaryTab } from '@/calc/sources/summary';
+import { textLinesTabs } from '@/calc/sources/textLines';
+import { trainingRelicTabs } from '@/calc/sources/trainingRelic';
+import { expandedTabLines } from '@/calc/tabLines';
+import type { CalcTab, CalcValues } from '@/calc/types';
+import type { StatTables } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
 
 /** 다른 탭 줄의 합을 읽는 탭 (버프: 연타·스킬 콤보 등 확률). 이 탭의 줄은 다른 탭 줄을 모을 때 빼야 서로 부르지 않는다 */
 const BUFF_TAB_ID = 'buff';

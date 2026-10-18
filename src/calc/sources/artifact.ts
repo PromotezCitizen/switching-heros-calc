@@ -1,6 +1,6 @@
 /** 연성 "능력치 합계" 화면 목록 (명중 제외) → 효과 줄. 값은 화면 표기 그대로 받는다 */
-import type { Line } from '../combine';
-import { parseGameNumber } from '../gameNumber';
+import type { Line } from '@/calc/combine';
+import { parseGameNumber } from '@/calc/gameNumber';
 
 /** 줄의 출처는 번역 키로 담고, 표에 보일 때 번역한다 */
 export const ARTIFACT_SOURCE_PREFIX = 'calc.artifact.sources.';

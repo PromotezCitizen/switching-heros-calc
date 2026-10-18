@@ -6,13 +6,13 @@
  * - battleDamageLines: 흘러넘치는 체력 63, 과충전 연타 102, 한계 돌파 108, 초과된 힘 202, 무자비 폭주 307 — 확률이 문턱을 넘어야 하므로
  *   확률 (chances) 을 받아 공격력 % 줄을 만든다
  */
-import { CONSTS } from '../../../CONSTS';
-import type { RawTable, StatTables } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { chancesFromLines, type Chances } from './chances';
-import { learnedTraitValue, masteryTraits, plainNumber } from './mastery';
-import type { SourceLabel } from './sourceLabel';
+import { CONSTS } from '@/CONSTS';
+import type { RawTable, StatTables } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { chancesFromLines, type Chances } from '@/calc/sources/masteryRuneBuff/chances';
+import { learnedTraitValue, masteryTraits, plainNumber } from '@/calc/sources/masteryRuneBuff/mastery';
+import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 
 const { STATS, BATTLE, DOUBLE_ATTACK_THRESHOLD } = CONSTS.masteryRuneBuff;
 const PERCENT_DIVISOR = CONSTS.common.PERCENT_DIVISOR;

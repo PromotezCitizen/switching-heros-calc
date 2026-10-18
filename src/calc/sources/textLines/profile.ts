@@ -3,8 +3,8 @@
  * 공격력·체력 = 히어로 기본값 확인 (hero/baseCheck.ts). 연타는 다른 탭 줄로 계산한다 (masteryRuneBuff/buff.ts).
  * 줄을 만들지 않고, 다른 계산이 쓸 수 있게 화면 값을 log10 으로 읽기만 한다.
  */
-import { parseGameNumber } from '../../gameNumber';
-import type { CalcValues } from '../../types';
+import { parseGameNumber } from '@/calc/gameNumber';
+import type { CalcValues } from '@/calc/types';
 
 export const PROFILE_FIELDS = ['atk', 'hp'] as const;
 

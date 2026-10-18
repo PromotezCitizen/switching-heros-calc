@@ -1,8 +1,8 @@
 """코어 특성 · 피규어 · 속성 룬 연구실 표를 계산기가 읽는 JSON 으로 내보낸다 (필요한 열만).
 
-사용: uv run python -I react/scripts/export_provider_tables.py
+사용: uv run python -I stat-calc/scripts/export_provider_tables.py
 입력: claude-docs/server_tables/<이름><번호>.txt 중 번호가 가장 큰 것 (서버 표 덤프, JSON 목록)
-출력: react/public/data/tables/<계산기 표 이름>.json  { label, columns, rows }  (값은 전부 문자열, 원본 그대로)
+출력: stat-calc/public/data/tables/<계산기 표 이름>.json  { label, columns, rows }  (값은 전부 문자열, 원본 그대로)
 근거: claude-docs/react-port/stat-provider-formulas.md 10-4 (코어 특성 T1271) · 10-5 (피규어 T1276) · 3-3 (속성 룬 연구실 T1262 (다))
 """
 import json
@@ -11,7 +11,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 INPUT_DIR = PROJECT_ROOT / 'claude-docs' / 'server_tables'
-OUTPUT_DIR = PROJECT_ROOT / 'react' / 'public' / 'data' / 'tables'
+OUTPUT_DIR = PROJECT_ROOT / 'stat-calc' / 'public' / 'data' / 'tables'
 
 CORE_MASTERY_SLOTS = 13
 FIGURE_SLOTS = 3

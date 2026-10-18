@@ -1,9 +1,9 @@
 /** 도감 효과 (공격력·체력 증가) */
 import { useTranslation } from 'react-i18next';
 import { Stack, Text } from '@mantine/core';
-import { ENCYCLOPEDIA_FIELDS } from '../sources/textLines/collection';
-import type { TabPanelProps } from '../types';
-import { ScreenValueInput } from './TextLinesFields';
+import { ENCYCLOPEDIA_FIELDS } from '@/calc/sources/textLines/collection';
+import type { TabPanelProps } from '@/calc/types';
+import { ScreenValueInput } from '@/calc/panels/TextLinesFields';
 
 export default function CollectionPanel({ values, setValue }: TabPanelProps) {
   const { t: translate } = useTranslation();

@@ -1,17 +1,17 @@
 import { useTranslation } from 'react-i18next';
 import { Group, NumberInput, Stack, Text } from '@mantine/core';
-import { CONSTS } from '../../CONSTS';
-import { FlagField } from '../../components/StoreFields';
+import { CONSTS } from '@/CONSTS';
+import { FlagField } from '@/components/StoreFields';
 import {
   SOUL_FORGE_FIELD,
   maxSoulForgeLevel,
   soulForgeLevelRows,
   soulForgeSlotField,
-} from '../sources/heroWeaponCardPet/weapon';
-import { numberValue } from '../sources/heroWeaponCardPet/shared';
-import { statDescription } from '../statText';
-import { CALC_KEY_PREFIX } from '../storeKeys';
-import type { TabPanelProps } from '../types';
+} from '@/calc/sources/heroWeaponCardPet/weapon';
+import { numberValue } from '@/calc/sources/heroWeaponCardPet/shared';
+import { statDescription } from '@/calc/statText';
+import { CALC_KEY_PREFIX } from '@/calc/storeKeys';
+import type { TabPanelProps } from '@/calc/types';
 
 const { MIN_NUMBER } = CONSTS.heroWeaponCardPet;
 const PLACEHOLDER = '{0}';

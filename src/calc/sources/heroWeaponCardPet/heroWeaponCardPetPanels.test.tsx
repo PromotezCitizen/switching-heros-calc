@@ -12,14 +12,14 @@ import soulForgeText from '../../../../public/data/tables/SoulForge.json?raw';
 import weaponCharText from '../../../../public/data/tables/WeaponChar.json?raw';
 import weaponJobText from '../../../../public/data/tables/WeaponJob.json?raw';
 import weaponTranscendText from '../../../../public/data/tables/WeaponTranscend.json?raw';
-import type { RawTable, StatTables } from '../../../data/statTables';
-import { renderWithProviders } from '../../../test/renderWithProviders';
-import type { CalcValues } from '../../types';
-import { EXPECTED_FROM_HTML } from './expectedFromHtml';
-import { heroWeaponCardPetTabs } from './index';
-import { weaponTotalAtk } from './weapon';
-import { formatLog } from '../../gameNumber';
-import { exclusiveOwnedStarField } from '../hero/rosterFields';
+import type { RawTable, StatTables } from '@/data/statTables';
+import { renderWithProviders } from '@/test/renderWithProviders';
+import type { CalcValues } from '@/calc/types';
+import { EXPECTED_FROM_HTML } from '@/calc/sources/heroWeaponCardPet/expectedFromHtml';
+import { heroWeaponCardPetTabs } from '@/calc/sources/heroWeaponCardPet/index';
+import { weaponTotalAtk } from '@/calc/sources/heroWeaponCardPet/weapon';
+import { formatLog } from '@/calc/gameNumber';
+import { exclusiveOwnedStarField } from '@/calc/sources/hero/rosterFields';
 
 const tables: StatTables = Object.fromEntries(
   Object.entries({
@@ -92,7 +92,7 @@ describe('히어로의 기록·무기·카드·펫·광산 화면', () => {
 
   it('펫: 등급 버튼은 같은 성을 유지하고, 리더 버튼은 켜고 끈다', () => {
     const setValue = renderTab('pet', { ...EXPECTED_FROM_HTML.pet.values });
-    // 리더 효과는 보유 펫 카드마다 + 리더 칸에 나온다
+    // 리더 효과는 보유 펫 카드마다 나온다 (장착 칸에는 다시 쓰지 않음)
     expect(screen.getAllByText(/^리더 효과: /).length).toBeGreaterThan(0);
     const commy = screen.getAllByText('코미')[0].closest('.mantine-Card-root') as HTMLElement;
     fireEvent.click(Array.from(commy.querySelectorAll('button')).find((button) => button.textContent === 'B')!);

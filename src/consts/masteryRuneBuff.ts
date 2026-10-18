@@ -214,8 +214,6 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
   /** 직업·속성 치명타 확률 스탯 (예: Archer_Critical, WaterHero_Critical) */
   JOB_CRITICAL_SUFFIX: '_Critical',
   ATTRIBUTE_CRITICAL_SUFFIX: 'Hero_Critical',
-  /** 버프 탭 광폭화 중첩 칸 */
-  BERSERK_STACKS_FIELD: 'berserkStacks',
   KILLER_ACTIVE_FIELD: 'killerActive',
   /** 버프 탭 일반 몬스터 피해 음식 칸 (값 = FOODS 의 id, 빈칸 = 없음) */
   NORMAL_MONSTER_FOOD_FIELD: 'normalMonsterFood',
@@ -284,7 +282,11 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     NODE_WIDTH: 84,
     NODE_ICON_SIZE: 44,
     NODE_LEVEL_INPUT_WIDTH: 40,
+    /** 특성 레벨 칸 좌우 안쪽 여백 (px). 기본 10px 이면 폭 40 에 최대 레벨 네 자리 (5000) 가 잘린다 */
+    NODE_LEVEL_INPUT_PADDING: 4,
     NODE_GAP: 12,
+    /** 한 단계 줄 안 특성 칸 사이 간격 (줄 가운데 정렬) */
+    TRAIT_ROW_GAP: 16,
     STAGE_LABEL_WIDTH: 56,
     /** 아이콘 아래 이름 (가운데 정렬) */
     NODE_NAME_TEXT_SIZE: '11px',

@@ -1,7 +1,7 @@
 {
   "title": "몬스터 카드",
   "slotsTitle": "편성 카드",
-  "usedInSlot": "{{slot}}번 칸에 편성됨",
+  "usedInSlot": "{{slot}}번 칸에서 사용 중",
   "cardPickLabel": "{{slot}}번 카드",
   "cardPickEmpty": "{{slot}}번 카드 고르기",
   "pickTitle": "{{label}} 고르기",
@@ -14,8 +14,8 @@
   "markLabel": "{{slot}}번 카드 세트 마크 {{mark}}",
   "markEmpty": "마크 {{mark}} 없음",
   "setTitle": "카드 세트",
-  "setBonus": "세트 보너스 합계 (카드 화면 위)",
-  "setNone": "편성 카드에 세트 마크를 고르면 여기에 세트가 보입니다.",
+  "setBonus": "세트 보너스 합계 (카드 화면 위쪽)",
+  "setNone": "카드에 세트 마크를 고르면 여기에 세트가 나와요.",
   "markCount": "마크 {{count}}개",
   "setTier": "{{count}}세트 {{effect}}",
   "stickerTitle": "스티커 세트",
@@ -96,10 +96,10 @@
   "sources": {
     "slot": "{{slot}}번 {{card}} {{grade}} {{star}}성",
     "set": "{{name}} ({{count}}개)",
-    "sssExpanded": "{{source}} × SSS 등급 이상 {{count}}장 (별 무관)",
-    "enemyCountReached": "{{source}} (적 수 조건 충족)",
-    "gradeExpanded": "{{source}} × {{grade}} 등급 이상 {{count}}장 (별 무관)",
-    "killStacks": "카드 처치 중첩 {{stacks}}중첩 (늘 최대, 선형)",
-    "useSkillStacks": "카드 스킬 사용 중첩 {{stacks}}중첩 (늘 최대, 선형)"
+    "sssExpanded": "{{source}} × SSS 등급 이상 {{count}}장",
+    "enemyCountReached": "{{source}} (주위 적 수 조건)",
+    "gradeExpanded": "{{source}} × {{grade}} 등급 이상 {{count}}장",
+    "killStacks": "카드 처치 효과 {{stacks}}중첩 (최대)",
+    "useSkillStacks": "카드 스킬 사용 효과 {{stacks}}중첩 (최대)"
   }
 }

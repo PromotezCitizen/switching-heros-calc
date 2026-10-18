@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
-import { CONSTS } from './CONSTS';
+import { CONSTS } from '@/CONSTS';
 
 /**
  * 위쪽에 고정한 줄의 실제 높이를 재서 CSS 변수로 알려 준다.

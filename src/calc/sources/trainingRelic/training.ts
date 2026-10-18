@@ -2,11 +2,11 @@
  * 훈련 → 효과 줄 (기존 htmls/stat-calc-sources.js renderTraining, stat-calc-core.js trainingRowItems).
  * 앱 코드 (확정): 끝낸 단계 행만 × gradeUpMultiply 한 번, 현재 단계 × 1. 행마다 한 줄.
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type StatTables, type TableRow } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { integerFieldValue } from './fieldNumbers';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type StatTables, type TableRow } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { integerFieldValue } from '@/calc/sources/trainingRelic/fieldNumbers';
 
 const { ITEM_COUNT, FIRST_ITEM_NUMBER, SCREEN_STAGE_OFFSET, DEFAULT_GRADE_UP_MULTIPLY, CURRENT_STAGE_MULTIPLY } =
   CONSTS.trainingRelic.training;

@@ -1,8 +1,8 @@
 """펫 지역 표 (PetRegion) 에서 지역 레벨별 지역 특성 (traitAtk · traitHp) 만 JSON 으로 내보낸다.
 
-사용: uv run python -I react/scripts/export_pet_region.py
+사용: uv run python -I stat-calc/scripts/export_pet_region.py
 입력: claude-docs/server_tables/PetRegion<번호>.txt 중 번호가 가장 큰 것 (서버 표 덤프, JSON 목록)
-출력: react/public/data/tables/PetRegion.json  { label, columns: [regionLv, traitAtk, traitHp], rows: [[...]] }  (값은 전부 문자열, 원본 그대로)
+출력: stat-calc/public/data/tables/PetRegion.json  { label, columns: [regionLv, traitAtk, traitHp], rows: [[...]] }  (값은 전부 문자열, 원본 그대로)
 근거: claude-docs/react-port/stat-provider-formulas.md 3-16절 (펫 지역 T1286)
 """
 import json
@@ -11,7 +11,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 INPUT_DIR = PROJECT_ROOT / 'claude-docs' / 'server_tables'
-OUTPUT_PATH = PROJECT_ROOT / 'react' / 'public' / 'data' / 'tables' / 'PetRegion.json'
+OUTPUT_PATH = PROJECT_ROOT / 'stat-calc' / 'public' / 'data' / 'tables' / 'PetRegion.json'
 FILE_PATTERN = re.compile(r'^PetRegion(\d+)\.txt$')
 COLUMNS = ['regionLv', 'traitAtk', 'traitHp']
 

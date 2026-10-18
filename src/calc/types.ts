@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react';
-import type { StatTables } from '../data/statTables';
-import type { Line } from './combine';
-import type { StatDescriptions } from './statText';
+import type { StatTables } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { StatDescriptions } from '@/calc/statText';
 
 /** 입력 칸 값 전체 (칸 이름 → 입력한 글). 칸 이름은 기존 HTML 의 data-key 와 같고, 저장소에는 `calc.` 를 붙여 넣는다 */
 export type CalcValues = Record<string, string>;

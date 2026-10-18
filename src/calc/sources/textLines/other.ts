@@ -2,14 +2,14 @@
  * 프로필 아이콘 · 호감도 (화면 값), 캐릭터 각성 (1슬롯 히어로), 별자리 요정의 축복 → 효과 줄.
  * 게임에서 서로 다른 화면이라 탭도 각각 (프로필 아이콘·요정의 축복·호감도 칸, 캐릭터 각성은 히어로 탭)
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type StatTables, type TableRow } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { slotHeroName } from '../hero/character';
-import { rosterHeroes } from '../hero/roster';
-import { rosterAffinityField, rosterAwakenField } from '../hero/rosterFields';
-import { isChecked, screenFieldLines, wholeLevel, type ScreenField, type SourceLabel } from './screenFields';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type StatTables, type TableRow } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { slotHeroName } from '@/calc/sources/hero/character';
+import { rosterHeroes } from '@/calc/sources/hero/roster';
+import { rosterAffinityField, rosterAwakenField } from '@/calc/sources/hero/rosterFields';
+import { isChecked, screenFieldLines, wholeLevel, type ScreenField, type SourceLabel } from '@/calc/sources/textLines/screenFields';
 
 const {
   TABLE_NAMES,

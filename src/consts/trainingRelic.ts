@@ -27,8 +27,6 @@ export const TRAINING_RELIC_CONSTS = {
     BLESSING_LEVEL_OFFSET: 1,
     /** 최대 등급을 고르면 낮은 등급 유물 중 레벨 0 을 이 레벨로 채운다 */
     FILL_LOWER_GRADE_LEVEL: 1,
-    /** 미보유 유물 카드에 보여 주는 효과의 레벨 */
-    PREVIEW_LEVEL: 1,
     /** 화면: 미보유 유물 카드 흐림, 아이콘 크기 (px) */
     UNOWNED_OPACITY: 0.5,
     OWNED_OPACITY: 1,

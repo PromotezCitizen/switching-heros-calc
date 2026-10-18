@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { Accordion, NumberInput, Stack, Text } from '@mantine/core';
-import AutoGrid from '../../components/AutoGrid';
-import { CONSTS } from '../../CONSTS';
-import { figureLevelField, figures } from '../sources/providers/figure';
-import type { TabPanelProps } from '../types';
+import AutoGrid from '@/components/AutoGrid';
+import { CONSTS } from '@/CONSTS';
+import { figureLevelField, figures } from '@/calc/sources/providers/figure';
+import type { TabPanelProps } from '@/calc/types';
 
 const { INPUT_MIN_WIDTH } = CONSTS.providers.figure;
 

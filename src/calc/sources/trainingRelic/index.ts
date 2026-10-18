@@ -1,10 +1,10 @@
 /** 훈련·유물 탭 묶음. 줄 출처 이름은 번역 파일 (calc.training / calc.relic) 에서 가져온다 */
 import i18next from 'i18next';
-import RelicPanel from '../../panels/RelicPanel';
-import TrainingPanel from '../../panels/TrainingPanel';
-import type { CalcTab } from '../../types';
-import { RELIC_TABLE, WEAPON_JOB_TABLE, relicLines } from './relic';
-import { TRAINING_TABLE, trainingLines } from './training';
+import RelicPanel from '@/calc/panels/RelicPanel';
+import TrainingPanel from '@/calc/panels/TrainingPanel';
+import type { CalcTab } from '@/calc/types';
+import { RELIC_TABLE, WEAPON_JOB_TABLE, relicLines } from '@/calc/sources/trainingRelic/relic';
+import { TRAINING_TABLE, trainingLines } from '@/calc/sources/trainingRelic/training';
 
 export const trainingRelicTabs: CalcTab[] = [
   {

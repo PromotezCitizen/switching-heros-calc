@@ -1,12 +1,12 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import '../../../i18n';
-import type { RawTable, StatTables } from '../../../data/statTables';
-import { parseGameNumber } from '../../gameNumber';
-import { CALC_TABS } from '../../tabs';
-import { expandedTabLines } from '../../tabLines';
-import type { CalcValues } from '../../types';
-import { compareWithScreen, summaryRows, type SummaryRowId } from './summary';
-import savedValues from './testValues0154.json';
+import '@/i18n';
+import type { RawTable, StatTables } from '@/data/statTables';
+import { parseGameNumber } from '@/calc/gameNumber';
+import { CALC_TABS } from '@/calc/tabs';
+import { expandedTabLines } from '@/calc/tabLines';
+import type { CalcValues } from '@/calc/types';
+import { compareWithScreen, summaryRows, type SummaryRowId } from '@/calc/sources/summary/summary';
+import savedValues from '@/calc/sources/summary/testValues0154.json';
 
 /**
  * 2026-10-12 01:54 계정 (전투 중 최대 상태 캡처) 의 저장 JSON 으로 만든 입력 (testValues0154.json, scratchpad 변환 스크립트 build_values_0154.py) 을

@@ -3,14 +3,14 @@
    그 뒤 히어로·전용 무기·직업 무기 표 자동 계산과 유물 101 ÷100 (gap-atk-increase-provider.md 4-4) 을 손으로 반영해
    지금은 손으로 관리하는 파일이다. 생성 스크립트로 다시 만들면 이 변경이 사라지니 다시 만들지 말 것 */
 import { describe, expect, it } from 'vitest';
-import { combineLines, type CombinedStat, type Line } from '../../combine';
-import { tableRows, type RawTable, type StatTables } from '../../../data/statTables';
+import { combineLines, type CombinedStat, type Line } from '@/calc/combine';
+import { tableRows, type RawTable, type StatTables } from '@/data/statTables';
 import relicTable from '../../../../public/data/tables/Relic.json';
 import trainingTable from '../../../../public/data/tables/Training.json';
 import weaponJobTable from '../../../../public/data/tables/WeaponJob.json';
 import characterTable from '../../../../public/data/tables/Character.json';
 import weaponCharTable from '../../../../public/data/tables/WeaponChar.json';
-import relicText from '../../../i18n/calc/relic.ko.json';
+import relicText from '@/i18n/calc/relic.ko.json';
 import {
   lowerGradeRelicFill,
   maxNormalWeaponLevelSum,
@@ -20,8 +20,8 @@ import {
   relicLines,
   relicMultiplier,
   relicTargetStat,
-} from './relic';
-import { trainingLines, trainingMaxStage, trainingSlotRows } from './training';
+} from '@/calc/sources/trainingRelic/relic';
+import { trainingLines, trainingMaxStage, trainingSlotRows } from '@/calc/sources/trainingRelic/training';
 
 /**
  * 직업 일반 무기 합산 레벨은 입력 칸 없이 실제 표 WeaponJob 의 최대 레벨 합으로 자동 계산한다

@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { Box, Container, Tabs, Title } from '@mantine/core';
+import { Box, Container, Group, Tabs, Title } from '@mantine/core';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import AccountDialog from './account/AccountDialog';
-import { CONSTS } from './CONSTS';
-import CalcPage from './calc/CalcPage';
-import HuntingPage from './hunting/HuntingPage';
-import { useStickyHeaderHeight } from './useStickyHeaderHeight';
+import AccountDialog from '@/account/AccountDialog';
+import { CONSTS } from '@/CONSTS';
+import CalcPage from '@/calc/CalcPage';
+import HuntingPage from '@/hunting/HuntingPage';
+import LoadDialog from '@/load/LoadDialog';
+import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
 
 /** 4개 페이지 (자리만 만듦, 내용은 기존 HTML 계산기에서 옮겨 올 예정) */
 const PAGES = [
@@ -39,9 +40,10 @@ export default function App() {
               </Tabs.Tab>
             ))}
             {/* 버튼도 탭 줄 안에 두어 아래 줄이 끝까지 이어진다 */}
-            <Box ml="auto" pb="xs">
+            <Group ml="auto" pb="xs" gap="xs">
+              <LoadDialog />
               <AccountDialog />
-            </Box>
+            </Group>
           </Tabs.List>
         </Tabs>
       </Box>

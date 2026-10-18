@@ -3,11 +3,11 @@
  * 기존 stat-calc-core.js attributeRunes·runeValue, stat-calc.html renderRunes·calcTabGroups 룬 부분.
  * 표가 커서 행 객체를 만들지 않고 열 번호로 한 번만 훑어 표마다 결과를 보관한다.
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type RawTable, type StatTables } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import type { SourceLabel } from './sourceLabel';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type RawTable, type StatTables } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 
 const { RUNE_KEY_PREFIX, CORE_RUNE_KEY, ATTRIBUTE_RUNE_LEVELS_PER_CORE, MIN_LEVEL, LAB } = CONSTS.masteryRuneBuff;
 /** 표에서 코어 룬의 slot 값 (빈칸) */

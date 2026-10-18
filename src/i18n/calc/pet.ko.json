@@ -1,12 +1,12 @@
 {
   "title": "펫",
   "ownedTitle": "보유 펫",
-  "ownedHelp": "펫마다 등급 버튼 → 성 버튼. 없음 = 미보유. 보유한 모든 펫의 효과가 붙습니다 (앱 코드 확정).",
+  "ownedHelp": "펫마다 등급을 누르고 성을 고르세요. \"없음\"은 없는 펫이에요. 가진 펫의 효과는 모두 들어가요.",
   "gradeNone": "없음",
   "starText": "{{star}}성",
   "notOwned": "미보유",
   "equipTitle": "장착 펫·옵션",
-  "equipHelp": "펫 그림을 누르면 펫 고르기 창. \"리더\" 버튼 = 리더 칸 (리더 효과는 leaderStatValue1 만 계산, 앱 코드 확정. 상태이상 리더 효과는 스탯이 아니라 문구만). 장착 옵션은 펫 화면 \"장착 옵션\" 의 능력치와 값 그대로 (예: 물 속성 히어로의 전용 스킬 데미지 +50%). 장착 칸 펫만 적용 (앱 코드 확정). 6번째 옵션은 펫 SSS 등급 이상 해금.",
+  "equipHelp": "펫 그림을 눌러 펫을 고르고, \"리더\"를 눌러 리더를 정하세요. 장착 옵션은 펫 화면 \"장착 옵션\"에 보이는 대로 넣으세요. 장착한 펫만 들어가고, 6번째 옵션은 SSS 등급부터 열려요.",
   "slotName": "{{slot}}번 칸",
   "slotPickLabel": "{{slot}}번 장착 펫",
   "pickEmpty": "펫 고르기",
@@ -20,7 +20,7 @@
   "optionStatLabel": "{{slot}}번 칸 {{number}}번 옵션",
   "optionValueLabel": "{{slot}}번 칸 {{number}}번 값",
   "valuePlaceholder": "값 %",
-  "optionNote": "보유 펫에서 이 펫의 등급·성을 고르면 옵션 칸이 열립니다.",
+  "optionNote": "보유 펫에서 이 펫의 등급과 성을 고르면 옵션을 입력할 수 있어요.",
   "leaderAilment": "{{kind}} {{count}}회마다 {{seconds}}초간 {{ailment}}",
   "ailmentKinds": {
     "attack": "일반공격",
@@ -57,14 +57,14 @@
     "206": "브루노"
   },
   "sources": {
-    "owned": "{{pet}} {{grade}} {{star}}성 보유",
+    "owned": "{{pet}} {{grade}} {{star}}성",
     "leader": "{{pet}} 리더",
     "option": "{{pet}} 옵션 {{number}}",
     "region": "펫 지역 {{attribute}} Lv{{level}} 지역 특성"
   },
   "regionTitle": "펫 지역",
-  "regionHelp": "마지막 단계 (2성 SSS 등급) 펫을 1마리 이상 보유하면 열립니다. 펫 지역 화면의 지역 레벨을 속성마다 넣으면 지역 특성이 공격력·체력에 붙습니다 (비우면 그 지역은 계산하지 않음). 지역 특성은 같은 속성 마지막 단계 펫 수로 더 올라갑니다.",
-  "regionLocked": "아직 열리지 않음: 마지막 단계 펫 {{count}}마리 (1마리 이상 필요)",
-  "regionUnlocked": "열림: 마지막 단계 펫 {{count}}마리",
+  "regionHelp": "2성 SSS 펫이 1마리라도 있으면 열려요. 펫 지역 화면의 레벨을 속성마다 넣으세요. 빈칸인 지역은 계산하지 않아요.",
+  "regionLocked": "잠김 (2성 SSS 펫 {{count}}마리, 1마리부터 열림)",
+  "regionUnlocked": "열림 (2성 SSS 펫 {{count}}마리)",
   "regionLevelLabel": "{{attribute}} 지역 레벨"
 }

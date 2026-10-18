@@ -5,13 +5,13 @@ import awakenText from '../../../../public/data/tables/Awaken.json?raw';
 import characterText from '../../../../public/data/tables/Character.json?raw';
 import masteryText from '../../../../public/data/tables/Mastery.json?raw';
 import petText from '../../../../public/data/tables/Pet.json?raw';
-import type { RawTable, StatTables } from '../../../data/statTables';
-import { useCalcStore } from '../../../store/useCalcStore';
-import { renderWithProviders } from '../../../test/renderWithProviders';
-import { CALC_KEY_PREFIX, calcValuesOf } from '../../storeKeys';
-import type { Line } from '../../combine';
-import type { CalcTab } from '../../types';
-import { masteryRuneBuffTabs } from './index';
+import type { RawTable, StatTables } from '@/data/statTables';
+import { useCalcStore } from '@/store/useCalcStore';
+import { renderWithProviders } from '@/test/renderWithProviders';
+import { CALC_KEY_PREFIX, calcValuesOf } from '@/calc/storeKeys';
+import type { Line } from '@/calc/combine';
+import type { CalcTab } from '@/calc/types';
+import { masteryRuneBuffTabs } from '@/calc/sources/masteryRuneBuff/index';
 
 const tables: StatTables = {
   Mastery: JSON.parse(masteryText) as RawTable,
@@ -69,26 +69,18 @@ describe('특성·룬·버프 화면', () => {
     useCalcStore.getState().setValue('calc.rune_0', '2036');
     useCalcStore.getState().setValue('calc.rune_core', '203');
     renderTab('rune');
-    expect(screen.getByText('누적 값 20.36A%')).toBeTruthy();
+    expect(screen.getByText('누적 효과 20.36A%')).toBeTruthy();
     expect(screen.getAllByText('/ 2040')).toHaveLength(6);
     expect(screen.getByText('/ 399')).toBeTruthy();
   });
 
-  it('버프: 학살자 칸과 광폭화 안내 (중첩 칸이 비었으면 0중첩)', () => {
+  it('버프: 학살자 칸과 광폭화 안내 (스킬 광폭화 특성을 찍었으면 늘 5중첩, 중첩 칸 없음)', () => {
     useCalcStore.getState().setValue('calc.mastery_10', '3');
     renderTab('buff');
     fireEvent.click(screen.getByLabelText('학살자 발동'));
     expect(useCalcStore.getState().values['calc.killerActive']).toBe('true');
-    expect(screen.getByText(/^광폭화 0중첩 · 학살자 공격력 ×/)).toBeTruthy();
-  });
-
-  it('버프: 광폭화 중첩 칸에 넣은 수를 쓴다', () => {
-    useCalcStore.getState().setValue('calc.mastery_10', '3');
-    useCalcStore.getState().setValue('calc.berserkStacks', '3');
-    renderTab('buff');
-    // 라벨 옆 도움말 아이콘도 같은 이름을 가져 여러 개가 잡힌다
-    expect(screen.getAllByLabelText(/광폭화 중첩/).length).toBeGreaterThan(0);
-    expect(screen.getByText(/^광폭화 3중첩 · /)).toBeTruthy();
+    expect(screen.getByText(/^광폭화 5중첩 · 학살자 공격력 ×/)).toBeTruthy();
+    expect(screen.queryByLabelText(/광폭화 중첩/)).toBeNull();
   });
 
   it('버프: 연타·스킬 콤보 % 를 다른 탭 줄로 계산해 늘 보여 준다 (저장 데이터 검증 217 / 38.37)', () => {
@@ -116,7 +108,7 @@ describe('특성·룬·버프 화면', () => {
     useCalcStore.getState().setValue('calc.mastery_2012', '1');
     useCalcStore.getState().setValue('calc.mastery_3015', '1');
     renderTab('mastery');
-    expect(screen.getByText('아직 계산에 들어가지 않는 얼티밋입니다: 문양 집중')).toBeTruthy();
+    expect(screen.getByText('아직 계산에 넣지 않은 얼티밋: 문양 집중')).toBeTruthy();
   });
 
   it('특성: 일반 특성 아이콘을 누르면 최대, 최대에서 한 번 더 누르면 0', () => {

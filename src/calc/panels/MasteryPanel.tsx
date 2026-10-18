@@ -13,8 +13,8 @@ import {
   Tooltip,
   UnstyledButton,
 } from '@mantine/core';
-import SectionTitle from '../../components/SectionTitle';
-import { CONSTS } from '../../CONSTS';
+import SectionTitle from '@/components/SectionTitle';
+import { CONSTS } from '@/CONSTS';
 import {
   clampedMasteryLevel,
   masteryLevel,
@@ -24,10 +24,10 @@ import {
   plainNumber,
   traitEffectText,
   type MasteryTrait,
-} from '../sources/masteryRuneBuff/mastery';
-import { skippedUltimateNames } from '../sources/masteryRuneBuff/ultimate';
-import { statLabel } from '../statText';
-import type { TabPanelProps } from '../types';
+} from '@/calc/sources/masteryRuneBuff/mastery';
+import { skippedUltimateNames } from '@/calc/sources/masteryRuneBuff/ultimate';
+import { statLabel } from '@/calc/statText';
+import type { TabPanelProps } from '@/calc/types';
 
 const { MASTERY_GROUPS, ULTIMATE_ON_LEVEL, MIN_LEVEL, PANEL } = CONSTS.masteryRuneBuff;
 
@@ -36,13 +36,13 @@ function traitIconPath(trait: MasteryTrait): string {
   return `${import.meta.env.BASE_URL}icons/Atlas_Characteristics/${trait.ultimate ? 'UT_' : 'A_'}${trait.rNo}.png`;
 }
 
-/** 같은 단계끼리 묶는다 (특성은 이미 단계 순으로 정렬되어 있음) */
-function groupBySteps(traits: MasteryTrait[]): { step: number; traits: MasteryTrait[] }[] {
-  const steps: { step: number; traits: MasteryTrait[] }[] = [];
+/** 같은 단계끼리 묶는다 (특성은 이미 단계 순으로 정렬되어 있음). 열리는 레벨은 단계 안에서 같다 */
+function groupBySteps(traits: MasteryTrait[]): { step: number; unlockLevel: number; traits: MasteryTrait[] }[] {
+  const steps: { step: number; unlockLevel: number; traits: MasteryTrait[] }[] = [];
   for (const trait of traits) {
     const last = steps[steps.length - 1];
     if (last && last.step === trait.step) last.traits.push(trait);
-    else steps.push({ step: trait.step, traits: [trait] });
+    else steps.push({ step: trait.step, unlockLevel: trait.unlockLevel, traits: [trait] });
   }
   return steps;
 }
@@ -63,10 +63,8 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel }: Trait
   const { t: translate } = useTranslation();
   const name = translate(`calc.mastery.names.${trait.rNo}`, { defaultValue: trait.statName });
   const active = level > 0;
-  const effectText =
-    level > 0
-      ? traitEffectText(trait, level)
-      : translate('calc.mastery.notLearned', { text: traitEffectText(trait, ULTIMATE_ON_LEVEL) });
+  // 일반 특성은 지금 레벨의 효과, 얼티밋은 켬/끔뿐이라 켰을 때 효과 (값이 하나)
+  const effectText = traitEffectText(trait, trait.ultimate ? ULTIMATE_ON_LEVEL : level);
   const icon = (
     <Image
       src={traitIconPath(trait)}
@@ -122,6 +120,7 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel }: Trait
           <NumberInput
             size="xs"
             w={PANEL.NODE_LEVEL_INPUT_WIDTH}
+            styles={{ input: { paddingInline: PANEL.NODE_LEVEL_INPUT_PADDING } }}
             hideControls
             min={MIN_LEVEL}
             max={trait.maxLevel}
@@ -216,7 +215,7 @@ export default function MasteryPanel({ values, setValue, tables, descriptions }:
                     {translate('calc.mastery.resetGroup')}
                   </Button>
                 </Group>
-                {groupBySteps(groupTraits).map(({ step, traits: stepTraits }) => (
+                {groupBySteps(groupTraits).map(({ step, unlockLevel, traits: stepTraits }) => (
                   // 일반 특성 단계 (1~18) 뒤에 얼티밋 단계 (1~7) 가 다시 1부터 나오므로 key 에 둘을 구분해 넣는다
                   <Group
                     key={`${stepTraits[0].ultimate ? 'ultimate' : 'trait'}-${step}`}
@@ -224,17 +223,17 @@ export default function MasteryPanel({ values, setValue, tables, descriptions }:
                     wrap="nowrap"
                     align="flex-start"
                   >
-                    <Text
-                      size="xs"
-                      c="dimmed"
-                      w={PANEL.STAGE_LABEL_WIDTH}
-                      pt={PANEL.STAGE_LABEL_TOP_OFFSET}
-                      style={{ whiteSpace: 'nowrap' }}
-                    >
-                      {translate('calc.mastery.step', { step })}
-                    </Text>
-                    {/* 아이콘은 줄 폭에 고르게 퍼지고, 하나뿐이면 가운데 (게임 나무처럼) */}
-                    <Group justify="space-evenly" wrap="nowrap" align="flex-start" style={{ flex: 1 }}>
+                    {/* 단계 이름 아래에 열리는 레벨 (같은 레벨에 단계 두 개가 열리는 곳이 있어 옆 칸과 맞춰 보게) */}
+                    <Stack gap={0} w={PANEL.STAGE_LABEL_WIDTH} pt={PANEL.STAGE_LABEL_TOP_OFFSET} style={{ whiteSpace: 'nowrap' }}>
+                      <Text size="xs" c="dimmed">
+                        {translate('calc.mastery.step', { step })}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {translate('calc.mastery.unlockLevel', { level: unlockLevel.toLocaleString('ko-KR') })}
+                      </Text>
+                    </Stack>
+                    {/* 특성 칸은 줄 가운데에 일정한 간격으로 */}
+                    <Group justify="center" gap={PANEL.TRAIT_ROW_GAP} wrap="nowrap" align="flex-start" style={{ flex: 1 }}>
                       {stepTraits.map((trait) => (
                         <TraitNode
                           key={trait.rNo}

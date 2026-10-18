@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { CONSTS } from '../CONSTS';
+import { CONSTS } from '@/CONSTS';
 
 /** 콘텐츠 칸 폭: 좁은 칸 (입력이 몇 줄), 넓은 칸 (카드 여러 장), 한 줄 전체 (특성 나무) */
 type TabWidth = 'narrow' | 'wide' | 'full';
@@ -52,7 +52,6 @@ export const TAB_ITEM_STYLE: CSSProperties = {
   marginTop: 0,
   border: `${CONSTS.display.CONTENT_BORDER_WIDTH}px solid var(--mantine-color-default-border)`,
 };
-
 /** 콘텐츠 칸들을 담는 줄: 칸이 화면 폭에 들어가는 만큼 나란히, 넘치면 다음 줄 */
 export const TAB_ROW_STYLE: CSSProperties = {
   display: 'flex',

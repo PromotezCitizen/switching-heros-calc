@@ -1,6 +1,6 @@
 /** 출처 줄을 앱 코드 규칙으로 합친다 (_per_ → × (1 + v/100), _down_ → × (1 − v/100), _pow_ → × v, 그 밖 → + v) */
-import { CONSTS } from '../CONSTS';
-import { logOnePlus } from './gameNumber';
+import { CONSTS } from '@/CONSTS';
+import { logOnePlus } from '@/calc/gameNumber';
 
 const { MAX_LOG, PERCENT_LOG_OFFSET, MIN_POSITIVE } = CONSTS.combine;
 const PERCENT_DIVISOR = CONSTS.common.PERCENT_DIVISOR;

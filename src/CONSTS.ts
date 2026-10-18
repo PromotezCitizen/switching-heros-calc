@@ -1,12 +1,14 @@
 /** 계산·화면에 쓰는 숫자를 한 곳에 모은다 (코드 안에 숫자를 직접 쓰지 않는다) */
-import { HERO_CONSTS } from './consts/hero';
-import { HERO_WEAPON_CARD_PET_CONSTS } from './consts/heroWeaponCardPet';
-import { MASTERY_RUNE_BUFF_CONSTS } from './consts/masteryRuneBuff';
-import { PROVIDER_CONSTS } from './consts/providers';
-import { SKILL_CONSTS } from './consts/skill';
-import { SUMMARY_CONSTS } from './consts/summary';
-import { TEXT_LINES_CONSTS } from './consts/textLines';
-import { TRAINING_RELIC_CONSTS } from './consts/trainingRelic';
+import { HERO_CONSTS } from '@/consts/hero';
+import { HERO_WEAPON_CARD_PET_CONSTS } from '@/consts/heroWeaponCardPet';
+import { MASTERY_RUNE_BUFF_CONSTS } from '@/consts/masteryRuneBuff';
+import { PROVIDER_CONSTS } from '@/consts/providers';
+import { SKILL_CONSTS } from '@/consts/skill';
+import { SUMMARY_CONSTS } from '@/consts/summary';
+import { TEXT_LINES_CONSTS } from '@/consts/textLines';
+import { TRAINING_RELIC_CONSTS } from '@/consts/trainingRelic';
+import { USB_CONSTS } from '@/consts/usb';
+import { LOAD_CONSTS } from '@/consts/load';
 
 export const CONSTS = {
   /** 탭 묶음별 상수 (파일은 src/consts/) */
@@ -18,6 +20,8 @@ export const CONSTS = {
   skill: SKILL_CONSTS,
   summary: SUMMARY_CONSTS,
   providers: PROVIDER_CONSTS,
+  usb: USB_CONSTS,
+  load: LOAD_CONSTS,
 
   common: {
     PERCENT_DIVISOR: 100,
@@ -156,6 +160,11 @@ export const CONSTS = {
     STICKY_CONTENT_TITLE_HEIGHT_VAR: '--sticky-content-title-height',
     /** 콘텐츠 칸 테두리 두께 (px, Mantine 접이식 separated 모양) */
     CONTENT_BORDER_WIDTH: 1,
+    /**
+     * 하위 탭 줄과 콘텐츠 칸 사이 간격 (px). 붙어 있으면 화면 배율 125% 등에서 반올림으로 하위 탭 줄 배경이 칸 위쪽 선을 덮는다.
+     * 고정된 칸 제목도 이만큼 아래에 멈춘다 (제목 위에 그린 선이 하위 탭 줄에 가리지 않게)
+     */
+    CONTENT_TOP_GAP: 2,
     /** 위쪽에 고정하는 탭 줄이 다른 화면 위에 보이게 하는 겹침 순서 */
     STICKY_HEADER_Z_INDEX: 100,
     /** 게임 목록처럼 한 줄씩 늘어놓는 입력 칸의 너비 (px) */

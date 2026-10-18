@@ -2,11 +2,11 @@
  * 히어로 표 · 전용 무기 표: 보유 히어로 (등급·성·캐릭터 각성) 와 보유 전용 무기 (초월 ★).
  * 여기서 넣은 값으로 1슬롯 히어로의 등급·성·각성, 유물 연동 수치 (SS·SSS 이상 히어로 수, ★10 전용 무기 수) 를 자동으로 읽는다
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type StatTables } from '../../../data/statTables';
-import type { CalcValues } from '../../types';
-import { characterRows } from './character';
-import { exclusiveOwnedLevelField, exclusiveOwnedStarField, rosterGradeField } from './rosterFields';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type StatTables } from '@/data/statTables';
+import type { CalcValues } from '@/calc/types';
+import { characterRows } from '@/calc/sources/hero/character';
+import { exclusiveOwnedLevelField, exclusiveOwnedStarField, rosterGradeField } from '@/calc/sources/hero/rosterFields';
 
 const { STAR10_WEAPON_STAR } = CONSTS.hero.roster;
 

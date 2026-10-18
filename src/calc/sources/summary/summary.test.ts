@@ -1,16 +1,16 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import '../../../i18n';
-import type { RawTable, StatTables } from '../../../data/statTables';
-import { parseGameNumber } from '../../gameNumber';
-import { CALC_TAB_GROUPS, groupTabs } from '../../tabGroups';
-import { CALC_TABS } from '../../tabs';
-import { expandedTabLines } from '../../tabLines';
-import type { CalcValues } from '../../types';
-import { selectedAwakenStage } from '../hero/awaken';
-import { heroFirstRow, slotHeroName } from '../hero/character';
-import { onAttackBuffLines } from '../masteryRuneBuff/buff';
-import savedValues from './testValues0213.json';
-import savedValues0248 from './testValues0248.json';
+import '@/i18n';
+import type { RawTable, StatTables } from '@/data/statTables';
+import { parseGameNumber } from '@/calc/gameNumber';
+import { CALC_TAB_GROUPS, groupTabs } from '@/calc/tabGroups';
+import { CALC_TABS } from '@/calc/tabs';
+import { expandedTabLines } from '@/calc/tabLines';
+import type { CalcValues } from '@/calc/types';
+import { selectedAwakenStage } from '@/calc/sources/hero/awaken';
+import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
+import { onAttackBuffLines } from '@/calc/sources/masteryRuneBuff/buff';
+import savedValues from '@/calc/sources/summary/testValues0213.json';
+import savedValues0248 from '@/calc/sources/summary/testValues0248.json';
 import {
   attackIncreaseStats,
   compareWithScreen,
@@ -21,8 +21,8 @@ import {
   summaryRows,
   summaryTarget,
   type SummaryRowId,
-} from './summary';
-import { combineLines } from '../../combine';
+} from '@/calc/sources/summary/summary';
+import { combineLines } from '@/calc/combine';
 
 /** 표 파일은 필요한 것만 글로 읽는다 (모든 탭이 쓰는 표) */
 const TABLE_FILES = import.meta.glob<string>('../../../../public/data/tables/*.json', { query: '?raw', import: 'default' });

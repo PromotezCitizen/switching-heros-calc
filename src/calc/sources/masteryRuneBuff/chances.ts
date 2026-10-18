@@ -4,16 +4,16 @@
  * 연타는 공격속도 350% 초과 몫, 슈퍼 치명타는 치명타 확률 100% 초과 몫이 더 붙는다.
  * 버프 탭 (줄·패널) 이 쓴다 (특성 탭 줄도 다른 탭 줄에 들어가므로 특성 탭에서는 계산할 수 없다)
  */
-import { CONSTS } from '../../../CONSTS';
-import type { RawTable, StatTables, TableRow } from '../../../data/statTables';
-import { combineLines, type CombinedStat, type Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { heroFirstRow, slotHeroName } from '../hero/character';
-import { hasEquippedActiveSkill } from '../skill/skill';
-import { attackSpeedPercent, combinedSum, doubleAttackPercent } from './buff';
-import { masteryLevel, masteryTraits, plainNumber, traitName, traitValue } from './mastery';
-import type { SourceLabel } from './sourceLabel';
-import { formationHeroAttributes, formationPair } from './ultimate';
+import { CONSTS } from '@/CONSTS';
+import type { RawTable, StatTables, TableRow } from '@/data/statTables';
+import { combineLines, type CombinedStat, type Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
+import { hasEquippedActiveSkill } from '@/calc/sources/skill/skill';
+import { attackSpeedPercent, combinedSum, doubleAttackPercent } from '@/calc/sources/masteryRuneBuff/buff';
+import { masteryLevel, masteryTraits, plainNumber, traitName, traitValue } from '@/calc/sources/masteryRuneBuff/mastery';
+import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
+import { formationHeroAttributes, formationPair } from '@/calc/sources/masteryRuneBuff/ultimate';
 
 const {
   STATS,

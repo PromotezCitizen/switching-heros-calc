@@ -7,14 +7,14 @@ import petText from '../../../../public/data/tables/Pet.json?raw';
 import skillText from '../../../../public/data/tables/Skill.json?raw';
 import weaponCharText from '../../../../public/data/tables/WeaponChar.json?raw';
 import weaponTranscendText from '../../../../public/data/tables/WeaponTranscend.json?raw';
-import '../../../i18n';
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type RawTable, type StatTables } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import { formatLog } from '../../gameNumber';
-import type { CalcValues } from '../../types';
-import { awakenDetailLevelField, awakenDetailStats } from './awakenDetail';
-import { combineLines } from '../../combine';
+import '@/i18n';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type RawTable, type StatTables } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import { formatLog } from '@/calc/gameNumber';
+import type { CalcValues } from '@/calc/types';
+import { awakenDetailLevelField, awakenDetailStats } from '@/calc/sources/masteryRuneBuff/awakenDetail';
+import { combineLines } from '@/calc/combine';
 import {
   attackEventBuffLines,
   attackSpeedPercent,
@@ -31,13 +31,13 @@ import {
   selectedNormalMonsterFood,
   stackLines,
   superCriticalStrikeLines,
-} from './buff';
-import { battleDamageLines, battleStatLines, chancesWithBattleState, compoundPercent } from './battleState';
-import { chancesFromLines, chanceUltimateLines } from './chances';
-import { masteryRuneBuffTabs } from './index';
-import { masteryTotals, masteryTraits, plainNumber } from './mastery';
-import { attributeRunes, runeLevel, runeLevelLimit, runeValue } from './rune';
-import { equippedSkillTypeCounts, hasEquippedActiveSkill } from '../skill/skill';
+} from '@/calc/sources/masteryRuneBuff/buff';
+import { battleDamageLines, battleStatLines, chancesWithBattleState, compoundPercent } from '@/calc/sources/masteryRuneBuff/battleState';
+import { chancesFromLines, chanceUltimateLines } from '@/calc/sources/masteryRuneBuff/chances';
+import { masteryRuneBuffTabs } from '@/calc/sources/masteryRuneBuff/index';
+import { masteryTotals, masteryTraits, plainNumber } from '@/calc/sources/masteryRuneBuff/mastery';
+import { attributeRunes, runeLevel, runeLevelLimit, runeValue } from '@/calc/sources/masteryRuneBuff/rune';
+import { equippedSkillTypeCounts, hasEquippedActiveSkill } from '@/calc/sources/skill/skill';
 import {
   equippedPetIds,
   formationHeroAttributes,
@@ -45,7 +45,7 @@ import {
   slotHeroTargetUnit,
   ultimateCounts,
   ultimateLines,
-} from './ultimate';
+} from '@/calc/sources/masteryRuneBuff/ultimate';
 
 /**
  * 기대값은 기존 htmls/stat-calc.html 을 playwright 로 열어 같은 입력을 넣고,
@@ -116,7 +116,7 @@ const EXPECTED: Record<string, Record<string, ExpectedLine[]>> = {
       ['과충전 연타 Lv20', 'doubleAttackToDmgUp1', 'value', 400],
       ['연타 폭주 Lv7', 'doubleAttackToDmgUp2', 'value', 17.5],
     ],
-    // 베르 각성 세부는 레벨 입력 + 표 Awaken 으로 계산 (아래 "베르 각성 세부 스탯" 에서 화면 값과 대조). 이 시나리오 표에는 Awaken 이 없음
+    // 베르 각성 세부는 레벨 입력 + 표 Awaken 으로 계산 (아래 "베르 각성 세부 능력치" 에서 화면 값과 대조). 이 시나리오 표에는 Awaken 이 없음
     awakenDetail: [],
     ultimate: [
       ['심해의 동반자 (3 ^ 장착 펫 3마리)', '_per_hp', 'log', 3.414973347970818],
@@ -129,7 +129,7 @@ const EXPECTED: Record<string, Record<string, ExpectedLine[]>> = {
       ['학살자', '_per_attackDamage', 'log', 2.1760912590556813],
       ['연타 폭주 (공격력 %)', '_per_attackDamage', 'value', 210],
       // 과충전 연타 102 (Lv20 = 400) 는 연타 224.49 가 100 을 넘어서 공격력 % 줄이 생긴다 (combat0113.py 105)
-      ['과충전 연타 (연타 224.49% 가 100% 초과)', '_per_attackDamage', 'value', 400],
+      ['과충전 연타 (연타 224.49%, 100% 초과)', '_per_attackDamage', 'value', 400],
     ],
   },
   empty: {
@@ -269,7 +269,7 @@ describe('룬 화면 값', () => {
   });
 });
 
-describe('베르 각성 세부 스탯', () => {
+describe('베르 각성 세부 능력치', () => {
   it('이 계정 (XR ★7, 레벨 공격력·체력·보스 50, 일반 19, 히어로 0) 이 각성 화면 누적 값과 같다', () => {
     const values: CalcValues = {
       awakenGrade: 'XR',
@@ -304,16 +304,11 @@ describe('버프·얼티밋 안내', () => {
     expect(Number(Math.pow(10, killerLog(tables.Mastery, SCENARIOS.empty)).toFixed(3))).toBe(2);
     expect(berserkStacks(tables.Mastery, SCENARIOS.edge)).toBe(5);
   });
-  it('광폭화 중첩 = 칸에 넣은 수 (비었으면 0, 0~5, 소수 버림). 스킬 광폭화 특성이 없으면 0', () => {
-    const learned = masteryValues({ 10: 1 });
-    expect(berserkStacks(tables.Mastery, learned)).toBe(0);
-    expect(berserkStacks(tables.Mastery, { ...learned, berserkStacks: '3' })).toBe(3);
-    expect(berserkStacks(tables.Mastery, { ...learned, berserkStacks: '2.7' })).toBe(2);
-    expect(berserkStacks(tables.Mastery, { ...learned, berserkStacks: '9' })).toBe(5);
-    expect(berserkStacks(tables.Mastery, { ...learned, berserkStacks: '-1' })).toBe(0);
-    expect(berserkStacks(tables.Mastery, { berserkStacks: '3' })).toBe(0);
-    // 0중첩 (사망 직후 같은 버프 0 상태) 이면 광폭화 줄이 없다
-    expect(buffLines(learned, tables.Mastery, (key) => key, 0)).toEqual([]);
+  it('광폭화 중첩 = 스킬 광폭화 특성을 찍었으면 늘 5중첩, 안 찍었으면 0 (입력 칸 없음)', () => {
+    expect(berserkStacks(tables.Mastery, masteryValues({ 10: 1 }))).toBe(5);
+    expect(berserkStacks(tables.Mastery, {})).toBe(0);
+    // 특성을 안 찍었으면 광폭화 줄이 없다
+    expect(buffLines({}, tables.Mastery, (key) => key, 0)).toEqual([]);
   });
   it('과충전 연타 (Lv20 = 400% → ×5, 연타 100% 이하·레벨 0 이면 없음)', () => {
     expect(overchargeLog(tables.Mastery, SCENARIOS.full, 224.49)).toBeCloseTo(Math.log10(5), 12);
@@ -591,7 +586,7 @@ describe('전투 버프 줄: 초월의 일격 · 최종 공격력 ×5', () => {
   };
   const equipped = (star: string): CalcValues => ({ charName: '에이카', exclusiveEquipped: 'true', exclusiveOwnedStar_1021: star });
 
-  it('최종 공격력 ×5 (_multiply_AttackDamage): 1슬롯 히어로가 전용 무기 1021 을 장착하고 ★10 이상일 때만 (실측 확인)', () => {
+  it('최종 공격력 ×5 (_multiply_AttackDamage): 1슬롯 히어로가 전용 무기 1021 을 장착하고 ★10 이상일 때만', () => {
     expect(finalAttackMultiplierLines({}, label, weaponTables)).toEqual([]);
     expect(finalAttackMultiplierLines(equipped('9'), label, weaponTables)).toEqual([]);
     // 장착 안 함 (보유만) / 다른 히어로 / 다른 무기 ★ 는 줄 없음
@@ -621,11 +616,11 @@ describe('전투 버프 줄: 초월의 일격 · 최종 공격력 ×5', () => {
     )!;
     const values = { ...masteryValues({ 107: 20 }), ...equipped('13') };
     const exclusiveLines = [
-      { source: '전용 무기 초월 ★7 공격력 10중첩 (늘 최대, 문구와 다르게 실측 확인)', stat: '_per_attackDamage', value: 50 },
-      { source: '전용 무기 초월 ★10 최대 중첩 공격력 ×5 (실측 확인)', stat: '_multiply_AttackDamage', value: 5 },
+      { source: '전용 무기 초월 ★7 공격력 10중첩 (최대)', stat: '_per_attackDamage', value: 50 },
+      { source: '전용 무기 초월 ★10 최대 중첩 공격력 ×5', stat: '_multiply_AttackDamage', value: 5 },
     ];
     expect(tab.lines(values, weaponTables)).toEqual([
-      { source: '초월의 일격 (슈퍼 치명타 130.91% 가 100% 초과, 유력)', stat: '_per_criticalDmg', value: 200 },
+      { source: '초월의 일격 (슈퍼 치명타 130.91%, 100% 초과)', stat: '_per_criticalDmg', value: 200 },
       ...exclusiveLines,
     ]);
     // 특성 표 없이도 전용 무기 줄은 나온다. 장착 안 했으면 없다

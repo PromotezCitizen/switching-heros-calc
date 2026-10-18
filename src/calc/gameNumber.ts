@@ -1,5 +1,5 @@
 /** 게임 큰 수 표기("8.97DC", "356.53CI%")를 log10 으로 읽고 되돌려 쓴다. stat-calc-core.js 와 같은 규칙 */
-import { CONSTS } from '../CONSTS';
+import { CONSTS } from '@/CONSTS';
 
 const {
   LOG_PER_UNIT,

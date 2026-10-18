@@ -3,11 +3,11 @@
     "calc": "계산식 확인기",
     "hunting": "사냥 계산기",
     "viewer": "스탯 모아 보기",
-    "guide": "계산기 값 찾는 곳"
+    "guide": "값 찾는 법"
   },
   "common": {
-    "help": "값 찾는 곳 안내",
-    "invalidGameNumber": "읽을 수 없는 값입니다. 게임 화면 그대로 입력하세요 (예: 5.14N%)"
+    "help": "어디서 찾나요?",
+    "invalidGameNumber": "게임에 보이는 대로 단위와 %까지 넣으세요. 예: 5.14N%"
   },
   "calc": {
     "groups": {
@@ -20,12 +20,12 @@
       "collection": "수집·기타",
       "battle": "버프·프로필"
     },
-    "intro": "콘텐츠마다 게임 화면에 보이는 레벨이나 값을 넣으세요. 넣은 값은 이 기기에 저장됩니다.",
-    "loadFailed": "스탯 설명 문구를 불러오지 못했습니다. 스탯 이름으로 표시합니다.",
-    "tableLoadFailed": "수치표를 불러오지 못했습니다.",
+    "intro": "게임에 보이는 레벨과 수치를 그대로 넣으세요. 넣은 값은 이 기기에 저장돼요.",
+    "loadFailed": "스탯 설명을 불러오지 못해서 이름만 표시해요.",
+    "tableLoadFailed": "수치표를 불러오지 못했어요.",
     "artifact": {
       "title": "연성 능력치 합계",
-      "help": "연성 화면 '능력치 합계' 목록 값 그대로 입력합니다 (누적 값). 게임 목록과 같은 순서로 적습니다. 명중은 계산식에서 빼므로 비워 두어도 됩니다. ① 표시가 붙은 유니크 옵션 7개 (무자비·매직 가드·연타·슈퍼 치명타·관통·스위칭 부스트·스킬 콤보) 는 장비끼리 더한 값입니다. 목록에 없는 옵션은 비워 둡니다.",
+      "help": "연성 화면 '능력치 합계'의 값을 단위와 %까지 그대로 옮겨 적으세요. 순서는 게임과 같아요. ① 표시 옵션은 장비마다 붙은 값을 더한 값이에요. 명중과 목록에 없는 옵션은 비워 두세요.",
       "sources": {
         "artifactTotalAtk": "능력치 합계: 공격력 증가",
         "artifactTotalHp": "능력치 합계: 체력 증가",
@@ -69,24 +69,24 @@
   "account": {
     "open": "공통 입력",
     "title": "공통 입력 (VIP·길드·요정)",
-    "description": "여러 계산기가 같이 쓰는 값입니다. 한 번 입력하면 모든 페이지에 적용됩니다.",
+    "description": "모든 페이지가 같이 쓰는 값이에요. 한 번만 넣으면 돼요.",
     "vipLevel": "VIP 레벨",
     "guildLevel": "길드 레벨",
     "fairyLevel": "요정의 유대 레벨",
-    "guildSkill": "길드 스킬 (스테이지 경험치·골드·정수 1~5)",
-    "fairyOn": "요정의 축복 켜짐 (스탯 계산기 공격력·체력)",
+    "guildSkill": "길드 스킬 (스테이지 경험치·골드·정수)",
+    "fairyOn": "요정의 축복 사용 중",
     "huntingFairy": "사냥 보상의 요정의 축복",
     "adRemoved": "광고 제거 구매",
-    "adRemovedHint": "광고 제거를 샀으면 요정의 축복이 경험치·골드 둘 다 늘 켜져 있습니다. 안 샀으면 광고를 봐서 켠 칸만 아래에서 체크합니다.",
-    "huntingFairyOn": "요정의 축복 켜짐 ({{resource}})",
+    "adRemovedHint": "광고 제거를 샀으면 요정의 축복 (경험치·골드) 이 늘 켜져 있어요. 사지 않았으면 광고로 켠 것만 아래에서 체크하세요.",
+    "huntingFairyOn": "요정의 축복 사용 중 ({{resource}})",
     "guildSkillRow": "스킬 {{number}} (레벨당 +{{percent}}%)",
-    "guildSkillLocked": "길드 레벨 {{level}}부터 길드 스킬이 열립니다."
+    "guildSkillLocked": "길드 스킬은 길드 레벨 {{level}}부터 열려요."
   },
   "hunting": {
-    "intro": "오프라인 보상을 받는 층과 직접 사냥할 층을 비교해, 직접 사냥이 이득이 되려면 분당 몇 마리를 잡아야 하는지 층마다 보여 줍니다.",
-    "accountHint": "VIP·길드·요정 값은 위쪽 '공통 입력'에서 입력합니다.",
+    "intro": "층마다 오프라인 보상과 직접 사냥을 비교해요. 직접 사냥이 이득이려면 1분에 몇 마리를 잡아야 하는지 나와요.",
+    "accountHint": "VIP·길드·요정은 위쪽 '공통 입력'에서 입력하세요.",
     "offlineTitle": "오프라인",
-    "adOn": "광고 시청",
+    "adOn": "광고 보기",
     "offlinePackageOn": "오프라인 보상 증가 패키지",
     "offlineFloor": "오프라인 보상을 받는 층",
     "onlineTitle": "직접 사냥 보너스",
@@ -94,17 +94,64 @@
     "foodNone": "없음",
     "eventOn": "이벤트 +100%",
     "packageOn": "패키지 +100%",
-    "scanTitle": "검사할 직접 사냥 층",
-    "lowestProfitableFloor": "{{resource}}: 분당 {{kills}}마리를 잡으면 {{floor}}층까지 내려가도 이득입니다.",
-    "noProfitableFloor": "{{resource}}: 분당 {{kills}}마리로는 오프라인보다 이득인 층이 없습니다.",
-    "scanStep": "간격",
-    "myKills": "내가 잡는 분당 처치 수 (선택)",
-    "resultTitle": "층별 필요한 분당 처치 수",
+    "scanTitle": "비교할 사냥 층",
+    "lowestProfitableFloor": "{{resource}}: 1분에 {{kills}}마리를 잡으면 {{floor}}층까지 내려가도 이득이에요.",
+    "noProfitableFloor": "{{resource}}: 1분에 {{kills}}마리로는 오프라인보다 나은 층이 없어요.",
+    "scanStep": "층 간격",
+    "myKills": "내가 1분에 잡는 수 (선택)",
+    "resultTitle": "층별로 1분에 잡아야 하는 수",
     "floor": "층",
     "resource": { "exp": "경험치", "gold": "골드", "ess": "정수" },
-    "offlineSummary": "오프라인 효율: 분당 {{kills}}마리",
-    "tooManyRows": "층이 너무 많아 처음 {{limit}}줄만 보여 줍니다. 간격을 늘려 주세요.",
-    "loading": "층별 보상 표를 불러오는 중입니다.",
-    "loadFailed": "층별 보상 표를 불러오지 못했습니다."
+    "offlineSummary": "오프라인: 1분에 {{kills}}마리",
+    "tooManyRows": "층이 많아서 앞쪽 {{limit}}개만 나와요. 층 간격을 늘려 보세요.",
+    "loading": "층별 보상을 불러오는 중이에요.",
+    "loadFailed": "층별 보상을 불러오지 못했어요."
+  },
+  "load": {
+    "open": "불러오기",
+    "title": "불러오기",
+    "gameVersion": "게임 버전 {{version}}",
+    "gameVersionUnknown": "게임 버전: 폰에서 채우면 나와요",
+    "fileTitle": "파일로 옮기기",
+    "fileHelp": "입력한 값을 파일로 저장하거나 다시 불러와요. 다른 기기·브라우저로 옮길 때 쓰세요.",
+    "export": "파일로 저장",
+    "import": "파일 불러오기",
+    "importWarning": "파일을 불러오면 지금 입력한 내용은 모두 지워져요.",
+    "exportDone": "{{count}}개 항목을 저장했어요.",
+    "importDone": "{{count}}개 항목을 불러왔어요.",
+    "importDoneWithVersion": "게임 버전 {{version}} 데이터 {{count}}개 항목을 불러왔어요.",
+    "importInvalid": {
+      "notJson": "올바른 파일이 아니에요.",
+      "notBackup": "이 계산기에서 저장한 파일이 아니에요."
+    },
+    "usbTitle": "안드로이드 폰에서 자동으로 채우기"
+  },
+  "usb": {
+    "steps": {
+      "1": "폰에서 개발자 옵션의 'USB 디버깅'을 켜세요. 개발자 옵션이 안 보이면 설정 → 휴대전화 정보 → 소프트웨어 정보에서 '빌드번호'를 7번 누르면 생겨요.",
+      "2": "데이터 케이블로 폰을 PC에 연결하세요.",
+      "3": "아래 [폰 연결]을 누르고 목록에서 폰을 고르세요.",
+      "4": "폰 화면에 'USB 디버깅 허용'이 뜨면 허용을 누르세요.",
+      "5": "[채우기]를 누르면 끝이에요."
+    },
+    "privacy": "폰에서 읽은 데이터는 이 브라우저에서만 쓰고 어디에도 보내지 않아요.",
+    "troubleshoot": "연결되지 않으면 PC에서 adb를 쓰는 프로그램 (안드로이드 스튜디오 등) 을 끄고 다시 해 보세요. 메뉴 이름은 제조사마다 조금 달라요.",
+    "hint": {
+      "android": "PC의 크롬이나 엣지에서 열고 폰을 USB로 연결하면 자동으로 채울 수 있어요. 폰 브라우저에서는 안 돼요.",
+      "ios": "아이폰은 자동 채우기를 지원하지 않아요. 직접 입력하거나, 저장해 둔 파일을 불러오세요.",
+      "insecure": "자동 채우기는 https 주소에서만 돼요.",
+      "unsupported": "자동 채우기는 PC의 크롬이나 엣지에서만 돼요."
+    },
+    "connect": "폰 연결",
+    "waiting": "목록에서 폰을 고르고, 폰 화면의 'USB 디버깅 허용'을 눌러 주세요.",
+    "cancelled": "폰 선택을 취소했어요.",
+    "connected": "연결됐어요 ({{serial}})",
+    "failed": "연결 실패: {{error}}",
+    "import": "채우기",
+    "overwriteWarning": "이미 입력한 항목도 폰에 있는 값으로 바뀌어요.",
+    "missingFile": "폰에서 게임 데이터를 찾지 못했어요: {{kind}}",
+    "importDone": "{{count}}개 항목을 채웠어요. 이제 케이블을 빼도 돼요.",
+    "notFilled": "아래 항목은 채우지 못해서 그대로 뒀어요.",
+    "missingKeys": "게임 업데이트로 찾지 못한 데이터: {{keys}}"
   }
 }

@@ -2,18 +2,18 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, Group, Image, Stack, Text } from '@mantine/core';
-import AutoGrid from '../../components/AutoGrid';
-import { CONSTS } from '../../CONSTS';
-import { NumberField } from '../../components/StoreFields';
-import { CALC_KEY_PREFIX } from '../storeKeys';
+import AutoGrid from '@/components/AutoGrid';
+import { CONSTS } from '@/CONSTS';
+import { NumberField } from '@/components/StoreFields';
+import { CALC_KEY_PREFIX } from '@/calc/storeKeys';
 import {
   DIARY_BOOK_FIELD,
   DIARY_SLOT_ICONS,
   diarySlotField,
   diarySlotResults,
-} from '../sources/textLines/diary';
-import { formatPercentText } from '../statText';
-import type { TabPanelProps } from '../types';
+} from '@/calc/sources/textLines/diary';
+import { formatPercentText } from '@/calc/statText';
+import type { TabPanelProps } from '@/calc/types';
 
 const ICON_FOLDER = 'icons/Atlas_diary_icon';
 

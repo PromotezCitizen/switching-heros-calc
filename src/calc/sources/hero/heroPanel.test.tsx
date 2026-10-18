@@ -2,10 +2,10 @@ import { fireEvent, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import awakenTable from '../../../../public/data/tables/Awaken.json';
 import characterTable from '../../../../public/data/tables/Character.json';
-import type { RawTable, StatTables } from '../../../data/statTables';
-import { renderWithProviders } from '../../../test/renderWithProviders';
-import type { CalcValues } from '../../types';
-import HeroPanel from './HeroPanel';
+import type { RawTable, StatTables } from '@/data/statTables';
+import { renderWithProviders } from '@/test/renderWithProviders';
+import type { CalcValues } from '@/calc/types';
+import HeroPanel from '@/calc/sources/hero/HeroPanel';
 
 const tables: StatTables = {
   Character: characterTable as RawTable,

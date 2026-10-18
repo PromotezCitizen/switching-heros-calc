@@ -2,11 +2,11 @@
  * 기본값 확인: 프로필 창의 공격력·체력 (화면 값) 대 수치표 히어로 기본값.
  * 기존 stat-calc.html renderBaseCheck (605~615) 의 계산 부분. 화면·React 와 무관한 순수 함수
  */
-import { CONSTS } from '../../../CONSTS';
-import type { StatTables } from '../../../data/statTables';
-import type { CalcValues } from '../../types';
-import { profileLog } from '../textLines/profile';
-import { heroBase } from './character';
+import { CONSTS } from '@/CONSTS';
+import type { StatTables } from '@/data/statTables';
+import type { CalcValues } from '@/calc/types';
+import { profileLog } from '@/calc/sources/textLines/profile';
+import { heroBase } from '@/calc/sources/hero/character';
 
 const { BASE_CHECK_TOLERANCE_LOG } = CONSTS.hero;
 

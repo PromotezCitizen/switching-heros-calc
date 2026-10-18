@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Table } from '@mantine/core';
-import { formatLog } from '../../gameNumber';
-import type { BaseCheckRow } from './baseCheck';
+import { formatLog } from '@/calc/gameNumber';
+import type { BaseCheckRow } from '@/calc/sources/hero/baseCheck';
 
 /** 기본값 확인 표: 수치표 기본값 / 화면 값 / 같음·다름 (기존 renderBaseCheck 의 표). rows = null (1슬롯 히어로 없음) 이면 표 없음 */
 export default function BaseCheckTable({ rows }: { rows: BaseCheckRow[] | null }) {

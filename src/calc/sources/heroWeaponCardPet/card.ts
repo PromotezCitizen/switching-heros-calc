@@ -2,11 +2,11 @@
  * 몬스터 카드 (기존 stat-calc-sources.js cardGradeChoice / cardPairs / setLines / renderCard, stat-calc.html sssCardCount /
  * countExpandedLines) → 효과 줄. 등급·성 선택지는 저장 순서와 상관없이 고른 카드로 매번 다시 계산한다
  */
-import { CONSTS } from '../../../CONSTS';
-import type { StatTables, TableRow } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { gradeStarValue, groupBy, numberValue, rowsOf, unique, type SourceLabel } from './shared';
+import { CONSTS } from '@/CONSTS';
+import type { StatTables, TableRow } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { gradeStarValue, groupBy, numberValue, rowsOf, unique, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 
 const { EMPTY_STAT } = CONSTS.heroWeaponCardPet;
 const {

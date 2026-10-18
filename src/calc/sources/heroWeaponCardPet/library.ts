@@ -1,9 +1,9 @@
 /** 히어로의 기록 (기존 stat-calc-sources.js buildLibrary / libraryMainLevel / renderLibrary) → 효과 줄 */
-import { CONSTS } from '../../../CONSTS';
-import type { StatTables } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { numberValue, rowsOf, screenLog, type SourceLabel } from './shared';
+import { CONSTS } from '@/CONSTS';
+import type { StatTables } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { numberValue, rowsOf, screenLog, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 
 const { JOBS, EMPTY_STAT } = CONSTS.heroWeaponCardPet;
 const { ARCHIVE_JOB, ARCHIVE_LEVEL_DIVISOR, INHERIT_ROWS, ARCHIVE_LEVELS_PER_INHERIT_SLOT, FIRST_LEVEL } =

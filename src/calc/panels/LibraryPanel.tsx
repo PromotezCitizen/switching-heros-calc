@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Card, Group, Image, NumberInput, Stack, Text } from '@mantine/core';
-import HorizontalScrollRow from '../../components/HorizontalScrollRow';
-import SectionTitle from '../../components/SectionTitle';
-import { CONSTS } from '../../CONSTS';
+import HorizontalScrollRow from '@/components/HorizontalScrollRow';
+import SectionTitle from '@/components/SectionTitle';
+import { CONSTS } from '@/CONSTS';
 import {
   bookEffectSum,
   bookLevelField,
@@ -11,12 +11,12 @@ import {
   inheritValueField,
   libraryArchiveLevel,
   openInheritSlots,
-} from '../sources/heroWeaponCardPet/library';
-import { numberValue } from '../sources/heroWeaponCardPet/shared';
-import { lineText } from '../statText';
-import type { TabPanelProps } from '../types';
-import { iconUrl } from './heroWeaponCardPet/IconPicker';
-import StatValueRows, { allStatChoices } from './heroWeaponCardPet/StatValueRows';
+} from '@/calc/sources/heroWeaponCardPet/library';
+import { numberValue } from '@/calc/sources/heroWeaponCardPet/shared';
+import { lineText } from '@/calc/statText';
+import type { TabPanelProps } from '@/calc/types';
+import { iconUrl } from '@/calc/panels/heroWeaponCardPet/IconPicker';
+import StatValueRows, { allStatChoices } from '@/calc/panels/heroWeaponCardPet/StatValueRows';
 
 const { JOBS, MIN_NUMBER } = CONSTS.heroWeaponCardPet;
 const { INHERIT_ROWS, BOOK_ICONS } = CONSTS.heroWeaponCardPet.library;

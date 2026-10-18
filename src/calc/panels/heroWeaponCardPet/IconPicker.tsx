@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Image, Modal, Stack, Text, UnstyledButton } from '@mantine/core';
-import AutoGrid from '../../../components/AutoGrid';
-import { CONSTS } from '../../../CONSTS';
+import AutoGrid from '@/components/AutoGrid';
+import { CONSTS } from '@/CONSTS';
 
 const { PICKER_BUTTON_IMAGE_SIZE, PICKER_OPTION_IMAGE_SIZE, TYPE_ICON_SIZE, PICKER_OPTION_MIN_WIDTH, UNUSED_OPACITY } =
   CONSTS.heroWeaponCardPet.ui;

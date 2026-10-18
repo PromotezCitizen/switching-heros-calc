@@ -259,13 +259,13 @@ export const EXPECTED_FROM_HTML = {
         "log": 2.9542425094393248
       },
       {
-        "source": "무기 누적 능력치 (화면 값)",
+        "source": "무기 누적 능력치",
         "stat": "_per_attackDamage",
         "value": null,
         "log": 3.1078880251827985
       },
       {
-        "source": "일반 무기 보유 효과 (120종 만렙 가정)",
+        "source": "일반 무기 보유 효과 (120종 최대 레벨)",
         "stat": "_per_hp",
         "value": null,
         "log": 7.520062600847028
@@ -422,13 +422,13 @@ export const EXPECTED_FROM_HTML = {
     "notAccepted": [],
     "lines": [
       {
-        "source": "일반 무기 장착 효과 (화면 값)",
+        "source": "일반 무기 장착 효과",
         "stat": "_per_attackDamage",
         "value": null,
         "log": 7.063708559391417
       },
       {
-        "source": "일반 무기 보유 효과 (120종 만렙 가정)",
+        "source": "일반 무기 보유 효과 (120종 최대 레벨)",
         "stat": "_per_hp",
         "value": null,
         "log": 7.520062600847028
@@ -586,19 +586,19 @@ export const EXPECTED_FROM_HTML = {
     "notAccepted": [],
     "lines": [
       {
-        "source": "코미 C 2성 보유",
+        "source": "코미 C 2성",
         "stat": "_per_hp",
         "value": 30,
         "log": null
       },
       {
-        "source": "드라코 SSS 1성 보유",
+        "source": "드라코 SSS 1성",
         "stat": "_per_hp",
         "value": 2000,
         "log": null
       },
       {
-        "source": "그롬 B 1성 보유",
+        "source": "그롬 B 1성",
         "stat": "_per_hp",
         "value": 50,
         "log": null
@@ -652,7 +652,7 @@ export const EXPECTED_FROM_HTML = {
     "notAccepted": [],
     "lines": [
       {
-        "source": "봉황이 SS 0성 보유",
+        "source": "봉황이 SS 0성",
         "stat": "_per_hp",
         "value": 400,
         "log": null

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Chip, Group, Input } from '@mantine/core';
-import { CONSTS } from '../CONSTS';
-import LazySelect from './LazySelect';
+import { CONSTS } from '@/CONSTS';
+import LazySelect from '@/components/LazySelect';
 
 export interface ChoiceOption {
   value: string;

@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { Card, Group, Image, NumberInput, Stack, Text } from '@mantine/core';
-import { CONSTS } from '../../CONSTS';
-import HorizontalScrollRow from '../../components/HorizontalScrollRow';
-import SectionTitle from '../../components/SectionTitle';
-import { formatLog } from '../gameNumber';
+import { CONSTS } from '@/CONSTS';
+import HorizontalScrollRow from '@/components/HorizontalScrollRow';
+import SectionTitle from '@/components/SectionTitle';
+import { formatLog } from '@/calc/gameNumber';
 import {
   attributeRunes,
   runeFieldKey,
@@ -12,9 +12,9 @@ import {
   runeLevelLimit,
   runeValue,
   type AttributeRune,
-} from '../sources/masteryRuneBuff/rune';
-import { statLabel } from '../statText';
-import type { TabPanelProps } from '../types';
+} from '@/calc/sources/masteryRuneBuff/rune';
+import { statLabel } from '@/calc/statText';
+import type { TabPanelProps } from '@/calc/types';
 
 const { CORE_RUNE_KEY, CORE_RUNE_ICON, RUNE_ICON_PREFIX, RUNE_ICON_SLOT_OFFSET, MIN_LEVEL, PANEL, LAB } =
   CONSTS.masteryRuneBuff;

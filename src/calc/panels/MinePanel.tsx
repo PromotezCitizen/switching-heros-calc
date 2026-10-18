@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { Group, NumberInput, Stack, Text } from '@mantine/core';
-import { CONSTS } from '../../CONSTS';
-import { formatLog } from '../gameNumber';
-import { MINE_AWAKEN_LEVEL_FIELD, MINE_LEVEL_FIELD, mineMultiplier } from '../sources/heroWeaponCardPet/mine';
-import type { TabPanelProps } from '../types';
+import { CONSTS } from '@/CONSTS';
+import { formatLog } from '@/calc/gameNumber';
+import { MINE_AWAKEN_LEVEL_FIELD, MINE_LEVEL_FIELD, mineMultiplier } from '@/calc/sources/heroWeaponCardPet/mine';
+import type { TabPanelProps } from '@/calc/types';
 
 const { MIN_NUMBER } = CONSTS.heroWeaponCardPet;
 const { PERCENT_LOG } = CONSTS.heroWeaponCardPet.mine;

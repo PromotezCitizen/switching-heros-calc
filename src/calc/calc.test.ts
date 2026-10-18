@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { combineKind, combineLines, withoutExcludedStats, type Line } from './combine';
-import { formatLog, logOnePlus, parseGameNumber } from './gameNumber';
-import { ARTIFACT_TOTAL_FIELDS, artifactLines } from './sources/artifact';
+import { combineKind, combineLines, withoutExcludedStats, type Line } from '@/calc/combine';
+import { formatLog, logOnePlus, parseGameNumber } from '@/calc/gameNumber';
+import { ARTIFACT_TOTAL_FIELDS, artifactLines } from '@/calc/sources/artifact';
 
 /** 기대값은 기존 htmls/stat-calc-core.js 를 그대로 실행해 얻은 출력이다 */
 describe('큰 수 읽기', () => {

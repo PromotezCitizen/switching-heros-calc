@@ -1,13 +1,13 @@
 /** 프로필 아이콘 · 별자리 요정의 축복 · 호감도 칸 (게임에서 서로 다른 화면이라 칸도 따로) */
 import { useTranslation } from 'react-i18next';
 import { Group, Stack, Text } from '@mantine/core';
-import { CONSTS } from '../../CONSTS';
-import { combineLines } from '../combine';
-import { formatLog } from '../gameNumber';
-import { FAIRY_BOND_LEVEL_FIELD, PROFILE_ICON_FIELDS, affinityLines, fairyBlessingRow } from '../sources/textLines/other';
-import { wholeLevel } from '../sources/textLines/screenFields';
-import type { TabPanelProps } from '../types';
-import { ScreenValueInput } from './TextLinesFields';
+import { CONSTS } from '@/CONSTS';
+import { combineLines } from '@/calc/combine';
+import { formatLog } from '@/calc/gameNumber';
+import { FAIRY_BOND_LEVEL_FIELD, PROFILE_ICON_FIELDS, affinityLines, fairyBlessingRow } from '@/calc/sources/textLines/other';
+import { wholeLevel } from '@/calc/sources/textLines/screenFields';
+import type { TabPanelProps } from '@/calc/types';
+import { ScreenValueInput } from '@/calc/panels/TextLinesFields';
 
 const { FAIRY_BLESSING_SHOWN_COLUMN } = CONSTS.textLines;
 /** 호감도 칸에 보여 줄 능력치와 이름 */

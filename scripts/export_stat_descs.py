@@ -1,15 +1,15 @@
 """스탯 이름 → 설명 문구({0} 자리에 값)를 내보낸다.
 
-사용: uv run python react/scripts/export_stat_descs.py
+사용: uv run python stat-calc/scripts/export_stat_descs.py
 입력: htmls/stat-data.js (build_stat_data.py 가 만든 것, window.STAT_DATA = {...};)
-출력: react/public/data/statDescriptions.json  { 스탯 이름: 설명 }  (설명이 있는 스탯만)
+출력: stat-calc/public/data/statDescriptions.json  { 스탯 이름: 설명 }  (설명이 있는 스탯만)
 """
 import json
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 INPUT_PATH = PROJECT_ROOT / 'htmls' / 'stat-data.js'
-OUTPUT_PATH = PROJECT_ROOT / 'react' / 'public' / 'data' / 'statDescriptions.json'
+OUTPUT_PATH = PROJECT_ROOT / 'stat-calc' / 'public' / 'data' / 'statDescriptions.json'
 JS_PREFIX = 'window.STAT_DATA = '
 JS_SUFFIX = ';'
 

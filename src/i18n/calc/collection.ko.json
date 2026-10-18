@@ -1,9 +1,15 @@
 {
   "title": "도감 효과",
-  "help": "게임 화면 값 그대로 (\"도감 효과\").",
-  "source": "도감 효과 (화면 값)",
+  "help": "\"도감 효과\" 화면의 값을 단위와 %까지 그대로 넣으세요.",
+  "source": "도감 효과",
   "fields": {
-    "encyclopediaAtk": { "label": "도감 공격력 증가", "example": "예: 47.75d%" },
-    "encyclopediaHp": { "label": "도감 체력 증가", "example": "예: 99.62b%" }
+    "encyclopediaAtk": {
+      "label": "도감 공격력 증가",
+      "example": "예: 47.75d%"
+    },
+    "encyclopediaHp": {
+      "label": "도감 체력 증가",
+      "example": "예: 99.62b%"
+    }
   }
 }

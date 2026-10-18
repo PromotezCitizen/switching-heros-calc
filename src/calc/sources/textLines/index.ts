@@ -1,16 +1,16 @@
 /** 글자 칸 → 줄 탭 묶음: 일기장 · 코스튬 · 도감 · 칭호 · 프로필 아이콘 · 요정의 축복 · 호감도 · 프로필 창 값 */
-import i18n from '../../../i18n';
-import CollectionPanel from '../../panels/CollectionPanel';
-import CostumePanel from '../../panels/CostumePanel';
-import DiaryPanel from '../../panels/DiaryPanel';
-import { AffinityPanel, FairyPanel, ProfileIconPanel } from '../../panels/OtherPanel';
-import ProfilePanel from '../../panels/ProfilePanel';
-import TitlePanel from '../../panels/TitlePanel';
-import type { CalcTab } from '../../types';
-import { costumeLines, encyclopediaLines, titleLines } from './collection';
-import { diaryLines } from './diary';
-import { AFFINITY_TABLE_NAMES, FAIRY_TABLE_NAMES, affinityLines, fairyBlessingLines, profileIconLines } from './other';
-import type { SourceLabel } from './screenFields';
+import i18n from '@/i18n';
+import CollectionPanel from '@/calc/panels/CollectionPanel';
+import CostumePanel from '@/calc/panels/CostumePanel';
+import DiaryPanel from '@/calc/panels/DiaryPanel';
+import { AffinityPanel, FairyPanel, ProfileIconPanel } from '@/calc/panels/OtherPanel';
+import ProfilePanel from '@/calc/panels/ProfilePanel';
+import TitlePanel from '@/calc/panels/TitlePanel';
+import type { CalcTab } from '@/calc/types';
+import { costumeLines, encyclopediaLines, titleLines } from '@/calc/sources/textLines/collection';
+import { diaryLines } from '@/calc/sources/textLines/diary';
+import { AFFINITY_TABLE_NAMES, FAIRY_TABLE_NAMES, affinityLines, fairyBlessingLines, profileIconLines } from '@/calc/sources/textLines/other';
+import type { SourceLabel } from '@/calc/sources/textLines/screenFields';
 
 /** 출처 글은 번역 파일에서 가져온다 (계산 함수는 번역을 직접 부르지 않고 이 함수를 받는다) */
 const translateSource: SourceLabel = (translationKey, params) => i18n.t(translationKey, params);

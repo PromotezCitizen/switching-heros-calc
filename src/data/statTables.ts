@@ -1,6 +1,6 @@
-/** 서버 수치표 (react/scripts/export_stat_tables.py 가 public/data/tables/<표 이름>.json 으로 내보냄) */
+/** 서버 수치표 (stat-calc/scripts/export_stat_tables.py 가 public/data/tables/<표 이름>.json 으로 내보냄) */
 import { useMemo } from 'react';
-import { useJsonData, useJsonFiles, type JsonLoadState } from './useJsonData';
+import { useJsonData, useJsonFiles, type JsonLoadState } from '@/data/useJsonData';
 
 /** 원본 표: 값은 전부 문자열 (비교는 문자열 그대로 한다 — 기존 HTML 과 같음) */
 export interface RawTable {

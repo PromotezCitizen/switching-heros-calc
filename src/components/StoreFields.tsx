@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Checkbox, Group, NumberInput, Text, TextInput } from '@mantine/core';
-import { parseGameNumber } from '../calc/gameNumber';
-import { CONSTS } from '../CONSTS';
-import ChoiceChips, { type ChoiceOption } from './ChoiceChips';
-import HelpHint from './HelpHint';
-import { useStoreValue } from './useStoreValue';
+import { parseGameNumber } from '@/calc/gameNumber';
+import { CONSTS } from '@/CONSTS';
+import ChoiceChips, { type ChoiceOption } from '@/components/ChoiceChips';
+import HelpHint from '@/components/HelpHint';
+import { useStoreValue } from '@/components/useStoreValue';
 
 /** 라벨 오른쪽에 ? 안내를 붙인다. 안내가 없으면 라벨만 */
 function labelWithHint(label: string, hint?: ReactNode): ReactNode {

@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { Group, NumberInput, Stack, Text } from '@mantine/core';
-import { CONSTS } from '../../CONSTS';
-import LazySelect from '../../components/LazySelect';
-import { formatLog } from '../gameNumber';
-import { awakenGradeChoices, awakenStages, awakenStarChoices, selectedAwakenChoice } from '../sources/hero/awaken';
-import { resolveChoice } from '../sources/hero/character';
-import { awakenDetailLevelField, awakenDetailStats } from '../sources/masteryRuneBuff/awakenDetail';
-import { statLabel } from '../statText';
-import type { TabPanelProps } from '../types';
+import { CONSTS } from '@/CONSTS';
+import LazySelect from '@/components/LazySelect';
+import { formatLog } from '@/calc/gameNumber';
+import { awakenGradeChoices, awakenStages, awakenStarChoices, selectedAwakenChoice } from '@/calc/sources/hero/awaken';
+import { resolveChoice } from '@/calc/sources/hero/character';
+import { awakenDetailLevelField, awakenDetailStats } from '@/calc/sources/masteryRuneBuff/awakenDetail';
+import { statLabel } from '@/calc/statText';
+import type { TabPanelProps } from '@/calc/types';
 
 const { FIELDS } = CONSTS.hero;
 const { DETAIL_LEVEL_INPUT_WIDTH, CHOICE_SELECT_WIDTH } = CONSTS.hero.ui;

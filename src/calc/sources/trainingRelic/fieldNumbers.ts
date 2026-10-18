@@ -1,6 +1,6 @@
 /** 숫자 칸 읽기 (기존 HTML 의 numberValue 와 같음): 읽을 수 없거나 음수면 0, 소수는 내림 */
-import { CONSTS } from '../../../CONSTS';
-import type { CalcValues } from '../../types';
+import { CONSTS } from '@/CONSTS';
+import type { CalcValues } from '@/calc/types';
 
 const EMPTY_LEVEL = CONSTS.emptyInput.LEVEL;
 

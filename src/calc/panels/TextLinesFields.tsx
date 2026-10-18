@@ -1,10 +1,10 @@
 /** 글자 칸 → 줄 탭 (일기장·코스튬·도감·칭호·기타·프로필) 이 같이 쓰는 입력 칸 */
 import { useTranslation } from 'react-i18next';
 import { Checkbox, TextInput } from '@mantine/core';
-import { CONSTS } from '../../CONSTS';
-import { parseGameNumber } from '../gameNumber';
-import { isChecked } from '../sources/textLines/screenFields';
-import type { TabPanelProps } from '../types';
+import { CONSTS } from '@/CONSTS';
+import { parseGameNumber } from '@/calc/gameNumber';
+import { isChecked } from '@/calc/sources/textLines/screenFields';
+import type { TabPanelProps } from '@/calc/types';
 
 type FieldProps = Pick<TabPanelProps, 'values' | 'setValue'> & {
   /** 칸 이름 (기존 HTML 의 data-key) */

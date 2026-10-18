@@ -1,22 +1,22 @@
 /** 히어로의 기록·무기·몬스터 카드·펫·광산 탭 목록 */
 import i18n from 'i18next';
-import CardPanel from '../../panels/CardPanel';
-import LibraryPanel from '../../panels/LibraryPanel';
-import MinePanel from '../../panels/MinePanel';
-import PetPanel from '../../panels/PetPanel';
-import SoulForgePanel from '../../panels/SoulForgePanel';
-import WeaponPanel from '../../panels/WeaponPanel';
-import type { CalcTab } from '../../types';
-import { cardLines } from './card';
-import { libraryLines } from './library';
-import { mineLines } from './mine';
-import { petLines } from './pet';
-import type { SourceLabel } from './shared';
-import { soulForgeLines, weaponLines } from './weapon';
+import CardPanel from '@/calc/panels/CardPanel';
+import LibraryPanel from '@/calc/panels/LibraryPanel';
+import MinePanel from '@/calc/panels/MinePanel';
+import PetPanel from '@/calc/panels/PetPanel';
+import SoulForgePanel from '@/calc/panels/SoulForgePanel';
+import WeaponPanel from '@/calc/panels/WeaponPanel';
+import type { CalcTab } from '@/calc/types';
+import { cardLines } from '@/calc/sources/heroWeaponCardPet/card';
+import { libraryLines } from '@/calc/sources/heroWeaponCardPet/library';
+import { mineLines } from '@/calc/sources/heroWeaponCardPet/mine';
+import { petLines } from '@/calc/sources/heroWeaponCardPet/pet';
+import type { SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
+import { soulForgeLines, weaponLines } from '@/calc/sources/heroWeaponCardPet/weapon';
 
-export { cardCountsByGrade, cardSlotGradeStars, cardStackLines, countExpandedLines, sssCardCount } from './card';
-export type { CardSlotGradeStar } from './card';
-export { equippedPetIds } from './pet';
+export { cardCountsByGrade, cardSlotGradeStars, cardStackLines, countExpandedLines, sssCardCount } from '@/calc/sources/heroWeaponCardPet/card';
+export type { CardSlotGradeStar } from '@/calc/sources/heroWeaponCardPet/card';
+export { equippedPetIds } from '@/calc/sources/heroWeaponCardPet/pet';
 
 /** 출처 글 = 번역 (i18n 이 준비된 뒤 호출된다) */
 const sourceLabel: SourceLabel = (translationKey, params) => i18n.t(translationKey, params);

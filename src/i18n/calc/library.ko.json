@@ -12,7 +12,7 @@
   "bookLevelLabel": "{{book}} 레벨",
   "notLearned": "미습득",
   "inheritTitle": "전승된 능력",
-  "inheritLocked": "기록 보관소 레벨 2부터 열립니다.",
+  "inheritLocked": "기록 보관소 레벨 2부터 열려요.",
   "none": "없음",
   "statLabel": "{{index}}번 능력치",
   "valueLabel": "{{index}}번 값",

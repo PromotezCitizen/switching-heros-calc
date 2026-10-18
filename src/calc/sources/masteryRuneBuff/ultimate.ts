@@ -6,16 +6,16 @@
  * 아티팩트 유니크 옵션 수·스킬 문양 수 등 개수나 조건을 모르는 얼티밋은 줄 대신 이름만 돌려준다.
  * 기존 stat-calc.html equippedPetCounts·ultimateLines (755~785), renderEquipCounts 개수 부분 (404~429).
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type RawTable, type StatTables } from '../../../data/statTables';
-import { heroFirstRow, slotHeroName } from '../hero/character';
-import { integerFieldValue } from '../trainingRelic/fieldNumbers';
-import { relicLinkFieldId } from '../trainingRelic/relic';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { multiplierPercentLog } from './buff';
-import { masteryLevel, masteryTraits, traitName, traitValue } from './mastery';
-import type { SourceLabel } from './sourceLabel';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type RawTable, type StatTables } from '@/data/statTables';
+import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
+import { integerFieldValue } from '@/calc/sources/trainingRelic/fieldNumbers';
+import { relicLinkFieldId } from '@/calc/sources/trainingRelic/relic';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { multiplierPercentLog } from '@/calc/sources/masteryRuneBuff/buff';
+import { masteryLevel, masteryTraits, traitName, traitValue } from '@/calc/sources/masteryRuneBuff/mastery';
+import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 
 const {
   ULTIMATE_PET_COUNT_KEYS,

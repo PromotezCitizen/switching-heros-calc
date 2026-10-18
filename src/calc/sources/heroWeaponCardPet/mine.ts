@@ -4,10 +4,10 @@
  * 화면 값 = (M − 1) × 100 %, 합산에 들어가는 값 = M × 100 %.
  * 이 계정 두 점 확인: 레벨 14 · 총합 17 → 36.8A%, 레벨 14 · 총합 18 → 38.85A% (2026-10-06, 10-07)
  */
-import { CONSTS } from '../../../CONSTS';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { numberValue, type SourceLabel } from './shared';
+import { CONSTS } from '@/CONSTS';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { numberValue, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 
 const { PERCENT_LOG, STATS, GROWTH_PER_LEVEL, FIRST_LEVEL } = CONSTS.heroWeaponCardPet.mine;
 

@@ -1,17 +1,17 @@
 """계산식 확인기가 쓰는 수치표와 스탯 메타 정보를 JSON 으로 나눠 내보낸다.
 
-사용: uv run python react/scripts/export_stat_tables.py
+사용: uv run python stat-calc/scripts/export_stat_tables.py
 입력: htmls/stat-data.js (window.STAT_DATA = {...};)
 출력:
-  react/public/data/tables/<표 이름>.json   { columns: [...], rows: [[...]] }  (값은 전부 문자열, 원본 그대로)
-  react/public/data/statMeta.json           tables 를 뺀 나머지 (sources, stats, families, excluded, unrelated, masteryNames, labels, warnings)
+  stat-calc/public/data/tables/<표 이름>.json   { columns: [...], rows: [[...]] }  (값은 전부 문자열, 원본 그대로)
+  stat-calc/public/data/statMeta.json           tables 를 뺀 나머지 (sources, stats, families, excluded, unrelated, masteryNames, labels, warnings)
 """
 import json
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 INPUT_PATH = PROJECT_ROOT / 'htmls' / 'stat-data.js'
-OUTPUT_DIR = PROJECT_ROOT / 'react' / 'public' / 'data'
+OUTPUT_DIR = PROJECT_ROOT / 'stat-calc' / 'public' / 'data'
 JS_PREFIX = 'window.STAT_DATA = '
 JS_SUFFIX = ';'
 

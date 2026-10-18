@@ -5,6 +5,6 @@
   "starLabel": "★{{star}}",
   "stageNumber": "각성 {{level}}단계",
   "levelLabel": "{{name}} 레벨",
-  "hitExcluded": "명중은 공격력·체력 계산과 관계없어 넣지 않습니다.",
-  "lineSource": "베르 각성 세부 스탯"
+  "hitExcluded": "명중은 계산에 쓰지 않아서 뺐어요.",
+  "lineSource": "베르 각성 세부 능력치"
 }

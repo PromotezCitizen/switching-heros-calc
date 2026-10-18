@@ -1,16 +1,16 @@
 /**
  * 직업 스킬 (서버 표 Skill, 레벨이 있는 BuffSkill · ActiveSkill 40개): 보유 스킬마다 레벨, 1슬롯 히어로 장착 5칸.
- * 데미지 % = damage + damageUp × (레벨 − 1) (claude-docs/react-port/skill-table-plan.md, 환영검 LV.37 = 646.6% 화면 일치).
  * 장착 5칸 레벨 합 = 유물 연동 "장착 스킬 레벨 합" (사용자 결정 "자동합")
  */
-import { CONSTS } from '../../../CONSTS';
-import type { StatTables, TableRow } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { heroFirstRow, slotHeroName } from '../hero/character';
-import { rowsOf } from '../heroWeaponCardPet/shared';
+import { CONSTS } from '@/CONSTS';
+import type { StatTables, TableRow } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
+import { rowsOf } from '@/calc/sources/heroWeaponCardPet/shared';
 
-const { TABLE, EQUIP_SLOTS, FIRST_LEVEL, ACTIVE_SKILL_TYPE, ARROW_BARRAGE_OPTION } = CONSTS.skill;
+const { TABLE, EQUIP_SLOTS, FIRST_LEVEL, ACTIVE_SKILL_TYPE, OPTION_BUFFS, ICON_PREFIX, LOWER_CASE_ICON_PREFIX, LOWER_CASE_ICON_IDS } =
+  CONSTS.skill;
 
 /** 보유 스킬 레벨 칸 (비었거나 0 = 미보유) */
 export function skillLevelField(skillId: string): string {
@@ -28,12 +28,6 @@ export function skillRows(tables: StatTables): TableRow[] {
 /** 입력한 스킬 레벨 (정수, 비었으면 0) */
 export function skillLevel(values: CalcValues, skillId: string): number {
   return Math.max(Math.floor(Number(values[skillLevelField(skillId)]) || 0), 0);
-}
-
-/** 그 레벨의 데미지 % (레벨 0 = 미보유면 null) */
-export function skillDamagePercent(row: TableRow, level: number): number | null {
-  if (level < FIRST_LEVEL) return null;
-  return Number(row.damage) + Number(row.damageUp) * (level - FIRST_LEVEL);
 }
 
 /** 장착 칸 번호 목록 (1 ~ EQUIP_SLOTS) */
@@ -69,26 +63,26 @@ export function equippedSkillTypeCounts(values: CalcValues, tables: StatTables):
   return counts;
 }
 
-/** 다발 화살 252 옵션으로 고른 값 % (옵션 없음·모르는 값이면 0) */
-export function arrowBarrageOptionPercent(values: CalcValues): number {
-  const chosen = Number(values[ARROW_BARRAGE_OPTION.FIELD]);
-  return (ARROW_BARRAGE_OPTION.PERCENTS as readonly number[]).includes(chosen) ? chosen : 0;
+/** 스킬 아이콘 경로 (icons/ 아래, 확장자 없음) */
+export function skillIconPath(skillId: string): string {
+  return ((LOWER_CASE_ICON_IDS as readonly string[]).includes(skillId) ? LOWER_CASE_ICON_PREFIX : ICON_PREFIX) + skillId;
 }
 
 /**
- * 스킬 옵션 줄: 다발 화살 252 옵션 "적중마다 5초간 공격력 {0}% 증가 (최대 5중첩)" 을 공격력 % 로 (값 × 최대 5중첩, 25% → ×2.25).
- * 옵션을 안 골랐으면 줄 없음
+ * 스킬 옵션 줄: 능력치를 올리는 옵션 (OPTION_BUFFS) 을 최고 값 × 최대 중첩으로 (다발 화살 25% × 5중첩 = 공격력 % 125, ×2.25).
+ * 그 스킬을 보유하고 장착 칸에 꼈을 때만 (스킬을 써야 붙는 효과). 옵션마다 줄 하나
  */
 export function skillOptionLines(values: CalcValues, label: (key: string, params?: Record<string, string | number>) => string): Line[] {
-  const percent = arrowBarrageOptionPercent(values);
-  if (!percent) return [];
-  return [
-    {
-      source: label('calc.skill.optionSource', { percent, stacks: ARROW_BARRAGE_OPTION.MAX_STACKS }),
-      stat: CONSTS.summary.STATS.ATTACK_PERCENT,
-      value: percent * ARROW_BARRAGE_OPTION.MAX_STACKS,
-    },
-  ];
+  const equipped = equippedSkillIds(values);
+  return OPTION_BUFFS.filter((buff) => equipped.has(buff.SKILL_ID) && skillLevel(values, buff.SKILL_ID) >= FIRST_LEVEL).map((buff) => ({
+    source: label(buff.MAX_STACKS > 1 ? 'calc.skill.optionSource' : 'calc.skill.optionSourceSingle', {
+      skill: label(`calc.skill.optionSkills.${buff.SKILL_ID}`),
+      percent: buff.MAX_PERCENT,
+      stacks: buff.MAX_STACKS,
+    }),
+    stat: buff.STAT,
+    value: buff.MAX_PERCENT * buff.MAX_STACKS,
+  }));
 }
 
 /** 장착 5칸에 액티브 스킬이 하나라도 있는가 (장착 스킬이 0개면 없음) */

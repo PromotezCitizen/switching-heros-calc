@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { CALC_TAB_GROUPS } from './tabGroups';
-import { CALC_TABS } from './tabs';
+import { CALC_TAB_GROUPS } from '@/calc/tabGroups';
+import { CALC_TABS } from '@/calc/tabs';
 
 describe('하위 탭 묶음', () => {
   it('모든 콘텐츠 탭이 정확히 한 묶음에 들어 있다', () => {

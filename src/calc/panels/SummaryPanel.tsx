@@ -5,14 +5,14 @@
 import { useDeferredValue, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Badge, Group, Stack, Table, Text, TextInput } from '@mantine/core';
-import ChoiceChips from '../../components/ChoiceChips';
-import SectionTitle from '../../components/SectionTitle';
-import { CONSTS } from '../../CONSTS';
-import type { StatTables } from '../../data/statTables';
-import { readFlag } from '../../store/storedValues';
-import { useCalcStore } from '../../store/useCalcStore';
-import { formatLog } from '../gameNumber';
-import { heroFirstRow, slotHeroName } from '../sources/hero/character';
+import ChoiceChips from '@/components/ChoiceChips';
+import SectionTitle from '@/components/SectionTitle';
+import { CONSTS } from '@/CONSTS';
+import type { StatTables } from '@/data/statTables';
+import { readFlag } from '@/store/storedValues';
+import { useCalcStore } from '@/store/useCalcStore';
+import { formatLog } from '@/calc/gameNumber';
+import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
 import {
   compareWithScreen,
   groupSubtotals,
@@ -21,10 +21,10 @@ import {
   summaryRows,
   summaryTarget,
   type SummaryRow,
-} from '../sources/summary/summary';
-import { calcValuesOf } from '../storeKeys';
-import { CALC_TAB_GROUPS, groupTabs } from '../tabGroups';
-import type { TabPanelProps } from '../types';
+} from '@/calc/sources/summary/summary';
+import { calcValuesOf } from '@/calc/storeKeys';
+import { CALC_TAB_GROUPS, groupTabs } from '@/calc/tabGroups';
+import type { TabPanelProps } from '@/calc/types';
 
 const {
   TAB_ID: SUMMARY_TAB_ID,

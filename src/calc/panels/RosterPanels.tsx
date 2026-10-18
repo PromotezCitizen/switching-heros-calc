@@ -2,12 +2,12 @@
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Group, NumberInput, Table, Text } from '@mantine/core';
-import { CONSTS } from '../../CONSTS';
-import LazySelect from '../../components/LazySelect';
-import type { StatTables } from '../../data/statTables';
-import { heroFirstRow, heroGradeChoices, heroStarChoices, resolveChoice } from '../sources/hero/character';
-import { HeroImage } from '../sources/hero/HeroPicker';
-import { exclusiveWeapons, rosterHeroes, type ExclusiveWeapon, type RosterHero } from '../sources/hero/roster';
+import { CONSTS } from '@/CONSTS';
+import LazySelect from '@/components/LazySelect';
+import type { StatTables } from '@/data/statTables';
+import { heroFirstRow, heroGradeChoices, heroStarChoices, resolveChoice } from '@/calc/sources/hero/character';
+import { HeroImage } from '@/calc/sources/hero/HeroPicker';
+import { exclusiveWeapons, rosterHeroes, type ExclusiveWeapon, type RosterHero } from '@/calc/sources/hero/roster';
 import {
   exclusiveMissionReceivedStarField,
   exclusiveOwnedLevelField,
@@ -16,8 +16,8 @@ import {
   rosterAwakenField,
   rosterGradeField,
   rosterStarField,
-} from '../sources/hero/rosterFields';
-import type { TabPanelProps } from '../types';
+} from '@/calc/sources/hero/rosterFields';
+import type { TabPanelProps } from '@/calc/types';
 
 const {
   ICON_SIZE,

@@ -3,14 +3,14 @@
  * stat-calc-core.js relicValue · relicBlessing).
  * 유물 하나 = 한 줄. "○○ x N%" 유물은 연동 수치를 곱해 실제로 올리는 스탯으로 넣는다.
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type StatTables, type TableRow } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { integerFieldValue } from './fieldNumbers';
-import { trainingGrade } from './training';
-import { heroCountAtLeast, star10WeaponCount } from '../hero/roster';
-import { equippedSkillLevelSum } from '../skill/skill';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type StatTables, type TableRow } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { integerFieldValue } from '@/calc/sources/trainingRelic/fieldNumbers';
+import { trainingGrade } from '@/calc/sources/trainingRelic/training';
+import { heroCountAtLeast, star10WeaponCount } from '@/calc/sources/hero/roster';
+import { equippedSkillLevelSum } from '@/calc/sources/skill/skill';
 
 const { WEAPON_LEVEL_DIVISOR, RUNE_NUMBER_OFFSET, BLESSING_LEVEL_OFFSET, FILL_LOWER_GRADE_LEVEL, BLESSING_PER_ENHANCE } =
   CONSTS.trainingRelic.relic;

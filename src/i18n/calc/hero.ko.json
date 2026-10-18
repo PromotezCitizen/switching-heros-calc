@@ -18,17 +18,17 @@
     "1": "남",
     "2": "여"
   },
-  "heroHint": "등급·성·각성은 아래 히어로 표에서 넣습니다. 고르기 창에는 히어로 표에서 가진 히어로만 나옵니다.",
+  "heroHint": "등급·성·각성은 아래 히어로 목록에서 입력하세요. 고르기 창에는 가진 히어로만 나와요.",
   "slotSummary": "1슬롯: 등급 {{grade}} · 성 {{star}} · 각성 {{awaken}} (공격력 +{{effect}}%)",
   "exclusiveEquipped": "전용 무기 장착",
   "sources": {
     "baseAttackSpeed": "기본 공격속도 ({{hero}})",
-    "baseCriticalRate": "기본 치명타 확률 ({{hero}}, 게임 코드 기본값)",
-    "baseCriticalDamage": "기본 치명타 데미지 ({{hero}}, 게임 코드 기본값)"
+    "baseCriticalRate": "기본 치명타 확률 ({{hero}})",
+    "baseCriticalDamage": "기본 치명타 데미지 ({{hero}})"
   },
   "filter": {
     "all": "전체",
-    "noMatch": "조건에 맞는 히어로가 없습니다."
+    "noMatch": "조건에 맞는 히어로가 없어요."
   },
   "attributes": {
     "Fire": "불 속성",
@@ -43,8 +43,8 @@
   },
   "baseCheck": {
     "title": "기본값 확인",
-    "tableBase": "수치표 기본값",
-    "screen": "화면 값",
+    "tableBase": "계산한 기본값",
+    "screen": "게임 화면",
     "atk": "공격력",
     "hp": "체력",
     "same": "같음",

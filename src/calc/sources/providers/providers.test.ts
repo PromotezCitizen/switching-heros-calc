@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import '../../../i18n';
+import '@/i18n';
 import AttributeRuneLabTable from '../../../../public/data/tables/AttributeRuneLab.json';
 import CharacterTable from '../../../../public/data/tables/Character.json';
 import CoreMasteryTable from '../../../../public/data/tables/CoreMastery.json';
 import FigureStatTable from '../../../../public/data/tables/FigureStat.json';
-import { tableRows, type StatTables } from '../../../data/statTables';
-import type { CalcValues } from '../../types';
-import { runeLabField, runeLabLines } from '../masteryRuneBuff/rune';
-import { coreMasteryLines, coreMasterySelectField, maxCoreMasteryLevel } from './coreMastery';
-import { figureLevelField, figureLines, figureRow, figures } from './figure';
-import { providerTabs } from './index';
+import { tableRows, type StatTables } from '@/data/statTables';
+import type { CalcValues } from '@/calc/types';
+import { runeLabField, runeLabLines } from '@/calc/sources/masteryRuneBuff/rune';
+import { coreMasteryLines, coreMasterySelectField, maxCoreMasteryLevel } from '@/calc/sources/providers/coreMastery';
+import { figureLevelField, figureLines, figureRow, figures } from '@/calc/sources/providers/figure';
+import { providerTabs } from '@/calc/sources/providers/index';
 
 /**
  * 입력은 전부 테스트 안에서 만든다 (기본값 = 비어 있음). 표 값은 서버 표 그대로:

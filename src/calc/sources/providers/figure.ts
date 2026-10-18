@@ -3,12 +3,12 @@
  * 피규어마다 레벨 (칸 figureLevel_<피규어 번호>, 비었거나 0 이면 미보유) 을 넣으면 표 FigureStat 의 (번호, 레벨) 행 슬롯 3개를 넣는다.
  * 이 계정 값이 비어 있어 화면 대조는 못 했다 (구조 확정, 이름 연결 유력)
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type StatTables, type TableRow } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { heroFirstRow, slotHeroName } from '../hero/character';
-import { numberValue, type SourceLabel } from '../heroWeaponCardPet/shared';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type StatTables, type TableRow } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
+import { numberValue, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 
 const { EMPTY_STATS } = CONSTS.providers;
 const {

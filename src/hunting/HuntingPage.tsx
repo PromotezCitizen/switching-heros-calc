@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Group, Paper, SimpleGrid, Stack, Table, Text, Title } from '@mantine/core';
-import { readAccountInputs } from '../account/accountKeys';
-import { FlagField, NumberField, SelectField } from '../components/StoreFields';
-import { readFlag, readNumber } from '../store/storedValues';
-import { useCalcStore } from '../store/useCalcStore';
+import { readAccountInputs } from '@/account/accountKeys';
+import { FlagField, NumberField, SelectField } from '@/components/StoreFields';
+import { readFlag, readNumber } from '@/store/storedValues';
+import { useCalcStore } from '@/store/useCalcStore';
 import { useShallow } from 'zustand/react/shallow';
-import { CONSTS } from '../CONSTS';
+import { CONSTS } from '@/CONSTS';
 import {
   RESOURCES,
   offlineEfficiency,
@@ -14,8 +14,8 @@ import {
   type FloorScanRow,
   type HuntingInputs,
   type Resource,
-} from './huntingCalc';
-import { useStageRewards } from './useStageRewards';
+} from '@/hunting/huntingCalc';
+import { useStageRewards } from '@/hunting/useStageRewards';
 
 const KEY_PREFIX = 'hunting.';
 /** 계정 공통 칸 이름 앞부분 (account/accountKeys.ts 의 ACCOUNT_KEYS 가 모두 이 글로 시작) */

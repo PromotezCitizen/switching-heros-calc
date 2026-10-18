@@ -3,11 +3,11 @@
  * 코어 특성 레벨의 표 CoreMastery 행에서, 켠 항목 k (1 ~ 13) 마다 k 번째 스탯 · 값을 한 번씩 넣는다.
  * 이 계정 값이 비어 있어 화면 대조는 못 했다 (구조 확정, 필드 이름 대응 유력)
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type StatTables, type TableRow } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import type { SourceLabel } from '../heroWeaponCardPet/shared';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type StatTables, type TableRow } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import type { SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 
 const { EMPTY_STATS } = CONSTS.providers;
 const { TABLE, LEVEL_FIELD, SELECT_FIELD_PREFIX, SLOT_COUNT, LEVEL_COLUMN, STAT_COLUMN_PREFIX, VALUE_COLUMN_PREFIX } =

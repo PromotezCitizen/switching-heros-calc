@@ -1,10 +1,10 @@
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Card, Group, Image, NumberInput, Stack, Text } from '@mantine/core';
-import AutoGrid from '../../components/AutoGrid';
-import SectionTitle from '../../components/SectionTitle';
-import { CONSTS } from '../../CONSTS';
-import type { StatTables, TableRow } from '../../data/statTables';
+import AutoGrid from '@/components/AutoGrid';
+import SectionTitle from '@/components/SectionTitle';
+import { CONSTS } from '@/CONSTS';
+import type { StatTables, TableRow } from '@/data/statTables';
 import {
   PET_LEADER_FIELD,
   PET_OPTION_NUMBERS,
@@ -21,14 +21,14 @@ import {
   petRegionLevelField,
   petRegionUnlocked,
   petSlotField,
-} from '../sources/heroWeaponCardPet/pet';
-import { unique, type RowGroup } from '../sources/heroWeaponCardPet/shared';
-import { lineText, statDescription, type StatDescriptions } from '../statText';
-import type { TabPanelProps } from '../types';
-import { joinFieldValues, splitFieldValues } from '../useTrackedCalcValues';
-import HorizontalScrollRow from '../../components/HorizontalScrollRow';
-import IconPicker, { TypeIcon, iconUrl } from './heroWeaponCardPet/IconPicker';
-import StatValueRows from './heroWeaponCardPet/StatValueRows';
+} from '@/calc/sources/heroWeaponCardPet/pet';
+import { unique, type RowGroup } from '@/calc/sources/heroWeaponCardPet/shared';
+import { lineText, statDescription, type StatDescriptions } from '@/calc/statText';
+import type { TabPanelProps } from '@/calc/types';
+import { joinFieldValues, splitFieldValues } from '@/calc/useTrackedCalcValues';
+import HorizontalScrollRow from '@/components/HorizontalScrollRow';
+import IconPicker, { TypeIcon, iconUrl } from '@/calc/panels/heroWeaponCardPet/IconPicker';
+import StatValueRows from '@/calc/panels/heroWeaponCardPet/StatValueRows';
 
 const { GRADE_STAR_SEPARATOR, ATTRIBUTE_ICONS } = CONSTS.heroWeaponCardPet;
 const { THUMBNAIL_PREFIX, REGION } = CONSTS.heroWeaponCardPet.pet;
@@ -163,7 +163,8 @@ interface PetSlotCardProps {
 /** 장착 칸 하나 (memo: 이 칸이 읽는 값이 바뀔 때만 다시 그린다) */
 const PetSlotCard = memo(function PetSlotCard(props: PetSlotCardProps) {
   const { slot, slotPetsText, ownedChoice, optionsText, isLeader, groups, tables, descriptions, setValue } = props;
-  const { translate, petName, attributeName, attributeIcon, leaderEffectText } = usePetText(descriptions);
+  // 리더 효과 글은 보유 펫 카드에만 보여 준다 (장착 칸에 같은 글을 다시 쓰지 않음)
+  const { translate, petName, attributeName, attributeIcon } = usePetText(descriptions);
   // 이 칸이 읽는 칸 값만 모은 값 (계산 함수·옵션 줄은 이 값을 읽는다)
   const slotValues = splitFieldValues(slotPetsText, PET_SLOT_FIELDS);
   const petId = slotValues[petSlotField(slot)];
@@ -217,7 +218,6 @@ const PetSlotCard = memo(function PetSlotCard(props: PetSlotCardProps) {
           />
           {attributeIcon(petFirstRow(tables, petId)?.attribute)}
         </Group>
-        {isLeader && row && <Text size="sm">{translate('calc.pet.leaderEffect', { effect: leaderEffectText(row) })}</Text>}
         <Text size="sm" c="dimmed">{translate('calc.pet.optionsTitle')}</Text>
         <StatValueRows
           rowNumbers={PET_OPTION_NUMBERS}

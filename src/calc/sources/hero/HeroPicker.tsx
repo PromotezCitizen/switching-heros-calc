@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActionIcon, Box, Button, Group, Image, Modal, SimpleGrid, Stack, Text, UnstyledButton } from '@mantine/core';
-import { CONSTS } from '../../../CONSTS';
-import type { TableRow } from '../../../data/statTables';
+import { CONSTS } from '@/CONSTS';
+import type { TableRow } from '@/data/statTables';
 
 const {
   ATTRIBUTES,

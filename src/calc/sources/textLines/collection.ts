@@ -2,9 +2,9 @@
  * 코스튬·도감·칭호 "누적 능력치" 화면 값 → 효과 줄 (기존 stat-calc-sources.js COLLECTION_SCREEN_FIELDS / renderCollection).
  * 기존 HTML 은 한 탭(collection)이었고, React 에서는 코스튬(costume)·도감(collection)·칭호(title) 세 탭으로 나눈다.
  */
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { screenFieldLines, type ScreenField, type SourceLabel } from './screenFields';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { screenFieldLines, type ScreenField, type SourceLabel } from '@/calc/sources/textLines/screenFields';
 
 export const COSTUME_FIELDS: ScreenField[] = [
   { id: 'costumeAtk', stat: '_per_attackDamage', sourceKey: 'calc.costume.source' },

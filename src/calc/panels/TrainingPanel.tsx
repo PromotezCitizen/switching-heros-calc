@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Stack, Text, TextInput } from '@mantine/core';
-import HorizontalScrollRow from '../../components/HorizontalScrollRow';
-import SectionTitle from '../../components/SectionTitle';
-import { CONSTS } from '../../CONSTS';
+import SectionTitle from '@/components/SectionTitle';
+import { CONSTS } from '@/CONSTS';
 import {
   TRAINING_LEVEL_FIELDS,
   TRAINING_STAGE_FIELD,
@@ -11,12 +10,11 @@ import {
   trainingScreenStage,
   trainingSlotRows,
   trainingStageEntered,
-} from '../sources/trainingRelic/training';
-import { statLabel } from '../statText';
-import type { TabPanelProps } from '../types';
+} from '@/calc/sources/trainingRelic/training';
+import { statLabel } from '@/calc/statText';
+import type { TabPanelProps } from '@/calc/types';
 
 const MIN_LEVEL = CONSTS.emptyInput.LEVEL;
-const { LIST_INPUT_WIDTH } = CONSTS.display;
 
 /** 훈련: 게임 화면 단계 + 현재 단계 항목 레벨 4칸 */
 export default function TrainingPanel({ values, setValue, tables, descriptions }: TabPanelProps) {
@@ -29,23 +27,22 @@ export default function TrainingPanel({ values, setValue, tables, descriptions }
     <Stack gap="md">
       <Stack gap="xs">
         <SectionTitle>{translate('calc.training.stageTitle')}</SectionTitle>
-        <HorizontalScrollRow itemWidth={LIST_INPUT_WIDTH}>
-          <TextInput
-            type="number"
-            inputMode="numeric"
-            min={MIN_LEVEL}
-            max={maxScreenStage}
-            label={translate('calc.training.stageLabel', { max: maxScreenStage })}
-            value={values[TRAINING_STAGE_FIELD] ?? ''}
-            onChange={(event) => setValue(TRAINING_STAGE_FIELD, event.currentTarget.value)}
-          />
-        </HorizontalScrollRow>
+        <TextInput
+          type="number"
+          inputMode="numeric"
+          min={MIN_LEVEL}
+          max={maxScreenStage}
+          label={translate('calc.training.stageLabel', { max: maxScreenStage })}
+          value={values[TRAINING_STAGE_FIELD] ?? ''}
+          onChange={(event) => setValue(TRAINING_STAGE_FIELD, event.currentTarget.value)}
+        />
         <Text size="sm" c="dimmed">{translate('calc.training.stageHelp')}</Text>
       </Stack>
 
       <Stack gap="xs">
         <SectionTitle>{translate('calc.training.levelsTitle')}</SectionTitle>
-        <HorizontalScrollRow itemWidth={LIST_INPUT_WIDTH}>
+        {/* 항목 라벨이 길어 (예: "전용 스킬 데미지 N% 증가 레벨 (0~3000)") 한 줄에 하나씩 위아래로 */}
+        <Stack gap="xs">
           {TRAINING_LEVEL_FIELDS.map((fieldId, index) => {
             const row = slotRows[index];
             if (stageEntered && !row) return null;
@@ -66,7 +63,7 @@ export default function TrainingPanel({ values, setValue, tables, descriptions }
               />
             );
           })}
-        </HorizontalScrollRow>
+        </Stack>
         <Text size="sm" c="dimmed">{translate('calc.training.levelsHelp')}</Text>
       </Stack>
     </Stack>

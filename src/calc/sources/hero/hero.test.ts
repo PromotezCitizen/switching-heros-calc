@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import awakenTable from '../../../../public/data/tables/Awaken.json';
 import characterTable from '../../../../public/data/tables/Character.json';
-import type { RawTable, StatTables } from '../../../data/statTables';
-import { formatLog } from '../../gameNumber';
-import type { CalcValues } from '../../types';
+import type { RawTable, StatTables } from '@/data/statTables';
+import { formatLog } from '@/calc/gameNumber';
+import type { CalcValues } from '@/calc/types';
 import {
   awakenFinalCheck,
   awakenGradeChoices,
@@ -21,7 +21,7 @@ import {
   heroTabs,
   selectedAwakenStage,
   selectedHero,
-} from './index';
+} from '@/calc/sources/hero/index';
 
 /**
  * 기대값 = 기존 htmls/stat-calc.html 을 Playwright 로 열어 (계정 기본값 빈 값) 같은 입력을 넣고

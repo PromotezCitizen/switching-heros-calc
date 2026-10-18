@@ -1,8 +1,8 @@
 import { Group, Text, TextInput } from '@mantine/core';
-import LazySelect from '../../../components/LazySelect';
-import { CONSTS } from '../../../CONSTS';
-import type { StatDescriptions } from '../../statText';
-import type { CalcValues } from '../../types';
+import LazySelect from '@/components/LazySelect';
+import { CONSTS } from '@/CONSTS';
+import type { StatDescriptions } from '@/calc/statText';
+import type { CalcValues } from '@/calc/types';
 
 const { STAT_ROW_SELECT_FLEX, STAT_ROW_VALUE_WIDTH } = CONSTS.heroWeaponCardPet.ui;
 const VALUE_PLACEHOLDER = '{0}';

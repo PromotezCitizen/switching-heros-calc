@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { Accordion, Card, Group, Image, NumberInput, Stack, Table, Text, TextInput } from '@mantine/core';
-import AutoGrid from '../../components/AutoGrid';
-import SectionTitle from '../../components/SectionTitle';
-import { CONSTS } from '../../CONSTS';
-import { formatLog } from '../gameNumber';
-import { heroByName, rowsOf } from '../sources/heroWeaponCardPet/shared';
-import { slotHeroName } from '../sources/hero/character';
-import { normalWeaponLevelFieldId, normalWeaponLevelSum } from '../sources/trainingRelic/relic';
+import AutoGrid from '@/components/AutoGrid';
+import SectionTitle from '@/components/SectionTitle';
+import { CONSTS } from '@/CONSTS';
+import { formatLog } from '@/calc/gameNumber';
+import { heroByName, rowsOf } from '@/calc/sources/heroWeaponCardPet/shared';
+import { slotHeroName } from '@/calc/sources/hero/character';
+import { normalWeaponLevelFieldId, normalWeaponLevelSum } from '@/calc/sources/trainingRelic/relic';
 import {
   LINK_STAR_FIELD,
   NORMAL_EQUIP_FIELD,
@@ -19,10 +19,10 @@ import {
   optionValueField,
   usesExclusiveWeapon,
   weaponTotalAtk,
-} from '../sources/heroWeaponCardPet/weapon';
-import type { TabPanelProps } from '../types';
-import { iconUrl } from './heroWeaponCardPet/IconPicker';
-import StatValueRows, { allStatChoices } from './heroWeaponCardPet/StatValueRows';
+} from '@/calc/sources/heroWeaponCardPet/weapon';
+import type { TabPanelProps } from '@/calc/types';
+import { iconUrl } from '@/calc/panels/heroWeaponCardPet/IconPicker';
+import StatValueRows, { allStatChoices } from '@/calc/panels/heroWeaponCardPet/StatValueRows';
 
 const { JOBS, MIN_NUMBER } = CONSTS.heroWeaponCardPet;
 const { LINK_STAR_MAX, LINK_ICONS } = CONSTS.heroWeaponCardPet.weapon;

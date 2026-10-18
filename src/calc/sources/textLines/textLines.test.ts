@@ -4,14 +4,14 @@ import characterTable from '../../../../public/data/tables/Character.json';
 import characterAffinityTable from '../../../../public/data/tables/CharacterAffinity.json';
 import characterAwakenTable from '../../../../public/data/tables/CharacterAwaken.json';
 import diaryStatTable from '../../../../public/data/tables/DiaryStat.json';
-import type { RawTable, StatTables } from '../../../data/statTables';
-import { combineLines, type Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import { diaryLines, diarySlotResults } from './diary';
-import i18n from '../../../i18n';
-import { textLinesTabs } from './index';
-import { heroAwakenLines } from './other';
-import { parseProfile, profilePercent } from './profile';
+import type { RawTable, StatTables } from '@/data/statTables';
+import { combineLines, type Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import { diaryLines, diarySlotResults } from '@/calc/sources/textLines/diary';
+import i18n from '@/i18n';
+import { textLinesTabs } from '@/calc/sources/textLines/index';
+import { heroAwakenLines } from '@/calc/sources/textLines/other';
+import { parseProfile, profilePercent } from '@/calc/sources/textLines/profile';
 
 /**
  * 기대값 = 기존 htmls/stat-calc.html 을 Playwright 로 열어 같은 입력을 넣고
@@ -129,12 +129,12 @@ describe('코스튬·도감·칭호 (기존 HTML 한 탭 → 세 탭)', () => {
     const costume = tabLines('costume', FILLED);
     const encyclopedia = tabLines('collection', FILLED);
     const title = tabLines('title', FILLED);
-    expectLines(costume, [['코스튬 누적 능력치 (화면 값)', '_per_attackDamage', 'log', 37.11660774398825]]);
+    expectLines(costume, [['코스튬 누적 능력치', '_per_attackDamage', 'log', 37.11660774398825]]);
     expectLines(encyclopedia, [
-      ['도감 효과 (화면 값)', '_per_attackDamage', 'log', 13.678973375919766],
-      ['도감 효과 (화면 값)', '_per_hp', 'log', 7.9983465373963645],
+      ['도감 효과', '_per_attackDamage', 'log', 13.678973375919766],
+      ['도감 효과', '_per_hp', 'log', 7.9983465373963645],
     ]);
-    expectLines(title, [['칭호 누적 능력치 (화면 값)', '_per_attackDamage', 'log', 10.982678193383485]]);
+    expectLines(title, [['칭호 누적 능력치', '_per_attackDamage', 'log', 10.982678193383485]]);
     expectCombined([...costume, ...encyclopedia, ...title], {
       _per_attackDamage: [55.77825931374437, 3],
       _per_hp: [5.998346973347242, 1],
@@ -142,7 +142,7 @@ describe('코스튬·도감·칭호 (기존 HTML 한 탭 → 세 탭)', () => {
   });
   it('칭호 체력만 넣은 경우', () => {
     const title = tabLines('title', { titleHp: '40.99C%' });
-    expectLines(title, [['칭호 누적 능력치 (화면 값)', '_per_hp', 'log', 10.612677918316502]]);
+    expectLines(title, [['칭호 누적 능력치', '_per_hp', 'log', 10.612677918316502]]);
     expectCombined(title, { _per_hp: [8.612677919376015, 1] });
   });
 });
@@ -151,7 +151,7 @@ describe('기타', () => {
   it('화면 값 · 히어로 각성 · 요정의 축복 (켜짐)', () => {
     const lines = formerOtherLines(FILLED);
     expectLines(lines, [
-      ['프로필 아이콘 (화면 값)', '_per_attackDamage', 'log', 3.700617195682057],
+      ['프로필 아이콘', '_per_attackDamage', 'log', 3.700617195682057],
       ['히어로 각성 Lv10 (린)', '_per_attackDamage', 'value', 132],
       ['별자리 요정의 축복 (요정의 유대 Lv 627)', '_per_attackDamage', 'value', 656],
       ['별자리 요정의 축복 (요정의 유대 Lv 627)', '_per_hp', 'value', 656],

@@ -1,6 +1,6 @@
-import { readNumber } from '../store/storedValues';
-import { CONSTS } from '../CONSTS';
-import { RESOURCES, type Resource } from '../hunting/huntingCalc';
+import { readNumber } from '@/store/storedValues';
+import { CONSTS } from '@/CONSTS';
+import { RESOURCES, type Resource } from '@/hunting/huntingCalc';
 
 /** 계정 공통 입력의 저장소 칸 이름 (여러 페이지가 같은 값을 읽는다) */
 export const ACCOUNT_KEYS = {

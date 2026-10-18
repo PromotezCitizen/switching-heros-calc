@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useCalcStore } from '../store/useCalcStore';
-import { calcValuesOf } from './storeKeys';
-import type { CalcValues } from './types';
+import { useCalcStore } from '@/store/useCalcStore';
+import { calcValuesOf } from '@/calc/storeKeys';
+import type { CalcValues } from '@/calc/types';
 
 /** 읽은 칸 값들을 한 글로 이어 붙일 때 쓰는 구분 글자 (칸 값에 나올 일이 없는 글자) */
 const VALUE_SEPARATOR = '\u0000';

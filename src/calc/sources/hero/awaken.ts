@@ -3,11 +3,11 @@
  * 기존 stat-calc-core.js awakenStages (58~66), stat-calc.html refreshAwakenStars·selectedStage (583~592),
  * 각성 확인 문구 (696~701). 화면·React 와 무관한 순수 함수
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type StatTables, type TableRow } from '../../../data/statTables';
-import { parseGameNumber } from '../../gameNumber';
-import type { CalcValues } from '../../types';
-import { resolveChoice } from './character';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type StatTables, type TableRow } from '@/data/statTables';
+import { parseGameNumber } from '@/calc/gameNumber';
+import type { CalcValues } from '@/calc/types';
+import { resolveChoice } from '@/calc/sources/hero/character';
 
 const { FIELDS, TABLES, AWAKEN_FINAL_TOLERANCE_LOG } = CONSTS.hero;
 

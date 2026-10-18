@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Accordion, Alert, Box, Stack, Tabs, Text } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { CONSTS } from '../CONSTS';
-import { useUiValue } from '../store/useUiStore';
-import { useJsonData } from '../data/useJsonData';
-import { useStickyHeaderHeight } from '../useStickyHeaderHeight';
-import { CALC_TAB_GROUPS, groupTabs } from './tabGroups';
-import { TAB_ITEM_STYLE, TAB_ROW_STYLE, TAB_STACK_STYLE, TAB_STACKS } from './tabWidths';
-import TabItem from './TabItem';
-import type { StatDescriptions } from './statText';
+import { CONSTS } from '@/CONSTS';
+import { useUiValue } from '@/store/useUiStore';
+import { useJsonData } from '@/data/useJsonData';
+import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
+import { CALC_TAB_GROUPS, groupTabs } from '@/calc/tabGroups';
+import { TAB_ITEM_STYLE, TAB_ROW_STYLE, TAB_STACK_STYLE, TAB_STACKS } from '@/calc/tabWidths';
+import TabItem from '@/calc/TabItem';
+import type { StatDescriptions } from '@/calc/statText';
 
 const EMPTY_DESCRIPTIONS: StatDescriptions = {};
 const GROUP_UI_KEY = 'calcGroup';
@@ -39,7 +39,8 @@ export default function CalcPage() {
         {translate('calc.intro')}
       </Text>
       {descriptions.status === 'failed' && <Alert color="red">{translate('calc.loadFailed')}</Alert>}
-      <Tabs value={activeGroup.id} onChange={(next) => next && changeGroup(next)} variant="pills">
+      {/* 숨긴 하위 탭은 화면에서만 숨긴다: Mantine 기본 (React Activity) 은 다시 열 때 탭 안 전체를 다시 그려 히어로 탭이 0.8초 넘게 멈췄다 */}
+      <Tabs value={activeGroup.id} onChange={(next) => next && changeGroup(next)} variant="pills" keepMountedMode="display-none">
         <Box
           ref={subTabBarRef}
           pos="sticky"
@@ -59,8 +60,16 @@ export default function CalcPage() {
         {groups.map((group) => {
           const tabs = groupTabs(group.tabIds);
           if (!renderedGroupIds.includes(group.id)) return null;
+          // 칸이 하나뿐인 묶음 (종합 · 몬스터 카드 · 펫) 은 접을 일이 없어 접이식 제목 줄 없이 그린다
+          if (tabs.length === 1) {
+            return (
+              <Tabs.Panel key={group.id} value={group.id} pt={CONSTS.display.CONTENT_TOP_GAP}>
+                <TabItem tab={tabs[0]} descriptions={shownDescriptions} single />
+              </Tabs.Panel>
+            );
+          }
           return (
-            <Tabs.Panel key={group.id} value={group.id}>
+            <Tabs.Panel key={group.id} value={group.id} pt={CONSTS.display.CONTENT_TOP_GAP}>
               <Accordion
                 variant="separated"
                 multiple

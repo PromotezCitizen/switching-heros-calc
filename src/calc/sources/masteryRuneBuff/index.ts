@@ -4,19 +4,19 @@
  */
 import i18next from 'i18next';
 import { createElement, type ComponentType } from 'react';
-import { CONSTS } from '../../../CONSTS';
-import AwakenDetailPanel from '../../panels/AwakenDetailPanel';
-import BuffPanel from '../../panels/BuffPanel';
-import MasteryPanel from '../../panels/MasteryPanel';
-import RunePanel from '../../panels/RunePanel';
-import type { StatTables } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcTab, CalcValues, TabPanelProps } from '../../types';
-import { cardStackLines } from '../heroWeaponCardPet/card';
-import { equippedSkillTypeCounts, skillOptionLines } from '../skill/skill';
-import { awakenDetailLines } from './awakenDetail';
-import { battleDamageLines, chancesWithBattleState } from './battleState';
-import { summaryTarget } from '../summary/summary';
+import { CONSTS } from '@/CONSTS';
+import AwakenDetailPanel from '@/calc/panels/AwakenDetailPanel';
+import BuffPanel from '@/calc/panels/BuffPanel';
+import MasteryPanel from '@/calc/panels/MasteryPanel';
+import RunePanel from '@/calc/panels/RunePanel';
+import type { StatTables } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcTab, CalcValues, TabPanelProps } from '@/calc/types';
+import { cardStackLines } from '@/calc/sources/heroWeaponCardPet/card';
+import { equippedSkillTypeCounts, skillOptionLines } from '@/calc/sources/skill/skill';
+import { awakenDetailLines } from '@/calc/sources/masteryRuneBuff/awakenDetail';
+import { battleDamageLines, chancesWithBattleState } from '@/calc/sources/masteryRuneBuff/battleState';
+import { summaryTarget } from '@/calc/sources/summary/summary';
 import {
   buffLines,
   exclusiveStackBuffLines,
@@ -26,18 +26,18 @@ import {
   onAttackBuffLines,
   stackLines,
   superCriticalStrikeLines,
-} from './buff';
-import { chanceUltimateLines } from './chances';
-import { masteryLines } from './mastery';
-import { runeLabLines, runeLines } from './rune';
-import type { SourceLabel } from './sourceLabel';
+} from '@/calc/sources/masteryRuneBuff/buff';
+import { chanceUltimateLines } from '@/calc/sources/masteryRuneBuff/chances';
+import { masteryLines } from '@/calc/sources/masteryRuneBuff/mastery';
+import { runeLabLines, runeLines } from '@/calc/sources/masteryRuneBuff/rune';
+import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 import {
   equippedPetIds,
   formationHeroAttributes,
   formationHeroGenders,
   slotHeroTargetUnit,
   ultimateLines,
-} from './ultimate';
+} from '@/calc/sources/masteryRuneBuff/ultimate';
 
 const translateSource: SourceLabel = (translationKey, params) => i18next.t(translationKey, params ?? {});
 
@@ -108,7 +108,7 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
           ...exclusiveStackBuffLines(values, translateSource, tables),
           ...finalAttackMultiplierLines(values, translateSource, tables),
         ];
-        // 다발 화살 252 옵션 (적중마다 공격력 % 최대 5중첩) 도 전투 중 몫이라 버프 탭 줄이다
+        // 다발 화살 252 옵션 (적중마다 공격력 % 최대 5중첩, 장착했을 때 최고 값) 도 전투 중 몫이라 버프 탭 줄이다
         const optionLines = skillOptionLines(values, translateSource);
         if (!tables.Mastery) return [...foodLines, ...multiplierLines, ...optionLines];
         const otherLines = otherTabLines(values, tables);

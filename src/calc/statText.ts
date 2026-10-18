@@ -1,6 +1,6 @@
 /** 스탯 설명 문구({0} 자리에 값)와 값 표기 */
-import { formatLog } from './gameNumber';
-import type { Line } from './combine';
+import { formatLog } from '@/calc/gameNumber';
+import type { Line } from '@/calc/combine';
 
 export type StatDescriptions = Record<string, string>;
 

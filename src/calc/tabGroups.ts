@@ -1,5 +1,5 @@
-import { CALC_TABS } from './tabs';
-import type { CalcTab } from './types';
+import { CALC_TABS } from '@/calc/tabs';
+import type { CalcTab } from '@/calc/types';
 
 /**
  * 계산식 확인기의 하위 탭 묶음 (화면 순서). 게임 메뉴(성장 안 탭: 훈련·특성·각성·유물·일기장·룬)를 기준으로 묶었다.

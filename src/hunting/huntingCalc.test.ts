@@ -9,7 +9,7 @@ import {
   scanFloors,
   type HuntingInputs,
   type StageRewards,
-} from './huntingCalc';
+} from '@/hunting/huntingCalc';
 
 /** 1층 보상 10^1, 한 층 깊어질 때마다 ×10 (log10 이 1씩 증가) */
 const REWARDS: StageRewards = {

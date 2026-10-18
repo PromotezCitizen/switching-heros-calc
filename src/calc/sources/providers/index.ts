@@ -1,12 +1,12 @@
 /** 코어 특성 · 피규어 탭 (뒤늦게 계산에 넣은 능력치 제공자, 입력은 처음 비어 있음) */
 import i18n from 'i18next';
-import { CONSTS } from '../../../CONSTS';
-import CoreMasteryPanel from '../../panels/CoreMasteryPanel';
-import FigurePanel from '../../panels/FigurePanel';
-import type { CalcTab } from '../../types';
-import type { SourceLabel } from '../heroWeaponCardPet/shared';
-import { coreMasteryLines } from './coreMastery';
-import { figureLines } from './figure';
+import { CONSTS } from '@/CONSTS';
+import CoreMasteryPanel from '@/calc/panels/CoreMasteryPanel';
+import FigurePanel from '@/calc/panels/FigurePanel';
+import type { CalcTab } from '@/calc/types';
+import type { SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
+import { coreMasteryLines } from '@/calc/sources/providers/coreMastery';
+import { figureLines } from '@/calc/sources/providers/figure';
 
 /** 출처 글 = 번역 (i18n 이 준비된 뒤 호출된다) */
 const sourceLabel: SourceLabel = (translationKey, params) => i18n.t(translationKey, params);

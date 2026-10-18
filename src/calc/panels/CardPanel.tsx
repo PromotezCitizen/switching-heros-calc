@@ -1,14 +1,14 @@
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Card, Collapse, Group, Image, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
-import AutoGrid from '../../components/AutoGrid';
-import ChoiceChips from '../../components/ChoiceChips';
-import HorizontalScrollRow from '../../components/HorizontalScrollRow';
-import LazySelect from '../../components/LazySelect';
-import SectionTitle from '../../components/SectionTitle';
+import AutoGrid from '@/components/AutoGrid';
+import ChoiceChips from '@/components/ChoiceChips';
+import HorizontalScrollRow from '@/components/HorizontalScrollRow';
+import LazySelect from '@/components/LazySelect';
+import SectionTitle from '@/components/SectionTitle';
 import { useDisclosure } from '@mantine/hooks';
-import { CONSTS } from '../../CONSTS';
-import type { StatTables } from '../../data/statTables';
+import { CONSTS } from '@/CONSTS';
+import type { StatTables } from '@/data/statTables';
 import {
   CARD_MARK_NUMBERS,
   CARD_SET_BONUS_FIELD,
@@ -28,12 +28,12 @@ import {
   stickerCountField,
   stickerLevelField,
   usableMarkCount,
-} from '../sources/heroWeaponCardPet/card';
-import { gradeStarValue, groupBy, rowsOf, unique, type RowGroup } from '../sources/heroWeaponCardPet/shared';
-import { lineText, type StatDescriptions } from '../statText';
-import type { TabPanelProps } from '../types';
-import { joinFieldValues, splitFieldValues } from '../useTrackedCalcValues';
-import IconPicker, { iconUrl } from './heroWeaponCardPet/IconPicker';
+} from '@/calc/sources/heroWeaponCardPet/card';
+import { gradeStarValue, groupBy, rowsOf, unique, type RowGroup } from '@/calc/sources/heroWeaponCardPet/shared';
+import { lineText, type StatDescriptions } from '@/calc/statText';
+import type { TabPanelProps } from '@/calc/types';
+import { joinFieldValues, splitFieldValues } from '@/calc/useTrackedCalcValues';
+import IconPicker, { iconUrl } from '@/calc/panels/heroWeaponCardPet/IconPicker';
 
 const { MIN_NUMBER } = CONSTS.heroWeaponCardPet;
 const {

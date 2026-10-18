@@ -1,9 +1,9 @@
 /** 연성 "능력치 합계" 15줄: 게임 목록과 같은 순서의 세로 목록 */
 import { useTranslation } from 'react-i18next';
 import { Stack, Text } from '@mantine/core';
-import { GameNumberRow } from '../../components/StoreFields';
-import { CALC_KEY_PREFIX } from '../storeKeys';
-import { ARTIFACT_TOTAL_FIELDS } from '../sources/artifact';
+import { GameNumberRow } from '@/components/StoreFields';
+import { CALC_KEY_PREFIX } from '@/calc/storeKeys';
+import { ARTIFACT_TOTAL_FIELDS } from '@/calc/sources/artifact';
 
 export default function ArtifactPanel() {
   const { t: translate } = useTranslation();

@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import i18n from 'i18next';
-import '../../../i18n';
+import '@/i18n';
 import CardSetTable from '../../../../public/data/tables/CardSet.json';
 import CardStickerSetTable from '../../../../public/data/tables/CardStickerSet.json';
 import CardTable from '../../../../public/data/tables/Card.json';
@@ -17,17 +17,17 @@ import WeaponJobTable from '../../../../public/data/tables/WeaponJob.json';
 import WeaponLinkTable from '../../../../public/data/tables/WeaponLink.json';
 import WeaponTranscendTable from '../../../../public/data/tables/WeaponTranscend.json';
 import RelicTable from '../../../../public/data/tables/Relic.json';
-import { tableRows, type StatTables } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import { formatLog } from '../../gameNumber';
-import type { CalcValues } from '../../types';
-import { cardCountsByGrade, cardSlotGradeStars, cardStackLines, countExpandedLines, sssCardCount } from './card';
-import { EXPECTED_FROM_HTML } from './expectedFromHtml';
-import { equippedPetIds, heroWeaponCardPetTabs } from './index';
-import { libraryArchiveLevel } from './library';
-import { mineMultiplier } from './mine';
-import { maxStagePetCounts, ownedPetField, petLines, petRegionLevelField, petRegionLines, petRegionUnlocked } from './pet';
-import { gradeStarValue, type SourceLabel } from './shared';
+import { tableRows, type StatTables } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import { formatLog } from '@/calc/gameNumber';
+import type { CalcValues } from '@/calc/types';
+import { cardCountsByGrade, cardSlotGradeStars, cardStackLines, countExpandedLines, sssCardCount } from '@/calc/sources/heroWeaponCardPet/card';
+import { EXPECTED_FROM_HTML } from '@/calc/sources/heroWeaponCardPet/expectedFromHtml';
+import { equippedPetIds, heroWeaponCardPetTabs } from '@/calc/sources/heroWeaponCardPet/index';
+import { libraryArchiveLevel } from '@/calc/sources/heroWeaponCardPet/library';
+import { mineMultiplier } from '@/calc/sources/heroWeaponCardPet/mine';
+import { maxStagePetCounts, ownedPetField, petLines, petRegionLevelField, petRegionLines, petRegionUnlocked } from '@/calc/sources/heroWeaponCardPet/pet';
+import { gradeStarValue, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 import {
   equipWeaponRelicMultiplier,
   exclusiveWeaponEffectFromValues,
@@ -38,9 +38,9 @@ import {
   receivedMissionStar,
   weaponLinkLog,
   weaponTotalAtk,
-} from './weapon';
-import { exclusiveMissionReceivedStarField, exclusiveOwnedStarField } from '../hero/rosterFields';
-import { normalWeaponLevelFieldId } from '../trainingRelic/relic';
+} from '@/calc/sources/heroWeaponCardPet/weapon';
+import { exclusiveMissionReceivedStarField, exclusiveOwnedStarField } from '@/calc/sources/hero/rosterFields';
+import { normalWeaponLevelFieldId } from '@/calc/sources/trainingRelic/relic';
 
 /** 기대값은 기존 htmls/stat-calc.html 에 같은 입력을 넣어 읽은 값 (scripts/expected_hero_weapon_card_pet.py) */
 const tables = {
@@ -213,8 +213,8 @@ describe('바뀐 계산', () => {
     // 빙결의 숨결 ★13 = 6개, ★4·★5 무기 2개 × 2개, 나머지 ★1·★2 무기 10개 × 1개
     expect(total.missionCount).toBe(20);
     expect(Math.pow(10, total.percentLog)).toBeCloseTo(1282.187013, 5);
-    const totalLines = tabLines('weapon', values).filter((line) => line.source === '무기 누적 능력치 (전용 무기 ★ 에서 계산)');
-    expect(totalLines).toEqual([{ source: '무기 누적 능력치 (전용 무기 ★ 에서 계산)', stat: '_per_attackDamage', log: total.percentLog }]);
+    const totalLines = tabLines('weapon', values).filter((line) => line.source === '무기 누적 능력치 (전용 무기 ★)');
+    expect(totalLines).toEqual([{ source: '무기 누적 능력치 (전용 무기 ★)', stat: '_per_attackDamage', log: total.percentLog }]);
     // ★ 를 하나도 안 넣으면 줄 없음
     expect(weaponTotalAtk({}, tables)).toBeNull();
   });
@@ -474,7 +474,7 @@ describe('출처 합산 단계용 함수', () => {
     ];
     const expanded = countExpandedLines(lines, 2, label);
     expect(expanded.lines).toEqual([
-      { source: '세트 × SSS 등급 이상 2장 (별 무관)', stat: '_per_hp', value: 20 },
+      { source: '세트 × SSS 등급 이상 2장', stat: '_per_hp', value: 20 },
       lines[1],
       lines[2],
       lines[3],
@@ -489,7 +489,7 @@ describe('출처 합산 단계용 함수', () => {
     expect(countExpandedLines(lines, 0, label, false)).toEqual(countExpandedLines(lines, 0, label));
     const reached = countExpandedLines(lines, 0, label, true);
     expect(reached.lines[0]).toEqual(lines[0]);
-    expect(reached.lines[1]).toEqual({ source: '카드 (적 수 조건 충족)', stat: '_per_attackDamage', value: 700 });
+    expect(reached.lines[1]).toEqual({ source: '카드 (주위 적 수 조건)', stat: '_per_attackDamage', value: 700 });
     expect(reached.skippedStats).toEqual(['_per_attackDamage_Kill']);
   });
   it('카드 2번 처치 중첩 140% 는 5중첩 선형으로 x8 (공격력 % 700), 카드 3번 스킬 사용 160% 는 x9 (공격력 % 800) (combat0113.py 112~115)', () => {
@@ -548,7 +548,7 @@ describe('출처 합산 단계용 함수', () => {
 describe('파생 선택지', () => {
   it('장착한 펫의 옵션 묶음에 없는 능력치는 계산에서 뺀다 (기존 화면은 그런 값을 지움)', () => {
     const values = { pet_101: 'SSS_1', petSlot1: '101', petOption1_1Stat: '_per_FireHero_AttackDamage', petOption1_1Value: '50%' };
-    expect(petLines(values, tables, label).map((line) => line.source)).toEqual(['드라코 SSS 1성 보유']);
+    expect(petLines(values, tables, label).map((line) => line.source)).toEqual(['드라코 SSS 1성']);
   });
   it('고른 카드에 없는 등급·성이면 그 칸은 효과 없음', () => {
     expect(tabLines('card', { cardSlot1: '1', cardSlotGrade1: 'NONE_1' })).toEqual([]);

@@ -1,8 +1,8 @@
 """서버 표 Stage 의 층별 1마리 기본 보상(골드=EXP, 정수)을 log10 값으로 내보낸다.
 
-사용: uv run python react/scripts/export_stage_rewards.py
+사용: uv run python stat-calc/scripts/export_stage_rewards.py
 입력: claude-docs/server_tables/Stage<번호>.txt 중 번호가 가장 큰 것 (최신 표)
-출력: react/public/data/stageRewards.json  { count, gold: [...], ess: [...] }  (인덱스 0 = 1층)
+출력: stat-calc/public/data/stageRewards.json  { count, gold: [...], ess: [...] }  (인덱스 0 = 1층)
 """
 import json
 import math
@@ -11,7 +11,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 TABLE_DIR = PROJECT_ROOT / 'claude-docs' / 'server_tables'
-OUTPUT_PATH = PROJECT_ROOT / 'react' / 'public' / 'data' / 'stageRewards.json'
+OUTPUT_PATH = PROJECT_ROOT / 'stat-calc' / 'public' / 'data' / 'stageRewards.json'
 LOG_DECIMALS = 5
 
 

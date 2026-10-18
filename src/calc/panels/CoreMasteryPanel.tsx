@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Group, NumberInput, Stack, Text } from '@mantine/core';
-import AutoGrid from '../../components/AutoGrid';
-import { CONSTS } from '../../CONSTS';
-import { FlagField } from '../../components/StoreFields';
+import AutoGrid from '@/components/AutoGrid';
+import { CONSTS } from '@/CONSTS';
+import { FlagField } from '@/components/StoreFields';
 import {
   CORE_MASTERY_SLOT_NUMBERS,
   coreMasteryLevel,
@@ -10,10 +10,10 @@ import {
   coreMasterySelectField,
   coreMasterySlot,
   maxCoreMasteryLevel,
-} from '../sources/providers/coreMastery';
-import { statDescription } from '../statText';
-import { CALC_KEY_PREFIX } from '../storeKeys';
-import type { TabPanelProps } from '../types';
+} from '@/calc/sources/providers/coreMastery';
+import { statDescription } from '@/calc/statText';
+import { CALC_KEY_PREFIX } from '@/calc/storeKeys';
+import type { TabPanelProps } from '@/calc/types';
 
 const { LEVEL_FIELD, LEVEL_INPUT_WIDTH, SELECT_MIN_WIDTH } = CONSTS.providers.coreMastery;
 const PLACEHOLDER = '{0}';

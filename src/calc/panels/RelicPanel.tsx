@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Card, Group, Image, Stack, Table, Text, TextInput } from '@mantine/core';
-import AutoGrid from '../../components/AutoGrid';
-import ChoiceChips from '../../components/ChoiceChips';
-import HorizontalScrollRow from '../../components/HorizontalScrollRow';
-import SectionTitle from '../../components/SectionTitle';
-import { CONSTS } from '../../CONSTS';
+import AutoGrid from '@/components/AutoGrid';
+import ChoiceChips from '@/components/ChoiceChips';
+import SectionTitle from '@/components/SectionTitle';
+import { CONSTS } from '@/CONSTS';
 import {
   RELIC_MAX_GRADE_FIELD,
   RELIC_TAB_LINK_FIELDS,
@@ -16,18 +15,17 @@ import {
   relicLevelFieldId,
   relicLinkFieldId,
   relicStates,
-  relicValue,
   usedRelicLinkFields,
   type RelicState,
-} from '../sources/trainingRelic/relic';
-import { amountText, lineText } from '../statText';
-import { CALC_KEY_PREFIX } from '../storeKeys';
-import { useCalcStore } from '../../store/useCalcStore';
-import type { TabPanelProps } from '../types';
+} from '@/calc/sources/trainingRelic/relic';
+import { amountText, lineText } from '@/calc/statText';
+import { CALC_KEY_PREFIX } from '@/calc/storeKeys';
+import { useCalcStore } from '@/store/useCalcStore';
+import type { TabPanelProps } from '@/calc/types';
 
-const { UNOWNED_OPACITY, OWNED_OPACITY, ICON_SIZE, PREVIEW_LEVEL } = CONSTS.trainingRelic.relic;
+const { UNOWNED_OPACITY, OWNED_OPACITY, ICON_SIZE } = CONSTS.trainingRelic.relic;
 const MIN_LEVEL = CONSTS.emptyInput.LEVEL;
-const { CARD_MIN_WIDTH, LIST_INPUT_WIDTH } = CONSTS.display;
+const { CARD_MIN_WIDTH } = CONSTS.display;
 
 function relicIconPath(iconIndex: string): string {
   return `${import.meta.env.BASE_URL}icons/Atlas_relic/item_relic_${iconIndex}.png`;
@@ -59,14 +57,7 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
   }
 
   function effectText({ row, level, value }: RelicState): string {
-    if (!level) {
-      const firstLevelEffect = lineText(descriptions, {
-        source: '',
-        stat: row.statType,
-        value: relicValue(row, PREVIEW_LEVEL),
-      });
-      return translate('calc.relic.notOwned', { effect: firstLevelEffect });
-    }
+    if (!level) return translate('calc.relic.notOwned');
     return lineText(descriptions, { source: '', stat: row.statType, value });
   }
 
@@ -109,7 +100,8 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
                 role="tab"
                 aria-selected={grade === visibleGrade}
                 variant={grade === visibleGrade ? 'filled' : 'default'}
-                onClick={() => setShownGrade(grade)}
+                // 열린 등급을 한 번 더 누르면 닫는다
+                onClick={() => setShownGrade(grade === visibleGrade ? null : grade)}
               >
                 {grade}
               </Button>
@@ -166,7 +158,8 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
 
       <Stack gap="xs">
         <SectionTitle>{translate('calc.relic.linksTitle')}</SectionTitle>
-        <HorizontalScrollRow itemWidth={LIST_INPUT_WIDTH}>
+        {/* 라벨이 길어 (예: "SSR 등급 이상 몬스터 카드 수") 한 줄에 하나씩 위아래로 */}
+        <Stack gap="xs">
           {RELIC_TAB_LINK_FIELDS.filter((field) => usedLinks.has(field)).map((field) => {
             const fieldId = relicLinkFieldId(field);
             return (
@@ -181,7 +174,7 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
               />
             );
           })}
-        </HorizontalScrollRow>
+        </Stack>
         {!usedLinks.size && <Text size="sm" c="dimmed">{translate('calc.relic.noLinks')}</Text>}
         <Text size="sm" c="dimmed">{translate('calc.relic.linksHelp')}</Text>
       </Stack>

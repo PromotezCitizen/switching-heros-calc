@@ -1,5 +1,5 @@
-import { ACCOUNT_KEYS } from '../account/accountKeys';
-import { CONSTS } from '../CONSTS';
+import { ACCOUNT_KEYS } from '@/account/accountKeys';
+import { CONSTS } from '@/CONSTS';
 
 const CHECKED_TEXT = CONSTS.textLines.CHECKED_TEXT;
 

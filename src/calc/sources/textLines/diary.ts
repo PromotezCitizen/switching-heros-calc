@@ -4,11 +4,11 @@
  * 앞 책은 전부 최대 레벨, 현재 책은 입력한 슬롯 레벨 (화면 누적 12개와 소수 넷째 자리까지 일치 확인,
  * claude-docs/diary_formula_check.py).
  */
-import { CONSTS } from '../../../CONSTS';
-import { tableRows, type RawTable, type StatTables, type TableRow } from '../../../data/statTables';
-import type { Line } from '../../combine';
-import type { CalcValues } from '../../types';
-import type { SourceLabel } from './screenFields';
+import { CONSTS } from '@/CONSTS';
+import { tableRows, type RawTable, type StatTables, type TableRow } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import type { CalcValues } from '@/calc/types';
+import type { SourceLabel } from '@/calc/sources/textLines/screenFields';
 
 const { SLOT_COUNT, MIN_BOOK } = CONSTS.textLines;
 const PERCENT_DIVISOR = CONSTS.common.PERCENT_DIVISOR;

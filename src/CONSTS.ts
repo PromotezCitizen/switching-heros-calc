@@ -9,6 +9,7 @@ import { TEXT_LINES_CONSTS } from '@/consts/textLines';
 import { TRAINING_RELIC_CONSTS } from '@/consts/trainingRelic';
 import { USB_CONSTS } from '@/consts/usb';
 import { LOAD_CONSTS } from '@/consts/load';
+import { DPM_CONSTS } from '@/consts/dpm';
 
 export const CONSTS = {
   /** 탭 묶음별 상수 (파일은 src/consts/) */
@@ -22,6 +23,7 @@ export const CONSTS = {
   providers: PROVIDER_CONSTS,
   usb: USB_CONSTS,
   load: LOAD_CONSTS,
+  dpm: DPM_CONSTS,
 
   common: {
     PERCENT_DIVISOR: 100,

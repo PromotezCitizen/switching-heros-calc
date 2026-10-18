@@ -25,7 +25,8 @@ import petTable from '../../public/data/tables/Pet.json';
 import petRegionTable from '../../public/data/tables/PetRegion.json';
 import relicTable from '../../public/data/tables/Relic.json';
 import skillTable from '../../public/data/tables/Skill.json';
-import skillCoolOptionTable from '../../public/data/tables/SkillCoolOption.json';
+import skillPerkTable from '../../public/data/tables/SkillPerk.json';
+import skillRuneTable from '../../public/data/tables/SkillRune.json';
 import soulForgeTable from '../../public/data/tables/SoulForge.json';
 import titleTable from '../../public/data/tables/Title.json';
 import trainingTable from '../../public/data/tables/Training.json';
@@ -37,7 +38,7 @@ import weaponTranscendTable from '../../public/data/tables/WeaponTranscend.json'
 import type { StatTables } from '@/data/statTables';
 
 /**
- * 시험용 표 묶음: public/data/tables 의 표 전체 (계산기 탭이 쓰는 표 + Vip · SkillCoolOption · CharSkill · CharacterAwaken).
+ * 시험용 표 묶음: public/data/tables 의 표 전체 (계산기 탭이 쓰는 표 + Vip · CharSkill · CharacterAwaken).
  * 필요한 표만 고르면 탭이 늘 때마다 빠지므로 전부 묶는다
  */
 export function loadTestTables(): StatTables {
@@ -69,7 +70,8 @@ export function loadTestTables(): StatTables {
     PetRegion: petRegionTable,
     Relic: relicTable,
     Skill: skillTable,
-    SkillCoolOption: skillCoolOptionTable,
+    SkillPerk: skillPerkTable,
+    SkillRune: skillRuneTable,
     SoulForge: soulForgeTable,
     Title: titleTable,
     Training: trainingTable,

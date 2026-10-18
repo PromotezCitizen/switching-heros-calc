@@ -9,8 +9,29 @@ import type { CalcValues } from '@/calc/types';
 import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
 import { rowsOf } from '@/calc/sources/heroWeaponCardPet/shared';
 
-const { TABLE, EQUIP_SLOTS, FIRST_LEVEL, ACTIVE_SKILL_TYPE, OPTION_BUFFS, ICON_PREFIX, LOWER_CASE_ICON_PREFIX, LOWER_CASE_ICON_IDS } =
-  CONSTS.skill;
+const {
+  TABLE,
+  EQUIP_SLOTS,
+  FIRST_LEVEL,
+  ACTIVE_SKILL_TYPE,
+  OPTION_BUFFS,
+  ICON_PREFIX,
+  LOWER_CASE_ICON_PREFIX,
+  LOWER_CASE_ICON_IDS,
+  RUNE_TABLE,
+  RUNE_VALUE_COLUMN,
+  RUNE_VALUE_PLACEHOLDER,
+  SLOT_CONDITION_TABLE,
+  SLOT_CONDITION_KEY_PREFIX,
+  SLOT_CONDITION_LEVEL_COLUMN,
+  SLOT_CONDITION_COUNT_COLUMN,
+  COOL_OPTION_TYPE,
+  PERK_TABLE,
+  PERK_LEVEL_COLUMN,
+  PERK_COOL_DOWN_TYPE,
+  PERK_COOL_UP_TYPE,
+  PERK_COOL_VALUE_COLUMN,
+} = CONSTS.skill;
 
 /** 보유 스킬 레벨 칸 (비었거나 0 = 미보유) */
 export function skillLevelField(skillId: string): string {
@@ -68,21 +89,118 @@ export function skillIconPath(skillId: string): string {
   return ((LOWER_CASE_ICON_IDS as readonly string[]).includes(skillId) ? LOWER_CASE_ICON_PREFIX : ICON_PREFIX) + skillId;
 }
 
+/** 스킬 옵션 칸 (스킬마다 1 ~ 열린 칸 수) 에 고른 옵션의 rNo (비었으면 고르지 않음) */
+export function skillOptionField(skillId: string, slot: number): string {
+  return `skillOption_${skillId}_${slot}`;
+}
+
+/** 스킬 옵션 후보 (SkillRune 표, 그 스킬 12행) */
+export function skillRuneChoices(tables: StatTables, skillId: string): TableRow[] {
+  return rowsOf(tables, RUNE_TABLE).filter((row) => row.skillId === skillId);
+}
+
+/** 옵션 값 = 최고 등급 (SS) 값 */
+export function skillRuneValue(row: TableRow): number {
+  return Number(row[RUNE_VALUE_COLUMN]) || 0;
+}
+
+/** 옵션 문구에 최고 등급 값을 넣은 글 (예: "스킬 데미지 100% 증가") */
+export function skillRuneText(row: TableRow): string {
+  return (row.desc ?? '').replace(RUNE_VALUE_PLACEHOLDER, row[RUNE_VALUE_COLUMN] ?? '');
+}
+
+/** 스킬 레벨로 열리는 옵션 칸 수 (Option 표 skill_rune_slot_condition_<n>: 레벨 조건 이상인 행의 칸 수 중 최댓값, 표가 없으면 0) */
+export function skillOptionSlotCount(tables: StatTables, level: number): number {
+  return rowsOf(tables, SLOT_CONDITION_TABLE)
+    .filter((row) => row.key?.startsWith(SLOT_CONDITION_KEY_PREFIX) && level >= Number(row[SLOT_CONDITION_LEVEL_COLUMN]))
+    .reduce((count, row) => Math.max(count, Number(row[SLOT_CONDITION_COUNT_COLUMN]) || 0), 0);
+}
+
+/** 열린 칸에 고른 옵션 (그 스킬의 후보에 있는 것만, 칸 순서). 같은 옵션은 한 스킬에 하나만 (사용자 확인 "같은 옵션 안된다") */
+export function chosenSkillOptions(values: CalcValues, tables: StatTables, skillId: string): TableRow[] {
+  const choices = skillRuneChoices(tables, skillId);
+  const slotCount = skillOptionSlotCount(tables, skillLevel(values, skillId));
+  const chosen: TableRow[] = [];
+  for (let slot = 1; slot <= slotCount; slot++) {
+    const row = choices.find((candidate) => candidate.rNo === values[skillOptionField(skillId, slot)]);
+    if (row && !chosen.includes(row)) chosen.push(row);
+  }
+  return chosen;
+}
+
+/** 고른 옵션 중 "스킬 쿨타임 {0}초 감소" 의 합 (초, 최고 등급 값) */
+export function skillCoolOptionSeconds(values: CalcValues, tables: StatTables, skillId: string): number {
+  return chosenSkillOptions(values, tables, skillId)
+    .filter((row) => row.type === COOL_OPTION_TYPE)
+    .reduce((sum, row) => sum + skillRuneValue(row), 0);
+}
+
+/** 스킬 문양 칸 (해금 레벨마다 하나) 에 고른 문양의 perkType (비었으면 고르지 않음) */
+export function skillPerkField(skillId: string, targetLevel: string): string {
+  return `skillPerk_${skillId}_${targetLevel}`;
+}
+
+/** 그 스킬의 문양 해금 레벨 목록 (작은 것부터, SkillPerk 표 targetLv) */
+export function skillPerkLevels(tables: StatTables, skillId: string): string[] {
+  const levels = new Set(rowsOf(tables, PERK_TABLE).filter((row) => row.skillId === skillId).map((row) => row[PERK_LEVEL_COLUMN]));
+  return [...levels].sort((left, right) => Number(left) - Number(right));
+}
+
+/** 그 스킬 · 해금 레벨의 문양 후보 */
+export function skillPerkChoices(tables: StatTables, skillId: string, targetLevel: string): TableRow[] {
+  return rowsOf(tables, PERK_TABLE).filter((row) => row.skillId === skillId && row[PERK_LEVEL_COLUMN] === targetLevel);
+}
+
+/** 스킬 레벨로 열린 문양 칸에 고른 문양 (해금 레벨 순서) */
+export function chosenSkillPerks(values: CalcValues, tables: StatTables, skillId: string): TableRow[] {
+  const level = skillLevel(values, skillId);
+  return skillPerkLevels(tables, skillId)
+    .filter((targetLevel) => level >= Number(targetLevel))
+    .flatMap((targetLevel) =>
+      skillPerkChoices(tables, skillId, targetLevel).filter((row) => row.perkType === values[skillPerkField(skillId, targetLevel)]),
+    );
+}
+
 /**
- * 스킬 옵션 줄: 능력치를 올리는 옵션 (OPTION_BUFFS) 을 최고 값 × 최대 중첩으로 (다발 화살 25% × 5중첩 = 공격력 % 125, ×2.25).
- * 그 스킬을 보유하고 장착 칸에 꼈을 때만 (스킬을 써야 붙는 효과). 옵션마다 줄 하나
+ * 고른 문양의 쿨타임 초 변화 (감소가 양수): "쿨타임 {0}초 감소" − "쿨타임이 {0}초 늘어나는 대신 …".
+ * 옵션의 초 감소와 같은 자리에서 빼는 것으로 넣었다 (문구 기준, 게임 코드는 확인 못 함)
  */
-export function skillOptionLines(values: CalcValues, label: (key: string, params?: Record<string, string | number>) => string): Line[] {
+export function skillPerkCoolSeconds(values: CalcValues, tables: StatTables, skillId: string): number {
+  return chosenSkillPerks(values, tables, skillId).reduce((sum, row) => {
+    const seconds = Number(row[PERK_COOL_VALUE_COLUMN]) || 0;
+    if (row.perkType === PERK_COOL_DOWN_TYPE) return sum + seconds;
+    if (row.perkType === PERK_COOL_UP_TYPE) return sum - seconds;
+    return sum;
+  }, 0);
+}
+
+/**
+ * 스킬 옵션 줄: 능력치를 올리는 옵션 (OPTION_BUFFS) 을 골랐으면 최고 값 × 최대 중첩으로 (다발 화살 25% × 5중첩 = 공격력 % 125, ×2.25).
+ * 그 스킬을 보유하고 장착 칸에 꼈을 때만 (스킬을 써야 붙는 효과). 고른 옵션마다 줄 하나
+ */
+export function skillOptionLines(
+  values: CalcValues,
+  tables: StatTables,
+  label: (key: string, params?: Record<string, string | number>) => string,
+): Line[] {
   const equipped = equippedSkillIds(values);
-  return OPTION_BUFFS.filter((buff) => equipped.has(buff.SKILL_ID) && skillLevel(values, buff.SKILL_ID) >= FIRST_LEVEL).map((buff) => ({
-    source: label(buff.MAX_STACKS > 1 ? 'calc.skill.optionSource' : 'calc.skill.optionSourceSingle', {
-      skill: label(`calc.skill.optionSkills.${buff.SKILL_ID}`),
-      percent: buff.MAX_PERCENT,
-      stacks: buff.MAX_STACKS,
-    }),
-    stat: buff.STAT,
-    value: buff.MAX_PERCENT * buff.MAX_STACKS,
-  }));
+  return OPTION_BUFFS.flatMap((buff) => {
+    if (!equipped.has(buff.SKILL_ID) || skillLevel(values, buff.SKILL_ID) < FIRST_LEVEL) return [];
+    return chosenSkillOptions(values, tables, buff.SKILL_ID)
+      .filter((row) => row.type === buff.TYPE)
+      .map((row) => {
+        const percent = skillRuneValue(row);
+        return {
+          source: label(buff.MAX_STACKS > 1 ? 'calc.skill.optionSource' : 'calc.skill.optionSourceSingle', {
+            skill: label(`calc.skill.optionSkills.${buff.SKILL_ID}`),
+            percent,
+            stacks: buff.MAX_STACKS,
+          }),
+          stat: buff.STAT,
+          value: percent * buff.MAX_STACKS,
+        };
+      });
+  });
 }
 
 /** 장착 5칸에 액티브 스킬이 하나라도 있는가 (장착 스킬이 0개면 없음) */

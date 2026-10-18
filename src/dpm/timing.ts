@@ -4,13 +4,21 @@ import { combineLines } from '@/calc/combine';
 import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
 import { rosterAwakenField } from '@/calc/sources/hero/rosterFields';
 import { attackSpeedPercent, combinedSum, doubleAttackPercent } from '@/calc/sources/masteryRuneBuff/buff';
-import { SKILL_EQUIP_SLOT_NUMBERS, hasEquippedActiveSkill, skillEquipField, skillLevel, skillRows } from '@/calc/sources/skill/skill';
+import {
+  SKILL_EQUIP_SLOT_NUMBERS,
+  hasEquippedActiveSkill,
+  skillCoolOptionSeconds,
+  skillEquipField,
+  skillLevel,
+  skillPerkCoolSeconds,
+  skillRows,
+} from '@/calc/sources/skill/skill';
 import { expandedTabLines } from '@/calc/tabLines';
 import { CALC_TABS } from '@/calc/tabs';
 import type { CalcValues } from '@/calc/types';
 import type { StatTables } from '@/data/statTables';
 import { attackAnimationSeconds, normalAttackGameSeconds } from '@/dpm/attackCycle';
-import { buffSkillCooldownGameSeconds, coolOptionSeconds } from '@/dpm/buffSkillCycle';
+import { buffSkillCooldownGameSeconds } from '@/dpm/buffSkillCycle';
 import { charSkillGameSeconds, charSkillRow } from '@/dpm/charSkillCycle';
 import { gameSpeedMultiplier } from '@/dpm/gameSpeed';
 
@@ -48,7 +56,7 @@ export function dpmTiming(values: CalcValues, tables: StatTables): DpmTiming {
     .map((row) => {
       const gameSeconds = buffSkillCooldownGameSeconds({
         coolTime: Number(row!.coolTime),
-        optionSeconds: coolOptionSeconds(tables.SkillCoolOption, row!.skillId),
+        optionSeconds: skillCoolOptionSeconds(values, tables, row!.skillId) + skillPerkCoolSeconds(values, tables, row!.skillId),
         coolReductionPercent: coolReduction,
       });
       return { skillId: row!.skillId, gameSeconds, realSeconds: gameSeconds / gameSpeed };

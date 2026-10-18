@@ -68,6 +68,8 @@ export const USB_CONSTS = {
   CARD_GRADE_SSR: 'SSR',
   /** 룬 칸 값 = 코어 레벨 × 10 + 룬 레벨 */
   RUNE_CORE_MULTIPLIER: 10,
+  /** 스킬 옵션 세트 번호: 프리셋별 선택 (eqSkillOptionDic) 이 없으면 이 세트 (catalog-skill-option.md 5-1) */
+  FIRST_SKILL_OPTION_SET: 1,
   /** 연성: 모든 부위에 걸리는 세트 행의 parts 값 */
   ALCHEMY_ALL_PARTS: 'All',
   /** 연성 합계 칸: 보조 능력치 (합을 소수 2자리 글로) */

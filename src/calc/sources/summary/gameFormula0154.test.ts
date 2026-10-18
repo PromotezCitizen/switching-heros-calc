@@ -26,7 +26,11 @@ async function loadTables(): Promise<StatTables> {
   return tables;
 }
 
-const VALUES = savedValues.values as CalcValues;
+/**
+ * Python 변환 값에는 스킬 옵션 칸이 없다 (그때는 다발 화살 옵션을 늘 넣었다). 같은 저장 데이터 (saveSubset0154.json) 의
+ * 다발 화살 252 세트 1 옵션 rNo 320 (공격력 25% × 5중첩) · 319 (쿨타임 1.5초 감소) 를 더한다
+ */
+const VALUES = { ...savedValues.values, skillOption_252_1: '320', skillOption_252_2: '319' } as CalcValues;
 let tables: StatTables = {};
 beforeAll(async () => {
   tables = await loadTables();

@@ -175,7 +175,7 @@ describe('탭 목록', () => {
       ['mastery', ['Mastery', 'Pet', 'Character', 'Skill']],
       ['rune', ['AttributeRune', 'AttributeRuneLab']],
       ['awakenDetail', ['Awaken']],
-      ['buff', ['Mastery', 'Pet', 'Character', 'Skill', 'AttributeRune', 'AttributeRuneLab', 'Awaken']],
+      ['buff', ['Mastery', 'Pet', 'Character', 'Skill', 'AttributeRune', 'AttributeRuneLab', 'Awaken', 'SkillRune', 'Option']],
     ]);
   });
   it('버프 탭은 다른 탭들이 쓰는 표도 같이 부른다 (확률 계산에 다른 탭 줄이 필요)', () => {
@@ -188,6 +188,8 @@ describe('탭 목록', () => {
       'AttributeRune',
       'AttributeRuneLab',
       'Awaken',
+      'SkillRune',
+      'Option',
       'Card',
       'Relic',
     ]);

@@ -1,11 +1,10 @@
-"""DPM 시간 모델용 서버 표 3개를 계산기용 JSON 으로 내보낸다.
+"""DPM 시간 모델용 서버 표 2개를 계산기용 JSON 으로 내보낸다 (스킬 옵션 표는 export_skill.py 의 SkillRune.json).
 
 사용: uv run python stat-calc/scripts/export_dpm_tables.py
-입력: claude-docs/server_tables/Skill261313.txt, SkillRune210536.txt, Vip241428.txt
+입력: claude-docs/server_tables/Skill261313.txt, Vip241428.txt
 출력 (stat-calc/public/data/tables/, { label, columns, rows }, 값은 문자열 원본):
   - CharSkill.json: 전용 스킬 (skillType CharSkill) 행. buffDuration = 발동 조건 종류 (1 = 일반 공격 N번마다),
     buffPer = N, coolTime = 스킬 단계 (claude-docs/mastery-optimizer-design.md 4-1)
-  - SkillCoolOption.json: 스킬 옵션 표 type 9 "스킬 쿨타임 {0}초 감소" 행 (skillId, gradeSS)
   - Vip.json: VIP 레벨별 game_speed_up 값 (buffType01~ 중 game_speed_up 인 칸의 buffVal)
 """
 import json
@@ -15,7 +14,6 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 TABLE_DIR = PROJECT_ROOT / 'claude-docs' / 'server_tables'
 OUTPUT_DIR = PROJECT_ROOT / 'stat-calc' / 'public' / 'data' / 'tables'
 CHAR_SKILL_COLUMNS = ['skillId', 'job', 'buffDuration', 'buffPer', 'coolTime', 'damage', 'value1', 'value2', 'value3']
-COOL_OPTION_TYPE = '9'
 GAME_SPEED_BUFF = 'game_speed_up'
 VIP_BUFF_SLOTS = 9
 
@@ -34,9 +32,6 @@ def main() -> None:
     skills = load('Skill261313.txt')
     write('CharSkill', '전용 스킬', CHAR_SKILL_COLUMNS,
           [[row.get(column, '') for column in CHAR_SKILL_COLUMNS] for row in skills if row.get('skillType') == 'CharSkill'])
-    runes = load('SkillRune210536.txt')
-    write('SkillCoolOption', '스킬 옵션 쿨타임 초 감소', ['skillId', 'gradeSS'],
-          [[row['skillId'], row['gradeSS']] for row in runes if row.get('type') == COOL_OPTION_TYPE])
     vip_rows = []
     for row in load('Vip241428.txt'):
         speed = '0'

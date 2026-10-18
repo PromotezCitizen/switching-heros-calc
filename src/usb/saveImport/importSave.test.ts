@@ -20,6 +20,7 @@ import { parseGameNumber } from '@/calc/gameNumber';
 import savedValues from '@/calc/sources/summary/testValues0154.json';
 import type { StatTables } from '@/data/statTables';
 import { importSave, missingSaveKeys, pickDefault, topKeys, type SaveFiles } from '@/usb/saveImport/importSave';
+import { readDictionary } from '@/usb/saveImport/saveDictionary';
 import saveSubset from '@/usb/saveImport/saveSubset0154.json';
 import saveSubset1018 from '@/usb/saveImport/saveSubset1018.json';
 
@@ -49,9 +50,11 @@ const expected: Record<string, string> = savedValues.values;
 
 /**
  * 저장 데이터에서 오지 않는 칸 (Python 이 따로 넣은 값): 전투 중 최대 상태 3개, 프로필 비교값 2개,
- * 영혼 연성 레벨 (잠김 여부를 저장 데이터로 못 가려 Python 도 빈칸), 다발 화살 옵션 (입력 칸 없이 늘 최고 값으로 계산)
+ * 영혼 연성 레벨 (잠김 여부를 저장 데이터로 못 가려 Python 도 빈칸), Python 판의 다발 화살 옵션 칸 (지금은 스킬마다 옵션 칸 skillOption_<스킬>_<칸>)
  */
 const NOT_FROM_SAVE = new Set(['summaryEnemyCountReached', 'berserkStacks', 'killerActive', 'atk', 'hp', 'soulForgeLevel', 'skillOption252']);
+/** 스킬마다 옵션 칸: Python 변환에는 없는 칸이라 따로 대조한다 */
+const SKILL_OPTION_KEY = /^skillOption_\d+_\d+$/;
 const NUMBER_KEY = /(^inheritValue|^weaponOptionValue|^petOption\d+_\d+Value|^artifactTotal(Smite|Barrier|DoubleAttack|SuperCritical|SwitchingBoost|SpearAttack|SkillCombo)$)/;
 const LOG_TOLERANCE = 1e-6;
 const VIP_LEVEL_0154 = '11';
@@ -67,7 +70,7 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
 
   it('Python 변환의 저장 데이터 칸을 빠짐없이 같은 값으로 낸다', () => {
     const expectedKeys = Object.keys(expected).filter((key) => !NOT_FROM_SAVE.has(key)).sort();
-    expect(Object.keys(result.values).sort()).toEqual(expectedKeys);
+    expect(Object.keys(result.values).filter((key) => !SKILL_OPTION_KEY.test(key)).sort()).toEqual(expectedKeys);
     for (const key of expectedKeys) {
       const actual = result.values[key];
       const expectedNumber = parseGameNumber(expected[key]);
@@ -79,6 +82,14 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
         expect(actual, key).toBe(expected[key]);
       }
     }
+  });
+
+  it('스킬 옵션: 세트 1 의 옵션 번호 (rNo) 를 칸 순서대로 (다발 화살 252 = 320 · 319)', () => {
+    const skillOptions = readDictionary(raw.Skill.psSkillOptionDic);
+    const savedCount = [...skillOptions.values()].reduce((sum, sets) => sum + (readDictionary(sets).get(1)?.diceOptions.length ?? 0), 0);
+    expect(Object.keys(result.values).filter((key) => SKILL_OPTION_KEY.test(key))).toHaveLength(savedCount);
+    expect(result.values.skillOption_252_1).toBe('320');
+    expect(result.values.skillOption_252_2).toBe('319');
   });
 
   it('저장 구조가 바뀌어 키가 빠지면 그 항목만 건너뛰고 나머지는 채운다', () => {

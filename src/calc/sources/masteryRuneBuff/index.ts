@@ -94,7 +94,16 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
       lines: (values, tables) => awakenDetailLines(values, tables, translateSource),
     },
   ];
-  const buffTableNames = [...new Set(['Mastery', ...ownTabs.flatMap((tab) => tab.tableNames), ...otherTableNames])];
+  // 스킬 옵션 표 · 옵션 칸 수 (Option) 는 고른 스킬 옵션 줄 (skillOptionLines) 용
+  const buffTableNames = [
+    ...new Set([
+      'Mastery',
+      ...ownTabs.flatMap((tab) => tab.tableNames),
+      CONSTS.skill.RUNE_TABLE,
+      CONSTS.skill.SLOT_CONDITION_TABLE,
+      ...otherTableNames,
+    ]),
+  ];
   return [
     ...ownTabs,
     {
@@ -108,8 +117,8 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
           ...exclusiveStackBuffLines(values, translateSource, tables),
           ...finalAttackMultiplierLines(values, translateSource, tables),
         ];
-        // 다발 화살 252 옵션 (적중마다 공격력 % 최대 5중첩, 장착했을 때 최고 값) 도 전투 중 몫이라 버프 탭 줄이다
-        const optionLines = skillOptionLines(values, translateSource);
+        // 다발 화살 252 등 스킬 옵션의 공격력 % (고른 옵션, 장착했을 때 최고 값 × 최대 중첩) 도 전투 중 몫이라 버프 탭 줄이다
+        const optionLines = skillOptionLines(values, tables, translateSource);
         if (!tables.Mastery) return [...foodLines, ...multiplierLines, ...optionLines];
         const otherLines = otherTabLines(values, tables);
         // 전투 중 최대 상태 공격속도·치명타 확률·치명타 데미지 줄이 연타·슈퍼 치명타 단계 계산에 먼저 들어간다

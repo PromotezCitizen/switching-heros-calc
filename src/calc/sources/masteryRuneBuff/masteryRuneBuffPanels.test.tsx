@@ -80,7 +80,7 @@ describe('특성·룬·버프 화면', () => {
     renderTab('buff');
     expect(screen.queryByLabelText('학살자 발동')).toBeNull();
     expect(screen.getByText(/공통 입력/)).toBeTruthy();
-    expect(screen.getByText(/^광폭화 5중첩 · 학살자 공격력 ×/)).toBeTruthy();
+    expect(screen.getByText(/^광폭화 5중첩 · 학살자 공격력 /)).toBeTruthy();
     expect(screen.queryByLabelText(/광폭화 중첩/)).toBeNull();
   });
 
@@ -116,7 +116,7 @@ describe('특성·룬·버프 화면', () => {
     useCalcStore.getState().setValue('calc.mastery_2012', '1');
     useCalcStore.getState().setValue('calc.mastery_3015', '1');
     renderTab('mastery');
-    expect(screen.getByText('아직 계산에 넣지 않은 얼티밋: 문양 집중')).toBeTruthy();
+    expect(screen.getByText('계산에 넣지 못한 얼티밋 특성: 문양 집중')).toBeTruthy();
   });
 
   it('특성: 일반 특성 아이콘을 누르면 최대, 최대에서 한 번 더 누르면 0', () => {

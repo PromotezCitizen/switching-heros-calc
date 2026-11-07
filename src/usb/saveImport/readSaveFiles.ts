@@ -45,7 +45,7 @@ export async function importSaveFiles(names: string[], read: (name: string) => P
   const keysByKind: Partial<Record<SaveFileKind, string[]>> = {};
   for (const kind of SAVE_FILE_KINDS) {
     const name = saveFileFor(names, kind);
-    if (name === undefined) throw new Error(`missing ${kind}`);
+    if (name === undefined) throw new Error('필요한 게임 저장 파일이 없어요');
     const parsed = parseJson(await read(name));
     keysByKind[kind] = topKeys(parsed);
     loaded[kind] = kind === 'Default' ? pickDefault(parsed as Parameters<typeof pickDefault>[0]) : parsed;

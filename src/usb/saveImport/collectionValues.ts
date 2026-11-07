@@ -99,7 +99,7 @@ function alchemyTotals(alchemy: AlchemySave, tables: StatTables, values: Record<
   }
   for (const [field, stat] of Object.entries(ALCHEMY_PART_FIELDS)) {
     const log = partLogByStat.get(stat);
-    if (log === undefined) notes.push(`연성 슬롯 정보에 없는 항목이에요 (${stat})`);
+    if (log === undefined) notes.push('연성 슬롯 정보에 없는 능력치가 있어서 그 값은 뺐어요');
     else values[field] = percentTextFromMultiplierLog(log);
   }
 }

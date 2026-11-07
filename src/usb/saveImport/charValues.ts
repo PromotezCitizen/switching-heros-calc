@@ -57,7 +57,7 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
   // 쓰는 프리셋의 1·2 슬롯 히어로
   runSection(notes, '히어로 프리셋', () => {
     const preset = readDictionary(char._presetDic).get(presetKey);
-    if (!preset) throw new Error(`사용 중인 프리셋(${presetKey})을 찾지 못했어요`);
+    if (!preset) throw new Error('사용 중인 히어로 프리셋을 찾지 못했어요');
     values.charName = heroName(preset.slot1);
     values.charName2 = heroName(preset.slot2);
   });
@@ -71,7 +71,7 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
       const id = String(hero.id);
       const row = rowsByHero.get(id)?.[hero.gradeLv - 1];
       if (!row) {
-        notes.push(`계산기에 없는 히어로예요 (번호 ${id})`);
+        notes.push('계산기에 아직 없는 히어로가 있어서 그 히어로는 비워 뒀어요 (게임 업데이트로 새로 생긴 히어로로 보여요)');
         continue;
       }
       values[`heroOwnedGrade_${id}`] = row.grade;
@@ -99,7 +99,7 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
       const dice = diceRows.find((row) => row.statType === option.statType && row.grade === option.grade);
       // 값 = min(최소 + 단계 × 단위, 최대) (게임 m6053)
       if (dice) values[`inheritValue${slot}`] = String(Math.min(Number(dice.statMin) + Number(dice.statUnit) * option.unitLv, Number(dice.statMax)));
-      else notes.push(`계산기에 없는 전승 능력이에요 (${option.statType} ${option.grade})`);
+      else notes.push(`계산기에 아직 없는 전승 능력이 있어서 비워 뒀어요 (${option.grade} 등급)`);
     });
   });
 

@@ -25,8 +25,11 @@ export const STAT_VIEWER_CONSTS = {
   /** 표에 레벨 표기가 없을 때 ({} = 레벨) */
   DEFAULT_LEVEL_FORMAT: 'Lv{}',
   LEVEL_PLACEHOLDER: '{}',
-  VALUE_PLACEHOLDER: '{0}',
-  VALUE_PLACEHOLDER_TEXT: 'N',
+  /** 설명 글의 값 자리 → 화면 글 ({0} → N, {1} → M) */
+  VALUE_PLACEHOLDERS: [
+    ['{0}', 'N'],
+    ['{1}', 'M'],
+  ] as readonly (readonly [string, string])[],
   FAMILY_LIST_MAX_HEIGHT: '70vh',
   RAW_TABLE_MAX_HEIGHT: 320,
   ENTITY_MIN_WIDTH: '12rem',

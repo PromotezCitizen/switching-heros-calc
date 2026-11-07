@@ -6,7 +6,8 @@ import { CONSTS } from '@/CONSTS';
 import MasteryPanel from '@/calc/panels/MasteryPanel';
 import { masteryTraits } from '@/calc/sources/masteryRuneBuff/mastery';
 import { skillRows } from '@/calc/sources/skill/skill';
-import type { StatDescriptions } from '@/calc/statText';
+import { statDescription, statLabel, type StatDescriptions } from '@/calc/statText';
+import { formatLog } from '@/calc/gameNumber';
 import { valuesForTarget } from '@/usb/saveImport/contentPresets';
 import { calcValuesOf } from '@/calc/storeKeys';
 import type { CalcValues } from '@/calc/types';
@@ -43,14 +44,14 @@ const STAGE_FLOOR_KEY = `${KEY_PREFIX}stageFloor`;
 /** 자동 교체 (저장된 값이 없으면 켜짐: 2026-10-28 결정) */
 const AUTO_SWAP_KEY = `${KEY_PREFIX}autoSwap`;
 const DEFAULT_TARGETS_PER_SKILL = 3;
-const LOG_DECIMALS = 2;
 /** 계산 중 덮개: 보여 줄 결과가 없을 때도 스피너가 보이는 최소 높이 (px) */
 const LOADING_MIN_HEIGHT = 120;
 const SECONDS_DECIMALS = 2;
 /** 추정한 값을 알리는 코드의 앞부분 (src/dpm: `estimate:<이름>:<스킬 번호>`) */
 const ESTIMATE_PREFIX = 'estimate';
+/** 카드 조건부 효과 코드 (`conditionStatsNotCounted:<스탯>,<스탯>`, src/dpm/targetDamage.ts) */
+const CONDITION_STATS_KEY = 'conditionStatsNotCounted';
 const PERCENT = 100;
-const EVALUATE_MS_DECIMALS = 1;
 /** 대미지 계산이 못 넣은 몫의 코드 중 "지원하지 않는 스킬" 앞부분 (src/dpm/targetDamage.ts) */
 const UNSUPPORTED_PREFIX = 'unsupported';
 /** 특성 화면 (MasteryPanel) 은 추천 결과를 보여 주기만 한다: 값을 바꾸는 입력은 무시 (늘 같은 함수여야 패널이 다시 그리지 않음) */
@@ -141,7 +142,15 @@ export default function OptimizerPage() {
     const isEstimate = first === ESTIMATE_PREFIX;
     const key = isEstimate ? second : first;
     const skillId = (isEstimate ? third : second) ?? '';
-    return translate(`optimizer.missing.${key}`, { skill: skillNames.get(skillId) ?? skillId, defaultValue: code });
+    // 조건부 효과 코드 목록은 스탯 설명으로 바꿔 보여 준다
+    const skill =
+      key === CONDITION_STATS_KEY
+        ? skillId
+            .split(',')
+            .map((stat) => (descriptions.status === 'ready' && statDescription(descriptions.data, stat) ? statLabel(descriptions.data, stat) : stat))
+            .join(', ')
+        : (skillNames.get(skillId) ?? skillId);
+    return translate(`optimizer.missing.${key}`, { skill, defaultValue: translate('optimizer.missing.unknown') });
   };
   /* 직업 스킬 번호 → 이름 (내역 표에 번호 대신 이름을 보여 준다. 전용 스킬은 히어로마다 하나라 이름을 붙이지 않음) */
   const skillNames = useMemo(
@@ -204,14 +213,14 @@ export default function OptimizerPage() {
 
   const efficiencyText = (() => {
     if (!snapshot || !Number.isFinite(snapshot.efficiency)) return translate('optimizer.efficiencyNone');
-    const log = snapshot.efficiency.toFixed(LOG_DECIMALS);
+    const damage = formatLog(snapshot.efficiency);
     return snapshot.result.windowSeconds === null
-      ? translate('optimizer.efficiencyStage', { log })
-      : translate('optimizer.efficiencyWindow', { seconds: snapshot.result.windowSeconds, log });
+      ? translate('optimizer.efficiencyStage', { damage })
+      : translate('optimizer.efficiencyWindow', { seconds: snapshot.result.windowSeconds, damage });
   })();
 
-  /** 효율은 log10 값이라 증가량도 log10 차이로 적는다 (+3.38) */
-  const gainText = (gainLog: number): string => `+${gainLog.toFixed(LOG_DECIMALS)}`;
+  /** 대미지는 log10 값이라 차이 = 몇 배인지 (게임 단위 표기) */
+  const gainText = (gainLog: number): string => formatLog(gainLog);
 
   return (
     <Stack mt="lg" gap="md">
@@ -310,13 +319,13 @@ export default function OptimizerPage() {
                 {recommendState.progress?.phase
                   ? translate(`optimizer.phase.${recommendState.progress.phase}`, {
                       evaluations: formatCount(recommendState.progress.evaluations),
-                      log: recommendState.progress.efficiency.toFixed(LOG_DECIMALS),
+                      damage: formatLog(recommendState.progress.efficiency),
                     })
                   : recommendState.progress
                   ? translate('optimizer.recommendRunning', {
                       block: formatCount(recommendState.progress.block),
                       evaluations: formatCount(recommendState.progress.evaluations),
-                      log: recommendState.progress.efficiency.toFixed(LOG_DECIMALS),
+                      damage: formatLog(recommendState.progress.efficiency),
                     })
                   : translate('optimizer.recommendStarting')}
               </Text>
@@ -334,8 +343,8 @@ export default function OptimizerPage() {
               <Stack gap="xs">
                 <Text fw={600}>
                   {translate('optimizer.recommendDone', {
-                    before: (shown.baseEfficiency ?? snapshot.efficiency).toFixed(LOG_DECIMALS),
-                    after: shown.efficiency.toFixed(LOG_DECIMALS),
+                    before: formatLog(shown.baseEfficiency ?? snapshot.efficiency),
+                    after: formatLog(shown.efficiency),
                     gain: gainText(shown.efficiency - (shown.baseEfficiency ?? snapshot.efficiency)),
                   })}
                 </Text>
@@ -397,12 +406,7 @@ export default function OptimizerPage() {
 
           <Paper withBorder p="md">
             <Title order={3} mb="sm">{translate('optimizer.efficiencyTitle')}</Title>
-            <Group gap="lg">
-              <Text fw={600}>{efficiencyText}</Text>
-              <Text size="sm" c="dimmed">
-                {translate('optimizer.evaluateTime', { ms: snapshot.evaluateMs.toFixed(EVALUATE_MS_DECIMALS) })}
-              </Text>
-            </Group>
+            <Text fw={600}>{efficiencyText}</Text>
             {snapshot.result.parts.length > 0 && (
               <Table.ScrollContainer minWidth={320} mt="sm">
                 <Table striped>
@@ -420,7 +424,7 @@ export default function OptimizerPage() {
                           {translate(`optimizer.kind.${part.kind}`)}
                           {part.skillId && part.kind !== 'char' && part.kind !== 'swap' ? ` ${skillNames.get(part.skillId) ?? part.skillId}` : ''}
                         </Table.Td>
-                        <Table.Td>{part.perMinuteLog.toFixed(LOG_DECIMALS)}</Table.Td>
+                        <Table.Td>{formatLog(part.perMinuteLog)}</Table.Td>
                       </Table.Tr>
                     ))}
                   </Table.Tbody>

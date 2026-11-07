@@ -11,8 +11,7 @@ const {
   PLAIN_MAX_DECIMALS,
   DEFAULT_LEVEL_FORMAT,
   LEVEL_PLACEHOLDER,
-  VALUE_PLACEHOLDER,
-  VALUE_PLACEHOLDER_TEXT,
+  VALUE_PLACEHOLDERS,
 } = CONSTS.statViewer;
 const RATIO_PREFIX = '×';
 const RANGE_SEPARATOR = ' ~ ';
@@ -108,9 +107,14 @@ export function gradeRank(grade: string | undefined): number {
   return GRADE_ORDER.indexOf(String(grade ?? '').split(GRADE_RANGE_SEPARATOR)[0]);
 }
 
+/** 설명 글의 값 자리 ({0}, {1}) 를 N, M 으로 */
+export function descriptionText(desc: string): string {
+  return VALUE_PLACEHOLDERS.reduce((text, [placeholder, shown]) => text.split(placeholder).join(shown), desc);
+}
+
 export function statLabel(meta: ViewerMeta, name: string): string {
   const desc = meta.stats[name]?.desc;
-  return desc ? desc.replace(VALUE_PLACEHOLDER, VALUE_PLACEHOLDER_TEXT) : name;
+  return desc ? descriptionText(desc) : name;
 }
 
 export function defaultSortDirection(table: string): SortDirection {

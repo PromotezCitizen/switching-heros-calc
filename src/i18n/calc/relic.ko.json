@@ -14,8 +14,8 @@
   "levelsHelp": "레벨 0은 없는 유물이에요.",
   "levelAria": "{{name}} 레벨",
   "notOwned": "없음",
-  "linksTitle": "유물 연동 수치",
-  "linksHelp": "\"○○ × N%\" 유물에 곱해지는 값이에요. 가진 유물에 필요한 것만 보여요. 던전 클리어 단계는 수집·기타의 던전 기록에서 넣어요.",
+  "linksTitle": "유물에 곱해지는 수치",
+  "linksHelp": "설명에 \"○○ 레벨 × N% 만큼\" 처럼 적힌 유물에서 ○○ 자리에 들어가는 값이에요. 가진 유물에 필요한 것만 보여요. 던전 클리어 단계는 수집·기타의 던전 기록에서 넣어요.",
   "noLinks": "이 값이 필요한 유물이 없어요.",
   "attributes": { "1": "불", "2": "물", "3": "땅" },
   "links": {
@@ -30,7 +30,7 @@
     "ssrCards": "SSR 등급 이상 몬스터 카드 수"
   },
   "source": "{{name}} Lv{{level}}",
-  "sourceLinked": "{{name}} Lv{{level}} × {{multiplier}}",
+  "sourceLinked": "{{name}} Lv{{level}} (곱해지는 수치 {{multiplier}})",
   "blessingSource": "유물의 축복",
   "names": {
     "1": "지혜의 서",

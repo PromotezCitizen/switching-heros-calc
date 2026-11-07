@@ -86,12 +86,12 @@ export function startBatch({ storeValues, tables, monsterHp, save, onProgress }:
           resolve(result);
         } else if (event.data.type === 'failed') {
           finish();
-          reject(new Error(event.data.message ?? 'failed'));
+          reject(new Error(event.data.message ?? '계산 중 오류가 났어요'));
         }
       };
       worker.onerror = (event) => {
         finish();
-        reject(new Error(event.message || 'worker error'));
+        reject(new Error(event.message || '계산 중 오류가 났어요'));
       };
       worker.postMessage(request);
     });

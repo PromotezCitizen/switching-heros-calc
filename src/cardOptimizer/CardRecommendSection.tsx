@@ -12,6 +12,7 @@ import { CARD_EXTRA_MARKS_FIELD, CARD_MARK_NUMBERS, CARD_SLOT_NUMBERS, cardGrade
 import { rowsOf } from '@/calc/sources/heroWeaponCardPet/shared';
 import { joinFieldValues } from '@/calc/useTrackedCalcValues';
 import type { StatDescriptions } from '@/calc/statText';
+import { formatLog } from '@/calc/gameNumber';
 import type { CalcValues } from '@/calc/types';
 import type { StatTables } from '@/data/statTables';
 import type { LockedMarkGroup, LockedMarkOption } from '@/cardOptimizer/lockedMarkGroups';
@@ -22,7 +23,6 @@ import { resultSlot } from '@/masteryOptimizer/storedResult';
 import { useCalcStore } from '@/store/useCalcStore';
 import { CARD_FIXED_KEY, MAX_FIXED_CARDS, cardResultKey, fixedCardIdsOf, type StoredCardResult } from '@/cardOptimizer/cardResult';
 
-const LOG_DECIMALS = 2;
 /** 계산 중 덮개: 보여 줄 결과가 없을 때도 스피너가 보이는 최소 높이 (px) */
 const LOADING_MIN_HEIGHT = 120;
 /** 몬스터 카드 화면은 추천 결과를 보여 주기만 한다: 값을 바꾸는 입력은 무시 (늘 같은 함수여야 패널이 다시 그리지 않음) */
@@ -75,8 +75,8 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
   // 페이지를 떠날 때는 계산 중이 아니라고 알린다
   useEffect(() => () => onRunningChange?.(false), []);
 
-  /** 효율은 log10 값이라 증가량도 log10 차이로 적는다 (+3.38) */
-  const gainText = (gainLog: number): string => `+${gainLog.toFixed(LOG_DECIMALS)}`;
+  /** 대미지는 log10 값이라 차이 = 몇 배인지 (게임 단위 표기) */
+  const gainText = (gainLog: number): string => formatLog(gainLog);
 
   // 결과는 최적화 대상과 자동 교체 상태마다 따로 저장한다 (바꿨다 돌아와도 그 조합의 마지막 결과가 그대로 보이게).
   // 계산 중에 바꿔도 끝난 결과는 계산을 시작한 때의 칸에 저장한다
@@ -212,7 +212,7 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
       return (
         <Text mt="sm">
           {state.progress
-            ? translate(runningKey, { evaluations: state.progress.evaluations.toLocaleString('ko-KR'), log: state.progress.efficiency.toFixed(LOG_DECIMALS) })
+            ? translate(runningKey, { evaluations: state.progress.evaluations.toLocaleString('ko-KR'), damage: formatLog(state.progress.efficiency) })
             : translate('optimizer.cards.starting')}
         </Text>
       );
@@ -278,8 +278,8 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
       {result && !running && (
         <Text fw={600} mt="sm">
           {translate('optimizer.recommendDone', {
-            before: result.before.toFixed(LOG_DECIMALS),
-            after: result.after.toFixed(LOG_DECIMALS),
+            before: formatLog(result.before),
+            after: formatLog(result.after),
             gain: gainText(result.after - result.before),
           })}
         </Text>

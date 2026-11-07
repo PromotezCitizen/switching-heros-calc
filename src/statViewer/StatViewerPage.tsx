@@ -29,6 +29,7 @@ import { CONSTS } from '@/CONSTS';
 import { useJsonData, useJsonFiles } from '@/data/useJsonData';
 import {
   defaultSortDirection,
+  descriptionText,
   entityRows,
   familyMatches,
   formatRange,
@@ -89,7 +90,6 @@ function ExcludedTable({ items }: { items: ExcludedStat[] }) {
       <Table fz="xs" verticalSpacing={4}>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>{translate('viewer.statName')}</Table.Th>
             <Table.Th>{translate('viewer.desc')}</Table.Th>
             <Table.Th>{translate('viewer.combine')}</Table.Th>
           </Table.Tr>
@@ -97,8 +97,7 @@ function ExcludedTable({ items }: { items: ExcludedStat[] }) {
         <Table.Tbody>
           {items.map((item) => (
             <Table.Tr key={item.name}>
-              <Table.Td>{item.name}</Table.Td>
-              <Table.Td>{item.desc || '-'}</Table.Td>
+              <Table.Td>{item.desc ? descriptionText(item.desc) : '-'}</Table.Td>
               <Table.Td>{item.combine}</Table.Td>
             </Table.Tr>
           ))}
@@ -118,6 +117,7 @@ function Notice({ meta, tables }: { meta: ViewerMeta; tables: ViewerTables }) {
         {translate('viewer.noticeTitle')}
       </Text>
       <Text size="sm">{translate('viewer.noticeBody')}</Text>
+      <Text size="sm">{translate('viewer.valueHint')}</Text>
       <Accordion mt="xs" variant="separated" chevronPosition="left" keepMounted={false}>
         <Accordion.Item value="excluded">
           <Accordion.Control>{translate('viewer.excludedTitle', { count: meta.excluded.length })}</Accordion.Control>
@@ -133,7 +133,7 @@ function Notice({ meta, tables }: { meta: ViewerMeta; tables: ViewerTables }) {
         </Accordion.Item>
         {unresolved.map((name) => (
           <Accordion.Item key={name} value={name}>
-            <Accordion.Control>{translate('viewer.unresolvedTitle', { label: tables[name].label, name })}</Accordion.Control>
+            <Accordion.Control>{translate('viewer.unresolvedTitle', { label: tables[name].label })}</Accordion.Control>
             <Accordion.Panel>
               <RawTable table={tables[name]} />
             </Accordion.Panel>
@@ -168,7 +168,7 @@ function EntityTable({ list, table, groupKey }: { list: ViewerSource[]; table: V
               <Table.Th key={column} style={{ whiteSpace: 'nowrap' }}>
                 {column === 'grade' ? (
                   <UnstyledButton fw={600} fz="sm" onClick={() => setDirection(direction === 'asc' ? 'desc' : 'asc')}>
-                    {translate('viewer.grade')} {direction === 'asc' ? '▲' : '▼'}
+                    {translate(direction === 'asc' ? 'viewer.gradeAscending' : 'viewer.gradeDescending')}
                   </UnstyledButton>
                 ) : (
                   translate(`viewer.${column}`)
@@ -326,7 +326,7 @@ function FamilySources({ meta, tables, family }: { meta: ViewerMeta; tables: Vie
         <Chip.Group multiple value={tagTypes} onChange={setTagTypes}>
           {tagsPresent.map((type) => (
             <Chip key={type} value={type} size="xs">
-              {type}
+              {translate(`viewer.tagTypes.${type}`, { defaultValue: type })}
             </Chip>
           ))}
         </Chip.Group>

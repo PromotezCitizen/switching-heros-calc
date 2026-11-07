@@ -54,7 +54,7 @@ export function collectionValues(progress: CollectionProgress, alchemy: AlchemyS
     }
   });
 
-  runSection(notes, '연성', () => alchemyTotals(alchemy, tables, values, notes));
+  runSection(notes, '아티팩트', () => alchemyTotals(alchemy, tables, values, notes));
 
   return { values, notes };
 }
@@ -64,7 +64,7 @@ function alchemyTotals(alchemy: AlchemySave, tables: StatTables, values: Record<
   const slotRows = tableRows(tables.AlchemySlot);
   const slotLevels = [...readDictionary(alchemy.slotData.slotLvDic).values()];
   const minSlot = Math.min(...slotLevels);
-  if (new Set(slotLevels).size > 1) notes.push(`연성 슬롯 단계가 서로 달라서 가장 낮은 ${minSlot}단계로 계산했어요`);
+  if (new Set(slotLevels).size > 1) notes.push(`아티팩트 슬롯 단계가 서로 달라서 가장 낮은 ${minSlot}단계로 계산했어요`);
   const partLogByStat = new Map<string, number>();
   const parts = [...new Set(slotRows.map((row) => row.parts))].filter((part) => part !== ALCHEMY_ALL_PARTS).sort();
   for (const part of parts) {
@@ -99,7 +99,7 @@ function alchemyTotals(alchemy: AlchemySave, tables: StatTables, values: Record<
   }
   for (const [field, stat] of Object.entries(ALCHEMY_PART_FIELDS)) {
     const log = partLogByStat.get(stat);
-    if (log === undefined) notes.push(`연성 슬롯 정보에 없는 항목이에요 (${stat})`);
+    if (log === undefined) notes.push('아티팩트 슬롯 정보에 없는 능력치가 있어서 그 값은 뺐어요');
     else values[field] = percentTextFromMultiplierLog(log);
   }
 }

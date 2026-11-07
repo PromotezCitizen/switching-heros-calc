@@ -180,7 +180,7 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
     expect(partial.values.weaponLinkStar).toBeUndefined();
     expect(Object.values(partial.values).some((value) => /undefined|NaN/.test(value))).toBe(false);
     expect(partial.notes.join('\n')).toMatch(/파견 레벨/);
-    expect(partial.notes.join('\n')).toMatch(/읽지 못한 항목: weaponLinkStar/);
+    expect(partial.notes.join('\n')).toMatch(/읽지 못한 칸이 \d+개 있어서 비워 뒀어요/);
   });
 
   it('공통 입력: VIP · 요정 레벨 · 광고 제거, 게임 버전 (저장 데이터 _version 5.5 = 스토어 5.50)', () => {

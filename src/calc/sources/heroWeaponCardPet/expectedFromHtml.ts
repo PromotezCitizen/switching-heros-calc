@@ -59,7 +59,7 @@ export const EXPECTED_FROM_HTML = {
     "screen": {
       "libraryMainLevel": "기록 보관소 레벨 2",
       "weaponResult": "장착 효과 공격력 (기본 + 강화당 × 레벨, 화면 확인)452.68B%강화 레벨 (최대 1000)1",
-      "possess": "120종 만렙: 체력 ×331.18A",
+      "possess": "120종 최대 레벨: 체력 331.18A배",
       "equipNote": "",
       "sssCards": 0,
       "weaponLevel": "1"
@@ -214,7 +214,7 @@ export const EXPECTED_FROM_HTML = {
     "screen": {
       "libraryMainLevel": "기록 보관소 레벨 16",
       "weaponResult": "장착 효과 공격력 (기본 + 강화당 × 레벨, 화면 확인)452.68B%강화 레벨 (최대 1000)1",
-      "possess": "120종 만렙: 체력 ×331.18A",
+      "possess": "120종 최대 레벨: 체력 331.18A배",
       "equipNote": "",
       "sssCards": 0,
       "weaponLevel": "1"
@@ -406,7 +406,7 @@ export const EXPECTED_FROM_HTML = {
     "screen": {
       "libraryMainLevel": "기록 보관소 레벨 0",
       "weaponResult": "장착 효과 공격력 (기본 + 강화당 × 레벨, 화면 확인)390.41F%강화 레벨 (최대 3400)3400",
-      "possess": "120종 만렙: 체력 ×331.18A",
+      "possess": "120종 최대 레벨: 체력 331.18A배",
       "equipNote": "에이카 은 전용 무기가 있어 전용 무기를 장착하므로 일반 무기 장착 효과는 계산에 넣지 않습니다 (위 입력값은 쓰지 않음).",
       "sssCards": 0,
       "weaponLevel": "3400"
@@ -455,7 +455,7 @@ export const EXPECTED_FROM_HTML = {
     "screen": {
       "libraryMainLevel": "기록 보관소 레벨 0",
       "weaponResult": "장착 효과 공격력 (기본 + 강화당 × 레벨, 화면 확인)2.17D%강화 레벨 (최대 1800)1800",
-      "possess": "120종 만렙: 체력 ×331.18A",
+      "possess": "120종 최대 레벨: 체력 331.18A배",
       "equipNote": "",
       "sssCards": 0,
       "weaponLevel": "1800"
@@ -557,7 +557,7 @@ export const EXPECTED_FROM_HTML = {
     "screen": {
       "libraryMainLevel": "기록 보관소 레벨 0",
       "weaponResult": "장착 효과 공격력 (기본 + 강화당 × 레벨, 화면 확인)452.68B%강화 레벨 (최대 1000)1",
-      "possess": "120종 만렙: 체력 ×331.18A",
+      "possess": "120종 최대 레벨: 체력 331.18A배",
       "equipNote": "",
       "sssCards": 2,
       "weaponLevel": "1"
@@ -637,7 +637,7 @@ export const EXPECTED_FROM_HTML = {
     "screen": {
       "libraryMainLevel": "기록 보관소 레벨 0",
       "weaponResult": "장착 효과 공격력 (기본 + 강화당 × 레벨, 화면 확인)452.68B%강화 레벨 (최대 1000)1",
-      "possess": "120종 만렙: 체력 ×331.18A",
+      "possess": "120종 최대 레벨: 체력 331.18A배",
       "equipNote": "",
       "sssCards": 0,
       "weaponLevel": "1"
@@ -661,7 +661,7 @@ export const EXPECTED_FROM_HTML = {
     "screen": {
       "libraryMainLevel": "기록 보관소 레벨 0",
       "weaponResult": "장착 효과 공격력 (기본 + 강화당 × 레벨, 화면 확인)452.68B%강화 레벨 (최대 1000)1",
-      "possess": "120종 만렙: 체력 ×331.18A",
+      "possess": "120종 최대 레벨: 체력 331.18A배",
       "equipNote": "",
       "sssCards": 0,
       "weaponLevel": "1"
@@ -692,7 +692,7 @@ export const EXPECTED_FROM_HTML = {
     "screen": {
       "libraryMainLevel": "기록 보관소 레벨 0",
       "weaponResult": "장착 효과 공격력 (기본 + 강화당 × 레벨, 화면 확인)452.68B%강화 레벨 (최대 1000)1",
-      "possess": "120종 만렙: 체력 ×331.18A",
+      "possess": "120종 최대 레벨: 체력 331.18A배",
       "equipNote": "",
       "sssCards": 0,
       "weaponLevel": "1"

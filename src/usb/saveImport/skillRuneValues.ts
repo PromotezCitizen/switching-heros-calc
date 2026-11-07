@@ -36,7 +36,7 @@ export function skillRuneValues(skill: SkillSave, rune: RuneSave, presetKey: num
   // 장착 스킬: 쓰는 프리셋에서 1슬롯 히어로가 낀 스킬
   runSection(notes, '장착 스킬', () => {
     const presetSkills = readDictionary(skill.eqPresetSkillDic).get(presetKey);
-    if (!presetSkills) throw new Error(`사용 중인 스킬 프리셋(${presetKey})을 찾지 못했어요`);
+    if (!presetSkills) throw new Error('사용 중인 스킬 프리셋을 찾지 못했어요');
     const equipped = readDictionary(presetSkills).get(slot1HeroId)?.skillIds ?? [];
     equipped.forEach((skillId, index) => {
       if (skillId) values[`skillEquip_${index + 1}`] = String(skillId);
@@ -73,7 +73,7 @@ export function skillRuneValues(skill: SkillSave, rune: RuneSave, presetKey: num
       SKILL_PERK_TARGET_LEVELS.forEach((targetLevel, index) => {
         const number = typeSlots[index] ?? 0;
         const perkType = number > 0 ? SKILL_PERK_TYPES[number - 1] : '';
-        if (number > 0 && !perkType) notes.push(`계산기에 없는 스킬 문양 번호예요 (스킬 ${skillId}, ${targetLevel}레벨, 번호 ${number})`);
+        if (number > 0 && !perkType) notes.push(`계산기에 아직 없는 스킬 문양이 있어서 그 칸은 비워 뒀어요 (${targetLevel}레벨 칸)`);
         values[`skillPerk_${skillId}_${targetLevel}`] = perkType ?? '';
       });
     }

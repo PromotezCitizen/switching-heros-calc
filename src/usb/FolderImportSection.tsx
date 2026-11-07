@@ -34,14 +34,14 @@ export default function FolderImportSection() {
     const names = saveFileNames([...byName.keys()]);
     const missing = missingSaveKinds(names);
     if (missing.length > 0) {
-      setMessage(translate('usb.folder.missingFile', { kind: missing.join(', ') }));
+      setMessage(translate('usb.folder.missingFile', { count: missing.length }));
       return;
     }
     setBusy(true);
     try {
       const outcome = await importSaveFiles(names, async (name) => new Uint8Array(await byName.get(name)!.arrayBuffer()), tables.data);
       setValues(outcome.storeValues);
-      setNotes([...(outcome.missingKeys.length > 0 ? [translate('usb.missingKeys', { keys: outcome.missingKeys.join(', ') })] : []), ...outcome.notes]);
+      setNotes([...(outcome.missingKeys.length > 0 ? [translate('usb.missingKeys', { count: outcome.missingKeys.length })] : []), ...outcome.notes]);
       setMessage(translate('usb.folder.importDone', { count: outcome.count }));
     } catch (error) {
       setMessage(translate('usb.folder.failed', { error: String(error) }));

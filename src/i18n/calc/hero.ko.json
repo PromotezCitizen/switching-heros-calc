@@ -1,8 +1,8 @@
 {
-  "title": "캐릭터 각성",
+  "title": "히어로 고르기",
   "heroAwaken": "각성",
   "heroAwakenValue": "{{value}}%",
-  "heroSection": "캐릭터",
+  "heroSection": "히어로",
   "slots": {
     "charName": "1슬롯 히어로",
     "charName2": "2슬롯 히어로"

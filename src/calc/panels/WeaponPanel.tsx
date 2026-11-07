@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Accordion, Card, Group, Image, NumberInput, Stack, Text, TextInput } from '@mantine/core';
+import { Accordion, Card, Group, Image, NumberInput, Stack, Text, TextInput, SimpleGrid } from '@mantine/core';
 import AutoGrid from '@/components/AutoGrid';
 import SectionTitle from '@/components/SectionTitle';
 import { CONSTS } from '@/CONSTS';
@@ -22,7 +22,7 @@ import { iconUrl } from '@/calc/panels/heroWeaponCardPet/IconPicker';
 
 const { JOBS, MIN_NUMBER } = CONSTS.heroWeaponCardPet;
 const { LINK_ICONS } = CONSTS.heroWeaponCardPet.weapon;
-const { CARD_ICON_SIZE, LINK_CARD_MIN_WIDTH, LINK_LEVEL_INPUT_WIDTH, NORMAL_WEAPON_INPUT_MIN_WIDTH } = CONSTS.heroWeaponCardPet.ui;
+const { CARD_ICON_SIZE, LINK_CARD_MIN_WIDTH, LINK_LEVEL_INPUT_WIDTH, NORMAL_WEAPON_COLUMNS } = CONSTS.heroWeaponCardPet.ui;
 
 /** 무기: 전용 무기·웨폰 링크·누적 능력치·일반 무기·무기 옵션 (소울포지는 탭 따로) */
 export default function WeaponPanel({ values, setValue, tables }: TabPanelProps) {
@@ -132,7 +132,8 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
                           sum: normalWeaponLevelSum(values, tables, job),
                         })}
                       </Text>
-                      <AutoGrid minItemWidth={NORMAL_WEAPON_INPUT_MIN_WIDTH}>
+                      {/* 한 줄에 5개 (등급 하나의 1~5성) 고정 */}
+                      <SimpleGrid cols={NORMAL_WEAPON_COLUMNS} spacing="xs">
                         {jobRows.map((row) => (
                           <NumberInput
                             key={row.weaponId}
@@ -148,7 +149,7 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
                             onChange={(next) => setValue(normalWeaponLevelFieldId(row.weaponId), String(next))}
                           />
                         ))}
-                      </AutoGrid>
+                      </SimpleGrid>
                     </Stack>
                   );
                 })}

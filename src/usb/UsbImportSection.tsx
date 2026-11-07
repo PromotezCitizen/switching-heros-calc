@@ -73,7 +73,7 @@ export default function UsbImportSection() {
         tables.data,
       );
       setValues(outcome.storeValues);
-      setNotes([...(outcome.missingKeys.length > 0 ? [translate('usb.missingKeys', { keys: outcome.missingKeys.join(', ') })] : []), ...outcome.notes]);
+      setNotes([...(outcome.missingKeys.length > 0 ? [translate('usb.missingKeys', { count: outcome.missingKeys.length })] : []), ...outcome.notes]);
       setStep('done');
       setMessage(translate('usb.importDone', { count: outcome.count }));
     } catch (error) {
@@ -114,7 +114,7 @@ export default function UsbImportSection() {
       {step === 'connected' && <Text size="sm">{translate('usb.overwriteWarning')}</Text>}
       {step === 'connected' && missingKinds.length > 0 && (
         <Text c="red" size="sm">
-          {translate('usb.missingFile', { kind: missingKinds.join(', ') })}
+          {translate('usb.missingFile', { count: missingKinds.length })}
         </Text>
       )}
       {message && <Text size="sm">{message}</Text>}

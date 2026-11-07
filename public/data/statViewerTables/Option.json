@@ -1,0 +1,1 @@
+{"label":"광산 주인의 축복 계수","columns":["key","valueInt1","valueInt2","valueDouble1","valueDouble2","valueString1","valueString2"],"unresolved":false,"levelFormat":null,"columnLabels":{"valueDouble1":"축복 계수"},"rows":[["MINE_BLESS_STAT_1","","","1.5","","_per_attackDamage",""],["MINE_BLESS_STAT_2","","","1.5","","_per_hp",""]]}

@@ -48,7 +48,7 @@ export function relicCardValues(
     const grades = [...new Set(tableRows(tables.Relic).map((row) => row.grade))];
     const maxGrade = grades[relic.relicData.relicGrade - 1];
     if (maxGrade) values.relicMaxGrade = maxGrade;
-    else notes.push(`알 수 없는 유물 등급이에요 (${relic.relicData.relicGrade})`);
+    else notes.push('등급을 알 수 없는 유물이 있어서 그 유물은 뺐어요');
     for (const [relicId, level] of readDictionary(relic.relicData.relicDic)) {
       if (level) values[`relic_${relicId}`] = String(level);
     }
@@ -90,7 +90,7 @@ export function relicCardValues(
     for (const [cardId, owned] of readDictionary(card.cardDic)) {
       const row = cardRows.get(String(cardId))?.find((candidate) => candidate.star === String(owned.trsc));
       if (!row) {
-        notes.push(`계산기에 없는 카드예요 (번호 ${cardId}, ★${owned.trsc})`);
+        notes.push('계산기에 아직 없는 카드가 있어서 그 카드는 비워 뒀어요');
         continue;
       }
       gradeCounts.set(row.grade, (gradeCounts.get(row.grade) ?? 0) + 1);

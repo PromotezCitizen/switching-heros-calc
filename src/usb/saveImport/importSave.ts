@@ -236,7 +236,7 @@ export function importSave(files: SaveFiles, tables: StatTables, withPresets = t
     if (UNREADABLE_TEXT.test(value)) unreadable.push(key);
     else values[key] = value;
   }
-  if (unreadable.length > 0) notes.push(`읽지 못한 항목: ${unreadable.join(', ')}`);
+  if (unreadable.length > 0) notes.push(`읽지 못한 칸이 ${unreadable.length}개 있어서 비워 뒀어요`);
   // 콘텐츠별 프리셋: 현재 프리셋과 다른 프리셋마다 다른 칸만
   const contentPresets = files.Default.contentPresets;
   if (withPresets && contentPresets) {
@@ -245,7 +245,7 @@ export function importSave(files: SaveFiles, tables: StatTables, withPresets = t
       if (preset === presetKey) continue;
       const other = attempt(() => importSave({ ...files, Default: { ...files.Default, presetKey: preset } }, tables, false));
       if (other) overrides[preset] = presetDiff(values, other.values);
-      else notes.push(`콘텐츠 프리셋 ${preset} 을 읽지 못했어요`);
+      else notes.push('콘텐츠별 프리셋 하나를 읽지 못해서, 그 콘텐츠는 지금 프리셋으로 계산해요');
     }
     values[CONTENT_PRESETS_FIELD] = JSON.stringify(contentPresets);
     values[PRESET_OVERRIDES_FIELD] = JSON.stringify(overrides);

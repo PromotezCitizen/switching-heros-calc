@@ -122,15 +122,15 @@ const EXPECTED: Record<string, Record<string, ExpectedLine[]>> = {
     // 베르 각성 세부는 레벨 입력 + 표 Awaken 으로 계산 (아래 "베르 각성 세부 능력치" 에서 화면 값과 대조). 이 시나리오 표에는 Awaken 이 없음
     awakenDetail: [],
     ultimate: [
-      ['심해의 동반자 (3 ^ 장착 펫 3마리)', '_per_hp', 'log', 3.414973347970818],
-      ['패션은 완력 × 보유 코스튬 50개', '_per_attackDamage', 'value', 7500],
-      ['스타일은 체력 × 보유 코스튬 50개', '_per_hp', 'value', 15000],
-      ['화염의 지배자 (2.4 ^ 장착 펫 2마리)', '_per_attackDamage', 'log', 2.677606952720493],
+      ['심해의 동반자 (3배를 장착 펫 3마리만큼 거듭 곱함)', '_per_hp', 'log', 3.414973347970818],
+      ['패션은 완력 (보유 코스튬 50개만큼)', '_per_attackDamage', 'value', 7500],
+      ['스타일은 체력 (보유 코스튬 50개만큼)', '_per_hp', 'value', 15000],
+      ['화염의 지배자 (2.4배를 장착 펫 2마리만큼 거듭 곱함)', '_per_attackDamage', 'log', 2.677606952720493],
     ],
     buff: [
       // 광폭화 5중첩 줄 없음: 이 시나리오는 특성 10 (스킬 광폭화) 만 있고 특성 7 (광폭화) 이 없다. 게임은 특성 7 로 켜진다 (2026-11-07, 예전 HTML 은 특성 10)
       ['학살자', '_per_attackDamage', 'log', 2.1760912590556813],
-      ['연타 폭주 (공격력 %)', '_per_attackDamage', 'value', 210],
+      ['연타 폭주 (공격력 증가 %)', '_per_attackDamage', 'value', 210],
       // 과충전 연타 102 (Lv20 = 400) 는 연타 224.49 가 100 을 넘어서 공격력 % 줄이 생긴다 (combat0113.py 105)
       ['과충전 연타 (연타 224.49%, 100% 초과)', '_per_attackDamage', 'value', 400],
     ],
@@ -153,13 +153,13 @@ const EXPECTED: Record<string, Record<string, ExpectedLine[]>> = {
     ],
     awakenDetail: [],
     ultimate: [
-      ['대지의 동반자 (3 ^ 장착 펫 2마리)', '_per_hp', 'log', 2.9030899869919438],
-      ['대지의 지배자 (2.4 ^ 장착 펫 2마리)', '_per_attackDamage', 'log', 2.677606952720493],
+      ['대지의 동반자 (3배를 장착 펫 2마리만큼 거듭 곱함)', '_per_hp', 'log', 2.9030899869919438],
+      ['대지의 지배자 (2.4배를 장착 펫 2마리만큼 거듭 곱함)', '_per_attackDamage', 'log', 2.677606952720493],
     ],
     buff: [
       // 광폭화 5중첩 줄 없음: 이 시나리오는 특성 10 (스킬 광폭화) 만 있고 특성 7 (광폭화) 이 없다. 게임은 특성 7 로 켜진다 (2026-11-07, 예전 HTML 은 특성 10)
       ['학살자', '_per_attackDamage', 'log', 2],
-      ['연타 폭주 (공격력 %)', '_per_attackDamage', 'value', 2.5],
+      ['연타 폭주 (공격력 증가 %)', '_per_attackDamage', 'value', 2.5],
     ],
   },
 };
@@ -408,7 +408,7 @@ describe('연타 계산', () => {
     const spedUp: Line[] = [...eikaLines, { source: '전투 중 공격속도 몫', stat: 'attackSpeed', value: 289 }];
     const tab = masteryRuneBuffTabs(() => spedUp).find((item) => item.id === 'buff')!;
     const lines = tab.lines({ ...eika, ...masteryValues({ 103: 1 }) }, tables);
-    expect(lines).toEqual([{ source: '연타 폭주 (공격력 %)', stat: '_per_attackDamage', value: 2.5 * 11 }]);
+    expect(lines).toEqual([{ source: '연타 폭주 (공격력 증가 %)', stat: '_per_attackDamage', value: 2.5 * 11 }]);
   });
 });
 
@@ -665,10 +665,10 @@ describe('전투 버프 줄: 초월의 일격 · 최종 공격력 ×5', () => {
     const values = { ...masteryValues({ 107: 20 }), ...equipped('13') };
     const exclusiveLines = [
       { source: '전용 무기 초월 ★7 공격력 10중첩 (최대)', stat: '_per_attackDamage', value: 50 },
-      { source: '전용 무기 초월 ★10 최대 중첩 공격력 ×5', stat: '_multiply_AttackDamage', value: 5 },
+      { source: '전용 무기 초월 ★10 최대 중첩 공격력 5배', stat: '_multiply_AttackDamage', value: 5 },
     ];
     expect(tab.lines(values, weaponTables)).toEqual([
-      { source: '초월의 일격 (슈퍼 치명타 130.91%, 100% 초과)', stat: '_per_criticalDmg', value: 200 },
+      { source: '초월의 일격 (슈퍼 치명타 확률 130.91% 가 기준 100% 를 넘음)', stat: '_per_criticalDmg', value: 200 },
       ...exclusiveLines,
     ]);
     // 특성 표 없이도 전용 무기 줄은 나온다. 무기가 없으면 (★ 빈칸) 없다

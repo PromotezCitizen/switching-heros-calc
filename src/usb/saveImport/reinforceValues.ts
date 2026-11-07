@@ -22,7 +22,7 @@ export function reinforceValues(reinforce: ReinforceSave, presetKey: number, tab
   runSection(notes, '베르 각성', () => {
     const awaken = reinforce.awakenDatas;
     const awakenRow = tableRows(tables.Awaken).find((row) => row.awakenLv === String(awaken.awakenLv));
-    if (!awakenRow) throw new Error(`계산기에 없는 각성 레벨이에요 (${awaken.awakenLv})`);
+    if (!awakenRow) throw new Error(`계산기에 아직 없는 각성 단계예요 (${awaken.awakenLv}단계)`);
     values.awakenGrade = awakenRow.grade;
     values.awakenStar = awakenRow.star;
     awaken.statLvs.forEach((level, index) => {
@@ -34,7 +34,7 @@ export function reinforceValues(reinforce: ReinforceSave, presetKey: number, tab
   // 특성: 쓰는 프리셋의 특성 번호별 레벨
   runSection(notes, '특성', () => {
     const masteries = readDictionary(reinforce.masteryDatas).get(presetKey);
-    if (!masteries) throw new Error(`사용 중인 특성 프리셋(${presetKey})을 찾지 못했어요`);
+    if (!masteries) throw new Error('사용 중인 특성 프리셋을 찾지 못했어요');
     for (const [masteryNo, entry] of readDictionary(masteries)) {
       const level = typeof entry === 'number' ? entry : entry.lv;
       if (level) values[`mastery_${masteryNo}`] = String(level);

@@ -305,7 +305,7 @@ describe('화면 표시 값', () => {
   });
   it('일반 무기 보유 효과', () => {
     const possess = normalWeaponPossessEffect(tables);
-    expect(`${possess?.weaponCount}종 만렙: 체력 ×${formatLog(possess?.multiplierLog)}`).toBe(EXPECTED_FROM_HTML.card.screen.possess);
+    expect(`${possess?.weaponCount}종 최대 레벨: 체력 ${formatLog(possess?.multiplierLog)}배`).toBe(EXPECTED_FROM_HTML.card.screen.possess);
   });
   it('장착 SSS 카드 장수 = 등급이 SSS 이상인 칸 수, 별 무관 (게임 코드 m2688 @33ec108, work_collect/README.md 1-1)', () => {
     // 기존 HTML 은 SSS 등급만 별과 상관없이 셌다 (2장: SSS 1성·2성). 게임은 SSS 이상이라 이 입력의 R 15 칸도 세어 3장
@@ -498,7 +498,7 @@ describe('출처 합산 단계용 함수', () => {
     ];
     const expanded = countExpandedLines(lines, 2, label);
     expect(expanded.lines).toEqual([
-      { source: '세트 × SSS 등급 이상 2장', stat: '_per_hp', value: 20 },
+      { source: '세트 (SSS 등급 이상 2장만큼)', stat: '_per_hp', value: 20 },
       lines[1],
       lines[2],
       lines[3],
@@ -513,7 +513,7 @@ describe('출처 합산 단계용 함수', () => {
     expect(countExpandedLines(lines, 0, label, false)).toEqual(countExpandedLines(lines, 0, label));
     const reached = countExpandedLines(lines, 0, label, true);
     expect(reached.lines[0]).toEqual(lines[0]);
-    expect(reached.lines[1]).toEqual({ source: '카드 (주위 적 수 조건)', stat: '_per_attackDamage', value: 700 });
+    expect(reached.lines[1]).toEqual({ source: '카드 (주위 적이 충분히 많을 때)', stat: '_per_attackDamage', value: 700 });
     expect(reached.skippedStats).toEqual(['_per_attackDamage_Kill']);
   });
   it('내 체력 70% 이상 조건의 공격력 · 스킬 데미지 줄은 꼬리말을 뗀 일반 스탯으로 합산하고, 치명타 데미지 줄은 그대로 둔다', () => {

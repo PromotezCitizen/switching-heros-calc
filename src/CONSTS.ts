@@ -10,6 +10,7 @@ import { TRAINING_RELIC_CONSTS } from '@/consts/trainingRelic';
 import { USB_CONSTS } from '@/consts/usb';
 import { LOAD_CONSTS } from '@/consts/load';
 import { DPM_CONSTS } from '@/consts/dpm';
+import { STAT_VIEWER_CONSTS } from '@/consts/statViewer';
 
 export const CONSTS = {
   /** 탭 묶음별 상수 (파일은 src/consts/) */
@@ -24,6 +25,7 @@ export const CONSTS = {
   usb: USB_CONSTS,
   load: LOAD_CONSTS,
   dpm: DPM_CONSTS,
+  statViewer: STAT_VIEWER_CONSTS,
 
   common: {
     PERCENT_DIVISOR: 100,
@@ -218,6 +220,8 @@ export const CONSTS = {
     TAB_STACK_MIN_SCREEN_WIDTH: 1400,
     /** 칸 안 카드 격자: 열 수를 정하지 않고 카드 최소 폭만 정한다 (화면에 들어가는 만큼 가로로) */
     CARD_MIN_WIDTH: { small: 120, medium: 180, large: 260 },
+    /** 일기장 슬롯 12개는 화면 폭과 상관없이 늘 4행 × 3열 */
+    DIARY_SLOT_COLUMNS: 3,
     /** 위쪽에 고정한 메인 탭 줄의 실제 높이를 담는 CSS 변수 이름. 그 아래에 하위 탭 줄을 붙여 고정할 때 위치로 쓴다 */
     STICKY_HEADER_HEIGHT_VAR: '--sticky-header-height',
     /** 메인 탭 줄 아래에 고정한 하위 탭 줄의 실제 높이 CSS 변수. 그 아래에 붙여 고정하는 제목 줄 (특성 열 제목 등) 이 쓴다 */

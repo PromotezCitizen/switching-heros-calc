@@ -53,7 +53,7 @@
     "12Star_12": "물고기"
   },
   "constName": "{{name}}자리",
-  "constUnknown": "이름 모름",
+  "constUnknown": "이름 없는 별자리",
   "constRound": "{{name}} ({{round}}바퀴)",
   "constPlaceholder": "별자리 고르기",
   "levelForStat": "{{stat}} 레벨 (0~{{max}})"

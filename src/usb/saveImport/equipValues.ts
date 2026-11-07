@@ -68,7 +68,7 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
   runSection(notes, '전용 무기', () => {
     for (const [weaponId, weapon] of readDictionary(equip.psCharWeaponDic)) {
       if (!exclusiveIds.has(String(weaponId))) {
-        notes.push(`계산기에 없는 전용 무기예요 (번호 ${weaponId})`);
+        notes.push('계산기에 아직 없는 전용 무기가 있어서 그 무기는 비워 뒀어요');
         continue;
       }
       values[`exclusiveOwnedStar_${weaponId}`] = String(weapon.trscLv);
@@ -130,7 +130,7 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
       optionsOf(weaponId).forEach((option, index) => {
         values[exclusiveOptionStatField(id, index + 1)] = option.statType;
         const value = diceValue(diceRows, WEAPON_DICE_ID, option);
-        if (value === undefined) notes.push(`무기 옵션 값을 찾지 못했어요 (${option.statType})`);
+        if (value === undefined) notes.push('읽지 못한 무기 옵션이 있어서 그 칸은 비워 뒀어요');
         else values[exclusiveOptionValueField(id, index + 1)] = String(value);
       });
     }
@@ -158,7 +158,7 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
     for (const [petId, pet] of readDictionary(equip.petDataDic)) {
       const row = petRows.get(String(petId))?.[pet.lv];
       if (row) values[`pet_${petId}`] = `${row.grade}_${row.star}`;
-      else notes.push(`계산기에 없는 펫이에요 (번호 ${petId}, ${pet.lv}단계)`);
+      else notes.push('계산기에 아직 없는 펫이 있어서 그 펫은 비워 뒀어요');
     }
     const petPreset = readDictionary(equip.equipPetDataDic).get(context.presetKey);
     const petOptions = readDictionary(equip.petOptionDic);
@@ -172,7 +172,7 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
         const number = optionIndex + 1;
         values[`petOption${slot}_${number}Stat`] = option.statType;
         const value = diceValue(diceRows, String(option.diceId), option);
-        if (value === undefined) notes.push(`펫 옵션 값을 찾지 못했어요 (펫 ${entry.petId}, ${option.statType})`);
+        if (value === undefined) notes.push('읽지 못한 펫 옵션이 있어서 그 칸은 비워 뒀어요');
         else values[`petOption${slot}_${number}Value`] = String(value);
       });
     });

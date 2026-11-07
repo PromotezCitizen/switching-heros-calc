@@ -74,7 +74,7 @@ describe('스킬 문양 가져오기 (skillRuneValues)', () => {
   it('표에 없는 번호는 칸을 비우고 알려 준다', () => {
     const result = skillRuneValues(skillSave([[LASER_SHOT, [[0, [99, 0, 0, 0, 0, 0, 0]]]]], [[LASER_SHOT, 0]]), RUNE, PRESET, SLOT1_HERO, SLOT2_HERO);
     expect(result.values[`skillPerk_${LASER_SHOT}_60`]).toBe('');
-    expect(result.notes.some((note) => note.includes('번호 99'))).toBe(true);
+    expect(result.notes.some((note) => note.includes('계산기에 아직 없는 스킬 문양'))).toBe(true);
   });
 
   it('문양을 한 번도 안 쓴 저장 (사전 없음) 은 문양 칸을 만들지 않는다', () => {

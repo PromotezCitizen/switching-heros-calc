@@ -33,7 +33,7 @@ export function saveImportAvailability(): SaveImportAvailability {
 /** 기기 선택 창 → 휴대폰의 "USB 디버깅 허용" 승인까지. 을 취소하면 undefined */
 export async function connectUsbAdb(): Promise<Adb | undefined> {
   const manager = AdbDaemonWebUsbDeviceManager.BROWSER;
-  if (!manager) throw new Error('WebUSB unsupported');
+  if (!manager) throw new Error('이 브라우저는 USB 연결을 지원하지 않아요. 크롬이나 엣지에서 열어 주세요');
   const device = await manager.requestDevice();
   if (!device) return undefined;
   const connection = await device.connect();

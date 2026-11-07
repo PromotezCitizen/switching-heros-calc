@@ -415,8 +415,14 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     /** 꺼진 얼티밋 아이콘 흐리게 (기존 HTML css) */
     INACTIVE_ICON_STYLE: { opacity: 0.35, filter: 'grayscale(0.6)' },
     ACTIVE_ULTIMATE_BORDER_WIDTH: 2,
-    /** 룬 카드 하나의 최소 폭 (룬 7개 한 줄, 넘치면 가로 스크롤) */
-    RUNE_CARD_WIDTH: 180,
+    /** 룬 카드 하나의 폭 (px) */
+    RUNE_CARD_WIDTH: 200,
+    /** 룬 카드 높이 (육각형 배치에서 위치 계산용, px) */
+    RUNE_CARD_HEIGHT: 150,
+    /** 육각형 배치: 가운데 코어 룬에서 속성 룬 카드 가운데까지 거리 (px). 영역이 육각형 폭보다 좁으면 2열 격자 */
+    RUNE_HEX_RADIUS: 260,
+    /** 좁은 화면의 룬 카드 열 수 (영역 폭 기준) */
+    RUNE_GRID_COLUMNS: { base: 1, '416px': 2 },
     /** 특성 카드 한 장의 너비 (px). 열 수는 화면 폭이 정하고 넘치면 줄바꿈 (기존 HTML 은 9.5rem = 152px) */
     CARD_WIDTH: 152,
     /** 게임 특성 화면처럼 단계마다 한 줄에 아이콘과 레벨 칸만 놓는다 (이름·설명은 아이콘 위에 올렸을 때만) */

@@ -30,10 +30,14 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
   },
 
   weapon: {
-    /** 무기 옵션 칸 수 */
+    /**
+     * 무기 옵션 칸 최대 8 (사용자 결정 2026-11-07 "8칸 최대"). 무기마다 열린 칸 수는 WeaponChar maxOptCnt (무기, 초월 ★)
+     * (게임 m15380 → m15260, claude-docs/react-port/weapon-option-slot-lock-2026-11-07.md). 예전 HTML 의 "강화 레벨 ≥ weapon_dice_slot_lock" 은 틀림
+     * (그 값은 다시 굴리기 주사위 비용)
+     */
     OPTION_ROWS: 8,
-    /** 무기 옵션 칸 1~8 이 열리는 전용 무기 강화 레벨 (앱 상수 weapon_dice_slot_lock) */
-    OPTION_UNLOCK_LEVELS: [10, 20, 50, 200, 800, 1200, 2500, 7500],
+    /** WeaponChar 표의 열린 옵션 칸 수 열 */
+    MAX_OPTION_COLUMN: 'maxOptCnt',
     /** 웨폰 링크 별 칸 최대 */
     LINK_STAR_MAX: 5,
     /** 전용 무기 강화 레벨 최소 (빈칸이면 1 로 읽음) */

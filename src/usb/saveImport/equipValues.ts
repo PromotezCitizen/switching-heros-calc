@@ -6,6 +6,7 @@ import { CONSTS } from '@/CONSTS';
 import { tableRows, type StatTables, type TableRow } from '@/data/statTables';
 import { groupBy, readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
 import { multiplierLogFromPercent, percentTextFromMultiplierLog } from '@/usb/saveImport/saveText';
+import { exclusiveOptionStatField, exclusiveOptionValueField } from '@/calc/sources/hero/rosterFields';
 
 const {
   DICE_GRADES,
@@ -97,26 +98,42 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
     values.weaponTotalAtk = percentTextFromMultiplierLog(transcendLog);
   });
 
-  // 장착 무기 옵션 (1슬롯 히어로: weaponOption<칸>, 2슬롯 히어로: weaponOption2<칸>)
+  // 무기 옵션: 전용 무기마다 (exclusiveOption*_<무기>_<칸>, 사용자 결정 2026-11-07 무기마다 따로). 예전 1슬롯 · 2슬롯 칸은 비운다.
+  // SSS 옵션 수 (얼티밋 1020 · 1021) 는 1슬롯 · 2슬롯 장착 무기 기준 그대로
   runSection(notes, '무기 옵션', () => {
     const weaponOptionDic = readDictionary(equip.psWeaponOptionDic);
-    const fill = (weaponId: number | undefined, statPrefix: string, valuePrefix: string, sssCountField: string) => {
+    const optionsOf = (weaponId: number | undefined) => {
       const weaponOptions = weaponId === undefined ? undefined : weaponOptionDic.get(weaponId);
-      const firstWeaponOptions = weaponOptions ? [...readDictionary(weaponOptions).values()][0]?.diceOptions ?? [] : [];
+      return weaponOptions ? [...readDictionary(weaponOptions).values()][0]?.diceOptions ?? [] : [];
+    };
+    const sssCount = (weaponId: number | undefined) => {
       // 얼티밋 1020 · 1021: 전용 무기 (번호 ≥ 1000) 옵션 중 등급 번호 > 6 (SSS 이상) 개수 (게임 코드 m2690, sss-grade-count-2026-11-01.md)
       const isExclusive = weaponId !== undefined && weaponId >= SSS_OPTION.EXCLUSIVE_WEAPON_MIN_ID;
-      values[sssCountField] = String(isExclusive ? firstWeaponOptions.filter((option) => option.grade > SSS_OPTION.GRADE_ABOVE).length : 0);
-      firstWeaponOptions.forEach((option, index) => {
-        values[`${statPrefix}${index + 1}`] = option.statType;
+      return String(isExclusive ? optionsOf(weaponId).filter((option) => option.grade > SSS_OPTION.GRADE_ABOVE).length : 0);
+    };
+    const [firstSssField, secondSssField] = CONSTS.dpm.SWAP.SSS_OPTION_COUNT_FIELDS;
+    values[firstSssField] = sssCount(equippedWeapon);
+    values[secondSssField] = sssCount(secondEquippedWeapon);
+    for (const [firstPrefix, secondPrefix] of CONSTS.dpm.SWAP.OPTION_FIELD_PAIRS) {
+      for (let index = 1; index <= CONSTS.dpm.SWAP.OPTION_ROWS; index++) {
+        values[`${firstPrefix}${index}`] = '';
+        values[`${secondPrefix}${index}`] = '';
+      }
+    }
+    for (const weaponId of weaponOptionDic.keys()) {
+      if (weaponId < SSS_OPTION.EXCLUSIVE_WEAPON_MIN_ID) continue;
+      const id = String(weaponId);
+      for (let index = 1; index <= CONSTS.heroWeaponCardPet.weapon.OPTION_ROWS; index++) {
+        values[exclusiveOptionStatField(id, index)] = '';
+        values[exclusiveOptionValueField(id, index)] = '';
+      }
+      optionsOf(weaponId).forEach((option, index) => {
+        values[exclusiveOptionStatField(id, index + 1)] = option.statType;
         const value = diceValue(diceRows, WEAPON_DICE_ID, option);
         if (value === undefined) notes.push(`무기 옵션 값을 찾지 못했어요 (${option.statType})`);
-        else values[`${valuePrefix}${index + 1}`] = String(value);
+        else values[exclusiveOptionValueField(id, index + 1)] = String(value);
       });
-    };
-    const [[firstStat, secondStat], [firstValue, secondValue]] = CONSTS.dpm.SWAP.OPTION_FIELD_PAIRS;
-    const [firstSssField, secondSssField] = CONSTS.dpm.SWAP.SSS_OPTION_COUNT_FIELDS;
-    fill(equippedWeapon, firstStat, firstValue, firstSssField);
-    fill(secondEquippedWeapon, secondStat, secondValue, secondSssField);
+    }
   });
 
   // 일반 무기 강화 레벨

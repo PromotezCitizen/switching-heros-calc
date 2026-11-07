@@ -1,7 +1,7 @@
 /** 히어로 · 전용 무기 표 (한 탭): 가진 것만 등급·성·각성 / 초월 ★ 를 넣는다 (비우면 미보유) */
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Group, NumberInput, Table, Text } from '@mantine/core';
+import { Box, Button, Group, Modal, NumberInput, Stack, Table, Text } from '@mantine/core';
 import { CONSTS } from '@/CONSTS';
 import LazySelect from '@/components/LazySelect';
 import type { StatTables } from '@/data/statTables';
@@ -10,6 +10,8 @@ import { HeroImage } from '@/calc/sources/hero/HeroPicker';
 import { exclusiveWeapons, rosterHeroes, type ExclusiveWeapon, type RosterHero } from '@/calc/sources/hero/roster';
 import {
   exclusiveMissionReceivedStarField,
+  exclusiveOptionStatField,
+  exclusiveOptionValueField,
   exclusiveOwnedLevelField,
   exclusiveOwnedStarField,
   rosterAffinityField,
@@ -17,7 +19,10 @@ import {
   rosterGradeField,
   rosterStarField,
 } from '@/calc/sources/hero/rosterFields';
-import type { TabPanelProps } from '@/calc/types';
+import type { CalcValues, TabPanelProps } from '@/calc/types';
+import type { StatDescriptions } from '@/calc/statText';
+import StatValueRows, { allStatChoices } from '@/calc/panels/heroWeaponCardPet/StatValueRows';
+import { optionSlotsForStar, optionUnlockStar } from '@/calc/sources/heroWeaponCardPet/weapon';
 
 const {
   ICON_SIZE,
@@ -31,9 +36,10 @@ const {
   HERO_AWAKEN_WIDTH,
 } = CONSTS.hero.roster;
 const NOT_OWNED = '';
+const { OPTION_ROWS } = CONSTS.heroWeaponCardPet.weapon;
 /** 표 칸 수: 히어로 쪽 (이름 · 등급 · 성 · 각성 · 호감도), 전용 무기 쪽 (초월 ★ · 강화 레벨 · 받은 초월 미션 ★) */
 const HERO_COLUMN_COUNT = 5;
-const WEAPON_COLUMN_COUNT = 3;
+const WEAPON_COLUMN_COUNT = 4;
 /** 히어로 칸과 전용 무기 칸 사이 세로 줄 */
 const WEAPON_DIVIDER = '1px solid var(--mantine-color-default-border)';
 
@@ -60,11 +66,14 @@ function ExclusiveWeaponCells({
   ownerName,
   weaponValues,
   setValue,
+  onOpenOption,
 }: {
   weapon: ExclusiveWeapon | undefined;
   ownerName: string;
   weaponValues: WeaponValues;
   setValue: TabPanelProps['setValue'];
+  /** 무기 옵션 창 열기 (무기 번호) */
+  onOpenOption: (weaponId: string) => void;
 }) {
   const { t: translate } = useTranslation();
   if (!weapon) {
@@ -125,6 +134,12 @@ function ExclusiveWeaponCells({
           onChange={(next) => setValue(exclusiveMissionReceivedStarField(weapon.weaponId), String(next))}
         />
       </Table.Td>
+      <Table.Td>
+        {/* 무기 옵션: 줄마다 버튼, 누르면 그 무기 옵션 창 (사용자 지시 2026-11-07 "여기 버튼 넣고 하라고") */}
+        <Button size="compact-xs" variant="default" disabled={!owned} onClick={() => onOpenOption(weapon.weaponId)}>
+          {translate('calc.exclusiveWeapon.optionButton')}
+        </Button>
+      </Table.Td>
     </>
   );
 }
@@ -143,6 +158,7 @@ interface HeroRosterRowProps {
   weaponMissionStar: string | undefined;
   tables: StatTables;
   setValue: TabPanelProps['setValue'];
+  onOpenOption: (weaponId: string) => void;
 }
 
 /** 히어로 · 전용 무기 표 한 줄 (memo: 칸 하나를 바꾸면 그 줄만 다시 그린다) */
@@ -158,6 +174,7 @@ const HeroRosterRow = memo(function HeroRosterRow({
   weaponMissionStar,
   tables,
   setValue,
+  onOpenOption,
 }: HeroRosterRowProps) {
   const { t: translate } = useTranslation();
   const grades = heroGradeChoices(tables, hero.name);
@@ -235,6 +252,7 @@ const HeroRosterRow = memo(function HeroRosterRow({
         ownerName={hero.name}
         weaponValues={{ star: weaponStar, level: weaponLevel, missionStar: weaponMissionStar }}
         setValue={setValue}
+        onOpenOption={onOpenOption}
       />
     </Table.Tr>
   );
@@ -246,7 +264,7 @@ const HeroRosterRow = memo(function HeroRosterRow({
  * 강화 레벨은 장착 효과에만 쓰여 계산에는 1슬롯 히어로 무기 줄 값만 쓰지만, 1슬롯 히어로를 바꿔도 다시 넣지 않게 무기마다 받는다.
  * 주인이 히어로 목록에 없는 전용 무기는 맨 아래에 따로 한 줄씩
  */
-export function HeroRosterPanel({ values, setValue, tables }: TabPanelProps) {
+export function HeroRosterPanel({ values, setValue, tables, descriptions }: TabPanelProps) {
   const { t: translate, i18n } = useTranslation();
   // 히어로 이름을 화면 언어의 가나다 (알파벳) 순으로 (사용자 지시 2026-11-07 "히어로 탭도 가나다 순으로 해라", 피규어 탭과 같은 기준)
   const heroes = useMemo(
@@ -257,8 +275,11 @@ export function HeroRosterPanel({ values, setValue, tables }: TabPanelProps) {
   const weaponByHero = useMemo(() => new Map(weapons.map((weapon) => [weapon.charId, weapon])), [weapons]);
   const heroIds = useMemo(() => new Set(heroes.map((hero) => hero.charId)), [heroes]);
   const orphanWeapons = weapons.filter((weapon) => !heroIds.has(weapon.charId));
+  /** 옵션 창을 연 무기 (닫혀 있으면 null) */
+  const [optionWeaponId, setOptionWeaponId] = useState<string | null>(null);
   return (
-    // 높이가 TABLE_MAX_HEIGHT 를 넘으면 표 안에서 위아래 스크롤, 좁으면 가로 스크롤. 머리줄 (두 단) 은 맨 위 고정
+    <Stack gap="md">
+    {/* 높이가 TABLE_MAX_HEIGHT 를 넘으면 표 안에서 위아래 스크롤, 좁으면 가로 스크롤. 머리줄 (두 단) 은 맨 위 고정 */}
     <Box style={{ overflow: 'auto', maxHeight: TABLE_MAX_HEIGHT }}>
       <Table verticalSpacing={4} horizontalSpacing="xs" miw={TABLE_MIN_WIDTH} stickyHeader>
         <Table.Thead>
@@ -277,6 +298,7 @@ export function HeroRosterPanel({ values, setValue, tables }: TabPanelProps) {
             <Table.Th style={{ borderLeft: WEAPON_DIVIDER }}>{translate('calc.exclusiveWeapon.star')}</Table.Th>
             <Table.Th>{translate('calc.exclusiveWeapon.level')}</Table.Th>
             <Table.Th>{translate('calc.exclusiveWeapon.missionStar')}</Table.Th>
+            <Table.Th>{translate('calc.exclusiveWeapon.optionColumn')}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -297,6 +319,7 @@ export function HeroRosterPanel({ values, setValue, tables }: TabPanelProps) {
                 weaponMissionStar={weaponValues.missionStar}
                 tables={tables}
                 setValue={setValue}
+                onOpenOption={setOptionWeaponId}
               />
             );
           })}
@@ -307,12 +330,82 @@ export function HeroRosterPanel({ values, setValue, tables }: TabPanelProps) {
                 <Table.Td colSpan={HERO_COLUMN_COUNT}>
                   <Text size="sm">{ownerName}</Text>
                 </Table.Td>
-                <ExclusiveWeaponCells weapon={weapon} ownerName={ownerName} weaponValues={weaponValuesOf(values, weapon)} setValue={setValue} />
+                <ExclusiveWeaponCells weapon={weapon} ownerName={ownerName} weaponValues={weaponValuesOf(values, weapon)} setValue={setValue} onOpenOption={setOptionWeaponId} />
               </Table.Tr>
             );
           })}
         </Table.Tbody>
       </Table>
     </Box>
+    <ExclusiveOptionModal
+      weaponId={optionWeaponId}
+      onClose={() => setOptionWeaponId(null)}
+      values={values}
+      setValue={setValue}
+      tables={tables}
+      descriptions={descriptions}
+      heroes={heroes}
+      weapons={weapons}
+    />
+    </Stack>
+  );
+}
+
+/**
+ * 전용 무기 옵션 창: 표의 무기 줄 "옵션" 버튼으로 연다 (무기마다 저장, 사용자 결정 2026-11-07 "1" · "여기 버튼 넣고 하라고").
+ * 8칸을 다 보이고, 그 무기 초월 ★ 로 아직 안 열린 칸 (WeaponChar maxOptCnt) 은 흐리게 · 막고 다음 칸이 열리는 ★ 를 적는다.
+ * 계산은 넣은 옵션 전부 (게임 m6836)
+ */
+function ExclusiveOptionModal({
+  weaponId,
+  onClose,
+  values,
+  setValue,
+  tables,
+  descriptions,
+  heroes,
+  weapons,
+}: {
+  weaponId: string | null;
+  onClose: () => void;
+  values: CalcValues;
+  tables: StatTables;
+  setValue: (fieldId: string, text: string) => void;
+  descriptions: StatDescriptions;
+  heroes: RosterHero[];
+  weapons: ExclusiveWeapon[];
+}) {
+  const { t: translate } = useTranslation();
+  const weapon = weapons.find((candidate) => candidate.weaponId === weaponId);
+  const ownerName = weapon ? (heroes.find((hero) => hero.charId === weapon.charId)?.name ?? weapon.charId) : '';
+  const star = weaponId ? values[exclusiveOwnedStarField(weaponId)] : undefined;
+  const open = weaponId ? optionSlotsForStar(tables, weaponId, star) : 0;
+  const nextStar = weaponId ? optionUnlockStar(tables, weaponId, open + 1) : null;
+  const rowNumbers = Array.from({ length: OPTION_ROWS }, (_, index) => index + 1);
+  return (
+    <Modal opened={!!weaponId} onClose={onClose} title={translate('calc.exclusiveWeapon.optionTitle', { name: ownerName })}>
+      {weaponId && (
+        <Stack gap="xs">
+          <Text size="xs" c="dimmed">
+            {open < OPTION_ROWS
+              ? translate('calc.exclusiveWeapon.optionOpen', { star: star ?? 0, open, next: nextStar ?? '-' })
+              : translate('calc.exclusiveWeapon.optionAllOpen', { star, count: OPTION_ROWS })}
+          </Text>
+          <StatValueRows
+            rowNumbers={rowNumbers}
+            usableCount={open}
+            statField={(index) => exclusiveOptionStatField(weaponId, index)}
+            valueField={(index) => exclusiveOptionValueField(weaponId, index)}
+            values={values}
+            setValue={setValue}
+            choices={allStatChoices(descriptions)}
+            noneLabel={translate('calc.weapon.none')}
+            statLabel={(index) => translate('calc.weapon.statLabel', { index })}
+            valueLabel={(index) => translate('calc.weapon.valueLabel', { index })}
+            valuePlaceholder={translate('calc.weapon.valuePlaceholder')}
+          />
+        </Stack>
+      )}
+    </Modal>
   );
 }

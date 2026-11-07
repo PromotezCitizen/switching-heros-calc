@@ -25,6 +25,7 @@ import { importSave, missingSaveKeys, pickDefault, topKeys, type SaveFiles } fro
 import { readDictionary } from '@/usb/saveImport/saveDictionary';
 import saveSubset from '@/usb/saveImport/saveSubset0154.json';
 import saveSubset1018 from '@/usb/saveImport/saveSubset1018.json';
+import { exclusiveWeaponIdOfHero } from '@/calc/sources/heroWeaponCardPet/weapon';
 
 /**
  * 2026-10-12 01:54 저장 데이터 (필요한 키만 뽑은 사본 saveSubset0154.json) 를 변환해
@@ -59,6 +60,8 @@ const NOT_FROM_SAVE = new Set(['summaryEnemyCountReached', 'berserkStacks', 'kil
 const ZERO_AFFINITY_KEY = /^heroOwnedAffinity_/;
 /** 광산 각성 총합은 이제 불러오지 않고 히어로 탭 각성 레벨 합으로 계산한다 (2026-11-07). 각성 0 도 칸에 적어 파이썬 변환에 없는 칸이 생긴다 */
 const ZERO_AWAKEN_KEY = /^heroOwnedAwaken_/;
+/** 무기 옵션은 전용 무기마다 (exclusiveOption*_<무기>_<칸>) 로 옮겼고 예전 1슬롯 칸은 비운다 (2026-11-07). 따로 대조한다 */
+const WEAPON_OPTION_KEY = /^(weaponOption(Stat|Value)\d+|exclusiveOption(Stat|Value)_\d+_\d+)$/;
 /** 스킬마다 옵션 칸: Python 변환에는 없는 칸이라 따로 대조한다 */
 const SKILL_OPTION_KEY = /^skillOption_\d+_\d+$/;
 /** 스킬 문양 칸: 이것도 Python 변환에는 없는 칸이라 skillRuneValues.test.ts 에서 따로 대조한다 */
@@ -89,10 +92,10 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
   });
 
   it('Python 변환의 저장 데이터 칸을 빠짐없이 같은 값으로 낸다', () => {
-    const expectedKeys = Object.keys(expected).filter((key) => !NOT_FROM_SAVE.has(key)).sort();
+    const expectedKeys = Object.keys(expected).filter((key) => !NOT_FROM_SAVE.has(key) && !WEAPON_OPTION_KEY.test(key)).sort();
     // 비운 칸 ('' = 이 프리셋에서 레벨 없는 특성) 은 파이썬 변환에 없는 칸이라 뺀다
     const sameKeys = Object.keys(result.values).filter(
-      (key) => !SKILL_OPTION_KEY.test(key) && !SKILL_PERK_KEY.test(key) && !SECOND_HERO_KEY.test(key) && !(key.startsWith('mastery_') && result.values[key] === '') && !((ZERO_AWAKEN_KEY.test(key) || ZERO_AFFINITY_KEY.test(key)) && result.values[key] === '0'),
+      (key) => !SKILL_OPTION_KEY.test(key) && !SKILL_PERK_KEY.test(key) && !SECOND_HERO_KEY.test(key) && !WEAPON_OPTION_KEY.test(key) && !(key.startsWith('mastery_') && result.values[key] === '') && !((ZERO_AWAKEN_KEY.test(key) || ZERO_AFFINITY_KEY.test(key)) && result.values[key] === '0'),
     );
     expect(sameKeys.sort()).toEqual(expectedKeys);
     for (const key of expectedKeys) {
@@ -105,6 +108,18 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
       } else {
         expect(actual, key).toBe(expected[key]);
       }
+    }
+  });
+
+  it('무기 옵션: 1슬롯 히어로가 낀 전용 무기 칸에 예전 1슬롯 칸과 같은 값, 예전 칸은 비움', () => {
+    const weaponId = exclusiveWeaponIdOfHero(result.values, tables);
+    expect(weaponId).toBeTruthy();
+    for (let index = 1; index <= 8; index++) {
+      const oldStat = expected[`weaponOptionStat${index}`];
+      if (oldStat === undefined) continue;
+      expect(result.values[`exclusiveOptionStat_${weaponId}_${index}`], `칸 ${index}`).toBe(oldStat);
+      expect(Number(result.values[`exclusiveOptionValue_${weaponId}_${index}`])).toBeCloseTo(Number(expected[`weaponOptionValue${index}`]), 6);
+      expect(result.values[`weaponOptionStat${index}`]).toBe('');
     }
   });
 

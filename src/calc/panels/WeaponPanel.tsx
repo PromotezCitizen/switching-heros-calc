@@ -14,23 +14,18 @@ import {
   linkLevelField,
   weaponLinkLog,
   normalWeaponPossessEffect,
-  openOptionSlots,
-  optionStatField,
-  optionValueField,
   usesExclusiveWeapon,
   weaponTotalAtk,
 } from '@/calc/sources/heroWeaponCardPet/weapon';
 import type { TabPanelProps } from '@/calc/types';
 import { iconUrl } from '@/calc/panels/heroWeaponCardPet/IconPicker';
-import StatValueRows, { allStatChoices } from '@/calc/panels/heroWeaponCardPet/StatValueRows';
 
 const { JOBS, MIN_NUMBER } = CONSTS.heroWeaponCardPet;
-const SSS_OPTION_COUNT_FIELD = CONSTS.masteryRuneBuff.ULTIMATE_COUNT_FIELDS.EquipSSSOptionCnt;
 const { LINK_STAR_MAX, LINK_ICONS } = CONSTS.heroWeaponCardPet.weapon;
 const { CARD_ICON_SIZE, LINK_CARD_MIN_WIDTH, LINK_LEVEL_INPUT_WIDTH, NORMAL_WEAPON_INPUT_MIN_WIDTH } = CONSTS.heroWeaponCardPet.ui;
 
 /** 무기: 전용 무기·웨폰 링크·누적 능력치·일반 무기·무기 옵션 (소울포지는 탭 따로) */
-export default function WeaponPanel({ values, setValue, tables, descriptions }: TabPanelProps) {
+export default function WeaponPanel({ values, setValue, tables }: TabPanelProps) {
   const { t: translate } = useTranslation();
   const textField = (fieldId: string, labelKey: string, placeholderKey: string) => (
     <TextInput
@@ -45,7 +40,6 @@ export default function WeaponPanel({ values, setValue, tables, descriptions }: 
   const possess = normalWeaponPossessEffect(tables, values);
   const normalWeaponRows = rowsOf(tables, 'WeaponJob');
   const exclusiveHero = usesExclusiveWeapon(values, tables) ? heroByName(tables, slotHeroName(values, tables)) : undefined;
-  const optionRowNumbers = Array.from({ length: openOptionSlots(values, tables) }, (_, index) => index + 1);
   const totalAtk = weaponTotalAtk(values, tables);
 
   return (
@@ -185,30 +179,11 @@ export default function WeaponPanel({ values, setValue, tables, descriptions }: 
         </Accordion>
       )}
 
+      {/* 무기 옵션은 무기마다 히어로 · 전용 무기 탭에서 넣는다 (사용자 결정 2026-11-07). SSS 옵션 수 칸은 뺌 (값은 불러오기 그대로 계산) */}
       <SectionTitle>{translate('calc.weapon.optionTitle')}</SectionTitle>
-      {/* 열린 칸만 (전용 무기 장착 + 강화 레벨 10 / 20 / 50 / 200 / 800 / 1,200 / 2,500 / 7,500) */}
-      {!optionRowNumbers.length && <Text size="sm" c="dimmed">{translate('calc.weapon.optionLocked')}</Text>}
-      <StatValueRows
-        rowNumbers={optionRowNumbers}
-        statField={optionStatField}
-        valueField={optionValueField}
-        values={values}
-        setValue={setValue}
-        choices={allStatChoices(descriptions)}
-        noneLabel={translate('calc.weapon.none')}
-        statLabel={(index) => translate('calc.weapon.statLabel', { index })}
-        valueLabel={(index) => translate('calc.weapon.valueLabel', { index })}
-        valuePlaceholder={translate('calc.weapon.valuePlaceholder')}
-      />
-      {/* 얼티밋 1020 · 1021 의 개수 (저장 가져오기가 채움, 직업 무기면 0) */}
-      <TextInput
-        type="number"
-        min={MIN_NUMBER}
-        inputMode="numeric"
-        label={translate('calc.weapon.sssOptionCount')}
-        value={values[SSS_OPTION_COUNT_FIELD] ?? ''}
-        onChange={(event) => setValue(SSS_OPTION_COUNT_FIELD, event.currentTarget.value)}
-      />
+      <Text size="sm" c="dimmed">
+        {translate('calc.weapon.optionMoved')}
+      </Text>
     </Stack>
   );
 }

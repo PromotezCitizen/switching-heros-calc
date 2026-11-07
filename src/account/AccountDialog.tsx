@@ -7,6 +7,7 @@ import { RESOURCES } from '@/hunting/huntingCalc';
 import { useCalcStore } from '@/store/useCalcStore';
 import { readNumber } from '@/store/storedValues';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
+import BattleBuffFields from '@/account/BattleBuffFields';
 
 const GUILD_LEVEL_OPTIONS = Array.from({ length: CONSTS.guild.SKILL_MAX_LEVEL + 1 }, (_, level) => ({
   value: String(level),
@@ -52,6 +53,10 @@ export default function AccountDialog() {
               <FairyFlag storeKey={ACCOUNT_KEYS.fairyOn} label={translate('account.fairyOn')} adRemoved={adRemoved} />
             </Stack>
           </SimpleGrid>
+          <Text fw={600} size="sm">
+            {translate('account.battleBuff')}
+          </Text>
+          <BattleBuffFields />
           {/* 사냥 보상용 요정의 축복: 광고 제거면 경험치·골드 둘 다 상시 (스탯 축복도 상시), 아니면 칸마다 따로 켬 (정수는 요정 값 없음) */}
           <Text fw={600} size="sm">
             {translate('account.huntingFairy')}

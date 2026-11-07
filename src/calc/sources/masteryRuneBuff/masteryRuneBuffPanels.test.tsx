@@ -75,8 +75,8 @@ describe('특성·룬·버프 화면', () => {
     expect(screen.getByText('/ 399')).toBeTruthy();
   });
 
-  it('버프: 광폭화 안내 (스킬 광폭화 특성을 찍었으면 늘 5중첩, 중첩 칸 없음), 입력 칸은 공통 입력으로 옮겨 이 탭엔 없음', () => {
-    useCalcStore.getState().setValue('calc.mastery_10', '3');
+  it('버프: 광폭화 안내 (광폭화 특성 7 을 찍었으면 늘 5중첩, 중첩 칸 없음), 입력 칸은 공통 입력으로 옮겨 이 탭엔 없음', () => {
+    useCalcStore.getState().setValue('calc.mastery_7', '1');
     renderTab('buff');
     expect(screen.queryByLabelText('학살자 발동')).toBeNull();
     expect(screen.getByText(/공통 입력/)).toBeTruthy();

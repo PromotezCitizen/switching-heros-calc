@@ -55,12 +55,14 @@ export function multiplierPercentLog(multiplierLog: number): number {
 }
 
 /**
- * 광폭화 중첩 = 스킬 광폭화 특성 (berserkSkillUse) 을 찍었으면 늘 최대 5중첩, 안 찍었으면 0
- * (입력 칸 없음, 사용자 말 2026-10-05 "광폭화 5중첩밖에 안될건데", 옛 HTML berserkStacks 와 같음)
+ * 광폭화 중첩 = 광폭화 특성 (특성 7 berserk, "일반 공격시 5% 확률로 … 최대 중첩 5회") 을 찍었으면 늘 최대 5중첩, 안 찍었으면 0.
+ * 게임은 특성 7 이 있으면 일반 공격으로 발동하고, 특성 10 berserkSkillUse 는 스킬로도 발동하게 하는 경로를 더할 뿐이다
+ * (claude-docs/react-port/html-verify-D-2026-11-07.md C08, 사용자 결정 2026-11-07 "ㅇ". 예전 HTML 은 특성 10 을 조건으로 써서 틀림).
+ * 늘 5중첩은 사용자 말 2026-10-05 "광폭화 5중첩밖에 안될건데" 그대로 (입력 칸 없음)
  */
 export function berserkStacks(masteryTable: RawTable, values: CalcValues): number {
-  const skillTrait = masteryTraits(masteryTable).find((trait) => trait.statName === STATS.BERSERK_SKILL);
-  return skillTrait && masteryLevel(values, skillTrait) > 0 ? BERSERK_MAX_STACKS : 0;
+  const berserkTrait = masteryTraits(masteryTable).find((trait) => trait.statName === STATS.BERSERK);
+  return berserkTrait && masteryLevel(values, berserkTrait) > 0 ? BERSERK_MAX_STACKS : 0;
 }
 
 /** 광폭화 중첩 배율 (log10) = log10(1 + 중첩당 % (표 berserk) × 중첩 / 100), 중첩은 0~5 */

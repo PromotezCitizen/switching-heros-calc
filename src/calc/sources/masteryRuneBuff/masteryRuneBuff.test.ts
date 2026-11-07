@@ -128,7 +128,7 @@ const EXPECTED: Record<string, Record<string, ExpectedLine[]>> = {
       ['화염의 지배자 (2.4 ^ 장착 펫 2마리)', '_per_attackDamage', 'log', 2.677606952720493],
     ],
     buff: [
-      ['광폭화 5중첩', '_per_attackDamage', 'log', 2.1760912590556813],
+      // 광폭화 5중첩 줄 없음: 이 시나리오는 특성 10 (스킬 광폭화) 만 있고 특성 7 (광폭화) 이 없다. 게임은 특성 7 로 켜진다 (2026-11-07, 예전 HTML 은 특성 10)
       ['학살자', '_per_attackDamage', 'log', 2.1760912590556813],
       ['연타 폭주 (공격력 %)', '_per_attackDamage', 'value', 210],
       // 과충전 연타 102 (Lv20 = 400) 는 연타 224.49 가 100 을 넘어서 공격력 % 줄이 생긴다 (combat0113.py 105)
@@ -157,7 +157,7 @@ const EXPECTED: Record<string, Record<string, ExpectedLine[]>> = {
       ['대지의 지배자 (2.4 ^ 장착 펫 2마리)', '_per_attackDamage', 'log', 2.677606952720493],
     ],
     buff: [
-      ['광폭화 5중첩', '_per_attackDamage', 'log', 2.1760912590556813],
+      // 광폭화 5중첩 줄 없음: 이 시나리오는 특성 10 (스킬 광폭화) 만 있고 특성 7 (광폭화) 이 없다. 게임은 특성 7 로 켜진다 (2026-11-07, 예전 HTML 은 특성 10)
       ['학살자', '_per_attackDamage', 'log', 2],
       ['연타 폭주 (공격력 %)', '_per_attackDamage', 'value', 2.5],
     ],
@@ -311,15 +311,18 @@ describe('버프·얼티밋 안내', () => {
     for (const target of ['globalRaidNormal', 'stageBoss', 'guildRaid', 'attributeHero', 'pvp']) expect(killerApplies({ ...on, dpmTarget: target }), target).toBe(false);
     expect(killerApplies({ killerActive: 'false', dpmTarget: 'stage' })).toBe(false);
   });
-  it('광폭화 중첩·학살자 배율 (기존: 5중첩 ×2.5 / 0중첩 ×2 / 5중첩 ×2)', () => {
-    expect(berserkStacks(tables.Mastery, SCENARIOS.full)).toBe(5);
+  it('광폭화 중첩 · 학살자 배율 (학살자: 기존 ×2.5 / ×2)', () => {
+    // 시나리오는 특성 10 만 있어 광폭화 0 (게임은 특성 7 로 켜짐, 2026-11-07). 특성 7 을 더하면 5
+    expect(berserkStacks(tables.Mastery, SCENARIOS.full)).toBe(0);
+    expect(berserkStacks(tables.Mastery, { ...SCENARIOS.full, mastery_7: '1' })).toBe(5);
     expect(Number(Math.pow(10, killerLog(tables.Mastery, SCENARIOS.full)).toFixed(3))).toBe(2.5);
     expect(berserkStacks(tables.Mastery, SCENARIOS.empty)).toBe(0);
     expect(Number(Math.pow(10, killerLog(tables.Mastery, SCENARIOS.empty)).toFixed(3))).toBe(2);
-    expect(berserkStacks(tables.Mastery, SCENARIOS.edge)).toBe(5);
+    expect(berserkStacks(tables.Mastery, SCENARIOS.edge)).toBe(0);
   });
-  it('광폭화 중첩 = 스킬 광폭화 특성을 찍었으면 늘 5중첩, 안 찍었으면 0 (입력 칸 없음)', () => {
-    expect(berserkStacks(tables.Mastery, masteryValues({ 10: 1 }))).toBe(5);
+  it('광폭화 중첩 = 광폭화 특성 (특성 7) 을 찍었으면 늘 5중첩, 스킬 광폭화 (특성 10) 만으로는 0 (게임 코드, 2026-11-07)', () => {
+    expect(berserkStacks(tables.Mastery, masteryValues({ 7: 1 }))).toBe(5);
+    expect(berserkStacks(tables.Mastery, masteryValues({ 10: 1 }))).toBe(0);
     expect(berserkStacks(tables.Mastery, {})).toBe(0);
     // 특성을 안 찍었으면 광폭화 줄이 없다
     expect(buffLines({}, tables.Mastery, (key) => key, 0)).toEqual([]);

@@ -7,7 +7,8 @@ import type { CalcTab } from '@/calc/types';
  */
 export const CALC_TAB_GROUPS: { id: string; tabIds: string[] }[] = [
   { id: 'summary', tabIds: ['summary'] },
-  { id: 'hero', tabIds: ['hero', 'awakenDetail', 'heroRoster', 'mastery', 'coreMastery', 'library'] },
+  { id: 'hero', tabIds: ['hero', 'awakenDetail', 'heroRoster', 'library'] },
+  { id: 'mastery', tabIds: ['mastery', 'coreMastery'] },
   { id: 'growth', tabIds: ['training', 'relic', 'ancientRelic', 'diary', 'rune'] },
   { id: 'equipment', tabIds: ['artifact', 'weapon', 'skill', 'soulForge'] },
   { id: 'card', tabIds: ['card'] },

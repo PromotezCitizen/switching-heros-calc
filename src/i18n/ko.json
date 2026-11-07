@@ -14,6 +14,7 @@
     "groups": {
       "summary": "종합",
       "hero": "히어로",
+      "mastery": "특성",
       "growth": "성장",
       "equipment": "장비·스킬",
       "card": "몬스터 카드",

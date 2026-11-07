@@ -47,11 +47,11 @@ export interface EquipContext {
   receivedMissionIds: number[];
 }
 
-/** 주사위 표 값 = 최소 + 단계 × 단위 (표에 없으면 undefined) */
-function diceValue(rows: TableRow[], diceId: string, option: DiceOption): number | undefined {
+/** 주사위 표 값 = min(최소 + 단계 × 단위, 최대) (게임 m6053 과 같이 statMax 에서 자름, 표에 없으면 undefined) */
+export function diceValue(rows: TableRow[], diceId: string, option: DiceOption): number | undefined {
   const grade = DICE_GRADES[option.grade - 1];
   const row = rows.find((candidate) => candidate.diceId === diceId && candidate.statType === option.statType && candidate.grade === grade);
-  return row ? Number(row.statMin) + Number(row.statUnit) * option.unitLv : undefined;
+  return row ? Math.min(Number(row.statMin) + Number(row.statUnit) * option.unitLv, Number(row.statMax)) : undefined;
 }
 
 export function equipValues(equip: EquipSave, context: EquipContext, tables: StatTables): SaveImportResult {

@@ -5,6 +5,7 @@ import { cardGradeField, cardLines, cardSlotField, stickerCountField, stickerLev
 import { ARCHIVE_LEVEL_FIELD, bookLevelField, inheritStatField, inheritValueField, libraryArchiveLevel, libraryLines } from '@/calc/sources/heroWeaponCardPet/library';
 import { gradeStarValue } from '@/calc/sources/heroWeaponCardPet/shared';
 import { loadTestTables } from '@/test/loadTestTables';
+import { diceValue } from '@/usb/saveImport/equipValues';
 
 /** 예전 HTML 규칙을 게임 코드로 확인해 고친 것 (claude-docs/react-port/html-verify-A · B-2026-11-07.md) */
 const tables = loadTestTables();
@@ -60,5 +61,16 @@ describe('카드 스티커 세트: 레벨은 모든 배지 점수의 합 하나 
 describe('길드 스킬 열림 레벨 (서버 Option guild_lv_N add_guild_skill_order)', () => {
   it('스테이지 골드 스킬 (order 2 · 4 · 6 · 8 · 10) = 길드 Lv 23 · 32 · 44 · 56 · 60', () => {
     expect(CONSTS.guild.SKILLS.map((skill) => skill.unlock)).toEqual([23, 32, 44, 56, 60]);
+  });
+});
+
+describe('불러오기 옵션 값은 표 최대값 (statMax) 에서 자른다 (게임 m6053)', () => {
+  it('단계가 커서 최소 + 단계 × 단위 가 최대를 넘으면 최대', () => {
+    const rows = tableRows(tables.DiceOption);
+    const grades = CONSTS.usb.DICE_GRADES as readonly string[];
+    const row = rows.find((candidate) => grades.includes(candidate.grade) && Number(candidate.statUnit) > 0 && Number(candidate.statMax) > Number(candidate.statMin))!;
+    const grade = grades.indexOf(row.grade) + 1;
+    const over = Math.ceil((Number(row.statMax) - Number(row.statMin)) / Number(row.statUnit)) + 5;
+    expect(diceValue(rows, row.diceId, { diceId: Number(row.diceId), statType: row.statType, grade, unitLv: over })).toBe(Number(row.statMax));
   });
 });

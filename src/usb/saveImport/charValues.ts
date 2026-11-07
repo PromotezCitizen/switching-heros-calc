@@ -97,7 +97,8 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
       const slot = index + 1;
       values[`inheritStat${slot}`] = option.statType;
       const dice = diceRows.find((row) => row.statType === option.statType && row.grade === option.grade);
-      if (dice) values[`inheritValue${slot}`] = String(Number(dice.statMin) + Number(dice.statUnit) * option.unitLv);
+      // 값 = min(최소 + 단계 × 단위, 최대) (게임 m6053)
+      if (dice) values[`inheritValue${slot}`] = String(Math.min(Number(dice.statMin) + Number(dice.statUnit) * option.unitLv, Number(dice.statMax)));
       else notes.push(`계산기에 없는 전승 능력이에요 (${option.statType} ${option.grade})`);
     });
   });

@@ -32,12 +32,26 @@ const { CARD_MIN_WIDTH } = CONSTS.display;
  * 칸 · 세트 칸 · 스티커 줄은 heroWeaponCardPet/ 아래 부품 (CardSlotCard · CardSetCards · StickerRow) 으로 나눠 두었다 (추천 화면도 같은 부품을 쓴다)
  */
 export default function CardPanel({ values, setValue, tables, descriptions }: TabPanelProps) {
-  const { translate } = useCardNames();
+  const { translate, setName } = useCardNames();
   const [stickersOpened, stickers] = useDisclosure(false);
   const stickerOpen = stickerUnlocked(values, tables);
   const stickerGroups = useMemo(() => groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId'), [tables]);
 
   const setStates = cardSetStates(values, tables);
+
+  const markGroups = useMemo(() => {
+
+    const slotOf = new Map(rowsOf(tables, 'CardSet').map((row) => [row.setId, Number(row.slot)]));
+
+    const shown = setStates.filter((set) => set.markCount > 0);
+
+    return [...new Set(shown.map((set) => slotOf.get(set.setId) ?? 0))]
+
+      .sort((left, right) => left - right)
+
+      .map((mark) => ({ mark, sets: shown.filter((set) => (slotOf.get(set.setId) ?? 0) === mark).sort((left, right) => right.markCount - left.markCount) }));
+
+  }, [setStates, tables]);
   const hasMarks = setStates.some((set) => set.markCount > 0);
   const slotCardsText = joinFieldValues(values, CARD_SLOT_FIELDS);
 
@@ -68,7 +82,15 @@ export default function CardPanel({ values, setValue, tables, descriptions }: Ta
         value={values[CARD_SET_BONUS_FIELD] ?? ''}
         onChange={(event) => setValue(CARD_SET_BONUS_FIELD, event.currentTarget.value)}
       />
-      <CardSetCards setStates={setStates} descriptions={descriptions} />
+      {/* 마크 묶음 (CardSet 표 slot = 카드 칸 번호) 마다 제목 (세트별 마크 수) 과 그 묶음의 세트 칸 (추천 화면과 같은 방식) */}
+      {markGroups.map((group) => (
+        <Stack key={group.mark} gap="xs">
+          <Text fw={700}>
+            {translate('optimizer.cards.markGroupTitle', { mark: group.mark, parts: group.sets.map((set) => `${setName(set.setId)} ${set.markCount}`).join(' + ') })}
+          </Text>
+          <CardSetCards setStates={group.sets} descriptions={descriptions} />
+        </Stack>
+      ))}
       {!hasMarks && <Text size="sm" c="dimmed">{translate('calc.card.setNone')}</Text>}
 
       {/* 스티커 (배지): 열렸을 때만 (장착 카드에 배지 칸이 있을 때) */}

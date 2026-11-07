@@ -18,6 +18,7 @@ import { groupBy, rowsOf } from '@/calc/sources/heroWeaponCardPet/shared';
 import type { TabPanelProps } from '@/calc/types';
 import { joinFieldValues } from '@/calc/useTrackedCalcValues';
 import CardSetCards from '@/calc/panels/heroWeaponCardPet/CardSetCards';
+import OwnedCardsTable from '@/calc/panels/heroWeaponCardPet/OwnedCardsTable';
 import { CardSlotCard } from '@/calc/panels/heroWeaponCardPet/CardSlotCard';
 import { StickerRow } from '@/calc/panels/heroWeaponCardPet/StickerRow';
 import { CARD_SLOT_FIELDS, cardMarkFields, useCardNames } from '@/calc/panels/heroWeaponCardPet/cardPanelParts';
@@ -57,6 +58,8 @@ export default function CardPanel({ values, setValue, tables, descriptions }: Ta
 
   return (
     <Stack gap="md">
+      {/* 보유 카드 (공통 값 account.cardOwned): 접어 두고, 펼치면 카드마다 등급 · 성 */}
+      <OwnedCardsTable tables={tables} />
       <SectionTitle>{translate('calc.card.slotsTitle')}</SectionTitle>
       <HorizontalScrollRow itemWidth={CARD_SLOT_WIDTH}>
         {CARD_SLOT_NUMBERS.map((slot) => (

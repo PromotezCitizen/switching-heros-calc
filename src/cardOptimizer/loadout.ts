@@ -48,6 +48,13 @@ export function parseOwnedCards(text: string | undefined): OwnedCard[] {
   });
 }
 
+/** 보유 카드 목록 → 저장 글 (parseOwnedCards 의 반대, 저장 형식은 usb/saveImport/ownedCards.ts 와 같음) */
+export function formatOwnedCards(cards: OwnedCard[]): string {
+  return cards
+    .map((card) => [card.cardId, card.star, card.setsByMark.map((sets) => sets.join(SET_SEPARATOR)).join(MARK_SEPARATOR)].join(FIELD_SEPARATOR))
+    .join(CARD_SEPARATOR);
+}
+
 /** 보유 카드의 표 행 (카드 번호 + 성) */
 export function cardRowOf(tables: StatTables, card: OwnedCard): TableRow | undefined {
   return cardRowsOf(tables, card.cardId).find((row) => row.star === card.star);

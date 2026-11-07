@@ -24,7 +24,7 @@ function FairyFlag({ storeKey, label, adRemoved }: { storeKey: string; label: st
   return adRemoved ? <Checkbox label={label} checked disabled readOnly /> : <FlagField storeKey={storeKey} label={label} />;
 }
 
-/** 여러 페이지가 같이 쓰는 계정 값 (VIP · 길드 · 요정 · 전투 버프) 칸. 내 값 페이지의 "계정" 묶음에 그린다 */
+/** 여러 페이지가 같이 쓰는 계정 값 (유저 레벨 · VIP · 길드 · 요정 · 전투 버프) 칸. 계정 페이지의 "기본 정보" 묶음에 그린다 */
 export default function AccountFields() {
   const { t: translate } = useTranslation();
   const guildLevel = useCalcStore((state) => readNumber(state.values, ACCOUNT_KEYS.guildLevel));
@@ -40,7 +40,8 @@ export default function AccountFields() {
           <Text size="xs" c="dimmed">
             {translate('account.description')}
           </Text>
-          <SimpleGrid cols={{ base: 1, sm: 3 }}>
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }}>
+            <NumberField storeKey={ACCOUNT_KEYS.userLevel} label={translate('account.userLevel')} min={0} />
             <NumberField storeKey={ACCOUNT_KEYS.vipLevel} label={translate('account.vipLevel')} />
             <NumberField storeKey={ACCOUNT_KEYS.guildLevel} label={translate('account.guildLevel')} />
             <Stack gap={4}>

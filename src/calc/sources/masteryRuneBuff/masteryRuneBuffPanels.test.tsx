@@ -79,7 +79,7 @@ describe('특성·룬·버프 화면', () => {
     useCalcStore.getState().setValue('calc.mastery_7', '1');
     renderTab('buff');
     expect(screen.queryByLabelText('학살자 발동')).toBeNull();
-    expect(screen.getByText(/"계정" 묶음/)).toBeTruthy();
+    expect(screen.getByText(/"기본 정보" 묶음/)).toBeTruthy();
     expect(screen.getByText(/^광폭화 5중첩 · 학살자 공격력 /)).toBeTruthy();
     expect(screen.queryByLabelText(/광폭화 중첩/)).toBeNull();
   });

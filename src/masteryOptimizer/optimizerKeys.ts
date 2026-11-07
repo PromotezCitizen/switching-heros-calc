@@ -1,4 +1,4 @@
-/** 추천 계산이 쓰는 저장소 칸 이름 (추천 페이지와 내 값 › 계산 설정이 같이 쓴다) */
+/** 추천 계산이 쓰는 저장소 칸 이름 (추천 페이지와 계정 › 계산 설정이 같이 쓴다) */
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 
 const KEY_PREFIX = 'optimizer.';

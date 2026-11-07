@@ -10,7 +10,7 @@ import MasteryLevelPage from '@/masteryDebug/MasteryLevelPage';
 import StatViewerPage from '@/statViewer/StatViewerPage';
 import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
 
-/** 페이지 순서: 추천 (첫 화면) · 사냥 · 내 값 · 스탯 모아 보기 · 값 찾는 법 */
+/** 페이지 순서: 추천 (첫 화면) · 사냥 · 계정 · 스탯 모아 보기 · 값 찾는 법 */
 const PAGES = [
   { path: '/', labelKey: 'page.optimizer' },
   { path: '/hunting', labelKey: 'page.hunting' },

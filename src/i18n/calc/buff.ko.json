@@ -2,7 +2,7 @@
   "title": "버프·연타 특성",
   "killerActive": "학살자 발동",
   "killerHint": "몬스터를 처치하는 스테이지 · 속성 던전 일반 층에서만 들어가요.",
-  "inputsMoved": "학살자 · 음식 효과 · 공격력 이벤트 버프는 맨 앞 \"계정\" 묶음에서 넣어요.",
+  "inputsMoved": "학살자 · 음식 효과 · 공격력 이벤트 버프는 맨 앞 \"기본 정보\" 묶음에서 넣어요.",
   "status": "광폭화 {{stacks}}중첩 · 학살자 공격력 {{killer}}배",
   "berserkSource": "광폭화 {{stacks}}중첩",
   "killerSource": "학살자",

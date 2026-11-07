@@ -244,7 +244,7 @@ export default function OptimizerPage() {
               {translate('optimizer.lockedWhileRunning')}
             </Text>
           )}
-          {/* 계산 설정 (유저 레벨 · 맞는 적 수 · 스테이지 층) 은 내 값 › 계산 설정에서 넣고 여기는 요약만 */}
+          {/* 계산 설정 (유저 레벨 · 맞는 적 수 · 스테이지 층) 은 계정 › 계산 설정에서 넣고 여기는 요약만 */}
           <Text size="sm" c="dimmed">
             {translate('optimizer.settingsSummary', {
               level: userLevel > 0 ? formatCount(userLevel) : '-',

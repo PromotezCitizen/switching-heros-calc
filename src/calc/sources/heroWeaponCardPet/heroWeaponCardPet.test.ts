@@ -154,8 +154,8 @@ describe('바뀐 계산', () => {
     expect(openOptionSlots(values, tables)).toBe(3);
     const optionLines = (input: CalcValues) => tabLines('weapon', input).filter((line) => line.source.startsWith('무기 옵션'));
     expect(optionLines(values).map((line) => line.source)).toEqual(['무기 옵션 1번', '무기 옵션 3번', '무기 옵션 4번']);
-    expect(openOptionSlots({ ...values, exclusiveEquipped: 'false' }, tables)).toBe(0);
-    expect(optionLines({ ...values, exclusiveEquipped: 'false' })).toEqual([]);
+    expect(openOptionSlots({ ...values, exclusiveOwnedStar_1021: '' }, tables)).toBe(0);
+    expect(optionLines({ ...values, exclusiveOwnedStar_1021: '' })).toEqual([]);
     expect(openOptionSlots({ ...values, exclusiveOwnedStar_1021: '14' }, tables)).toBe(8);
     // 칸 n 을 여는 ★ = Option weapon_dice_lock_n (1 · 2 · 4 · 6 · 8 · 10 · 12 · 14)
     expect([1, 2, 3, 4, 5, 6, 7, 8].map((index) => optionUnlockStar(tables, '1021', index))).toEqual([1, 2, 4, 6, 8, 10, 12, 14]);
@@ -176,9 +176,8 @@ describe('바뀐 계산', () => {
     const values: CalcValues = { charName: '에이카', exclusiveOwnedStar_1021: '11', exclusiveOwnedLevel_1021: '10' };
     const transcendLines = (input: CalcValues) =>
       exclusiveWeaponLines(input, tables, label).filter((line) => line.source !== label('calc.weapon.sources.exclusive'));
-    // ★ 만 있고 장착 안 함 / 장착 껐음 = 초월 줄 없음
-    expect(transcendLines(values)).toEqual([]);
-    expect(transcendLines({ ...values, exclusiveEquipped: 'false' })).toEqual([]);
+    // 무기 미보유 (★ 빈칸) = 초월 줄 없음 (보유한 전용 무기는 늘 낀 것으로 봄)
+    expect(transcendLines({ ...values, exclusiveOwnedStar_1021: '' })).toEqual([]);
     // 장착하면 ★11 이하의 statType 1~4 줄 (교체 스킬 ★2/5/8, 전용 스킬 ★3/6/9, 공격력 ★11)
     const equippedLines = transcendLines({ ...values, exclusiveEquipped: 'true' });
     expect(equippedLines.map((line) => line.stat)).toEqual(

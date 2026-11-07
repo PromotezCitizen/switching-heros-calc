@@ -144,10 +144,10 @@ export function hasExclusiveWeapon(values: CalcValues, tables: StatTables): bool
 
 /**
  * 히어로가 전용 무기를 끼면 일반 무기 장착 효과는 적용되지 않음 (앱 코드: 장착 무기 번호 999 이하만 일반 무기 — 유력).
- * 전용 무기가 있고 "전용 무기 장착" 을 켰을 때만 전용 무기를 쓰는 것으로 본다
+ * 히어로가 전용 무기를 가졌으면 (히어로 · 전용 무기 표의 초월 ★ 칸에 값이 있으면) 늘 낀 것으로 본다
  */
 export function usesExclusiveWeapon(values: CalcValues, tables: StatTables): boolean {
-  return values[EXCLUSIVE_EQUIPPED_FIELD] === 'true' && hasExclusiveWeapon(values, tables);
+  return hasExclusiveWeapon(values, tables) && exclusiveStarOfHero(values, tables) !== '';
 }
 
 /** 전용 무기 초월 ★ 선택지 (WeaponChar 표의 별, 작은 것부터) */

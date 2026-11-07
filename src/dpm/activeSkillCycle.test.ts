@@ -38,7 +38,7 @@ describe('입력값으로', () => {
     const shena = { charName: '셰나', exclusiveEquipped: 'true', exclusiveOwnedStar_1019: '1' };
     expect(weaponCoolSpeedPercent(shena, tables, 'boss')).toBe(25);
     expect(weaponCoolSpeedPercent(shena, tables, 'normal')).toBe(0);
-    expect(weaponCoolSpeedPercent({ ...shena, exclusiveEquipped: '' }, tables, 'boss')).toBe(0);
+    expect(weaponCoolSpeedPercent({ ...shena, exclusiveOwnedStar_1019: '' }, tables, 'boss')).toBe(0);
     expect(weaponCoolSpeedPercent({ ...shena, exclusiveOwnedStar_1019: '0' }, tables, 'boss')).toBe(0);
   });
 });

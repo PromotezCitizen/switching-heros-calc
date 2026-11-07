@@ -40,8 +40,8 @@ describe('초월의 기운 (3002 · 3008): 두 히어로가 장착한 전용 무
     expect(equippedWeaponStarSum({ ...heroes, exclusiveOwnedStar_1001: '5', exclusiveOwnedStar_1021: '15' }, tables)).toBe(20);
   });
 
-  it('장착하지 않은 히어로의 무기는 합에 넣지 않는다', () => {
-    expect(equippedWeaponStarSum({ ...heroes, exclusiveEquipped2: 'false', exclusiveOwnedStar_1001: '5', exclusiveOwnedStar_1021: '15' }, tables)).toBe(5);
+  it('무기가 없는 히어로 (★ 빈칸) 는 합에 넣지 않는다', () => {
+    expect(equippedWeaponStarSum({ ...heroes, exclusiveOwnedStar_1001: '5', exclusiveOwnedStar_1021: '' }, tables)).toBe(5);
   });
 
   it('합이 20 이상이면 3002 가 공격력 줄을 만들고, 20 미만이면 만들지 않는다', () => {

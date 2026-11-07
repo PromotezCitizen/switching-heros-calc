@@ -19,24 +19,19 @@ function renderPanel(values: CalcValues) {
 }
 
 describe('히어로 탭 화면', () => {
-  it('빈 입력: 히어로 고르기 버튼 2개, 기본값 확인 표 없음 (등급·성·각성 입력은 히어로 표로 옮김)', () => {
+  it('빈 입력: 히어로 고르기 버튼 2개', () => {
     renderPanel({});
     expect(screen.getByLabelText('1슬롯 히어로 고르기')).toBeTruthy();
     expect(screen.getByLabelText('2슬롯 히어로 고르기')).toBeTruthy();
     expect(screen.queryByText('수치표 기본값')).toBeNull();
   });
 
-  it('1슬롯 히어로 요약은 히어로 표 값 (등급·성·각성)', () => {
-    renderPanel({ charName: '린', heroOwnedGrade_0: 'SSS', heroOwnedStar_0: '2', heroOwnedAwaken_0: '3' });
-    expect(screen.getByText(/^1슬롯: 등급 SSS · 성 2 · 각성 3/)).toBeTruthy();
-  });
-
-  it('고른 히어로·기본값 확인 표', () => {
-    renderPanel({ charName: '셰나', charName2: '루피아', charGrade: 'S', charStar: '2', atk: '735.70A', hp: '1.5A' });
-    expect(screen.getAllByText('735.70A', { selector: 'td' }).length).toBe(2);
-    expect(screen.getByText('11.04B')).toBeTruthy();
-    expect(screen.getByText('같음')).toBeTruthy();
-    expect(screen.getByText('다름')).toBeTruthy();
+  it('히어로를 골라도 요약 줄 · 전용 무기 장착 체크 · 기본값 확인 표는 없다 (화면에서 뺌)', () => {
+    renderPanel({ charName: '셰나', charName2: '루피아', heroOwnedGrade_0: 'SSS' });
+    expect(screen.queryByText(/^1슬롯: 등급/)).toBeNull();
+    expect(screen.queryByLabelText('전용 무기 장착')).toBeNull();
+    expect(screen.queryByText('같음')).toBeNull();
+    expect(screen.queryByText('다름')).toBeNull();
   });
 
   it('고르기 창: 속성·직업으로 걸러 고르면 이름만 넣는다 (등급·성은 히어로 표)', async () => {

@@ -18,7 +18,6 @@ import type { StatTables, TableRow } from '@/data/statTables';
 
 const { STATUS_OPTIONS, TYR_WEAPON, AEIKA_WEAPON, PET_LEADER_STATUS, SWAP, SWAP_SKILL_FREEZE, SWAP_ARROW_INTERVAL, DEVIL_WINK } = CONSTS.dpm;
 const [, SECOND_HERO_FIELD] = SWAP.HERO_FIELDS;
-const [, SECOND_EQUIPPED_FIELD] = SWAP.EQUIPPED_FIELDS;
 const PERCENT = 100;
 
 /** 상태이상을 거는 스킬 옵션 하나 (한 스킬의 시전 간격과 함께) */
@@ -116,10 +115,10 @@ export function petLeaderStatusSource(
   return { kind, chance: 1, durationSeconds, intervalSeconds };
 }
 
-/** 2슬롯 히어로가 전용 무기 weaponId 를 장착했을 때 그 무기의 초월 ★ (다른 무기이거나 장착 안 했으면 0) */
+/** 2슬롯 히어로의 전용 무기가 weaponId 일 때 그 무기의 초월 ★ (보유한 전용 무기는 늘 낀 것으로 봄, 다른 무기면 0) */
 function secondHeroWeaponStar(values: CalcValues, tables: StatTables, weaponId: string): number {
   const hero = heroByName(tables, values[SECOND_HERO_FIELD]);
-  if (!hero || values[SECOND_EQUIPPED_FIELD] !== 'true') return 0;
+  if (!hero) return 0;
   if (exclusiveWeapons(tables).find((weapon) => weapon.charId === hero.charId)?.weaponId !== weaponId) return 0;
   return Number(ownedExclusiveStar(values, tables, hero.charId)) || 0;
 }

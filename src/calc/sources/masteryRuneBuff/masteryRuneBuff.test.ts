@@ -634,8 +634,8 @@ describe('전투 버프 줄: 초월의 일격 · 최종 공격력 ×5', () => {
   it('최종 공격력 ×5 (_multiply_AttackDamage): 1슬롯 히어로가 전용 무기 1021 을 장착하고 ★10 이상일 때만', () => {
     expect(finalAttackMultiplierLines({}, label, weaponTables)).toEqual([]);
     expect(finalAttackMultiplierLines(equipped('9'), label, weaponTables)).toEqual([]);
-    // 장착 안 함 (보유만) / 다른 히어로 / 다른 무기 ★ 는 줄 없음
-    expect(finalAttackMultiplierLines({ ...equipped('13'), exclusiveEquipped: '' }, label, weaponTables)).toEqual([]);
+    // 무기 미보유 (★ 빈칸) / 다른 히어로 / 다른 무기 ★ 는 줄 없음 (보유한 전용 무기는 늘 낀 것으로 봄)
+    expect(finalAttackMultiplierLines({ ...equipped('13'), exclusiveOwnedStar_1021: '' }, label, weaponTables)).toEqual([]);
     expect(finalAttackMultiplierLines({ ...equipped('13'), charName: '린' }, label, weaponTables)).toEqual([]);
     expect(finalAttackMultiplierLines({ charName: '에이카', exclusiveEquipped: 'true', exclusiveOwnedStar_1022: '13' }, label, weaponTables)).toEqual([]);
     expect(finalAttackMultiplierLines(equipped('10'), label, weaponTables)).toEqual([
@@ -647,7 +647,7 @@ describe('전투 버프 줄: 초월의 일격 · 최종 공격력 ×5', () => {
     const row = tableRows(weaponTables.WeaponTranscend).find((record) => record.weaponType === '1021' && record.statType === '30002')!;
     expect([row.star, row.val1, row.val2, row.val3]).toEqual(['7', '40', '5', '10']);
     expect(exclusiveStackBuffLines(equipped('6'), label, weaponTables)).toEqual([]);
-    expect(exclusiveStackBuffLines({ ...equipped('13'), exclusiveEquipped: '' }, label, weaponTables)).toEqual([]);
+    expect(exclusiveStackBuffLines({ ...equipped('13'), exclusiveOwnedStar_1021: '' }, label, weaponTables)).toEqual([]);
     expect(exclusiveStackBuffLines(equipped('13'), label, { ...weaponTables, WeaponTranscend: undefined as unknown as RawTable })).toEqual([]);
     const lines = exclusiveStackBuffLines(equipped('7'), label, weaponTables);
     expect(lines).toEqual([{ source: 'calc.buff.exclusiveStackSource', stat: '_per_attackDamage', value: 50 }]);
@@ -668,10 +668,10 @@ describe('전투 버프 줄: 초월의 일격 · 최종 공격력 ×5', () => {
       { source: '초월의 일격 (슈퍼 치명타 130.91%, 100% 초과)', stat: '_per_criticalDmg', value: 200 },
       ...exclusiveLines,
     ]);
-    // 특성 표 없이도 전용 무기 줄은 나온다. 장착 안 했으면 없다
+    // 특성 표 없이도 전용 무기 줄은 나온다. 무기가 없으면 (★ 빈칸) 없다
     const { Mastery: _mastery, ...withoutMastery } = weaponTables;
     expect(tab.lines(values, withoutMastery)).toEqual(exclusiveLines);
-    expect(tab.lines({ ...values, exclusiveEquipped: '' }, withoutMastery)).toEqual([]);
+    expect(tab.lines({ ...values, exclusiveOwnedStar_1021: '' }, withoutMastery)).toEqual([]);
   });
 });
 

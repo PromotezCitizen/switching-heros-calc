@@ -56,8 +56,8 @@ describe('티르 전용 무기 (1030) 의 출혈 · 빈혈', () => {
     expect(seven.fractions.anemia).toBeCloseTo(0.5, 9);
     expect(seven.fractions.scar).toBeUndefined();
   });
-  it('전용 무기를 장착하지 않으면 없다', () => {
-    expect(weaponStatus({ ...base, charName: '티르', exclusiveEquipped: 'false' }, tables, null)).toEqual({ sources: [], alwaysKinds: [], fractions: {} });
+  it('전용 무기가 없으면 (★ 빈칸) 없다', () => {
+    expect(weaponStatus({ ...base, charName: '티르', exclusiveOwnedStar_1030: '' }, tables, null)).toEqual({ sources: [], alwaysKinds: [], fractions: {} });
   });
   it('자동 교체 (간격 18): ★7 은 0 · 16초에 걸어 연장 출혈 32 / 36, 빈혈 [10,18) · [26,34) = 16 / 36, ★4 흉터 10 / 36. ★6 이하는 필드에 있는 동안 + 6초', () => {
     const values = { ...base, charName: '에이카', charName2: '티르', exclusiveEquipped2: 'true' };
@@ -85,7 +85,7 @@ describe('티르 전용 무기 (1030) 의 출혈 · 빈혈', () => {
     expect(activeProbability(freeze)).toBeCloseTo(1 - Math.pow(0.5, 6 / 1.4), 1);
     expect(activeProbability(freeze)).toBeGreaterThan(0.9);
     expect(weaponFreezeSource({ ...values, exclusiveOwnedStar_1021: '3' }, tables, 1.4)).toBeNull();
-    expect(weaponFreezeSource({ ...values, exclusiveEquipped: 'false' }, tables, 1.4)).toBeNull();
+    expect(weaponFreezeSource({ ...values, exclusiveOwnedStar_1021: '' }, tables, 1.4)).toBeNull();
     expect(weaponFreezeSource(values, tables, null)).toBeNull();
   });
   it('늘 걸려 있는 종류는 확률 1 로 더한다', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { combineKind, combineLines, withoutExcludedStats, type Line } from '@/calc/combine';
-import { formatLog, logOnePlus, parseGameNumber } from '@/calc/gameNumber';
+import { formatLog, letterIndex, logOnePlus, parseGameNumber, unitSuffix } from '@/calc/gameNumber';
 import { ARTIFACT_TOTAL_FIELDS, artifactLines } from '@/calc/sources/artifact';
 
 /** 기대값은 기존 htmls/stat-calc-core.js 를 그대로 실행해 얻은 출력이다 */
@@ -18,8 +18,26 @@ describe('큰 수 읽기', () => {
     expect(parsed?.log).toBeCloseTo(log, 10);
     expect(parsed?.percent).toBe(percent);
   });
-  it.each(['abc', '', '0'])('읽을 수 없는 글 %j 은 null', (text) => {
+  it.each(['abc', '', '0', '1abcdefghi', '13.08억'])('읽을 수 없는 글 %j 은 null', (text) => {
     expect(parseGameNumber(text)).toBeNull();
+  });
+});
+
+describe('단위 글자 (게임 m850: 엑셀 열 이름 방식, 최대 8글자)', () => {
+  it.each([
+    ['A', 1], ['Z', 26], ['AA', 27], ['AZ', 52], ['BA', 53], ['DG', 111], ['ZZ', 702], ['AAA', 703], ['AAB', 704],
+  ])('%s = %i', (letters, index) => {
+    expect(letterIndex(letters)).toBe(index);
+    expect(letterIndex(letters.toLowerCase())).toBe(index);
+    expect(unitSuffix(index)).toBe(letters);
+  });
+  it('1 ~ 20000 번 단위가 글자 → 번호 → 글자로 되돌아온다', () => {
+    for (let index = 1; index <= 20000; index++) expect(letterIndex(unitSuffix(index))).toBe(index);
+  });
+  it('세 글자 이상 단위도 읽는다 (예전 HTML 은 2글자까지)', () => {
+    expect(parseGameNumber('13.08AAA%')?.log).toBeCloseTo(Math.log10(13.08) + 3 * 703, 6);
+    expect(parseGameNumber('1abcdefgh')).not.toBeNull();
+    expect(formatLog(3 * 703 + 1)).toBe('10.00AAA');
   });
 });
 

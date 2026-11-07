@@ -163,16 +163,19 @@ export const CONSTS = {
     },
   },
 
-  /** 게임 큰 수 표기: 단위 문자 A=1e3, B=1e6 … Z, AA … (대소문자 구분 없이 읽고 대문자로 표기) */
+  /**
+   * 게임 큰 수 표기: 단위 문자 A=1e3, B=1e6 … Z, AA … ZZ, AAA … (대소문자 구분 없이 읽고 대문자로 표기).
+   * 게임 단위 함수 m850 과 같은 엑셀 열 이름 방식 (1=a … 26=z, 27=aa, 53=ba …), 최대 8글자
+   * (claude-docs/app_dump/il2cpp_analysis/full/library-calc-relevant.md 81줄. 예전 HTML 은 2글자까지만 읽었음, 사용자 지시 2026-11-07 "고쳐라")
+   */
   gameNumber: {
     LOG_PER_UNIT: 3,
     /** 이 값(log10) 미만은 단위 없이 일반 숫자로 표기 */
     UNIT_FROM_LOG: 4,
     LETTER_COUNT: 26,
-    /** 두 글자 단위(AA…)의 시작 번호 */
-    TWO_LETTER_UNIT_START: 27,
+    /** 단위 글자 최대 수 (게임 m850 버퍼 8칸) */
+    MAX_UNIT_LETTERS: 8,
     UPPER_A_CODE: 65,
-    LOWER_A_CODE: 97,
     /** 'a' 의 코드 − 1 (a → 1 번) */
     LOWER_BEFORE_A_CODE: 96,
     /** 가수가 이 값 이상이면 다음 단위로 올림 */

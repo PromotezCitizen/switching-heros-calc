@@ -8,7 +8,7 @@ import { CONSTS } from '@/CONSTS';
 import { heroAwakenLines } from '@/calc/sources/textLines/other';
 import { heroBaseAttackSpeedLines, heroBaseCriticalLines } from '@/calc/sources/hero/character';
 import type { CalcTab } from '@/calc/types';
-import { ExclusiveWeaponRosterPanel, HeroRosterPanel } from '@/calc/panels/RosterPanels';
+import { HeroRosterPanel } from '@/calc/panels/RosterPanels';
 import HeroPanel from '@/calc/sources/hero/HeroPanel';
 
 export { awakenFinalCheck, awakenGradeChoices, awakenStages, awakenStarChoices, selectedAwakenChoice, selectedAwakenStage } from '@/calc/sources/hero/awaken';
@@ -50,17 +50,11 @@ export const heroTabs: CalcTab[] = [
       ];
     },
   },
-  // 히어로 표·전용 무기 표: 줄은 만들지 않는다 (1슬롯 히어로·전용 무기·유물 연동이 이 값을 읽음)
+  // 히어로 · 전용 무기 표 (한 탭, 사용자 결정 2026-11-07): 줄은 만들지 않는다 (1슬롯 히어로·전용 무기·유물 연동이 이 값을 읽음)
   {
     id: 'heroRoster',
-    tableNames: [CONSTS.hero.TABLES.CHARACTER],
-    Panel: HeroRosterPanel,
-    lines: () => [],
-  },
-  {
-    id: 'exclusiveWeapon',
     tableNames: [CONSTS.hero.TABLES.CHARACTER, 'WeaponChar'],
-    Panel: ExclusiveWeaponRosterPanel,
+    Panel: HeroRosterPanel,
     lines: () => [],
   },
 ];

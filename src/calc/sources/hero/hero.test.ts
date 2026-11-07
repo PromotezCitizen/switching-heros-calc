@@ -173,7 +173,8 @@ describe('직업·속성 체력 %', () => {
 
 describe('히어로 탭', () => {
   it('탭: 캐릭터 각성 · 히어로 표 · 전용 무기 표. 캐릭터 각성 레벨이 없으면 기본 공격속도·치명타 줄만 있다', () => {
-    expect(heroTabs.map((tab) => tab.id)).toEqual(['hero', 'heroRoster', 'exclusiveWeapon']);
+    // 히어로 · 전용 무기는 한 탭 (사용자 결정 2026-11-07)
+    expect(heroTabs.map((tab) => tab.id)).toEqual(['hero', 'heroRoster']);
     const lines = heroTabs[0].lines({ charName: '셰나' }, tables);
     expect(lines.map((line) => [line.stat, line.value])).toEqual([
       ['attackSpeed', 150],

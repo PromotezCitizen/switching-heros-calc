@@ -1,3 +1,6 @@
+/** 피규어 개수형 효과의 N 종류 */
+export type FigureCountKind = 'figureLevelDC' | 'figureLevelDCB' | 'mythicFigures' | 'stickerPoints' | 'weaponTranscend' | 'heroAwaken';
+
 /** 코어 특성 · 피규어 탭 (뒤늦게 계산에 넣은 능력치 제공자). CONSTS.providers 로 접근한다 */
 export const PROVIDER_CONSTS = {
   /** 표에서 "스탯 없음" 을 뜻하는 글 */
@@ -43,8 +46,33 @@ export const PROVIDER_CONSTS = {
     CARD_SET_POINT_STAT: '_per_attackDamage_CardSetPoint',
     CARD_SET_POINT_TARGET_STAT: '_per_attackDamage',
     CARD_SET_POINT_FIELD: 'relicLink_cardSetBonus',
-    /** 레벨 입력 칸 격자 최소 폭 (px) */
-    INPUT_MIN_WIDTH: 150,
+    /**
+     * 개수형 효과 (게임 m2684, 1 + (v − 1) × N = 값 × N %): 효과 이름 → 넣는 스탯과 N 의 종류
+     * (claude-docs/react-port/stat-provider-formulas.md 453~454줄, 사용자 지시 2026-11-07 "다 계산해라").
+     * 등급 글자 ↔ 이름 (D 고급 · C 희귀 · B 영웅 · A 전설 · S 신화) 은 번역 표 이름과 등급별 피규어 수로 맞춘 것 (유력)
+     */
+    COUNT_STATS: {
+      _per_attackDamage_FigureLvSumDC: { target: '_per_attackDamage', count: 'figureLevelDC' },
+      _per_hp_FigureLvSumDC: { target: '_per_hp', count: 'figureLevelDC' },
+      _per_attackDamage_FigureLvSumDCB: { target: '_per_attackDamage', count: 'figureLevelDCB' },
+      _per_hp_FigureLvSumDCB: { target: '_per_hp', count: 'figureLevelDCB' },
+      _per_attackDamage_MythicFigureCnt: { target: '_per_attackDamage', count: 'mythicFigures' },
+      _per_attackDamage_StickerPointSum: { target: '_per_attackDamage', count: 'stickerPoints' },
+      _per_attackDamage_WeaponTrLvSum: { target: '_per_attackDamage', count: 'weaponTranscend' },
+      _per_attackDamage_AwakenLvSum: { target: '_per_attackDamage', count: 'heroAwaken' },
+    } as Record<string, { target: string; count: FigureCountKind }>,
+    /** 레벨 합에 넣는 등급 (DC = 고급·희귀, DCB = 고급·희귀·영웅), 신화 = S */
+    LEVEL_SUM_GRADES: { figureLevelDC: ['D', 'C'], figureLevelDCB: ['D', 'C', 'B'] } as Record<string, string[]>,
+    MYTHIC_GRADE: 'S',
+    /** 피규어 카드 격자 최소 폭 (px) */
+    CARD_MIN_WIDTH: 260,
+    /** 피규어 그림: public/icons/Atlas_FigureIMG/figure_<번호, 두 자리 이상>.png (그림 번호 = 피규어 번호, 50 · 108 번 그림으로 확인) */
+    ICON_FOLDER: 'Atlas_FigureIMG',
+    ICON_PREFIX: 'figure_',
+    ICON_DIGITS: 2,
+    ICON_SIZE: 64,
+    /** 레벨 입력 칸 폭 (px) */
+    LEVEL_INPUT_WIDTH: 96,
   },
 
   /**

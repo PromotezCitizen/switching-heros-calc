@@ -76,7 +76,10 @@ export function relicCardValues(
   });
   // 모험 던전: 계산에는 안 쓰고 속성별 최고 기록만 (유물 탭에 보여 줌). _bestLv = [불, 물, 땅]
   runSection(notes, '모험 던전', () => {
-    values.petRescueBest = (progress.petRescueDungeonData?._bestLv ?? []).join(',');
+    const best = progress.petRescueDungeonData?._bestLv ?? [];
+    [1, 2, 3].forEach((attribute, index) => {
+      values[`petRescueBest_${attribute}`] = best[index] === undefined ? '' : String(best[index]);
+    });
   });
 
   // 몬스터 카드: 쓰는 프리셋의 슬롯 카드·등급·세트 선택, 세트 점수 합, R · SSR 보유 수

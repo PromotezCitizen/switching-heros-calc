@@ -46,8 +46,8 @@ export const RELIC_LINK_FIELDS = [
   'star10Weapons',
 ] as const;
 export type RelicLinkField = (typeof RELIC_LINK_FIELDS)[number];
-/** 속성 던전 클리어 단계: 유물이 아니라 얼티밋 (화염의 가르침 · 파도의 축복 · 흙의 결속) 이 쓰므로 유물 탭에 늘 보인다 */
-export const ATTRIBUTE_DUNGEON_LINKS: readonly string[] = ['dungeonFire', 'dungeonWater', 'dungeonEarth'];
+/** 던전 클리어 단계 칸 (유물 연동 · 던전 얼티밋이 쓴다). 유물 탭이 아니라 수집 · 기타의 던전 기록 칸에서 넣는다 */
+export const DUNGEON_LINKS: readonly RelicLinkField[] = ['dungeonGold', 'dungeonEquip', 'dungeonRelic', 'dungeonFire', 'dungeonWater', 'dungeonEarth'];
 /** 직업 일반 무기 합산 레벨 연동 (칸 없이 자동: 일반 무기 전부 최대 레벨 가정) */
 const WEAPON_LEVEL_LINK_PREFIX = 'weaponLevel';
 export const WEAPON_JOB_TABLE = 'WeaponJob';

@@ -7,7 +7,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { CONSTS } from '@/CONSTS';
 import {
   RELIC_MAX_GRADE_FIELD,
-  ATTRIBUTE_DUNGEON_LINKS,
+  DUNGEON_LINKS,
   RELIC_TAB_LINK_FIELDS,
   lowerGradeRelicFill,
   relicBlessingFromStates,
@@ -25,8 +25,6 @@ import { useCalcStore } from '@/store/useCalcStore';
 import type { TabPanelProps } from '@/calc/types';
 
 const { UNOWNED_OPACITY, OWNED_OPACITY, ICON_SIZE } = CONSTS.trainingRelic.relic;
-/** 폰 불러오기가 채우는 모험 던전 (펫 구출) 이번 주 진행도 (보여 주기만) */
-const PET_RESCUE_BEST_FIELD = 'petRescueBest';
 const MIN_LEVEL = CONSTS.emptyInput.LEVEL;
 const { CARD_MIN_WIDTH } = CONSTS.display;
 
@@ -175,7 +173,7 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
         <SectionTitle>{translate('calc.relic.linksTitle')}</SectionTitle>
         {/* 라벨이 길어 (예: "SSR 등급 이상 몬스터 카드 수") 한 줄에 하나씩 위아래로 */}
         <Stack gap="xs">
-          {RELIC_TAB_LINK_FIELDS.filter((field) => usedLinks.has(field) || ATTRIBUTE_DUNGEON_LINKS.includes(field)).map((field) => {
+          {RELIC_TAB_LINK_FIELDS.filter((field) => usedLinks.has(field) && !DUNGEON_LINKS.includes(field)).map((field) => {
             const fieldId = relicLinkFieldId(field);
             return (
               <TextInput
@@ -190,17 +188,7 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
             );
           })}
         </Stack>
-        {/* 모험 던전: 계산에는 안 들어가고 (그 던전 안에서만 쓰이는 보너스) 이번 주 진행도만 보여 준다 (폰 불러오기 값) */}
-        {values[PET_RESCUE_BEST_FIELD] && (
-          <Text size="sm">
-            {translate('calc.relic.petRescue', {
-              best: (values[PET_RESCUE_BEST_FIELD] ?? '')
-                .split(',')
-                .map((level, index) => `${translate(`calc.relic.attributes.${index + 1}`)} ${level || '-'}`)
-                .join(' · '),
-            })}
-          </Text>
-        )}
+        {![...usedLinks].some((field) => !(DUNGEON_LINKS as readonly string[]).includes(field)) && <Text size="sm" c="dimmed">{translate('calc.relic.noLinks')}</Text>}
         <Text size="sm" c="dimmed">{translate('calc.relic.linksHelp')}</Text>
       </Stack>
     </Stack>

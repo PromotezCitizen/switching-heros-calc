@@ -15,7 +15,7 @@ export const CALC_TAB_GROUPS: { id: string; tabIds: string[] }[] = [
   { id: 'pet', tabIds: ['pet'] },
   // 피규어는 따로 한 탭 (전용 · 공용 108개 전부)
   { id: 'figure', tabIds: ['figure'] },
-  { id: 'collection', tabIds: ['costume', 'collection', 'title', 'profileIcon', 'affinity', 'fairy', 'mine', 'frame'] },
+  { id: 'collection', tabIds: ['costume', 'collection', 'title', 'profileIcon', 'affinity', 'fairy', 'mine', 'frame', 'dungeon'] },
   { id: 'battle', tabIds: ['buff', 'profile'] },
 ];
 

@@ -60,7 +60,7 @@ const NOT_FROM_SAVE = new Set(['summaryEnemyCountReached', 'berserkStacks', 'kil
 /** 기록 보관소 레벨은 저장 mainLv 를 그대로 (2026-11-07, 파이썬 변환에 없는 칸). 따로 대조 */
 const ARCHIVE_LEVEL_KEY = 'libraryArchiveLevel';
 /** 속성 던전 기록 · 모험 던전 진행도 (2026-11-07 추가, 파이썬 변환에 없는 칸). 따로 대조 */
-const NEW_DUNGEON_KEY = /^(relicLink_dungeon(Fire|Water|Earth)|petRescueBest)$/;
+const NEW_DUNGEON_KEY = /^(relicLink_dungeon(Fire|Water|Earth)|petRescueBest_[123])$/;
 /** 호감도 0 도 칸에 적는다 (2026-11-07, 파이썬 변환에 없는 칸) */
 const ZERO_AFFINITY_KEY = /^heroOwnedAffinity_/;
 /** 광산 각성 총합은 이제 불러오지 않고 히어로 탭 각성 레벨 합으로 계산한다 (2026-11-07). 각성 0 도 칸에 적어 파이썬 변환에 없는 칸이 생긴다 */
@@ -121,7 +121,7 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
     const fire = progress.dungeonAttDataDic.v[progress.dungeonAttDataDic.k.indexOf(8)].recordValue;
     expect(result.values.relicLink_dungeonFire).toBe(String(Math.round(fire.value * Math.pow(10, fire.exponent))));
     expect(result.values.relicLink_dungeonWater).toBeTruthy();
-    expect(result.values.petRescueBest).toBe(progress.petRescueDungeonData._bestLv.join(','));
+    expect([1, 2, 3].map((attribute) => result.values[`petRescueBest_${attribute}`])).toEqual(progress.petRescueDungeonData._bestLv.map(String));
   });
 
   it('기록 보관소 레벨: 저장 _libraryData.mainLv 그대로 (불러온 값이 책 레벨 식보다 먼저)', () => {

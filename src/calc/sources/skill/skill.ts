@@ -77,9 +77,10 @@ function equippedSkillIds(values: CalcValues): Set<string> {
 }
 
 /** 장착 5칸의 스킬 레벨 합 (같은 스킬을 두 칸에 골라도 한 번만, 보유가 아니면 0) */
-export function equippedSkillLevelSum(values: CalcValues): number {
+export function equippedSkillLevelSum(values: CalcValues, field: (slot: number) => string = skillEquipField): number {
   let sum = 0;
-  for (const skillId of equippedSkillIds(values)) sum += skillLevel(values, skillId);
+  const ids = new Set(SKILL_EQUIP_SLOT_NUMBERS.map((slot) => values[field(slot)]).filter(Boolean));
+  for (const skillId of ids) sum += skillLevel(values, skillId);
   return sum;
 }
 

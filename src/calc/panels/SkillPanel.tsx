@@ -125,6 +125,7 @@ export default function SkillPanel({ values, setValue, tables }: TabPanelProps) 
       />
       <Text size="sm">{translate('calc.skill.equippedLevelSum', { sum: equippedSkillLevelSum(values) })}</Text>
       <SectionTitle>{translate('calc.skill.equipTitle2', { name: secondHero || translate('calc.skill.noSecondHero') })}</SectionTitle>
+        <>
       {secondHero ? (
         <EquipRow
           values={values}
@@ -133,6 +134,8 @@ export default function SkillPanel({ values, setValue, tables }: TabPanelProps) 
           job={heroFirstRow(tables, secondHero)?.job}
           field={secondSkillEquipField}
           pickTitle={(slot) => translate('calc.skill.equipPickTitle2', { slot })}
+        <Text size="sm">{translate('calc.skill.equippedLevelSum', { sum: equippedSkillLevelSum(values, secondSkillEquipField) })}</Text>
+        </>
         />
       ) : (
         <Text size="xs" c="dimmed">{translate('calc.skill.secondHeroHelp')}</Text>

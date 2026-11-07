@@ -6,3 +6,19 @@ html {
 html::-webkit-scrollbar {
   display: none;
 }
+
+/*
+ * 툴팁은 화면 테마를 따른다 (사용자 결정 2026-11-01: 다크 모드 = 어두운 툴팁, 라이트 모드 = 밝은 툴팁).
+ * Mantine 기본은 반대색 (라이트 = gray-9, 다크 = gray-2) 이라 변수만 바꾼다. 바탕과 구분되게 테두리를 둔다
+ */
+[data-mantine-color-scheme='light'] .mantine-Tooltip-tooltip {
+  --tooltip-bg: var(--mantine-color-white);
+  --tooltip-color: var(--mantine-color-black);
+  border: 1px solid var(--mantine-color-gray-4);
+}
+
+[data-mantine-color-scheme='dark'] .mantine-Tooltip-tooltip {
+  --tooltip-bg: var(--mantine-color-dark-6);
+  --tooltip-color: var(--mantine-color-dark-0);
+  border: 1px solid var(--mantine-color-dark-3);
+}

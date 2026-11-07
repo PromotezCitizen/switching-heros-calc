@@ -109,7 +109,7 @@ interface HeroPickerProps {
  * 창 위쪽의 속성·직업 아이콘으로 걸러 볼 수 있다 (드롭다운 없음)
  */
 export default function HeroPicker({ fieldId, value, picked, listHeroes, onPick }: HeroPickerProps) {
-  const { t: translate } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const [opened, setOpened] = useState(false);
   const [attributeFilter, setAttributeFilter] = useState('');
   const [jobFilter, setJobFilter] = useState('');
@@ -117,7 +117,8 @@ export default function HeroPicker({ fieldId, value, picked, listHeroes, onPick 
   /* 고르기 창 목록 (창을 열 때 만든다. 닫히는 동안에도 그대로 보이게 상태로 둔다) */
   const [heroes, setHeroes] = useState<TableRow[]>([]);
   const open = () => {
-    setHeroes(listHeroes());
+    // 히어로 이름을 화면 언어의 가나다 (알파벳) 순으로 (사용자 지시 2026-11-07 "히어로 선택도 오름차순 해라"), "없음" 칸은 맨 앞 그대로
+    setHeroes([...listHeroes()].sort((left, right) => left.name.localeCompare(right.name, i18n.language)));
     setOpened(true);
   };
   const shown = heroes.filter(

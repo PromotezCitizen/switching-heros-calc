@@ -66,7 +66,7 @@ export const PROVIDER_CONSTS = {
     MYTHIC_GRADE: 'S',
     /** 피규어 카드 격자 최소 폭 (px) */
     CARD_MIN_WIDTH: 260,
-    /** 피규어 그림: public/icons/Atlas_FigureIMG/figure_<번호, 두 자리 이상>.png (그림 번호 = 피규어 번호, 50 · 108 번 그림으로 확인) */
+    /** 피규어 그림: public/icons/Atlas_FigureIMG/figure_<그림 번호, 두 자리 이상>.png (그림 번호는 아이템 표 imgName, figureImages.json) */
     ICON_FOLDER: 'Atlas_FigureIMG',
     ICON_PREFIX: 'figure_',
     ICON_DIGITS: 2,

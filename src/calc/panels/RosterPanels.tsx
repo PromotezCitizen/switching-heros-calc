@@ -246,8 +246,12 @@ const HeroRosterRow = memo(function HeroRosterRow({
  * 주인이 히어로 목록에 없는 전용 무기는 맨 아래에 따로 한 줄씩
  */
 export function HeroRosterPanel({ values, setValue, tables }: TabPanelProps) {
-  const { t: translate } = useTranslation();
-  const heroes = useMemo(() => rosterHeroes(tables), [tables]);
+  const { t: translate, i18n } = useTranslation();
+  // 히어로 이름을 화면 언어의 가나다 (알파벳) 순으로 (사용자 지시 2026-11-07 "히어로 탭도 가나다 순으로 해라", 피규어 탭과 같은 기준)
+  const heroes = useMemo(
+    () => [...rosterHeroes(tables)].sort((left, right) => left.name.localeCompare(right.name, i18n.language)),
+    [tables, i18n.language],
+  );
   const weapons = useMemo(() => exclusiveWeapons(tables), [tables]);
   const weaponByHero = useMemo(() => new Map(weapons.map((weapon) => [weapon.charId, weapon])), [weapons]);
   const heroIds = useMemo(() => new Set(heroes.map((hero) => hero.charId)), [heroes]);

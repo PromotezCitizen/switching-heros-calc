@@ -59,6 +59,8 @@ const expected: Record<string, string> = savedValues.values;
 const NOT_FROM_SAVE = new Set(['summaryEnemyCountReached', 'berserkStacks', 'killerActive', 'atk', 'hp', 'soulForgeLevel', 'skillOption252', 'mineAwakenLevel', 'fairyBondLevel', 'fairyBlessingOn']);
 /** 기록 보관소 레벨은 저장 mainLv 를 그대로 (2026-11-07, 파이썬 변환에 없는 칸). 따로 대조 */
 const ARCHIVE_LEVEL_KEY = 'libraryArchiveLevel';
+/** 속성 던전 기록 · 모험 던전 진행도 (2026-11-07 추가, 파이썬 변환에 없는 칸). 따로 대조 */
+const NEW_DUNGEON_KEY = /^(relicLink_dungeon(Fire|Water|Earth)|petRescueBest)$/;
 /** 호감도 0 도 칸에 적는다 (2026-11-07, 파이썬 변환에 없는 칸) */
 const ZERO_AFFINITY_KEY = /^heroOwnedAffinity_/;
 /** 광산 각성 총합은 이제 불러오지 않고 히어로 탭 각성 레벨 합으로 계산한다 (2026-11-07). 각성 0 도 칸에 적어 파이썬 변환에 없는 칸이 생긴다 */
@@ -98,7 +100,7 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
     const expectedKeys = Object.keys(expected).filter((key) => !NOT_FROM_SAVE.has(key) && !WEAPON_OPTION_KEY.test(key)).sort();
     // 비운 칸 ('' = 이 프리셋에서 레벨 없는 특성) 은 파이썬 변환에 없는 칸이라 뺀다
     const sameKeys = Object.keys(result.values).filter(
-      (key) => !SKILL_OPTION_KEY.test(key) && !SKILL_PERK_KEY.test(key) && !SECOND_HERO_KEY.test(key) && !WEAPON_OPTION_KEY.test(key) && key !== ARCHIVE_LEVEL_KEY && !(key.startsWith('mastery_') && result.values[key] === '') && !((ZERO_AWAKEN_KEY.test(key) || ZERO_AFFINITY_KEY.test(key)) && result.values[key] === '0'),
+      (key) => !SKILL_OPTION_KEY.test(key) && !SKILL_PERK_KEY.test(key) && !SECOND_HERO_KEY.test(key) && !WEAPON_OPTION_KEY.test(key) && key !== ARCHIVE_LEVEL_KEY && !NEW_DUNGEON_KEY.test(key) && !(key.startsWith('mastery_') && result.values[key] === '') && !((ZERO_AWAKEN_KEY.test(key) || ZERO_AFFINITY_KEY.test(key)) && result.values[key] === '0'),
     );
     expect(sameKeys.sort()).toEqual(expectedKeys);
     for (const key of expectedKeys) {
@@ -112,6 +114,14 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
         expect(actual, key).toBe(expected[key]);
       }
     }
+  });
+
+  it('속성 던전 기록 (8 불 · 9 물 · 10 땅) 과 모험 던전 속성별 최고 기록 (불 · 물 · 땅) 을 읽는다', () => {
+    const progress = (raw.Progress as unknown as { dungeonAttDataDic: { k: number[]; v: { recordValue: { value: number; exponent: number } }[] }; petRescueDungeonData: { _bestLv: number[] } });
+    const fire = progress.dungeonAttDataDic.v[progress.dungeonAttDataDic.k.indexOf(8)].recordValue;
+    expect(result.values.relicLink_dungeonFire).toBe(String(Math.round(fire.value * Math.pow(10, fire.exponent))));
+    expect(result.values.relicLink_dungeonWater).toBeTruthy();
+    expect(result.values.petRescueBest).toBe(progress.petRescueDungeonData._bestLv.join(','));
   });
 
   it('기록 보관소 레벨: 저장 _libraryData.mainLv 그대로 (불러온 값이 책 레벨 식보다 먼저)', () => {

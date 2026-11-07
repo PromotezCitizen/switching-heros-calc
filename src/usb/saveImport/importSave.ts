@@ -121,7 +121,7 @@ export const SAVE_TOP_KEYS: Record<SaveFileKind, readonly string[]> = {
   Card: ['cardDic'],
   Skill: ['psSkillDic', 'eqPresetSkillDic', 'psSkillOptionDic'],
   Dispatch: ['attributeData'],
-  Progress: ['dungeonDataDic', 'collectionDic', 'titleData'],
+  Progress: ['dungeonDataDic', 'dungeonAttDataDic', 'petRescueDungeonData', 'collectionDic', 'titleData'],
   Alchemy: ['equipItemDic', 'slotData'],
   Default: ['presetData', 'contentMissionData', 'adsBuffData', 'vipLv', 'st', '_newNotInvenDic', 'buffItemDic'],
 };

@@ -477,11 +477,14 @@ describe('얼티밋: 장착 스킬 수·던전 기록·전투 특화', () => {
     expect(result.lines[0].log).toBeCloseTo(multiplierPercentLog(2 * Math.log10(3)), 12);
   });
 
-  it('보물 던전 클리어 단계 × 5% (2015): 유물 연동 칸 120 → 600%. 속성 던전 (2018) 은 칸이 없어 남김', () => {
+  it('던전 클리어 단계 × 값 %: 보물 던전 (2015) 120 → 600%, 불 속성 던전 (2018) 은 불 던전 칸으로 (칸이 비면 줄 없음)', () => {
     const values = { ...masteryValues({ 2015: 1, 2016: 1, 2018: 1 }), relicLink_dungeonGold: '120' };
     const result = ultimateLines(values, tables.Mastery, tables.Pet, [], label);
     expect(result.lines).toEqual([{ source: 'calc.ultimate.dungeonSource', stat: '_per_skillDamage', value: 600 }]);
-    expect(result.skipped).toEqual(['calc.mastery.names.2018']);
+    expect(result.skipped).toEqual([]);
+    const withFire = ultimateLines({ ...values, relicLink_dungeonFire: '1198' }, tables.Mastery, tables.Pet, [], label);
+    expect(withFire.lines).toHaveLength(2);
+    expect(withFire.lines[1].stat).toBe('_per_skillDamage');
   });
 
   it('보스 전투 특화 히어로 체력 50000% (1012): 1슬롯 히어로가 보스 특화일 때만', () => {

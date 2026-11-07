@@ -364,6 +364,9 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     DungeonGoldRecord: 'dungeonGold',
     DungeonEquipRecord: 'dungeonEquip',
     DungeonRelicRecord: 'dungeonRelic',
+    DungeonFireRecord: 'dungeonFire',
+    DungeonWaterRecord: 'dungeonWater',
+    DungeonEarthRecord: 'dungeonEarth',
   } as Record<string, string>,
   /** 얼티밋 "_per_스탯_전투 특화" 의 이름 → Character 표 targetUnit (특성 1012~1017, 1033~1035) */
   ULTIMATE_TARGET_UNIT_KEYS: { TargetUnitBoss: 'Boss', TargetUnitNormal: 'Normal', TargetUnitHero: 'Hero' } as Record<

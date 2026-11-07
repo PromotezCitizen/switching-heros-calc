@@ -17,11 +17,16 @@
   "linksTitle": "유물 연동 수치",
   "linksHelp": "\"○○ × N%\" 유물에 곱해지는 값이에요. 가진 유물에 필요한 것만 보여요.",
   "noLinks": "이 값이 필요한 유물이 없어요.",
+  "petRescue": "모험 던전 최고 기록: {{best}}층",
+  "attributes": { "1": "불", "2": "물", "3": "땅" },
   "links": {
     "dispatchLevel": "파견 레벨",
     "dungeonGold": "보물 던전 클리어 단계",
     "dungeonEquip": "무기 던전 클리어 단계",
     "dungeonRelic": "유물 던전 클리어 단계",
+    "dungeonFire": "불 속성 던전 클리어 단계 (얼티밋 화염의 가르침)",
+    "dungeonWater": "물 속성 던전 클리어 단계 (얼티밋 파도의 축복)",
+    "dungeonEarth": "땅 속성 던전 클리어 단계 (얼티밋 흙의 결속)",
     "rCards": "R 등급 이상 몬스터 카드 수",
     "ssrCards": "SSR 등급 이상 몬스터 카드 수"
   },

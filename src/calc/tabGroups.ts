@@ -20,9 +20,9 @@ export const CALC_TAB_GROUPS: { id: string; tabIds: string[] }[] = [
 
 /**
  * 화면에 칸을 그리지 않는 탭 (입력 칸이 없고 결과만 보이던 칸). 계산 (종합 · 소계 · 대미지) 에는 그대로 들어간다
- * (사용자 지시 2026-11-07 호감도 · 별자리 요정의 축복 칸을 보이고 "제거")
+ * (사용자 지시 2026-11-07 호감도 · 별자리 요정의 축복 칸을 보이고 "제거", 버프 칸 "버프탭 - 뺀다" — 입력은 공통 입력으로 옮겼음)
  */
-export const HIDDEN_PANEL_TAB_IDS: readonly string[] = ['affinity', 'fairy'];
+export const HIDDEN_PANEL_TAB_IDS: readonly string[] = ['affinity', 'fairy', 'buff'];
 
 /** 화면에 그리는 탭 (묶음 안에서 HIDDEN_PANEL_TAB_IDS 를 뺀 것) */
 export function shownGroupTabs(tabIds: string[]): CalcTab[] {

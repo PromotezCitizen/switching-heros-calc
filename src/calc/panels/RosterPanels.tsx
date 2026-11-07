@@ -1,7 +1,7 @@
 /** 히어로 · 전용 무기 표 (한 탭): 가진 것만 등급·성·각성 / 초월 ★ 를 넣는다 (비우면 미보유) */
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Group, NumberInput, Table, Text } from '@mantine/core';
+import { Box, Group, NumberInput, Table, Text } from '@mantine/core';
 import { CONSTS } from '@/CONSTS';
 import LazySelect from '@/components/LazySelect';
 import type { StatTables } from '@/data/statTables';
@@ -24,6 +24,7 @@ const {
   SELECT_WIDTH,
   NUMBER_WIDTH,
   TABLE_MIN_WIDTH,
+  TABLE_MAX_HEIGHT,
   AFFINITY_MAX_LEVEL,
   HERO_GRADE_WIDTH,
   HERO_STAR_WIDTH,
@@ -257,8 +258,9 @@ export function HeroRosterPanel({ values, setValue, tables }: TabPanelProps) {
   const heroIds = useMemo(() => new Set(heroes.map((hero) => hero.charId)), [heroes]);
   const orphanWeapons = weapons.filter((weapon) => !heroIds.has(weapon.charId));
   return (
-    <Table.ScrollContainer minWidth={TABLE_MIN_WIDTH}>
-      <Table verticalSpacing={4} horizontalSpacing="xs">
+    // 높이가 TABLE_MAX_HEIGHT 를 넘으면 표 안에서 위아래 스크롤, 좁으면 가로 스크롤. 머리줄 (두 단) 은 맨 위 고정
+    <Box style={{ overflow: 'auto', maxHeight: TABLE_MAX_HEIGHT }}>
+      <Table verticalSpacing={4} horizontalSpacing="xs" miw={TABLE_MIN_WIDTH} stickyHeader>
         <Table.Thead>
           <Table.Tr>
             <Table.Th colSpan={HERO_COLUMN_COUNT}>{translate('calc.heroRoster.heroGroup')}</Table.Th>
@@ -311,6 +313,6 @@ export function HeroRosterPanel({ values, setValue, tables }: TabPanelProps) {
           })}
         </Table.Tbody>
       </Table>
-    </Table.ScrollContainer>
+    </Box>
   );
 }

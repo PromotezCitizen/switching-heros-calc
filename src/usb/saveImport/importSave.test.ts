@@ -54,7 +54,9 @@ const expected: Record<string, string> = savedValues.values;
  * 저장 데이터에서 오지 않는 칸 (Python 이 따로 넣은 값): 전투 중 최대 상태 3개, 프로필 비교값 2개,
  * 영혼 연성 레벨 (잠김 여부를 저장 데이터로 못 가려 Python 도 빈칸), Python 판의 다발 화살 옵션 칸 (지금은 스킬마다 옵션 칸 skillOption_<스킬>_<칸>)
  */
-const NOT_FROM_SAVE = new Set(['summaryEnemyCountReached', 'berserkStacks', 'killerActive', 'atk', 'hp', 'soulForgeLevel', 'skillOption252']);
+const NOT_FROM_SAVE = new Set(['summaryEnemyCountReached', 'berserkStacks', 'killerActive', 'atk', 'hp', 'soulForgeLevel', 'skillOption252', 'mineAwakenLevel']);
+/** 광산 각성 총합은 이제 불러오지 않고 히어로 탭 각성 레벨 합으로 계산한다 (2026-11-07). 각성 0 도 칸에 적어 파이썬 변환에 없는 칸이 생긴다 */
+const ZERO_AWAKEN_KEY = /^heroOwnedAwaken_/;
 /** 스킬마다 옵션 칸: Python 변환에는 없는 칸이라 따로 대조한다 */
 const SKILL_OPTION_KEY = /^skillOption_\d+_\d+$/;
 /** 스킬 문양 칸: 이것도 Python 변환에는 없는 칸이라 skillRuneValues.test.ts 에서 따로 대조한다 */
@@ -88,7 +90,7 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
     const expectedKeys = Object.keys(expected).filter((key) => !NOT_FROM_SAVE.has(key)).sort();
     // 비운 칸 ('' = 이 프리셋에서 레벨 없는 특성) 은 파이썬 변환에 없는 칸이라 뺀다
     const sameKeys = Object.keys(result.values).filter(
-      (key) => !SKILL_OPTION_KEY.test(key) && !SKILL_PERK_KEY.test(key) && !SECOND_HERO_KEY.test(key) && !(key.startsWith('mastery_') && result.values[key] === ''),
+      (key) => !SKILL_OPTION_KEY.test(key) && !SKILL_PERK_KEY.test(key) && !SECOND_HERO_KEY.test(key) && !(key.startsWith('mastery_') && result.values[key] === '') && !(ZERO_AWAKEN_KEY.test(key) && result.values[key] === '0'),
     );
     expect(sameKeys.sort()).toEqual(expectedKeys);
     for (const key of expectedKeys) {
@@ -186,7 +188,7 @@ describe('저장 데이터 → 입력 칸 (2026-10-18 새 저장 형식 layoutVe
   });
 
   it('옮겨진 일기장 · 광산 · 훈련 · 파견 레벨 칸이 옛 형식과 같은 이름으로 다 나온다', () => {
-    const oldKeys = Object.keys(expected).filter((key) => MOVED_SECTION_KEY.test(key)).sort();
+    const oldKeys = Object.keys(expected).filter((key) => MOVED_SECTION_KEY.test(key) && !NOT_FROM_SAVE.has(key)).sort();
     expect(Object.keys(result.values).filter((key) => MOVED_SECTION_KEY.test(key)).sort()).toEqual(oldKeys);
     expect(result.values.relicLink_dispatchLevel).toBe(DISPATCH_LEVEL_1018);
   });

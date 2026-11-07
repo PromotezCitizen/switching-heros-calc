@@ -260,5 +260,7 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     GROWTH_PER_LEVEL: 1.5,
     /** 광산 투자 레벨 시작값 (이 레벨에서 배율 = 각성 총합 + 1) */
     FIRST_LEVEL: 1,
+    /** 투자 레벨 입력 칸 폭 (px) */
+    LEVEL_INPUT_WIDTH: 160,
   },
 } as const;

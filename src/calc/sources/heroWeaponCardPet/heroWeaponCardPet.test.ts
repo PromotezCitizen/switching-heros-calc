@@ -25,7 +25,7 @@ import { cardCountsByGrade, cardSlotGradeStars, cardStackLines, countExpandedLin
 import { EXPECTED_FROM_HTML } from '@/calc/sources/heroWeaponCardPet/expectedFromHtml';
 import { equippedPetIds, heroWeaponCardPetTabs } from '@/calc/sources/heroWeaponCardPet/index';
 import { libraryArchiveLevel } from '@/calc/sources/heroWeaponCardPet/library';
-import { mineMultiplier } from '@/calc/sources/heroWeaponCardPet/mine';
+import { mineAwakenTotal, mineMultiplier } from '@/calc/sources/heroWeaponCardPet/mine';
 import { maxStagePetCounts, ownedPetField, petLines, petRegionLevelField, petRegionLines, petRegionUnlocked } from '@/calc/sources/heroWeaponCardPet/pet';
 import { gradeStarValue, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 import {
@@ -171,17 +171,23 @@ describe('바뀐 계산', () => {
     expect(equippedLines.filter((line) => line.stat === '_per_attackDamage').map((line) => line.value)).toEqual([100]);
   });
 
+  /** 각성 총합이 n 이 되는 히어로 탭 값 (보유 히어로 1명, 각성 n) */
+  const awakenValues = (total: string) => ({ heroOwnedGrade_205: 'SSS', heroOwnedAwaken_205: total });
   it('광산: 투자 레벨 · 광부 각성 총합 → 축복 (이 계정 화면 14·17 = 36.8A%, 14·18 = 38.85A%), 합산에는 화면 값 + 100%', () => {
     const screenOf = (level: string, awakenTotal: string) => {
-      const multiplier = mineMultiplier({ mineLevel: level, mineAwakenLevel: awakenTotal })!;
+      const multiplier = mineMultiplier({ mineLevel: level, ...awakenValues(awakenTotal) })!;
       return formatLog(Math.log10(multiplier - 1) + 2);
     };
     expect(screenOf('14', '17')).toBe('36.80A');
     expect(screenOf('14', '18')).toBe('38.85A');
-    const lines = tabLines('mine', { mineLevel: '14', mineAwakenLevel: '18' });
+    const lines = tabLines('mine', { mineLevel: '14', ...awakenValues('18') });
     expect(lines.map((line) => line.stat)).toEqual(['_per_attackDamage', '_per_hp']);
     expect(lines[0].log).toBeCloseTo(Math.log10(38_950), 12);
-    expect(tabLines('mine', { mineAwakenLevel: '18' })).toEqual([]);
+    expect(tabLines('mine', awakenValues('18'))).toEqual([]);
+  });
+  it('광산 각성 총합 = 보유 히어로 (등급 있음) 전체의 각성 레벨 합, 배치 여부 · 미보유 칸은 안 봄', () => {
+    expect(mineAwakenTotal({ heroOwnedGrade_0: 'S', heroOwnedAwaken_0: '3', heroOwnedGrade_205: 'SSS', heroOwnedAwaken_205: '12', heroOwnedAwaken_999: '5' })).toBe(15);
+    expect(mineAwakenTotal({})).toBe(0);
   });
 
   it('웨폰 링크: 레벨 + 초월 별 → 직업 행 값 × (1 + 900%) (이 계정 화면 818.2A% / 818A% / 792.6A% / 793A%)', () => {

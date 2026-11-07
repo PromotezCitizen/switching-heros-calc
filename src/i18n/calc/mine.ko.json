@@ -1,7 +1,7 @@
 {
   "title": "광산",
   "level": "광산 투자 레벨",
-  "awakenLevel": "모든 광부 각성 레벨 총합",
+  "awakenTotal": "모든 광부 각성 레벨 총합: {{total}} (히어로 · 전용 무기 탭의 각성 레벨 합)",
   "blessing": "광산 주인의 축복: 공격력·체력 {{value}}% 증가",
   "source": "광산 주인의 축복"
 }

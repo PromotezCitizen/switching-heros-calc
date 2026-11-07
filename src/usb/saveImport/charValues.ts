@@ -74,7 +74,8 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
       }
       values[`heroOwnedGrade_${id}`] = row.grade;
       values[`heroOwnedStar_${id}`] = row.star;
-      if (hero.awakeLv) values[`heroOwnedAwaken_${id}`] = String(hero.awakeLv);
+      // 각성 0 도 적는다: 광산 각성 총합이 이 칸의 합이라 전에 불러온 값이 남으면 안 된다
+      values[`heroOwnedAwaken_${id}`] = String(hero.awakeLv ?? 0);
       const level = affinityLevel(affinityRowsByHero.get(id) ?? [], affinityExp.get(hero.id) ?? 0);
       if (level) values[`heroOwnedAffinity_${id}`] = String(level);
     }
@@ -102,11 +103,9 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
     for (const [slot, level] of readDictionary(char.diaryData.levelBySlotId)) values[`diarySlotLevel${slot}`] = String(level);
   });
 
-  // 광산: 레벨, 배치한 히어로들의 각성 합
+  // 광산: 레벨만 (각성 총합은 히어로 탭 각성 레벨 합으로 계산, mine.ts)
   runSection(notes, '광산', () => {
-    const awakenByHero = new Map(char.charList.map((hero) => [hero.id, hero.awakeLv]));
     values.mineLevel = String(char.heroMineData.lv);
-    values.mineAwakenLevel = String(char.heroMineData.eqList.reduce((sum, hero) => sum + (awakenByHero.get(hero) ?? 0), 0));
   });
 
   // 코스튬: 보유 코스튬 레벨 값을 곱한 공격력 %, 보유 수

@@ -14,6 +14,9 @@ import {
 import { statDescription } from '@/calc/statText';
 import { CALC_KEY_PREFIX } from '@/calc/storeKeys';
 import type { TabPanelProps } from '@/calc/types';
+import { ACCOUNT_KEYS } from '@/account/accountKeys';
+import { readNumber } from '@/store/storedValues';
+import { useCalcStore } from '@/store/useCalcStore';
 
 const { LEVEL_FIELD, LEVEL_INPUT_WIDTH, SELECT_MIN_WIDTH } = CONSTS.providers.coreMastery;
 const PLACEHOLDER = '{0}';
@@ -22,9 +25,19 @@ const PLACEHOLDER_SHOWN = 'N';
 /** 코어 특성: 레벨 하나 + 켠 항목 (1 ~ 13번, 그 레벨 행의 스탯). 처음은 레벨 비어 있음 · 항목 꺼짐 */
 export default function CoreMasteryPanel({ values, setValue, tables, descriptions }: TabPanelProps) {
   const { t: translate } = useTranslation();
+  // 유저 레벨 해금 (ContentsUnlock 98행): 안 열렸으면 언제 열리는지만 (사용자 지시 2026-11-07)
+  const userLevel = useCalcStore((state) => readNumber(state.values, ACCOUNT_KEYS.userLevel));
+  const unlockLevel = CONSTS.providers.coreMastery.UNLOCK_USER_LEVEL;
   const maxLevel = maxCoreMasteryLevel(tables);
   const level = coreMasteryLevel(values);
   const row = coreMasteryRow(tables, level);
+  if (userLevel < unlockLevel) {
+    return (
+      <Text size="sm" c="dimmed">
+        {translate('calc.coreMastery.locked', { level: unlockLevel.toLocaleString('ko-KR'), current: userLevel.toLocaleString('ko-KR') })}
+      </Text>
+    );
+  }
   return (
     <Stack gap="xs">
       <Group gap="xs" align="flex-end">

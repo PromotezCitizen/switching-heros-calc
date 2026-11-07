@@ -9,10 +9,14 @@ import characterText from '../../../../public/data/tables/Character.json?raw';
 import skillText from '../../../../public/data/tables/Skill.json?raw';
 import type { RawTable, StatTables } from '@/data/statTables';
 import { renderWithProviders } from '@/test/renderWithProviders';
+import { CONSTS } from '@/CONSTS';
 import { masteryRuneBuffTabs } from '@/calc/sources/masteryRuneBuff';
+import { attributeRunes, runeFieldKey } from '@/calc/sources/masteryRuneBuff/rune';
 import { skillTab } from '@/calc/sources/skill';
 import type { CalcValues } from '@/calc/types';
 import { providerTabs } from '@/calc/sources/providers/index';
+import { useCalcStore } from '@/store/useCalcStore';
+import { ACCOUNT_KEYS } from '@/account/accountKeys';
 
 /** 새로 만든 칸이 그려지고 값을 바꾸면 setValue 가 맞는 칸 이름으로 불리는지 (입력은 시험 안에서 넣음) */
 const tables: StatTables = Object.fromEntries(
@@ -34,7 +38,19 @@ function renderTab(tab: { Panel: (typeof providerTabs)[number]['Panel'] }, value
 }
 
 describe('코어 특성 · 피규어 · 룬 연구실 · 스킬 옵션 화면', () => {
+  // 코어 특성은 유저 레벨 420000 에 열린다 (ContentsUnlock 98행)
+  const setUserLevel = (level: string) => useCalcStore.getState().setValue(ACCOUNT_KEYS.userLevel, level);
+
+  it('코어 특성: 유저 레벨이 420000 미만이면 칸 없이 언제 열리는지만', () => {
+    setUserLevel('100450');
+    const coreMastery = providerTabs.find((tab) => tab.id === 'coreMastery')!;
+    renderTab(coreMastery, {});
+    expect(screen.queryByLabelText('코어 특성 레벨')).toBeNull();
+    expect(screen.getByText(/420,000에 열려요/)).toBeTruthy();
+  });
+
   it('코어 특성: 레벨이 비면 항목 칸이 없고, 레벨을 넣으면 그 레벨 행의 항목 13개가 꺼진 채로 보인다', () => {
+    setUserLevel('420000');
     const coreMastery = providerTabs.find((tab) => tab.id === 'coreMastery')!;
     const setValue = renderTab(coreMastery, {});
     expect(screen.queryAllByRole('checkbox')).toEqual([]);
@@ -43,6 +59,7 @@ describe('코어 특성 · 피규어 · 룬 연구실 · 스킬 옵션 화면', 
   });
 
   it('코어 특성: 레벨 1 이면 항목 13개 체크 칸 (처음 꺼짐), 누르면 coreMasterySelect_n 칸 이름', () => {
+    setUserLevel('420000');
     const coreMastery = providerTabs.find((tab) => tab.id === 'coreMastery')!;
     renderTab(coreMastery, { coreMasteryLevel: '1' });
     const boxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
@@ -60,9 +77,18 @@ describe('코어 특성 · 피규어 · 룬 연구실 · 스킬 옵션 화면', 
     expect(setValue).toHaveBeenCalledWith('figureLevel_108', '5');
   });
 
-  it('룬 탭: 속성 룬 연구실 레벨 칸 세 개 (비어 있음) 가 보이고 입력하면 runeLab_<속성> 칸 이름', () => {
+  it('룬 탭: 속성 룬이 최대가 아니면 연구소 칸이 없다 (열린 경우만)', () => {
     const rune = masteryRuneBuffTabs(() => []).find((tab) => tab.id === 'rune')!;
-    const setValue = renderTab(rune, {});
+    renderTab(rune, {});
+    expect(screen.queryByLabelText('불 연구실 레벨')).toBeNull();
+  });
+
+  it('룬 탭: 속성 룬이 모두 최대면 연구실 레벨 칸 세 개 (비어 있음) 가 보이고 입력하면 runeLab_<속성> 칸 이름', () => {
+    const rune = masteryRuneBuffTabs(() => []).find((tab) => tab.id === 'rune')!;
+    const maxed = Object.fromEntries(
+      attributeRunes(tables.AttributeRune).filter((item) => item.key !== CONSTS.masteryRuneBuff.CORE_RUNE_KEY).map((item) => [runeFieldKey(item), String(item.maxLevel)]),
+    );
+    const setValue = renderTab(rune, maxed);
     const fire = screen.getByLabelText('불 연구실 레벨') as HTMLInputElement;
     expect(fire.value).toBe('');
     expect(screen.getByLabelText('물 연구실 레벨')).toBeTruthy();

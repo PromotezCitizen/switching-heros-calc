@@ -230,10 +230,11 @@ export function cardLines(values: CalcValues, tables: StatTables, label: SourceL
       if (tier.reached) lines.push({ source: label('calc.card.sources.set', { name, count: tier.setCount }), stat: tier.stat, value: tier.value });
     }
   }
-  for (const group of groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId')) {
+  const stickerGroups = stickerUnlocked(values, tables) ? groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId') : [];
+  for (const group of stickerGroups) {
     const count = Number(values[stickerCountField(group.key)]) || 0;
     const level = numberValue(values, stickerLevelField(group.key));
-    const name = label('calc.card.stickerName', { id: group.key });
+    const name = label('calc.card.stickerName', { name: stickerDisplayName(group.key, label) });
     for (const row of group.rows) {
       if (Number(row.setCnt) <= count) {
         lines.push({
@@ -245,6 +246,20 @@ export function cardLines(values: CalcValues, tables: StatTables, label: SourceL
     }
   }
   return lines;
+}
+
+/**
+ * 카드 스티커 (배지) 가 열렸는가: 장착한 카드 중 배지 칸이 있는 카드 (Card 표 stickerSlotCnt > 0, URP 이상) 가 있을 때.
+ * 게임 해금 ContentsUnlock 75행 Gear_Sticker = CardGrade 12 (URP, sticker-sss-howto-2026-11-01.md). 안 열렸으면 칸을 숨기고 계산도 안 한다
+ * (사용자 지시 2026-11-07 "스티커 - 안열리면 안보이게 해라")
+ */
+export function stickerUnlocked(values: CalcValues, tables: StatTables): boolean {
+  return CARD_SLOT_NUMBERS.some((slot) => Number(selectedCardRow(values, tables, slot)?.stickerSlotCnt) > 0);
+}
+
+/** 스티커 세트 이름 (게임 이름, 예: 블루 서클 배지). 표에 없으면 번호 */
+export function stickerDisplayName(stickerId: string, label: (key: string, params?: Record<string, string | number>) => string): string {
+  return label(`calc.card.stickerNames.${stickerId}`, { defaultValue: stickerId });
 }
 
 /** 편성 칸 하나의 등급·화면 성 (칸이 비었거나 맞는 행이 없으면 등급 빈 글, 성 0) */

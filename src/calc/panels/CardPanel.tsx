@@ -12,6 +12,7 @@ import {
   cardSetStates,
   stickerCountField,
   stickerLevelField,
+  stickerUnlocked,
 } from '@/calc/sources/heroWeaponCardPet/card';
 import { groupBy, rowsOf } from '@/calc/sources/heroWeaponCardPet/shared';
 import type { TabPanelProps } from '@/calc/types';
@@ -33,6 +34,7 @@ const { CARD_MIN_WIDTH } = CONSTS.display;
 export default function CardPanel({ values, setValue, tables, descriptions }: TabPanelProps) {
   const { translate } = useCardNames();
   const [stickersOpened, stickers] = useDisclosure(false);
+  const stickerOpen = stickerUnlocked(values, tables);
   const stickerGroups = useMemo(() => groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId'), [tables]);
 
   const setStates = cardSetStates(values, tables);
@@ -69,32 +71,37 @@ export default function CardPanel({ values, setValue, tables, descriptions }: Ta
       <CardSetCards setStates={setStates} descriptions={descriptions} />
       {!hasMarks && <Text size="sm" c="dimmed">{translate('calc.card.setNone')}</Text>}
 
-      <SectionTitle>{translate('calc.card.stickerTitle')}</SectionTitle>
-      <UnstyledButton onClick={stickers.toggle} aria-expanded={stickersOpened}>
-        <Text c="blue">{translate('calc.card.stickerExpand')}</Text>
-      </UnstyledButton>
-      <Collapse expanded={stickersOpened}>
-        <AutoGrid minItemWidth={CARD_MIN_WIDTH.large} gap="var(--mantine-spacing-sm)">
-          {stickerGroups.map((group) => (
-            <StickerRow
-              key={group.key}
-              group={group}
-              count={values[stickerCountField(group.key)]}
-              level={values[stickerLevelField(group.key)]}
-              setValue={setValue}
-            />
-          ))}
-        </AutoGrid>
-      </Collapse>
-      {/* 얼티밋 3019 · 3020 의 개수: 저장 데이터에 배지 예시가 없어 직접 입력 */}
-      <TextInput
-        type="number"
-        min={MIN_NUMBER}
-        inputMode="numeric"
-        label={translate('calc.card.sssStickerCount')}
-        value={values[SSS_STICKER_COUNT_FIELD] ?? ''}
-        onChange={(event) => setValue(SSS_STICKER_COUNT_FIELD, event.currentTarget.value)}
-      />
+      {/* 스티커 (배지): 열렸을 때만 (장착 카드에 배지 칸이 있을 때, 사용자 지시 2026-11-07 "안열리면 안보이게") */}
+      {stickerOpen && (
+        <>
+          <SectionTitle>{translate('calc.card.stickerTitle')}</SectionTitle>
+          <UnstyledButton onClick={stickers.toggle} aria-expanded={stickersOpened}>
+            <Text c="blue">{translate('calc.card.stickerExpand')}</Text>
+          </UnstyledButton>
+          <Collapse expanded={stickersOpened}>
+            <AutoGrid minItemWidth={CARD_MIN_WIDTH.large} gap="var(--mantine-spacing-sm)">
+              {stickerGroups.map((group) => (
+                <StickerRow
+                  key={group.key}
+                  group={group}
+                  count={values[stickerCountField(group.key)]}
+                  level={values[stickerLevelField(group.key)]}
+                  setValue={setValue}
+                />
+              ))}
+            </AutoGrid>
+          </Collapse>
+          {/* 얼티밋 3019 · 3020 의 개수: 저장 데이터에 배지 예시가 없어 직접 입력 */}
+          <TextInput
+            type="number"
+            min={MIN_NUMBER}
+            inputMode="numeric"
+            label={translate('calc.card.sssStickerCount')}
+            value={values[SSS_STICKER_COUNT_FIELD] ?? ''}
+            onChange={(event) => setValue(SSS_STICKER_COUNT_FIELD, event.currentTarget.value)}
+          />
+        </>
+      )}
     </Stack>
   );
 }

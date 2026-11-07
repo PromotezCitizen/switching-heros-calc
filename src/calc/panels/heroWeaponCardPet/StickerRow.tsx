@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Group, TextInput } from '@mantine/core';
 import LazySelect from '@/components/LazySelect';
 import { CONSTS } from '@/CONSTS';
-import { stickerCountField, stickerLevelField } from '@/calc/sources/heroWeaponCardPet/card';
+import { stickerCountField, stickerDisplayName, stickerLevelField } from '@/calc/sources/heroWeaponCardPet/card';
 import { unique, type RowGroup } from '@/calc/sources/heroWeaponCardPet/shared';
 import type { TabPanelProps } from '@/calc/types';
 
@@ -20,7 +20,7 @@ export interface StickerRowProps {
 /** 스티커 세트 하나 (memo: 그 스티커 칸을 바꿀 때만 다시 그린다) */
 export const StickerRow = memo(function StickerRow({ group, count, level, setValue }: StickerRowProps) {
   const { t: translate } = useTranslation();
-  const name = translate('calc.card.stickerName', { id: group.key });
+  const name = translate('calc.card.stickerName', { name: stickerDisplayName(group.key, translate) });
   return (
     <Group grow gap="xs" align="flex-end">
       <LazySelect

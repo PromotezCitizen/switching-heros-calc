@@ -24,6 +24,11 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
    * 칸 이름 = 접두사 + 속성 (runeLab_Fire), 비어 있음 = 입력 전 (계산하지 않음)
    */
   LAB: {
+    /*
+     * 해금 (ContentsUnlock 82행 Reinforce_AttributeRune_Lab, 조건 RuneMax): 속성 룬이 끝까지 오른 상태 = 코어 399 + 마지막 단계 여섯 룬 10
+     * = 속성 룬 6개가 모두 표 최대 레벨 (claude-docs/react-port/unlock-relicmax.md 3절). 게임은 해금됐을 때만 연구소 효과를 넣는다 (m5997).
+     * 열린 경우만 칸을 보이고 계산한다 (사용자 지시 2026-11-07 "속성 룬 연구실 - 열린 경우만 보여라")
+     */
     TABLE: 'AttributeRuneLab',
     ATTRIBUTES: ['Fire', 'Water', 'Earth'],
     FIELD_PREFIX: 'runeLab_',

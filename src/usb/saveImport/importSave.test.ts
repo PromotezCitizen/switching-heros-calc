@@ -60,7 +60,7 @@ const SKILL_OPTION_KEY = /^skillOption_\d+_\d+$/;
 /** 스킬 문양 칸: 이것도 Python 변환에는 없는 칸이라 skillRuneValues.test.ts 에서 따로 대조한다 */
 const SKILL_PERK_KEY = /^skillPerk_\d+_\d+$/;
 /** 2슬롯 히어로의 장착 스킬 · 전용 무기 장착 (교체 DPM 용): 이것도 Python 변환에는 없는 칸이라 swapDamage.test.ts 에서 따로 대조한다 */
-const SECOND_HERO_KEY = /^(contentPresets|presetOverrides|alchemySameGradeMax|weaponSssOptionCount2?|skillEquip2_\d+|exclusiveEquipped2|weaponOption2(Stat|Value)\d+|frameOwned_\d+|ancientMastered|ancientProgress|soulForgeLevel|soulForgeSlot_\d+|coreMasteryLevel|figureLevel_\d+|normalMonsterFood)$/;
+const SECOND_HERO_KEY = /^(contentPresets|presetOverrides|alchemySameGradeMax|weaponSssOptionCount2?|skillEquip2_\d+|exclusiveEquipped2|weaponOption2(Stat|Value)\d+|frameOwned_\d+|ancientMastered|ancientProgress|ancientCurrentConst|ancientCurrentStep|ancientStepLevel_d+|soulForgeLevel|soulForgeSlot_\d+|coreMasteryLevel|figureLevel_\d+|normalMonsterFood)$/;
 const NUMBER_KEY = /(^inheritValue|^weaponOptionValue|^petOption\d+_\d+Value|^artifactTotal(Smite|Barrier|DoubleAttack|SuperCritical|SwitchingBoost|SpearAttack|SkillCombo)$)/;
 const LOG_TOLERANCE = 1e-6;
 const VIP_LEVEL_0154 = '11';

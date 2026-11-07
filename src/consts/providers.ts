@@ -12,6 +12,11 @@ export const PROVIDER_CONSTS = {
    * 행의 k 번째 스탯 · 값을 한 번씩 넣는다. 선택은 칸 (처음 꺼짐) 으로 받고 콘텐츠 조건은 이 제공자 안에 없다
    */
   coreMastery: {
+    /**
+     * 코어 특성이 열리는 유저 레벨 (ContentsUnlock 98행 Reinforce_CoreMastery: 보임 400000, 해금 420000).
+     * 열린 경우만 탭을 보인다 (사용자 지시 2026-11-07 "코어특성 - 열린 경우만 보여라")
+     */
+    UNLOCK_USER_LEVEL: 420000,
     TABLE: 'CoreMastery',
     LEVEL_FIELD: 'coreMasteryLevel',
     SELECT_FIELD_PREFIX: 'coreMasterySelect_',
@@ -99,8 +104,16 @@ export const PROVIDER_CONSTS = {
    */
   ancientRelic: {
     TABLE: 'AncientRelic',
-    /** 입력 칸: 달성한 별자리 번호 목록 (쉼표), 진행 중 별자리 */
+    /** 입력 칸: 달성한 별자리 번호 목록 (쉼표) */
     MASTERED_FIELD: 'ancientMastered',
+    /**
+     * 진행 중인 별자리: 별자리 번호 · 현재 단계 · 그 단계의 칸마다 레벨 (칸 이름 = 접두 + 칸 번호).
+     * 현재 단계 앞의 단계는 다 찬 상태 (모든 칸 최대 + 단계 보너스) 로 계산 (사용자 지시 2026-11-07 "현재 단계만 보이면 이전은 다 된 상태")
+     */
+    CURRENT_CONST_FIELD: 'ancientCurrentConst',
+    CURRENT_STEP_FIELD: 'ancientCurrentStep',
+    STEP_LEVEL_FIELD_PREFIX: 'ancientStepLevel_',
+    /** 예전 진행 글 칸 (별자리:단계:켜짐:칸=레벨;…). 새 칸이 비었을 때만 읽는다 (이미 저장된 값용) */
     PROGRESS_FIELD: 'ancientProgress',
     CONST_COLUMN: 'constId',
     STEP_COLUMN: 'step',
@@ -117,7 +130,7 @@ export const PROVIDER_CONSTS = {
     LIST_SEPARATOR: ',',
     /** 단계 보너스 칸 번호 */
     STEP_BONUS_NODE: '1000',
-    /** 진행 글 입력 칸 높이 (줄) */
-    PROGRESS_ROWS: 4,
+    /** 칸 레벨 입력 폭 (px) */
+    LEVEL_INPUT_WIDTH: 90,
   },
 } as const;

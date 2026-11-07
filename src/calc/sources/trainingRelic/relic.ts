@@ -126,6 +126,17 @@ export function relicGrades(tables: StatTables): string[] {
   return grades;
 }
 
+/**
+ * 유물을 끝까지 모았는가 (콘텐츠 해금 RelicMax, claude-docs/react-port/unlock-relicmax.md 2절):
+ * 유물 최대 등급이 표의 마지막 등급이고, 표의 유물을 전부 갖고, 모두 그 유물의 최대 레벨 (maxLv). 별자리 유물이 이때 열린다
+ */
+export function relicAllMaxed(values: CalcValues, tables: StatTables): boolean {
+  const rows = relicRows(tables);
+  const grades = relicGrades(tables);
+  if (!rows.length || values[RELIC_MAX_GRADE_FIELD] !== grades[grades.length - 1]) return false;
+  return rows.every((row) => Math.floor(Number(values[relicLevelFieldId(row.relicId)]) || EMPTY_LEVEL) >= Number(row.maxLv));
+}
+
 /** 최대 등급 이하인지 (최대 등급을 안 골랐으면 전부) */
 export function relicGradeAllowed(grades: string[], grade: string, maxGrade: string | undefined): boolean {
   return !maxGrade || grades.indexOf(grade) <= grades.indexOf(maxGrade);

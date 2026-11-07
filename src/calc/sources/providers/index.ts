@@ -31,7 +31,8 @@ export const providerTabs: CalcTab[] = [
   },
   {
     id: 'ancientRelic',
-    tableNames: [CONSTS.providers.ancientRelic.TABLE],
+    // 해금 판정 (유물 끝까지 모음) 에 유물 표 Relic
+    tableNames: [CONSTS.providers.ancientRelic.TABLE, 'Relic'],
     Panel: AncientRelicPanel,
     lines: (values, tables) => ancientRelicLines(values, tables, sourceLabel),
   },

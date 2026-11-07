@@ -24,7 +24,7 @@
   "setTier": "{{count}}세트 {{effect}}",
   "stickerTitle": "스티커 세트",
   "stickerExpand": "펼쳐 보기",
-  "stickerName": "스티커 세트 {{id}}",
+  "stickerName": "{{name}}",
   "stickerCount": "{{name}} 마크 수",
   "stickerLevel": "{{name}} 레벨",
   "setFormula": "{{base}} + {{perLevel}} × 세트 레벨 {{level}} = {{value}}",
@@ -112,5 +112,19 @@
     "killStacks": "카드 처치 효과 {{stacks}}중첩 (최대)",
     "useSkillStacks": "카드 스킬 사용 효과 {{stacks}}중첩 (최대)",
     "buffAttackStacks": "카드 버프 스킬 발동 효과 {{stacks}}중첩 (최대)"
+  },
+  "stickerNames": {
+    "1": "블루 서클",
+    "2": "클로버",
+    "3": "하트",
+    "4": "스페이드",
+    "5": "크라운",
+    "6": "다이아",
+    "7": "사각",
+    "8": "모래시계",
+    "9": "초승달",
+    "10": "기어",
+    "11": "음표",
+    "12": "버니"
   }
 }

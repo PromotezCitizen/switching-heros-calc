@@ -59,6 +59,8 @@ export default function StatValueRows(props: StatValueRowsProps) {
               data={choices}
               searchable
               clearable
+              // 펼친 목록은 칸 폭이 아니라 이름 길이만큼 (좁은 칸에서 이름이 여러 줄로 잘리지 않게)
+              comboboxProps={{ width: 'max-content', position: 'bottom-start' }}
               placeholder={noneLabel}
               disabled={!usable}
               value={values[statField(index)] || null}

@@ -235,7 +235,8 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     PICKER_HINT_MAX_WIDTH: 260,
     /** 한 줄로 놓는 편성 칸 하나의 폭 (px). 6칸이 칸 폭을 넘치면 가로 스크롤 */
     CARD_SLOT_WIDTH: 200,
-    PET_SLOT_WIDTH: 260,
+    /** 펫 장착 칸 폭 (px): 옵션 이름 "물 속성 히어로의 공격력" 이 잘리지 않게 넓힘 (사용자 지적 2026-11-07 "물속성 뭐 어쩌라고") */
+    PET_SLOT_WIDTH: 360,
     /** 펫 지역 레벨 칸 하나의 폭 (px) */
     REGION_INPUT_WIDTH: 150,
     /** 웨폰 링크 직업 카드 최소 폭 (넓으면 4개 한 줄) · 레벨 칸 폭 (px) */

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import alchemySlotTable from '../../../public/data/tables/AlchemySlot.json';
 import awakenTable from '../../../public/data/tables/Awaken.json';
 import { OWNED_CARDS_KEY } from '@/usb/saveImport/ownedCards';
+import { HUNTING_KEYS } from '@/hunting/huntingKeys';
 import cardTable from '../../../public/data/tables/Card.json';
 import characterTable from '../../../public/data/tables/Character.json';
 import affinityTable from '../../../public/data/tables/CharacterAffinity.json';
@@ -154,6 +155,12 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
     });
   });
 
+  it('사냥 계산기 오프라인 층은 최대층 (Default.maxStageNo), 없으면 칸을 건드리지 않는다', () => {
+    const withStage = importSave({ ...raw, Default: pickDefault({ ...raw.Default, maxStageNo: 7616, selectStageNo: 7000 } as Parameters<typeof pickDefault>[0]) }, tables, false);
+    expect(withStage.accountValues[HUNTING_KEYS.offlineFloor]).toBe('7616');
+    const without = importSave({ ...raw, Default: pickDefault({ ...raw.Default, maxStageNo: undefined }) }, tables, false);
+    expect(HUNTING_KEYS.offlineFloor in without.accountValues).toBe(false);
+  });
   it('공통 입력: 유저 레벨 (Default.userLv) 은 최적 특성의 유저 레벨 칸으로, 없으면 칸을 건드리지 않는다', () => {
     const withLevel = importSave({ ...raw, Default: pickDefault({ ...raw.Default, userLv: 96052 }) }, tables, false);
     expect(withLevel.accountValues[ACCOUNT_KEYS.userLevel]).toBe('96052');

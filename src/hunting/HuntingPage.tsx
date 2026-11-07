@@ -25,18 +25,21 @@ import {
   type HuntingInputs,
   type Resource,
 } from '@/hunting/huntingCalc';
+import { HUNTING_KEY_PREFIX, HUNTING_KEYS } from '@/hunting/huntingKeys';
 import { expToTargetLog } from '@/hunting/levelExp';
 import { useStageRewards } from '@/hunting/useStageRewards';
 import { readFlag, readNumber } from '@/store/storedValues';
 import { useCalcStore } from '@/store/useCalcStore';
 
-const KEY_PREFIX = 'hunting.';
+const KEY_PREFIX = HUNTING_KEY_PREFIX;
 /** 계정 공통 칸 이름 앞부분 (account/accountKeys.ts 의 ACCOUNT_KEYS 가 모두 이 글로 시작) */
 const ACCOUNT_KEY_PREFIX = 'account.';
 const DEFAULTS = CONSTS.huntingDefaults;
-const { EXPONENT_FORM_FROM, SMALL_VALUE_BELOW, SMALL_VALUE_DECIMALS, TABLE_MIN_WIDTH } = CONSTS.display;
+const { EXPONENT_FORM_FROM, SMALL_VALUE_BELOW, SMALL_VALUE_DECIMALS } = CONSTS.display;
 const { WALL_STEP, WIDE_FROM, REPORT_URL, RATIO_DECIMALS, DAY_DECIMALS } = CONSTS.hunting;
 const { SECONDS_PER_MINUTE } = CONSTS.common;
+/** 요약 숫자 카드 열 수: 좁으면 2, 넓으면 4 (분당 처치 + 자원 3개) */
+const SUMMARY_COLUMNS = { base: 2, md: 4 };
 const KEYS = {
   myKills: `${KEY_PREFIX}myKills`,
   currentExpPercent: `${KEY_PREFIX}currentExpPercent`,
@@ -73,7 +76,9 @@ function pickPageValues(values: Record<string, string>): Record<string, string> 
 /** 층 하나의 화면용 값 */
 interface FloorView {
   row: FloorScanRow;
+  /** 1마리 기본 보상 (보너스 전). 게임 표에서 경험치와 골드는 같은 값 */
   goldLog: number;
+  expLog: number;
   /** 자원별 배수 = 내 처치 수 ÷ 필요 처치 수 */
   ratio: Record<Resource, number>;
   /** 목표 레벨까지 걸리는 시간 (분), 레벨을 안 넣었으면 null */
@@ -106,7 +111,7 @@ export default function HuntingPage() {
       packageOn: perResource((resource) => readFlag(values, `${KEY_PREFIX}package.${resource}`)),
       adOn: readFlag(values, `${KEY_PREFIX}adOn`),
       offlinePackageOn: readFlag(values, `${KEY_PREFIX}offlinePackageOn`),
-      offlineFloor: readNumber(values, `${KEY_PREFIX}offlineFloor`, DEFAULTS.offlineFloor),
+      offlineFloor: readNumber(values, HUNTING_KEYS.offlineFloor, DEFAULTS.offlineFloor),
     };
   }, [values]);
   // 비우면 800 (floor-calc 와 같음)
@@ -125,9 +130,11 @@ export default function HuntingPage() {
     const { rows, cut } = floorRows(inputs, rewards, myKills);
     const views: FloorView[] = rows.map((row) => {
       const perMinute = expPerMinuteLog(inputs, rewards, row.floor, myKills);
+      const base = baseRewardLog(rewards, row.floor);
       return {
         row,
-        goldLog: baseRewardLog(rewards, row.floor).gold,
+        goldLog: base.gold,
+        expLog: base.exp,
         ratio: Object.fromEntries(RESOURCES.map((resource) => [resource, myKills / row.required[resource]])) as Record<Resource, number>,
         targetMinutes:
           targetLog === null
@@ -230,32 +237,45 @@ export default function HuntingPage() {
       {result?.kind === 'badFloor' && <Alert color="yellow">{translate('hunting.badFloor', { max: result.max })}</Alert>}
       {result?.kind === 'ok' && (
         <Stack gap="sm">
-          {/* 요약: 오프라인 · 온라인 분당 처치와 자원별 보너스 % */}
-          <Table.ScrollContainer minWidth={TABLE_MIN_WIDTH}>
-            <Table withTableBorder maw={480}>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th />
-                  <Table.Th>{translate('hunting.offline')}</Table.Th>
-                  <Table.Th>{translate('hunting.online')}</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                <Table.Tr>
-                  <Table.Th>{translate('hunting.killsPerMinute')}</Table.Th>
-                  <Table.Td>{translate('hunting.killsUnit', { kills: Math.round(offlineKills).toLocaleString('ko-KR') })}</Table.Td>
-                  <Table.Td>{translate('hunting.killsUnit', { kills: myKills.toLocaleString('ko-KR') })}</Table.Td>
-                </Table.Tr>
-                {RESOURCES.map((resource) => (
-                  <Table.Tr key={resource}>
-                    <Table.Th>{translate('hunting.bonusRow', { resource: resourceName(resource) })}</Table.Th>
-                    <Table.Td>{offlineBonusPercent(inputs, resource)}%</Table.Td>
-                    <Table.Td>{onlineBonusPercent(inputs, resource)}%</Table.Td>
-                  </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-          </Table.ScrollContainer>
+          {/* 요약: 항목마다 숫자 카드 (오프라인 → 온라인), 사용자 결정 2026-11-07 "1 - 2" (표가 작아 안 보임 → 숫자 카드) */}
+          <SimpleGrid cols={SUMMARY_COLUMNS}>
+            {[
+              {
+                label: translate('hunting.killsPerMinute'),
+                offline: translate('hunting.killsUnit', { kills: Math.round(offlineKills).toLocaleString('ko-KR') }),
+                online: translate('hunting.killsUnit', { kills: myKills.toLocaleString('ko-KR') }),
+              },
+              ...RESOURCES.map((resource) => ({
+                label: translate('hunting.bonusRow', { resource: resourceName(resource) }),
+                offline: `${offlineBonusPercent(inputs, resource)}%`,
+                online: `${onlineBonusPercent(inputs, resource)}%`,
+              })),
+            ].map((item) => (
+              <Paper key={item.label} withBorder p="md">
+                <Text size="sm" c="dimmed">
+                  {item.label}
+                </Text>
+                <SimpleGrid cols={2} mt={4} spacing="xs">
+                  <Box>
+                    <Text size="xs" c="dimmed">
+                      {translate('hunting.offline')}
+                    </Text>
+                    <Text size="xl" fw={700}>
+                      {item.offline}
+                    </Text>
+                  </Box>
+                  <Box>
+                    <Text size="xs" c="dimmed">
+                      {translate('hunting.online')}
+                    </Text>
+                    <Text size="xl" fw={700}>
+                      {item.online}
+                    </Text>
+                  </Box>
+                </SimpleGrid>
+              </Paper>
+            ))}
+          </SimpleGrid>
 
           {result.lunchbox && (
             <Text size="sm">
@@ -296,7 +316,7 @@ export default function HuntingPage() {
                   </Text>
                   {wallBadge(view.row)}
                   <Text size="sm" c="dimmed">
-                    {translate('hunting.perKillGold', { gold: formatLog(view.goldLog) })}
+                    {translate('hunting.perKill', { gold: formatLog(view.goldLog), exp: formatLog(view.expLog) })}
                   </Text>
                 </Group>
                 <SimpleGrid cols={3} mt={6} spacing="xs">
@@ -333,6 +353,7 @@ export default function HuntingPage() {
                 <Table.Tr>
                   <Table.Th>{translate('hunting.floor')}</Table.Th>
                   <Table.Th>{translate('hunting.kindHeader')}</Table.Th>
+                  <Table.Th>{translate('hunting.perKillExpHeader')}</Table.Th>
                   <Table.Th>{translate('hunting.perKillGoldHeader')}</Table.Th>
                   {RESOURCES.map((resource) => (
                     <Table.Th key={resource}>{resourceName(resource)}</Table.Th>
@@ -355,6 +376,7 @@ export default function HuntingPage() {
                         {wallBadge(view.row)}
                       </Group>
                     </Table.Td>
+                    <Table.Td>{formatLog(view.expLog)}</Table.Td>
                     <Table.Td>{formatLog(view.goldLog)}</Table.Td>
                     {RESOURCES.map((resource) => (
                       <Table.Td key={resource} c={tone(view.ratio[resource])}>

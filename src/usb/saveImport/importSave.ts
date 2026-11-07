@@ -4,6 +4,7 @@
  */
 import { CONSTS } from '@/CONSTS';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
+import { HUNTING_KEYS } from '@/hunting/huntingKeys';
 import type { StatTables } from '@/data/statTables';
 import { charValues, type CharSave } from '@/usb/saveImport/charValues';
 import { CONTENT_PRESETS_FIELD, CONTENT_PRESET_KEYS, PRESET_OVERRIDES_FIELD, presetDiff } from '@/usb/saveImport/contentPresets';
@@ -40,6 +41,8 @@ interface DefaultRaw {
   vipLv: number;
   /** 유저 레벨 (11-02 저장 96052) */
   userLv?: number;
+  /** 도달한 최대층 (11-07 저장 7616). 오프라인 보상 기준 층 */
+  maxStageNo?: number;
   /** 저장 시각 "YYYY-MM-DD HH:MM:SS" */
   st: string;
   _newNotInvenDic: SaveDictionary<string, { value: number; exponent: number }>;
@@ -64,6 +67,8 @@ export interface DefaultPicked {
   fairyLevel?: number;
   vipLevel?: number;
   userLevel?: number;
+  /** 최대층 = 사냥 계산기 오프라인 층 */
+  maxStage?: number;
   adsRemoved?: boolean;
   /** 공격력 이벤트 버프가 저장 시각에 켜져 있었나 */
   attackBuffOn?: boolean;
@@ -172,6 +177,7 @@ export function pickDefault(raw: DefaultRaw): DefaultPicked {
     fairyLevel: attempt(() => raw.adsBuffData.lv),
     vipLevel: raw.vipLv,
     userLevel: raw.userLv,
+    maxStage: raw.maxStageNo,
     adsRemoved: attempt(() => readDictionary(raw._newNotInvenDic)) === undefined ? undefined : (adsRemove?.value ?? 0) > 0,
     // 두 시각 모두 "YYYY-MM-DD HH:MM:SS" 라 글 순서 = 시간 순서
     attackBuffOn: raw.st === undefined ? undefined : (attackBuffEnd ?? '') > raw.st,
@@ -254,6 +260,8 @@ export function importSave(files: SaveFiles, tables: StatTables, withPresets = t
   putDefined(accountValues, ACCOUNT_KEYS.userLevel, files.Default.userLevel);
   putDefined(accountValues, ACCOUNT_KEYS.fairyLevel, files.Default.fairyLevel);
   putDefined(accountValues, ACCOUNT_KEYS.adRemoved, files.Default.adsRemoved);
+  // 사냥 계산기 오프라인 층 = 최대층 (사용자 결정 2026-11-07 "\"최대층\"이 오프라인 기준이다")
+  putDefined(accountValues, HUNTING_KEYS.offlineFloor, files.Default.maxStage);
   // 데이터를 읽어 온 게임 버전 (불러오기 창 표시 · 파일로 저장할 때 버전)
   if (files.Default.gameVersion) accountValues[GAME_VERSION_KEY] = files.Default.gameVersion;
   // 보유 카드 (최적 카드 추천의 후보)

@@ -6,6 +6,43 @@
     "viewer": "스탯 모아 보기",
     "guide": "값 찾는 법"
   },
+  "viewer": {
+    "noticeTitle": "상황 조건은 계산하기 힘들어서 일단 뺐습니다.",
+    "noticeBody": "공격속도 · 피해 감소 · 쿨타임 감소 · 회피 · 회복은 공격력 · 체력 계산과 무관해서 뺐습니다. 합 · 곱 표시는 게임 코드로 확인한 방식입니다 (% 스탯은 더하지 않고 줄마다 곱해요).",
+    "excludedTitle": "상황 조건으로 뺀 스탯 {{count}}개",
+    "unrelatedTitle": "계산과 무관해서 뺀 스탯 {{count}}개",
+    "unresolvedTitle": "해석 미확인 표: {{label}} ({{name}})",
+    "statName": "스탯 이름",
+    "desc": "설명",
+    "combine": "합 · 곱",
+    "familiesLabel": "스탯 계열",
+    "search": "계열 · 스탯 검색",
+    "noSearchResult": "검색 결과 없음",
+    "pickFamily": "스탯 계열을 고르세요.",
+    "kindFilter": "계산 방식",
+    "tagFilter": "조건",
+    "noSources": "조건에 맞는 출처가 없습니다.",
+    "kinds": {
+      "percent": "%",
+      "multiply": "배수",
+      "plain": "더하기",
+      "down": "감소 (× (1 − N/100))",
+      "base": "기본값",
+      "pow": "거듭제곱 (n배^개수)"
+    },
+    "entityCount": "대상 {{count}}개 · {{formula}}",
+    "sameCount": "대상 {{count}}개 같음",
+    "sameLevels": "{{from}} ~ {{to}} 전부 같음",
+    "entity": "대상",
+    "grade": "등급",
+    "levels": "레벨",
+    "values": "값",
+    "perLevel": "레벨당",
+    "formula": "계산식",
+    "raw": "원본",
+    "loading": "불러오는 중…",
+    "loadFailed": "스탯 데이터를 불러오지 못했어요. 새로고침해 보세요."
+  },
   "common": {
     "help": "어디서 찾나요?",
     "invalidGameNumber": "읽을 수 없는 값이에요. 숫자 뒤에 게임에 보이는 단위를 붙이세요 (% 는 있어도 없어도 돼요). 예: 5.14N%"

@@ -8,6 +8,7 @@ import HuntingPage from '@/hunting/HuntingPage';
 import LoadDialog from '@/load/LoadDialog';
 import OptimizerPage from '@/masteryOptimizer/OptimizerPage';
 import MasteryLevelPage from '@/masteryDebug/MasteryLevelPage';
+import StatViewerPage from '@/statViewer/StatViewerPage';
 import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
 
 /** 4개 페이지 (자리만 만듦, 내용은 기존 HTML 계산기에서 옮겨 올 예정) */
@@ -20,7 +21,7 @@ const PAGES = [
 ] as const;
 
 /** 내용을 만든 페이지 (나머지는 제목만 있는 자리) */
-const IMPLEMENTED_PATHS: readonly string[] = ['/', '/hunting', '/optimizer'];
+const IMPLEMENTED_PATHS: readonly string[] = ['/', '/hunting', '/optimizer', '/viewer'];
 
 export default function App() {
   const { t: translate } = useTranslation();
@@ -57,6 +58,7 @@ export default function App() {
         <Route path="/" element={<CalcPage />} />
         <Route path="/hunting" element={<HuntingPage />} />
         <Route path="/optimizer" element={<OptimizerPage />} />
+        <Route path="/viewer" element={<StatViewerPage />} />
         {/* 디버그 페이지: 개발 서버에서만, 탭 없이 주소로 (/mastery-level) */}
         {import.meta.env.DEV && <Route path="/mastery-level" element={<MasteryLevelPage />} />}
         {PAGES.filter((page) => !IMPLEMENTED_PATHS.includes(page.path)).map((page) => (

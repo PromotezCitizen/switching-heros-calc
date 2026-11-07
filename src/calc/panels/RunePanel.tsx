@@ -25,9 +25,14 @@ const { RUNE_CARD_WIDTH, RUNE_CARD_HEIGHT, RUNE_HEX_RADIUS, RUNE_GRID_COLUMNS } 
 const HEX_START_DEGREES = -90;
 const HEX_STEP_DEGREES = 60;
 const DEGREES_TO_RADIANS = Math.PI / 180;
-/** 육각형 배치에 필요한 폭 · 높이 (좌우 꼭짓점 x = 반지름 × cos 30°, 위아래 꼭짓점 y = 반지름) */
-const HEX_WIDTH = 2 * RUNE_HEX_RADIUS * Math.cos(30 * DEGREES_TO_RADIANS) + RUNE_CARD_WIDTH;
-const HEX_HEIGHT = 2 * RUNE_HEX_RADIUS + RUNE_CARD_HEIGHT;
+/** 가로로 이웃한 카드 사이 빈칸 (좌우 꼭짓점 x = 반지름 × cos 30°) */
+const HEX_COLUMN_X = RUNE_HEX_RADIUS * Math.cos(30 * DEGREES_TO_RADIANS);
+const CARD_GAP = HEX_COLUMN_X - RUNE_CARD_WIDTH;
+/** 세로 반지름: 위아래로 이웃한 카드 사이 빈칸도 가로 빈칸과 같게 (정육각형이면 위아래 빈칸이 카드 높이보다 커서 비어 보인다) */
+const HEX_RADIUS_Y = RUNE_CARD_HEIGHT + CARD_GAP;
+/** 육각형 배치에 필요한 폭 · 높이 */
+const HEX_WIDTH = 2 * HEX_COLUMN_X + RUNE_CARD_WIDTH;
+const HEX_HEIGHT = 2 * HEX_RADIUS_Y + RUNE_CARD_HEIGHT;
 
 /** 룬 아이콘: 속성 룬 슬롯 0~5 = ICON_rune1~6, 코어 = ICON_center_rune */
 function runeIconPath(rune: AttributeRune): string {
@@ -110,7 +115,7 @@ export default function RunePanel({ values, setValue, tables, descriptions }: Ta
             {[...(core ? [{ rune: core, x: 0, y: 0 }] : []),
               ...around.map((rune, index) => {
                 const angle = (HEX_START_DEGREES + HEX_STEP_DEGREES * index) * DEGREES_TO_RADIANS;
-                return { rune, x: RUNE_HEX_RADIUS * Math.cos(angle), y: RUNE_HEX_RADIUS * Math.sin(angle) };
+                return { rune, x: RUNE_HEX_RADIUS * Math.cos(angle), y: HEX_RADIUS_Y * Math.sin(angle) };
               })].map(({ rune, x, y }) => (
               <Box
                 key={rune.key}

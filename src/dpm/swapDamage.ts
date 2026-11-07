@@ -10,7 +10,7 @@ import type { CalcValues } from '@/calc/types';
 import type { StatTables } from '@/data/statTables';
 import { aeikaCurrentHpBonus } from '@/dpm/currentHpDamage';
 import { swapCycle } from '@/dpm/swapCycle';
-import { fightSeconds, logSum, targetDamage, type DamageInputs, type DamagePart, type DamageTarget, type TargetDamage } from '@/dpm/targetDamage';
+import { fightSeconds, logSum, prepareTargetDamage, targetDamage, type DamageInputs, type DamagePart, type DamageTarget, type TargetDamage } from '@/dpm/targetDamage';
 
 const { SWAP } = CONSTS.dpm;
 const { SWAP_UPTIME_FIELD } = CONSTS.masteryRuneBuff;
@@ -87,10 +87,19 @@ export function targetDamageWithSwap(values: CalcValues, tables: StatTables, tar
   const swapped = inputs.swap ? swappedHeroValues(values) : null;
   if (!swapped) return targetDamage(values, tables, target, inputs);
   const uptimes = swapEffectUptimes(values, tables, target);
-  const second = targetDamage(withUptime(swapped, uptimes.second), tables, target, inputs);
+  const secondPrepared = prepareTargetDamage(withUptime(swapped, uptimes.second), tables, target, inputs);
+  const firstPrepared = prepareTargetDamage(withUptime(values, uptimes.first), tables, target, inputs);
+  // 대상 상태이상 수는 두 히어로 장착 스킬이 거는 것을 합쳐 센다 (사용자 지시 2026-11-07 "1슬롯 2슬롯 다 넣어야지", "1 진행").
+  // 각 히어로는 필드에 서 있는 동안만 시전하므로 시전 간격을 서 있는 몫 (TIME_SHARE) 으로 나눠 늘린다 (교체 주기 안의 몰림은 무시, 추정).
+  // 한 번 걸린 상태이상은 지속시간 동안 남으므로 교체해도 다른 히어로 차례에 그대로 센다
+  const sharedSkillSources = [...firstPrepared.skillStatusSources, ...secondPrepared.skillStatusSources].map((source) => ({
+    ...source,
+    intervalSeconds: source.intervalSeconds / SWAP.TIME_SHARE,
+  }));
+  const second = secondPrepared.finish(sharedSkillSources);
   // 2슬롯 히어로를 계산하지 못하면 (표에 없는 이름 등) 교체 없이 1슬롯만으로 둔다
   if (second.missing.includes(NO_HERO_CODE)) return targetDamage(values, tables, target, inputs);
-  const first = targetDamage(withUptime(values, uptimes.first), tables, target, inputs);
+  const first = firstPrepared.finish(sharedSkillSources);
   const shareLog = Math.log10(SWAP.TIME_SHARE);
   const parts = [...sharedParts(first, values[HERO_FIELD], shareLog), ...sharedParts(second, values[SECOND_HERO_FIELD], shareLog)];
   const perMinuteLog = logSum(parts.map((part) => part.perMinuteLog));

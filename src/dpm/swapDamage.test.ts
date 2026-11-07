@@ -6,7 +6,7 @@ import type { CalcValues } from '@/calc/types';
 import type { MonsterHpData } from '@/dpm/hpCondition';
 import { CONSTS } from '@/CONSTS';
 import { swapEffectUptimes, swappedHeroValues, targetDamageWithSwap } from '@/dpm/swapDamage';
-import { targetDamage, type DamageInputs } from '@/dpm/targetDamage';
+import { prepareTargetDamage, targetDamage, type DamageInputs } from '@/dpm/targetDamage';
 import { loadTestTables } from '@/test/loadTestTables';
 import { importSave, pickDefault, type SaveFiles } from '@/usb/saveImport/importSave';
 import saveSubset1018 from '@/usb/saveImport/saveSubset1018.json';
@@ -41,6 +41,24 @@ describe('저장 가져오기: 2슬롯 히어로', () => {
 
   it('2슬롯 히어로의 전용 무기 장착 칸이 생긴다', () => {
     expect(['true', 'false']).toContain(imported.values.exclusiveEquipped2);
+  });
+});
+
+describe('상태이상 수: 두 히어로 장착 스킬 합치기', () => {
+  it('준비 → 마무리는 한 번에 계산한 것과 같다 (자기 출처만 쓸 때)', () => {
+    const prepared = prepareTargetDamage(VALUES, tables, 'stageBoss', INPUTS);
+    expect(prepared.finish()).toEqual(targetDamage(VALUES, tables, 'stageBoss', INPUTS));
+  });
+  it('일반몹 대상 (3중첩 가정) 과 상태이상 수를 입력한 대상은 출처를 모으지 않는다', () => {
+    expect(prepareTargetDamage(VALUES, tables, 'stage', INPUTS).skillStatusSources).toEqual([]);
+    expect(prepareTargetDamage(VALUES, tables, 'stageBoss', { ...INPUTS, targetStatusCount: { stageBoss: 2 } }).skillStatusSources).toEqual([]);
+  });
+  it('다른 히어로 출처를 넘기면 상태이상 수에 들어간다 (늘 걸린 기절을 넘기면 대미지가 같거나 커진다)', () => {
+    const prepared = () => prepareTargetDamage(VALUES, tables, 'stageBoss', INPUTS);
+    const own = prepared().skillStatusSources;
+    const alwaysStun = { kind: 'stun', chance: 1, durationSeconds: 100, intervalSeconds: 1 };
+    const withStun = prepared().finish([...own, alwaysStun]);
+    expect(withStun.perMinuteLog).toBeGreaterThanOrEqual(prepared().finish(own).perMinuteLog);
   });
 });
 

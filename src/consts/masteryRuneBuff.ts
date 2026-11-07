@@ -316,6 +316,14 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
   JOB_CRITICAL_SUFFIX: '_Critical',
   ATTRIBUTE_CRITICAL_SUFFIX: 'Hero_Critical',
   KILLER_ACTIVE_FIELD: 'killerActive',
+  /**
+   * 학살자 (특성 51 "몬스터 40마리를 2초 안에 처치할 경우, 3초 간 최종 공격력 {0}% 증가") 가 켜지는 대미지 대상
+   * (사용자 지시 2026-11-07 "조건별로 켜고 끄는게 맞을건데?"): 일반 몬스터를 실제로 처치하는 곳만 = 스테이지 · 속성 던전 일반 층.
+   * 보스 · 히어로 (1마리) 와 글로벌 레이드 일반 주 (5기 · 체력 무한, 처치 없음) 는 끈다. 2초 안 40마리를 실제로 잡는지 (처치 속도) 는 보지 않는다
+   */
+  KILLER_TARGETS: ['stage', 'attributeNormal'] as readonly string[],
+  /** 대미지 대상을 모르는 계산 (계산식 확인기 종합) 에서 학살자가 켜지는 공격 대상 종류 */
+  KILLER_SUMMARY_TARGET: 'normal',
   /** 버프 탭 일반 몬스터 피해 음식 칸 (값 = FOODS 의 id, 빈칸 = 없음) */
   NORMAL_MONSTER_FOOD_FIELD: 'normalMonsterFood',
   /** 음식 효과 스탯 (서버 표 Item string1) */

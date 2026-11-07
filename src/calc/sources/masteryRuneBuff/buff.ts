@@ -15,6 +15,7 @@ import { equippedExclusiveStar } from '@/calc/sources/heroWeaponCardPet/weapon';
 import { hasEquippedActiveSkill } from '@/calc/sources/skill/skill';
 import { learnedTraitValue, masteryLevel, masteryTraits, plainNumber } from '@/calc/sources/masteryRuneBuff/mastery';
 import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
+import { summaryTarget } from '@/calc/sources/summary/summary';
 
 const {
   BERSERK_MAX_STACKS,
@@ -32,6 +33,8 @@ const {
   JOB_ATTACK_SPEED_SUFFIX,
   ATTRIBUTE_ATTACK_SPEED_SUFFIX,
   KILLER_ACTIVE_FIELD,
+  KILLER_TARGETS,
+  KILLER_SUMMARY_TARGET,
   NORMAL_MONSTER_FOOD_FIELD,
   NORMAL_MONSTER_FOODS,
   ATTACK_EVENT_BUFF_FIELD,
@@ -42,6 +45,7 @@ const {
   ON_ATTACK_BUFF_STATS,
 } = CONSTS.masteryRuneBuff;
 const PERCENT_DIVISOR = CONSTS.common.PERCENT_DIVISOR;
+const { DAMAGE_TARGET_FIELD } = CONSTS.dpm;
 
 /** 배율 (log10) → "_per_ 줄" 의 % 값 (log10): × M = × (1 + v/100) 이 되는 v. 배율이 크면 1 을 빼도 같은 값 */
 export function multiplierPercentLog(multiplierLog: number): number {
@@ -68,6 +72,16 @@ export function berserkMultiplierLog(masteryTable: RawTable, stacks: number): nu
 }
 
 /** 학살자 배율 (log10) = log10(1 + (100 + 학살자 증가량 특성 값) / 100) */
+/**
+ * 학살자가 이 계산에 켜지는지: 칸을 켰고, 대미지 대상 (대상별 계산) 이 처치가 있는 일반 대상이면.
+ * 대상을 모르면 (종합 화면) 공격 대상 종류가 일반일 때만
+ */
+export function killerApplies(values: CalcValues): boolean {
+  if (!readFlag(values, KILLER_ACTIVE_FIELD)) return false;
+  const damageTarget = values[DAMAGE_TARGET_FIELD];
+  return damageTarget ? KILLER_TARGETS.includes(damageTarget) : summaryTarget(values) === KILLER_SUMMARY_TARGET;
+}
+
 export function killerLog(masteryTable: RawTable, values: CalcValues): number {
   const addPercent = learnedTraitValue(masteryTraits(masteryTable), values, STATS.KILLER_ADD);
   return Math.log10(1 + (KILLER_BASE_PERCENT + addPercent) / PERCENT_DIVISOR);
@@ -316,7 +330,7 @@ export function buffLines(
       log: multiplierPercentLog(berserkMultiplierLog(masteryTable, stacks)),
     });
   }
-  if (readFlag(values, KILLER_ACTIVE_FIELD)) {
+  if (killerApplies(values)) {
     lines.push({
       source: sourceLabel('calc.buff.killerSource'),
       stat: STATS.ATTACK_PERCENT,

@@ -21,6 +21,7 @@ import {
   attackSpeedPercent,
   berserkStacks,
   buffLines,
+  killerApplies,
   doubleAttackFromLines,
   doubleAttackPercent,
   exclusiveStackBuffLines,
@@ -302,6 +303,14 @@ describe('베르 각성 세부 능력치', () => {
 });
 
 describe('버프·얼티밋 안내', () => {
+  it('학살자는 칸을 켜고 처치가 있는 일반 대상 (스테이지 · 속성 일반 층) 에만, 보스 · 히어로 · 글로벌 일반 주는 끔', () => {
+    const on: CalcValues = { killerActive: 'true' };
+    expect(killerApplies(on)).toBe(true);
+    expect(killerApplies({ ...on, summaryTarget: 'boss' })).toBe(false);
+    for (const target of ['stage', 'attributeNormal']) expect(killerApplies({ ...on, dpmTarget: target }), target).toBe(true);
+    for (const target of ['globalRaidNormal', 'stageBoss', 'guildRaid', 'attributeHero', 'pvp']) expect(killerApplies({ ...on, dpmTarget: target }), target).toBe(false);
+    expect(killerApplies({ killerActive: 'false', dpmTarget: 'stage' })).toBe(false);
+  });
   it('광폭화 중첩·학살자 배율 (기존: 5중첩 ×2.5 / 0중첩 ×2 / 5중첩 ×2)', () => {
     expect(berserkStacks(tables.Mastery, SCENARIOS.full)).toBe(5);
     expect(Number(Math.pow(10, killerLog(tables.Mastery, SCENARIOS.full)).toFixed(3))).toBe(2.5);

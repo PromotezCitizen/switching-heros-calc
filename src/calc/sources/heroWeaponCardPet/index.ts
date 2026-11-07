@@ -24,7 +24,7 @@ const sourceLabel: SourceLabel = (translationKey, params) => i18n.t(translationK
 export const heroWeaponCardPetTabs: CalcTab[] = [
   {
     id: 'library',
-    tableNames: ['Library'],
+    tableNames: ['Library', 'DiceOption'],
     Panel: LibraryPanel,
     lines: (values, tables) => libraryLines(values, tables, sourceLabel),
   },

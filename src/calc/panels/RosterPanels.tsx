@@ -21,7 +21,7 @@ import {
 } from '@/calc/sources/hero/rosterFields';
 import type { CalcValues, TabPanelProps } from '@/calc/types';
 import type { StatDescriptions } from '@/calc/statText';
-import StatValueRows, { allStatChoices } from '@/calc/panels/heroWeaponCardPet/StatValueRows';
+import StatValueRows, { diceStatChoices } from '@/calc/panels/heroWeaponCardPet/StatValueRows';
 import { optionSlotsForStar, optionUnlockStar } from '@/calc/sources/heroWeaponCardPet/weapon';
 
 const {
@@ -398,7 +398,7 @@ function ExclusiveOptionModal({
             valueField={(index) => exclusiveOptionValueField(weaponId, index)}
             values={values}
             setValue={setValue}
-            choices={allStatChoices(descriptions)}
+            choices={diceStatChoices(tables, CONSTS.usb.WEAPON_DICE_ID, descriptions)}
             noneLabel={translate('calc.weapon.none')}
             statLabel={(index) => translate('calc.weapon.statLabel', { index })}
             valueLabel={(index) => translate('calc.weapon.valueLabel', { index })}

@@ -53,7 +53,7 @@ export const heroTabs: CalcTab[] = [
   // 히어로 · 전용 무기 표 (한 탭): 줄은 만들지 않는다 (1슬롯 히어로·전용 무기·유물 연동이 이 값을 읽음)
   {
     id: 'heroRoster',
-    tableNames: [CONSTS.hero.TABLES.CHARACTER, 'WeaponChar'],
+    tableNames: [CONSTS.hero.TABLES.CHARACTER, 'WeaponChar', 'DiceOption'],
     Panel: HeroRosterPanel,
     lines: () => [],
   },

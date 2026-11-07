@@ -3,6 +3,7 @@ import LazySelect from '@/components/LazySelect';
 import { CONSTS } from '@/CONSTS';
 import type { StatDescriptions } from '@/calc/statText';
 import type { CalcValues } from '@/calc/types';
+import { tableRows, type StatTables } from '@/data/statTables';
 
 const { STAT_ROW_SELECT_FLEX, STAT_ROW_VALUE_WIDTH } = CONSTS.heroWeaponCardPet.ui;
 const VALUE_PLACEHOLDER = '{0}';
@@ -13,19 +14,15 @@ export interface StatChoice {
   label: string;
 }
 
-const choiceCache = new WeakMap<StatDescriptions, StatChoice[]>();
-
-/** 능력치 고르기 목록: 설명이 있는 스탯 전부 (설명 가나다순, 기존 allStatChoices) */
-export function allStatChoices(descriptions: StatDescriptions): StatChoice[] {
-  let choices = choiceCache.get(descriptions);
-  if (!choices) {
-    choices = Object.entries(descriptions)
-      .filter(([, description]) => description)
-      .map(([stat, description]) => ({ value: stat, label: description.replace(VALUE_PLACEHOLDER, SAMPLE_VALUE) }))
-      .sort((left, right) => left.label.localeCompare(right.label, 'ko'));
-    choiceCache.set(descriptions, choices);
-  }
-  return choices;
+/**
+ * 능력치 고르기 목록: 게임 DiceOption 표에서 그 옵션 묶음 (diceId) 이 굴릴 수 있는 능력치만 (설명 가나다순).
+ * 무기 옵션 = diceId 1, 전승된 능력 = diceId 2 (폰 불러오기와 같은 번호)
+ */
+export function diceStatChoices(tables: StatTables, diceId: string, descriptions: StatDescriptions): StatChoice[] {
+  const stats = [...new Set(tableRows(tables.DiceOption).filter((row) => row.diceId === diceId).map((row) => row.statType))];
+  return stats
+    .map((stat) => ({ value: stat, label: (descriptions[stat] || stat).replace(VALUE_PLACEHOLDER, SAMPLE_VALUE) }))
+    .sort((left, right) => left.label.localeCompare(right.label, 'ko'));
 }
 
 interface StatValueRowsProps {

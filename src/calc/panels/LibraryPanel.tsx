@@ -17,7 +17,7 @@ import { numberValue } from '@/calc/sources/heroWeaponCardPet/shared';
 import { lineText } from '@/calc/statText';
 import type { TabPanelProps } from '@/calc/types';
 import { iconUrl } from '@/calc/panels/heroWeaponCardPet/IconPicker';
-import StatValueRows, { allStatChoices } from '@/calc/panels/heroWeaponCardPet/StatValueRows';
+import StatValueRows, { diceStatChoices } from '@/calc/panels/heroWeaponCardPet/StatValueRows';
 
 const { JOBS, MIN_NUMBER } = CONSTS.heroWeaponCardPet;
 const { INHERIT_ROWS, BOOK_ICONS } = CONSTS.heroWeaponCardPet.library;
@@ -83,7 +83,7 @@ export default function LibraryPanel({ values, setValue, tables, descriptions }:
           valueField={inheritValueField}
           values={values}
           setValue={setValue}
-          choices={allStatChoices(descriptions)}
+          choices={diceStatChoices(tables, CONSTS.usb.LIBRARY_DICE_ID, descriptions)}
           noneLabel={translate('calc.library.none')}
           statLabel={(index) => translate('calc.library.statLabel', { index })}
           valueLabel={(index) => translate('calc.library.valueLabel', { index })}

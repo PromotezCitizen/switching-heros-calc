@@ -91,8 +91,16 @@ export const PROVIDER_CONSTS = {
     ID_COLUMN: 'frameId',
     STAT_COLUMN: 'statType',
     VALUE_COLUMN: 'statValue',
-    /** 보유 칸 격자 최소 폭 (px) */
-    FLAG_MIN_WIDTH: 260,
+    /** 테두리 그림 칸 격자 최소 폭 (px) */
+    TILE_MIN_WIDTH: 96,
+    /**
+     * 테두리 그림: public/icons/Atlas_profile/frame_<번호 두 자리>.png. 5.70 번들 SpriteAtlas Atlas_profile 의 조각 P_<번호> (아이템 표 imgName,
+     * 테두리 번호와 같음) 을 뽑은 것 (claude-docs/react-port/frame-images-2026-11-07.md, 0~6 은 이름과 그림 대조 확인)
+     */
+    ICON_FOLDER: 'Atlas_profile',
+    ICON_PREFIX: 'frame_',
+    ICON_DIGITS: 2,
+    ICON_SIZE: 72,
   },
 
   /**

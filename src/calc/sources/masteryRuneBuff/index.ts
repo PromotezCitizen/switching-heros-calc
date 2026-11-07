@@ -28,7 +28,7 @@ import {
   stackLines,
   superCriticalStrikeLines,
 } from '@/calc/sources/masteryRuneBuff/buff';
-import { exclusiveBattleLines, magicGuardLines, switchingBoostLines } from '@/calc/sources/masteryRuneBuff/battleEffects';
+import { exclusiveBattleLines, figureBattleLines, magicGuardLines, switchingBoostLines } from '@/calc/sources/masteryRuneBuff/battleEffects';
 import { chanceUltimateLines } from '@/calc/sources/masteryRuneBuff/chances';
 import { masteryLines } from '@/calc/sources/masteryRuneBuff/mastery';
 import { runeLabLines, runeLines } from '@/calc/sources/masteryRuneBuff/rune';
@@ -146,6 +146,8 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
           ...chanceUltimateLines(values, tables.Mastery, chances, translateSource, magicGuardOn),
           ...magicGuardLines(values, tables, tables.Mastery, chances, magicGuardOn, translateSource),
           ...switchingBoostLines(values, tables, tables.Mastery, chances, translateSource),
+          // 피규어 조건형 효과 (확률 200% 초과 · 교체 등장 10초 · 기본 공격): 다른 탭 줄에 남은 피규어 원래 이름 줄에서 읽는다
+          ...figureBattleLines(otherLines, values, tables, chances, magicGuardOn, translateSource),
           ...exclusiveBattleLines(values, tables, translateSource),
           ...superCriticalStrikeLines(values, tables.Mastery, translateSource, chances.superCritical),
           ...onAttackBuffLines(otherLines, summaryTarget(values), translateSource),

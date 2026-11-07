@@ -24,7 +24,8 @@ export const providerTabs: CalcTab[] = [
   },
   {
     id: 'figure',
-    tableNames: [CONSTS.providers.figure.TABLE, CONSTS.hero.TABLES.CHARACTER],
+    // 개수형 효과의 N: 배지 점수 (CardStickerSet) · 전용 무기 초월 (WeaponChar) · 각성 (Character)
+    tableNames: [CONSTS.providers.figure.TABLE, CONSTS.hero.TABLES.CHARACTER, 'CardStickerSet', 'WeaponChar'],
     Panel: FigurePanel,
     lines: (values, tables) => figureLines(values, tables, sourceLabel),
   },

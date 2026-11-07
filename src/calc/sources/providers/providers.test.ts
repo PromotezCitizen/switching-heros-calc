@@ -104,9 +104,25 @@ describe('피규어 (T1276, stat-provider-formulas.md 10-5절)', () => {
     expect(lines.some((line) => line.stat === '_per_attackDamage_CardSetPoint')).toBe(false);
   });
 
-  it('탭 목록에 있고 쓰는 표가 FigureStat · Character', () => {
+  it('개수형: 값 x N % 로 공격력 · 체력 증가에 (N = D·C 레벨 합 · 신화 수 · 각성 합, 게임 m2684)', () => {
+    const value = (figureId: string) => Number(figureRow(tables, figureId, 1)!.statValue1);
+    // 82번 (B) 고급·희귀 레벨 합 공격력: D 1번 Lv5 + C 32번 Lv3 = 8 (B 인 82번 자신은 안 셈)
+    const dc: CalcValues = { [figureLevelField('82')]: '1', [figureLevelField('1')]: '5', [figureLevelField('32')]: '3' };
+    expect(figureLines(dc, tables, label).map((line) => [line.stat, line.value])).toContainEqual(['_per_attackDamage', value('82') * 8]);
+    // 99번 (S) 신화 피규어 수: 99 · 108 두 개
+    const mythic: CalcValues = { [figureLevelField('99')]: '1', [figureLevelField('108')]: '1' };
+    expect(figureLines(mythic, tables, label).map((line) => [line.stat, line.value])).toContainEqual(['_per_attackDamage', value('99') * 2]);
+    // 107번 (S) 히어로 각성 레벨 합: 10 + 5
+    const awaken: CalcValues = { [figureLevelField('107')]: '1', heroOwnedAwaken_0: '10', heroOwnedAwaken_205: '5' };
+    expect(figureLines(awaken, tables, label).map((line) => [line.stat, line.value])).toContainEqual(['_per_attackDamage', value('107') * 15]);
+    // N 이 0 이면 줄 없음, 원래 이름 (…FigureLvSumDC) 은 줄로 남기지 않는다
+    const alone = figureLines({ [figureLevelField('107')]: '1' }, tables, label);
+    expect(alone.some((line) => line.stat.includes('AwakenLvSum') || line.stat === '_per_attackDamage')).toBe(false);
+  });
+
+  it('탭 목록에 있고 쓰는 표가 FigureStat · Character · CardStickerSet · WeaponChar', () => {
     const tab = providerTabs.find((candidate) => candidate.id === 'figure')!;
-    expect(tab.tableNames).toEqual(['FigureStat', 'Character']);
+    expect(tab.tableNames).toEqual(['FigureStat', 'Character', 'CardStickerSet', 'WeaponChar']);
   });
 });
 

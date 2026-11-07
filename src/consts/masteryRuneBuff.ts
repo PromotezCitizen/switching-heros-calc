@@ -156,6 +156,34 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
    * P > 100 이고 과잉 전환 (206) 을 배웠으면 공격력 % 그 값, 9999초 (그 히어로가 필드에 있는 동안).
    * 확률은 "100 미만이면 0" 규칙을 따른다 (사용자 결정). 교체 등장 때만이라 교체 켜짐 비율 (swapUptimePercent) 을 곱한다
    */
+  /**
+   * 피규어 조건형 효과 (figure-special-effects-2026-11-07.md, 게임 코드 원문 대조, 사용자 결정 2026-11-07):
+   * - 확률 200% 초과 7종 (m2099 @32e384c): 그 확률 (전투 중 값) 이 OVER_THRESHOLD 를 넘으면 첫 발동 때 9999초 ×(1 + 값/100) → 상시.
+   *   스위칭 부스트는 교체가 있을 때만, 매직 가드는 보호막이 있을 때만 (등장 · 피격 때 보호막 > 0)
+   * - 교체 등장 때 10초 (m2273 @33cf574): ×(1 + 값/100) 을 교체 켜짐 비율 × (10초 / 교체 간격) 만큼
+   * - 기본 공격 20% 로 체력 100% 면 10초 공격력 (m2042 @32df95c): 체력이 깎일 일 없음 (사용자 "깎일 일 없다") → 상시 ×(1 + 값/100)
+   * - 사망 방어 뒤 공격력 (deathGuardDmgUp, m2042 @32dfac8): 넣지 않는다 — 죽을 일이 없으므로 (사용자 결정 2026-11-07)
+   * 값: `_per_` 이름은 피규어마다 곱으로 쌓인 (곱 − 1) × 100, 그 밖 이름은 합
+   */
+  FIGURE_BATTLE: {
+    OVER_THRESHOLD: 200,
+    OVER_STATS: {
+      doubleAttack: '_per_attackDamage_DoubleAttackOver200',
+      superCritical: '_per_attackDamage_SuperCriticalOver200',
+      spearAttack: '_per_attackDamage_SpearAttackOver200',
+      smite: '_per_attackDamage_SmiteOver200',
+      skillCombo: '_per_attackDamage_SkillComboOver200',
+      switchingBoost: '_per_attackDamage_SwitchingBoostOver200',
+      barrier: '_per_attackDamage_BarrierOver200',
+    } as Record<string, string>,
+    SWAP_ONLY: 'switchingBoost',
+    BARRIER: 'barrier',
+    CHANGE_SKILL_CAST_STAT: '_per_attackDamage_ChangeSkillCast',
+    CHANGE_SKILL_CAST_SECONDS: 10,
+    NORMAL_ATTACK_UP_STAT: 'normalAtkHealOrDmgUp',
+    /** 넣지 않는 효과 (죽을 일이 없으므로) */
+    DEATH_GUARD_STAT: 'deathGuardDmgUp',
+  },
   SWITCHING_BOOST: {
     BUFF_PERCENT: 300,
     BASE_SECONDS: 6,

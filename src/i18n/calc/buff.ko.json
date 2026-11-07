@@ -39,6 +39,18 @@
     "magicGuardBurstSource": "마력 발산 ({{seconds}}초, 켜진 비율 {{percent}}%)",
     "overchargeSource": "과충전 연타 (연타 {{chance}}%, {{threshold}}% 초과)",
     "switchingBoostSource": "스위칭 부스트 발동 (확률 {{chance}}%, {{seconds}}초, 켜진 비율 {{percent}}%)",
+    "figureOverSource": "피규어: {{name}} 확률 200% 초과 ({{chance}}%) 발동 공격력",
+    "figureSwapSource": "피규어: 교체 등장 {{seconds}}초 공격력 (켜진 비율 {{percent}}%)",
+    "figureNormalAttackSource": "피규어: 기본 공격 체력 100% 공격력 (체력이 깎일 일 없음)",
+    "chanceNames": {
+      "doubleAttack": "연타",
+      "superCritical": "슈퍼 치명타",
+      "spearAttack": "관통",
+      "smite": "무자비",
+      "skillCombo": "스킬 콤보",
+      "switchingBoost": "스위칭 부스트",
+      "barrier": "매직 가드"
+    },
     "switchingOverSource": "과잉 전환 (스위칭 부스트 {{chance}}%, 100% 초과, 켜진 비율 {{percent}}%)",
     "exclusiveBossHitSource": "에이카 전용 무기 ★{{star}} 보스 적중 시 공격력",
     "exclusiveTakenSource": "에이카 전용 무기 ★{{star}} 보스 받는 피해 (켜진 비율 {{percent}}%)",

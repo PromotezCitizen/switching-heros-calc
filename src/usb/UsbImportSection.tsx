@@ -8,18 +8,10 @@ import { useTranslation } from 'react-i18next';
 import { Button, Group, List, Stack, Text } from '@mantine/core';
 import type { Adb } from '@yume-chan/adb';
 import { CONSTS } from '@/CONSTS';
-import { CALC_KEY_PREFIX } from '@/calc/storeKeys';
 import { useStatTables } from '@/data/statTables';
 import { useCalcStore } from '@/store/useCalcStore';
-import {
-  importSave,
-  missingSaveKeys,
-  pickDefault,
-  SAVE_FILE_KINDS,
-  topKeys,
-  type SaveFileKind,
-  type SaveFiles,
-} from '@/usb/saveImport/importSave';
+import SaveImportNotes from '@/usb/SaveImportNotes';
+import { importSaveFiles, missingSaveKinds } from '@/usb/saveImport/readSaveFiles';
 import { connectUsbAdb, listSaveFiles, readSaveFile, saveImportAvailability, type SaveFileEntry } from '@/usb/usbAdb';
 
 const { SAVE_IMPORT_TABLES, STEP_COUNT } = CONSTS.usb;
@@ -27,11 +19,6 @@ const { SAVE_IMPORT_TABLES, STEP_COUNT } = CONSTS.usb;
 const USB_STEP_NUMBERS = Array.from({ length: STEP_COUNT }, (_, index) => index + 1);
 
 type Step = 'idle' | 'connecting' | 'connected' | 'importing' | 'done';
-
-/** 바이트 → JSON (원본은 이 파일 밖으로 넘기지 않는다) */
-function parseJson(bytes: Uint8Array): unknown {
-  return JSON.parse(new TextDecoder().decode(bytes));
-}
 
 export default function UsbImportSection() {
   const { t: translate } = useTranslation();
@@ -43,7 +30,7 @@ export default function UsbImportSection() {
   const tables = useStatTables(SAVE_IMPORT_TABLES);
   const setValues = useCalcStore((state) => state.setValues);
   const [availability] = useState(saveImportAvailability);
-  const missingKinds = SAVE_FILE_KINDS.filter((kind) => !files.some((file) => file.name.endsWith(`_${kind}.json`)));
+  const missingKinds = missingSaveKinds(files.map((file) => file.name));
 
   // 창을 닫아 이 부분이 사라지면 USB 연결도 끊는다
   const adbRef = useRef<Adb>(undefined);
@@ -80,23 +67,15 @@ export default function UsbImportSection() {
     if (!adb || tables.status !== 'ready') return;
     setStep('importing');
     try {
-      const loaded: Record<string, unknown> = {};
-      const keysByKind: Partial<Record<SaveFileKind, string[]>> = {};
-      for (const kind of SAVE_FILE_KINDS) {
-        const file = files.find((candidate) => candidate.name.endsWith(`_${kind}.json`))!;
-        const parsed = parseJson(await readSaveFile(adb, file.name));
-        keysByKind[kind] = topKeys(parsed);
-        loaded[kind] = kind === 'Default' ? pickDefault(parsed as Parameters<typeof pickDefault>[0]) : parsed;
-      }
-      const missingKeys = missingSaveKeys(keysByKind);
-      const result = importSave(loaded as unknown as SaveFiles, tables.data);
-      setValues({
-        ...Object.fromEntries(Object.entries(result.values).map(([key, value]) => [CALC_KEY_PREFIX + key, value])),
-        ...result.accountValues,
-      });
-      setNotes([...(missingKeys.length > 0 ? [translate('usb.missingKeys', { keys: missingKeys.join(', ') })] : []), ...result.notes]);
+      const outcome = await importSaveFiles(
+        files.map((file) => file.name),
+        (name) => readSaveFile(adb, name),
+        tables.data,
+      );
+      setValues(outcome.storeValues);
+      setNotes([...(outcome.missingKeys.length > 0 ? [translate('usb.missingKeys', { keys: outcome.missingKeys.join(', ') })] : []), ...outcome.notes]);
       setStep('done');
-      setMessage(translate('usb.importDone', { count: Object.keys(result.values).length + Object.keys(result.accountValues).length }));
+      setMessage(translate('usb.importDone', { count: outcome.count }));
     } catch (error) {
       setStep('connected');
       setMessage(translate('usb.failed', { error: String(error) }));
@@ -139,14 +118,7 @@ export default function UsbImportSection() {
         </Text>
       )}
       {message && <Text size="sm">{message}</Text>}
-      {notes.length > 0 && <Text size="sm">{translate('usb.notFilled')}</Text>}
-      {notes.length > 0 && (
-        <List size="sm">
-          {notes.map((note) => (
-            <List.Item key={note}>{note}</List.Item>
-          ))}
-        </List>
-      )}
+      <SaveImportNotes notes={notes} />
       <Text size="xs" c="dimmed">
         {translate('usb.privacy')}
       </Text>

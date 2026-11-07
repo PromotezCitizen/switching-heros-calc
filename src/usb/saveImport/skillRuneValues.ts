@@ -5,7 +5,7 @@
 import { CONSTS } from '@/CONSTS';
 import { readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
 
-const { RUNE_CORE_MULTIPLIER, FIRST_SKILL_OPTION_SET } = CONSTS.usb;
+const { RUNE_CORE_MULTIPLIER, FIRST_SKILL_OPTION_SET, SKILL_PERK_TYPES, SKILL_PERK_TARGET_LEVELS } = CONSTS.usb;
 
 export interface SkillSave {
   psSkillDic: SaveDictionary<number, { lv: number }>;
@@ -15,13 +15,17 @@ export interface SkillSave {
   psSkillOptionDic: SaveDictionary<number, SaveDictionary<number, { diceOptions: { rNo: number }[] }>>;
   /** 프리셋 → (스킬 → 쓰는 옵션 세트 번호). 저장에 없으면 첫 세트 */
   eqSkillOptionDic?: SaveDictionary<number, SaveDictionary<number, number>>;
+  /** 스킬 → (문양 세트 번호 → 해금 레벨 칸 순서대로 고른 문양 번호, 0 = 미적용). 문양을 안 쓴 저장에는 없다 */
+  equipPerkOptionDic?: SaveDictionary<number, SaveDictionary<number, { typeSlots: number[] }>>;
+  /** 프리셋 → (스킬 → 쓰는 문양 세트 번호) */
+  presetPerkOptionDic?: SaveDictionary<number, SaveDictionary<number, number>>;
 }
 
 export interface RuneSave {
   attributeData: { coreLv: number; runeLv: number[] };
 }
 
-export function skillRuneValues(skill: SkillSave, rune: RuneSave, presetKey: number, slot1HeroId: number): SaveImportResult {
+export function skillRuneValues(skill: SkillSave, rune: RuneSave, presetKey: number, slot1HeroId: number, slot2HeroId = -1): SaveImportResult {
   const values: Record<string, string> = {};
   const notes: string[] = [];
 
@@ -37,6 +41,11 @@ export function skillRuneValues(skill: SkillSave, rune: RuneSave, presetKey: num
     equipped.forEach((skillId, index) => {
       if (skillId) values[`skillEquip_${index + 1}`] = String(skillId);
     });
+    // 2슬롯 히어로의 장착 스킬 (교체했을 때의 DPM 계산용)
+    const secondEquipped = readDictionary(presetSkills).get(slot2HeroId)?.skillIds ?? [];
+    secondEquipped.forEach((skillId, index) => {
+      if (skillId) values[`skillEquip2_${index + 1}`] = String(skillId);
+    });
   });
 
   // 스킬 옵션: 스킬마다 쓰는 프리셋의 옵션 세트 (없으면 첫 세트), 칸 순서대로 옵션 번호
@@ -48,6 +57,24 @@ export function skillRuneValues(skill: SkillSave, rune: RuneSave, presetKey: num
       const options = setDictionary.get(presetSets.get(skillId) ?? FIRST_SKILL_OPTION_SET) ?? [...setDictionary.values()][0];
       options?.diceOptions.forEach((option, index) => {
         values[`skillOption_${skillId}_${index + 1}`] = String(option.rNo);
+      });
+    }
+  });
+
+  // 스킬 문양: 스킬마다 쓰는 프리셋의 문양 세트에서 해금 레벨 칸마다 고른 문양 (스킬 번호별이라 1 · 2슬롯 히어로 스킬 모두 읽힌다).
+  // 문양을 한 번이라도 쓴 스킬은 7칸을 모두 쓴다: 안 고른 칸은 '' 로 비워 예전에 가져온 값이 남지 않게 한다
+  runSection(notes, '스킬 문양', () => {
+    if (!skill.equipPerkOptionDic) return;
+    const presetNode = skill.presetPerkOptionDic && readDictionary(skill.presetPerkOptionDic).get(presetKey);
+    const presetSets = presetNode ? readDictionary(presetNode) : new Map<number, number>();
+    for (const [skillId, sets] of readDictionary(skill.equipPerkOptionDic)) {
+      const setId = presetSets.get(skillId);
+      const typeSlots = setId === undefined ? [] : readDictionary(sets).get(setId)?.typeSlots ?? [];
+      SKILL_PERK_TARGET_LEVELS.forEach((targetLevel, index) => {
+        const number = typeSlots[index] ?? 0;
+        const perkType = number > 0 ? SKILL_PERK_TYPES[number - 1] : '';
+        if (number > 0 && !perkType) notes.push(`계산기에 없는 스킬 문양 번호예요 (스킬 ${skillId}, ${targetLevel}레벨, 번호 ${number})`);
+        values[`skillPerk_${skillId}_${targetLevel}`] = perkType ?? '';
       });
     }
   });

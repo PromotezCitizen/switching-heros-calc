@@ -1,5 +1,5 @@
 /**
- * 불러오기 창: 게임 버전 · 입력값 파일로 저장 / 불러오기 · 안드로이드 폰 USB 로 채우기.
+ * 불러오기 창: 게임 버전 · 입력값 파일로 저장 / 불러오기 · 안드로이드 폰 USB 로 채우기 (지원 범위: 윈도우 + 폰 USB 디버깅만, 사용자 결정 2026-11-07).
  * 파일 불러오기는 파일 내용으로 입력값 전체를 바꾼다 (백업 되살리기 · 다른 기기로 옮기기).
  * 게임 버전은 폰에서 채울 때 저장 데이터에서 읽어 기록한 값이다.
  */
@@ -11,6 +11,7 @@ import { CONSTS } from '@/CONSTS';
 import SectionTitle from '@/components/SectionTitle';
 import { backupFileName, createBackup, downloadBackup, parseBackup } from '@/load/inputBackup';
 import { useCalcStore } from '@/store/useCalcStore';
+import ManualInputNote from '@/usb/ManualInputNote';
 import UsbImportSection from '@/usb/UsbImportSection';
 
 const { FILE_ACCEPT, GAME_VERSION_KEY } = CONSTS.load;
@@ -88,6 +89,7 @@ export default function LoadDialog() {
           <Stack gap="xs">
             <SectionTitle>{translate('load.usbTitle')}</SectionTitle>
             <UsbImportSection />
+            <ManualInputNote />
           </Stack>
         </Stack>
       </Modal>

@@ -5,6 +5,8 @@ import { RESOURCES, type Resource } from '@/hunting/huntingCalc';
 /** 계정 공통 입력의 저장소 칸 이름 (여러 페이지가 같은 값을 읽는다) */
 export const ACCOUNT_KEYS = {
   vipLevel: 'account.vipLevel',
+  /** 유저 레벨 (최적 특성의 총 특성 포인트). 칸 이름은 최적 특성 페이지가 먼저 쓰던 그대로 (저장된 값 유지), 저장 데이터 Default.userLv 로 불러온다 */
+  userLevel: 'optimizer.userLevel',
   guildLevel: 'account.guildLevel',
   fairyLevel: 'account.fairyLevel',
   /** 요정의 축복 켜짐 — 스탯 계산기의 공격력·체력 줄용 ('true' / 'false', 저장된 값이 없으면 켜짐) */

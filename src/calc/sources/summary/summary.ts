@@ -115,6 +115,16 @@ function variantStats(hero: TableRow | undefined, suffix: string, prefix: string
   return [`${prefix}${hero.job}_${suffix}`, `${prefix}${hero.attribute}${ATTRIBUTE_HERO_SUFFIX}_${suffix}`];
 }
 
+/** 치명타 확률에 더하는 스탯 (합): criticalRate 와 직업·속성 변형 */
+export function criticalRateStats(hero: TableRow | undefined): string[] {
+  return [STATS.CRITICAL_RATE, ...variantStats(hero, VARIANT_SUFFIXES.CRITICAL_RATE, '')];
+}
+
+/** 치명타 데미지 곱 계열 (D): _per_criticalDmg · 체력 70% 이상 카드 · 직업·속성 치명타 데미지 % */
+export function criticalDamageMultiplierStats(hero: TableRow | undefined): string[] {
+  return [STATS.CRITICAL_DAMAGE, STATS.CRITICAL_DAMAGE_MY_HP_70, ...variantStats(hero, VARIANT_SUFFIXES.CRITICAL_DAMAGE, PER_PREFIX)];
+}
+
 /**
  * 프로필 "공격력 증가" 에 곱해지는 스탯: 공격력 % · 대상 몬스터 대미지 % 와 각각의 직업·속성 변형
  * (대상 몬스터 공격시 공격력 % 는 게임이 전투 버프로만 넣어서 여기 없다. 버프 탭 줄이 일반 공격력 % 로 바꿔 넣는다).
@@ -179,17 +189,10 @@ export function summaryRows(lines: Line[], values: CalcValues, tables: StatTable
 
   // 대상 몬스터 공격시 줄 (공격속도·치명타 확률·치명타 데미지) 은 전투 밖 프로필에 안 들어간다 (버프 탭 줄이 일반 스탯으로 넣음)
   const attackSpeed = attackSpeedPercent(combined, hero, !hasEquippedActiveSkill(values, tables));
-  const criticalRate = [STATS.CRITICAL_RATE, ...variantStats(hero, VARIANT_SUFFIXES.CRITICAL_RATE, '')].reduce(
-    (sum, stat) => sum + read.sum(stat),
-    0,
-  );
+  const criticalRate = criticalRateStats(hero).reduce((sum, stat) => sum + read.sum(stat), 0);
   // 치명타 데미지 (앱 프로필 표시 식, gap-critdmg-normal.md 1-1): 합 계열 criticalDmg 합 × 곱 계열 배율 ÷ 100.
   // 곱 계열 = _per_criticalDmg · 직업·속성 치명타 데미지 % · 체력 70% 이상 카드
-  const criticalDamageMultiplierLog = [
-    STATS.CRITICAL_DAMAGE,
-    STATS.CRITICAL_DAMAGE_MY_HP_70,
-    ...variantStats(hero, VARIANT_SUFFIXES.CRITICAL_DAMAGE, PER_PREFIX),
-  ].reduce((sum, stat) => sum + read.log(stat), 0);
+  const criticalDamageMultiplierLog = criticalDamageMultiplierStats(hero).reduce((sum, stat) => sum + read.log(stat), 0);
   const criticalDamageLog =
     sumLog(read.sum(STATS.CRITICAL_DAMAGE_SUM)) + criticalDamageMultiplierLog - CRITICAL_DAMAGE_DIVISOR_LOG;
   const superCriticalSteps = Math.max(

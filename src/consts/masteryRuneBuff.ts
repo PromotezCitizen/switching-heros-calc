@@ -83,6 +83,7 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
    */
   ON_ATTACK_BUFF_STATS: [
     { group: 'ON_ATTACK_ATTACK_PERCENT', stat: '_per_attackDamage' },
+    { group: 'ON_ATTACK_SKILL_DAMAGE', stat: '_per_skillDamage' },
     { group: 'ON_ATTACK_CRITICAL_DAMAGE', stat: '_per_criticalDmg' },
     { group: 'ON_ATTACK_CRITICAL_RATE', stat: 'criticalRate' },
     { group: 'ON_ATTACK_ATTACK_SPEED', stat: 'attackSpeed' },
@@ -136,6 +137,73 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     smiteToDmgUp6: { chance: 'smite', threshold: 200 },
     barrierToDmgUp6: { chance: 'barrier', threshold: 200 },
   } as Record<string, { chance: string; threshold: number }>,
+  /**
+   * 확률 초과 개수 얼티밋 (3001 잠재력 해방 80, 3007 한계 돌파 120; 설명은 "아티팩트의 유니크 옵션" 이지만
+   * 게임은 히어로 최종 확률 7종을 문턱과 비교한다, claude-docs/react-port/artifact-unique-over-2026-11-05.md, 사용자 지시 2026-11-05 "계산기 넣어라").
+   * 문턱을 넘은 (> , 같으면 안 셈) 확률 종류 수 k → 공격력 증가에 × 값^k (값 = 표 값 2.5 / 5, 레벨 무관). 전투 버프는 확률에 안 들어가 늘 같은 k
+   */
+  CHANCE_COUNT_ULTIMATES: {
+    _pow_attackDamage_ArtifactUniqueOptionOver80: 80,
+    _pow_attackDamage_ArtifactUniqueOptionOver120: 120,
+  } as Record<string, number>,
+  /** 확률 초과 개수 얼티밋이 세는 확률 7종 (chancesFromLines 이름) */
+  CHANCE_COUNT_NAMES: ['doubleAttack', 'superCritical', 'spearAttack', 'switchingBoost', 'skillCombo', 'smite', 'barrier'] as readonly string[],
+  /** 교체가 있을 때만 발동하는 확률 (교체 켜짐 비율 칸이 0 이면 그 확률의 문턱 얼티밋 줄을 만들지 않는다) */
+  SWAP_ONLY_CHANCE: 'switchingBoost',
+  /**
+   * 스위칭 부스트 발동 (게임 코드 T410 m2274, claude-docs/react-port/battle-missing-effects-2026-11-01.md 2-1절, 확정):
+   * 교체 등장 때 확률 P 로 발동 → 공격력 % 버프 BUFF_PERCENT (× 공명 있으면 (1 + 공명/100)^floor(P/10)), 지속 BASE_SECONDS + 흐름 유지.
+   * P > 100 이고 과잉 전환 (206) 을 배웠으면 공격력 % 그 값, 9999초 (그 히어로가 필드에 있는 동안).
+   * 확률은 "100 미만이면 0" 규칙을 따른다 (사용자 결정). 교체 등장 때만이라 교체 켜짐 비율 (swapUptimePercent) 을 곱한다
+   */
+  SWITCHING_BOOST: {
+    BUFF_PERCENT: 300,
+    BASE_SECONDS: 6,
+    POWER_STEP: 10,
+    ADD_DAMAGE_STAT: 'switchingBoostAddDmg',
+    ADD_DURATION_STAT: 'switchingBoostAddDuration',
+    OVER_STAT: 'switchingBoostToDmgUp1',
+  },
+  /**
+   * 에이카 전용 무기 (1021) 전투 효과 (WeaponTranscend 표 행, 게임 코드 확정 — battle-missing-effects-2026-11-01.md 2-2절, current-hp-damage-2026-11-01.md):
+   * - ★12 (statType 30005): 보스 몬스터에 맞으면 공격력 % val2 (400), val1 (5) 초 — 교체 스킬이 1초마다 맞혀 필드에 있는 동안 유지 (유력). 보스 대상만
+   * - ★1 (statType 30001): 교체 스킬 첫 틱 · 마지막 화살이 보스에 맞으면 val2 (15) 초 동안 받는 피해 val3 (100) %. 게임이 무한 체력 보스는 빼므로
+   *   스테이지 보스 · 속성 던전 보스 대상만 (AEIKA_WEAPON.CURRENT_HP_TARGETS). 받는 피해는 따로 곱해지는 항이라 보스 몬스터 피해 % 줄로 넣는다 (같은 크기의 곱)
+   * ★15 (30006, 보스 몬스터 피해 400) 는 상시라 무기 탭 TRANSCEND_STATS 에서 넣는다
+   */
+  EXCLUSIVE_BATTLE: {
+    WEAPON_ID: '1021',
+    BOSS_HIT_STAT_TYPE: '30005',
+    BOSS_HIT_STAR: 12,
+    TAKEN_DAMAGE_STAT_TYPE: '30001',
+    TAKEN_DAMAGE_STAR: 1,
+    BOSS_DAMAGE_STAT: '_per_BossMonsterDamage',
+  },
+  /**
+   * 확률 묶음 이름 (일반 특성의 statName 에 들어 있는 확률 이름). 확률은 100% 미만이면 효과 0 이라 (사용자 결정 2026-11-01),
+   * 확률을 100% 로 올리는 특성과 그 문턱 효과 특성을 따로 올리면 효율이 안 오른다 → 추천이 같은 묶음의 특성 둘을 동시에 올려 본다
+   * (예: 무자비 306 + 307, 슈퍼 치명타 17 + 108, 매직 가드 전환율 61 · 311 + 312). 스위칭 부스트는 효과 식이 따로라 넣지 않음
+   */
+  COMBO_FAMILIES: ['superCritical', 'spearAttack', 'doubleAttack', 'skillCombo', 'smite', 'barrier'] as readonly string[],
+  /**
+   * 매직 가드 (게임 m2137 @32e1ae8, claude-docs/react-port/barrier-and-atk-gap.md 1절, 사용자 지시 2026-11-05 "틀린 부분 다 고쳐라"):
+   * - 기본 항 BASE_STAT (0x105, 특성 60 · 연성 · 주사위) 이 0 이면 보호막 0 으로 두고 함수가 끝난다 (32e1cd8~32e1d5c 직접 확인)
+   *   → 흘러넘치는 체력 63, 312 · 313 · 314, 전환율 150 · 200% 초과 얼티밋 (3018 · 3027) 모두 꺼짐
+   * - 전환율 S = barrier + barrierAddVal (확률 묶음 barrier). 312: S > 100 이면 값 %, 313: floor((S − 100) / 10) 단계 × 값 %
+   * - 314 마력 발산: 보호막이 생길 때 (히어로 등장 · 교체) 5초간 값 % → 교체 켜짐 비율 × (5초 / 필드에 서는 시간).
+   *   교체가 없으면 전투 시작 한 번뿐이라 넣지 않는다. 긴급 재생 64 (맞을 때 확률로 다시 생성) 는 맞는 횟수를 몰라 넣지 않는다
+   * - 실드 배쉬 62 (보호막 × % 를 한 방마다 고정값으로 더함) 는 크기가 대미지보다 10^100 배 이상 작아 넣지 않는다
+   */
+  MAGIC_GUARD: {
+    BASE_STAT: 'barrier',
+    CHANCE: 'barrier',
+    OVER_THRESHOLD: 100,
+    OVER_STEP: 10,
+    OVER_DAMAGE_STAT: 'barrierToDmgUp1',
+    OVER_STEP_DAMAGE_STAT: 'barrierToDmgUp2',
+    BURST_DAMAGE_STAT: 'barrierToDmgUp3',
+    BURST_SECONDS: 5,
+  },
 
   /** 특성 스탯 이름 (서버 표 Mastery statName) */
   STATS: {
@@ -228,6 +296,8 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     { id: 'strawberryJuice', itemId: 26, stat: '_per_NormalMonsterDamage', percent: 250 },
     { id: 'strawberryTart', itemId: 27, stat: '_per_NormalMonsterDamage', percent: 600 },
   ],
+  /** 음식 효과 지속 시간 (분, 서버 표 Item double2 = 60). 저장은 먹은 시각 (_foodUseList) 만 남겨서 이 시간으로 켜져 있는지 가른다 */
+  NORMAL_MONSTER_FOOD_MINUTES: 60,
   /** 버프 탭 공격력 이벤트 버프 칸 (켬/끔, 처음 = 꺼짐) */
   ATTACK_EVENT_BUFF_FIELD: 'attackEventBuff',
   /**
@@ -259,6 +329,33 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     string,
     string
   >,
+  /**
+   * 얼티밋 "_per_스탯_EqOver<N>Sum" (특성 3002 · 3008): 두 히어로가 장착한 전용 무기의 초월 ★ 합이 N 이상일 때만 (조건 확정, 값 출처는
+   * stat-provider-formulas.md 수집기 m2694 · 이름은 유력). 1 · 2슬롯 히어로가 전용 무기를 꼈는지는 아래 장착 칸
+   */
+  ULTIMATE_WEAPON_STAR_SUM_THRESHOLDS: { EqOver20Sum: 20, EqOver30Sum: 30 } as Record<string, number>,
+  HERO_EQUIPPED_FIELDS: ['exclusiveEquipped', 'exclusiveEquipped2'] as readonly string[],
+  /**
+   * 얼티밋 "_per_스탯_EqSameGradeAlchemy<N>" (특성 3000 균형의 완성 · 3006 완전한 세트): 장착 연성장비 중 같은 등급 (rarity 숫자 그대로,
+   * GR · GR+ 는 따로) 이 가장 많은 등급의 개수가 N 이상일 때만 (게임 코드 m2687 확정, claude-docs/react-port/alchemy-same-grade-2026-11-01.md).
+   * 개수는 입력칸 ALCHEMY_SAME_GRADE_FIELD (저장 가져오기가 채움)
+   */
+  ULTIMATE_SAME_GRADE_ALCHEMY_THRESHOLDS: { EqSameGradeAlchemy5: 5, EqSameGradeAlchemy8: 8 } as Record<string, number>,
+  ALCHEMY_SAME_GRADE_FIELD: 'alchemySameGradeMax',
+  /**
+   * 얼티밋 "_per_스탯_<개수 이름>" 중 개수 × 값 % 인 것 → 개수 입력칸 (claude-docs/react-port/sss-grade-count-2026-11-01.md, 게임 코드 확정):
+   * - EquipSSSOptionCnt (1020 · 1021): 히어로가 낀 **전용 무기** 옵션 중 SSS 이상 (등급 > SS) 개수. 직업 무기는 0. 1슬롯 칸 (2슬롯은 SWAP.SSS_OPTION_COUNT_FIELDS)
+   * - EqSSS_StickerCnt (3019 · 3020): 편성 카드 6장에 붙인 SSS 이상 배지 수 (최대 24). 저장에 예시가 없어 직접 입력
+   */
+  ULTIMATE_COUNT_FIELDS: { EquipSSSOptionCnt: 'weaponSssOptionCount', EqSSS_StickerCnt: 'sssStickerCount' } as Record<string, string>,
+  /** 연성장비 장착 칸 수 (저장 equipItemDic 0~9) */
+  ALCHEMY_SLOTS: 10,
+  /**
+   * 얼티밋 "_per_스탯_HeroSwap" (특성 25~28 · 3009~3011 · 3037~3039): 교체해 등장한 뒤 20초간만 (battle-entry-atk.md, 확률 없음).
+   * 그 효과가 켜진 시간 비율 (%) 은 이 입력칸 (교체 계산 swapDamage.ts 가 채움). 칸이 없으면 교체가 없는 것으로 보고 적용하지 않는다
+   */
+  ULTIMATE_HERO_SWAP_KEY: 'HeroSwap',
+  SWAP_UPTIME_FIELD: 'swapUptimePercent',
   COSTUME_COUNT_KEY: 'HaveCostumeCnt',
   /** 코스튬 탭의 보유 코스튬 수 칸 */
   COSTUME_COUNT_FIELD: 'costumeCount',

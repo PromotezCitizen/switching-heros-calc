@@ -110,17 +110,32 @@ export function traitName(trait: MasteryTrait, sourceLabel: SourceLabel): string
   return sourceLabel(`calc.mastery.names.${trait.rNo}`, { defaultValue: trait.statName });
 }
 
-/** 레벨 > 0 인 일반 특성마다 한 줄 (얼티밋은 ultimate.ts) */
-export function masteryLines(values: CalcValues, table: RawTable, sourceLabel: SourceLabel): Line[] {
+/** 교체 등장 후 지속 효과 스탯 (`_per_<스탯>_HeroSwap`): 앞부분이 기본 스탯 이름 */
+const HERO_SWAP_STAT_PATTERN = new RegExp(`^(_per_.+)_${CONSTS.masteryRuneBuff.ULTIMATE_HERO_SWAP_KEY}$`);
+
+/**
+ * 레벨 > 0 인 일반 특성마다 한 줄 (얼티밋은 ultimate.ts).
+ * 교체 등장 후 지속 효과 (`_per_<스탯>_HeroSwap`, "교체해 등장 시 20초간") 는 얼티밋과 같이 기본 스탯 줄로 바꾸고
+ * 켜진 시간 비율 (swapUptimePercent) 만큼의 평균 값을 넣는다. 비율이 0 이면 적용하지 않는다
+ */
+export function masteryLines(values: CalcValues, table: RawTable, sourceLabel: SourceLabel, swapUptimePercent = 0): Line[] {
   return masteryTraits(table)
     .filter((trait) => !trait.ultimate && masteryLevel(values, trait) > 0)
-    .map((trait) => {
+    .flatMap((trait): Line[] => {
       const level = masteryLevel(values, trait);
-      return {
-        source: sourceLabel('calc.mastery.lineSource', { name: traitName(trait, sourceLabel), level }),
-        stat: trait.statName,
-        value: traitValue(trait, level),
-      };
+      const name = traitName(trait, sourceLabel);
+      const heroSwap = HERO_SWAP_STAT_PATTERN.exec(trait.statName);
+      if (heroSwap) {
+        if (!(swapUptimePercent > 0)) return [];
+        return [
+          {
+            source: sourceLabel('calc.ultimate.heroSwapSource', { name, percent: swapUptimePercent }),
+            stat: heroSwap[1],
+            value: (traitValue(trait, level) * swapUptimePercent) / 100,
+          },
+        ];
+      }
+      return [{ source: sourceLabel('calc.mastery.lineSource', { name, level }), stat: trait.statName, value: traitValue(trait, level) }];
     });
 }
 

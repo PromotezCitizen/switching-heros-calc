@@ -2,7 +2,11 @@
 import i18n from 'i18next';
 import { CONSTS } from '@/CONSTS';
 import CoreMasteryPanel from '@/calc/panels/CoreMasteryPanel';
+import AncientRelicPanel from '@/calc/panels/AncientRelicPanel';
 import FigurePanel from '@/calc/panels/FigurePanel';
+import { ancientRelicLines } from '@/calc/sources/providers/ancientRelic';
+import FramePanel from '@/calc/panels/FramePanel';
+import { frameLines } from '@/calc/sources/providers/frame';
 import type { CalcTab } from '@/calc/types';
 import type { SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 import { coreMasteryLines } from '@/calc/sources/providers/coreMastery';
@@ -23,5 +27,17 @@ export const providerTabs: CalcTab[] = [
     tableNames: [CONSTS.providers.figure.TABLE, CONSTS.hero.TABLES.CHARACTER],
     Panel: FigurePanel,
     lines: (values, tables) => figureLines(values, tables, sourceLabel),
+  },
+  {
+    id: 'ancientRelic',
+    tableNames: [CONSTS.providers.ancientRelic.TABLE],
+    Panel: AncientRelicPanel,
+    lines: (values, tables) => ancientRelicLines(values, tables, sourceLabel),
+  },
+  {
+    id: 'frame',
+    tableNames: [CONSTS.providers.frame.TABLE],
+    Panel: FramePanel,
+    lines: (values, tables) => frameLines(values, tables, sourceLabel),
   },
 ];

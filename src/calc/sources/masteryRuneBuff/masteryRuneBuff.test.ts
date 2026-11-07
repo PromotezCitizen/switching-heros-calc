@@ -9,6 +9,7 @@ import weaponCharText from '../../../../public/data/tables/WeaponChar.json?raw';
 import weaponTranscendText from '../../../../public/data/tables/WeaponTranscend.json?raw';
 import '@/i18n';
 import { CONSTS } from '@/CONSTS';
+import { loadTestTables } from '@/test/loadTestTables';
 import { tableRows, type RawTable, type StatTables } from '@/data/statTables';
 import type { Line } from '@/calc/combine';
 import { formatLog } from '@/calc/gameNumber';
@@ -33,6 +34,7 @@ import {
   superCriticalStrikeLines,
 } from '@/calc/sources/masteryRuneBuff/buff';
 import { battleDamageLines, battleStatLines, chancesWithBattleState, compoundPercent } from '@/calc/sources/masteryRuneBuff/battleState';
+import { magicGuardLines } from '@/calc/sources/masteryRuneBuff/battleEffects';
 import { chancesFromLines, chanceUltimateLines } from '@/calc/sources/masteryRuneBuff/chances';
 import { masteryRuneBuffTabs } from '@/calc/sources/masteryRuneBuff/index';
 import { masteryTotals, masteryTraits, plainNumber } from '@/calc/sources/masteryRuneBuff/mastery';
@@ -172,10 +174,10 @@ function simplify(lines: Line[]): ExpectedLine[] {
 describe('탭 목록', () => {
   it('탭 id 와 쓰는 표', () => {
     expect(masteryRuneBuffTabs(() => []).map((tab) => [tab.id, tab.tableNames])).toEqual([
-      ['mastery', ['Mastery', 'Pet', 'Character', 'Skill']],
+      ['mastery', ['Mastery', 'Pet', 'Character', 'Skill', 'WeaponChar']],
       ['rune', ['AttributeRune', 'AttributeRuneLab']],
       ['awakenDetail', ['Awaken']],
-      ['buff', ['Mastery', 'Pet', 'Character', 'Skill', 'AttributeRune', 'AttributeRuneLab', 'Awaken', 'SkillRune', 'Option']],
+      ['buff', ['Mastery', 'Pet', 'Character', 'Skill', 'WeaponChar', 'AttributeRune', 'AttributeRuneLab', 'Awaken', 'SkillRune', 'Option']],
     ]);
   });
   it('버프 탭은 다른 탭들이 쓰는 표도 같이 부른다 (확률 계산에 다른 탭 줄이 필요)', () => {
@@ -185,6 +187,7 @@ describe('탭 목록', () => {
       'Pet',
       'Character',
       'Skill',
+      'WeaponChar',
       'AttributeRune',
       'AttributeRuneLab',
       'Awaken',
@@ -547,24 +550,52 @@ describe('확률 계산·확률 문턱 얼티밋·중첩', () => {
     expect(chanceUltimateLines(masteryValues({}), tables.Mastery, chances, (key) => key)).toEqual([]);
   });
 
+  it('확률 초과 개수 얼티밋 (3001 · 3007, artifact-unique-over-2026-11-05.md): 최종 확률 7종 중 문턱 초과 (같으면 안 셈) 종류 수 k → 공격력 증가 × 값^k', () => {
+    // 120 초과: 연타 · 관통 · 무자비 (3종), 정확히 120 인 슈퍼 치명타는 안 셈. 80 초과: 그 3종 + 슈퍼 치명타 (120) · 스킬 콤보 · 매직 가드 (6종)
+    const chances = { doubleAttack: 300, superCritical: 120, spearAttack: 121, switchingBoost: 50, skillCombo: 100, smite: 500, barrier: 80.5 };
+    const learned = masteryValues({ 3001: 1, 3007: 1 });
+    const lines = chanceUltimateLines(learned, tables.Mastery, chances, (key) => key);
+    expect(lines.map((line) => line.source)).toEqual(['calc.ultimate.chanceCountSource', 'calc.ultimate.chanceCountSource']);
+    expect(lines.every((line) => line.stat === '_per_attackDamage')).toBe(true);
+    expect(lines[0].log).toBeCloseTo(multiplierPercentLog(6 * Math.log10(2.5)), 12);
+    expect(lines[1].log).toBeCloseTo(multiplierPercentLog(3 * Math.log10(5)), 12);
+    // 넘은 종류가 없으면 줄 없음, 계산 못 한 얼티밋 목록에도 없다
+    expect(chanceUltimateLines(learned, tables.Mastery, { doubleAttack: 80 }, (key) => key)).toEqual([]);
+    expect(skippedUltimateNames(learned, tables.Mastery, (key) => key)).toEqual([]);
+  });
+
+  it('스위칭 부스트 문턱 얼티밋 (3012 · 3021): 교체 켜짐 비율 칸이 0 이면 확률이 문턱을 넘어도 줄이 없고, 교체가 있으면 생긴다', () => {
+    const chances = { switchingBoost: 250 };
+    const learned = masteryValues({ 3012: 1, 3021: 1 });
+    expect(chanceUltimateLines(learned, tables.Mastery, chances, (key) => key)).toEqual([]);
+    const withSwap = { ...learned, [CONSTS.masteryRuneBuff.SWAP_UPTIME_FIELD]: '100' };
+    const lines = chanceUltimateLines(withSwap, tables.Mastery, chances, (key) => key);
+    expect(lines).toHaveLength(2);
+    expect(lines.every((line) => line.stat === '_per_attackDamage')).toBe(true);
+    // 다른 확률 (연타) 은 교체와 상관없이 줄이 생긴다
+    expect(chanceUltimateLines(masteryValues({ 3015: 1 }), tables.Mastery, { doubleAttack: 217 }, (key) => key)).toHaveLength(1);
+  });
+
   it('연타·스킬 콤보 중첩은 늘 최대: 가속 Lv20 60% × 10, 연타의 분노 Lv20 500%, 스킬 콤보 액티브 최종 × 8', () => {
     const values = masteryValues({ 14: 20, 104: 20 });
-    const lines = stackLines(values, tables.Mastery, (key) => key, 217, 38.37);
+    const lines = stackLines(values, tables.Mastery, (key) => key, 217, 100);
     expect(lines.slice(0, 2)).toEqual([
       { source: 'calc.buff.doubleAttackStackSource', stat: '_per_attackDamage', value: 600 },
       { source: 'calc.buff.doubleAttackFullStackSource', stat: '_per_attackDamage', value: 500 },
     ]);
     expect(lines[2]).toMatchObject({ source: 'calc.buff.skillComboStackSource', stat: '_per_ActiveSkillDamage' });
     expect(lines[2].log).toBeCloseTo(Math.log10(8 - 1) + 2, 12);
-    // 확률이 0 이면 중첩도 없다
+    // 확률이 100 미만이면 중첩이 효과 0 이라 줄이 없다 (사용자 결정 2026-11-01), 0 이어도 없다
+    expect(stackLines(values, tables.Mastery, (key) => key, 217, 38.37)).toHaveLength(2);
+    expect(stackLines(values, tables.Mastery, (key) => key, 99.99, 99.99)).toEqual([]);
     expect(stackLines(values, tables.Mastery, (key) => key, 0, 0)).toEqual([]);
   });
 
-  it('버프 탭 줄: 다른 탭 줄로 계산한 확률로 중첩·문턱 얼티밋 줄', () => {
+  it('버프 탭 줄: 다른 탭 줄로 계산한 확률로 중첩·문턱 얼티밋 줄 (스킬 콤보 38.37% 는 100 미만이라 줄 없음)', () => {
     const tab = masteryRuneBuffTabs(() => chanceLines).find((item) => item.id === 'buff')!;
     const lines = tab.lines({ ...formation, ...masteryValues({ 3015: 1 }) }, tables);
-    expect(lines.map((line) => line.stat)).toEqual(['_per_ActiveSkillDamage', '_per_attackDamage']);
-    expect(lines[1].value).toBe(12000);
+    expect(lines.map((line) => line.stat)).toEqual(['_per_attackDamage']);
+    expect(lines[0].value).toBe(12000);
   });
 });
 
@@ -752,6 +783,35 @@ describe('전투 중 최대 상태 몫 (battleState.ts)', () => {
     const lines = battleDamageLines(level20(63), tables.Mastery, label, {});
     expect(lines).toEqual([{ source: 'calc.buff.battle.barrierFullSource', stat: '_per_attackDamage', value: 50 }]);
     expect(Math.pow(10, combineLines(lines)._per_attackDamage.log)).toBeCloseTo(1.5, 12);
+  });
+
+  it('매직 가드 기본 항이 0 이면 (magicGuardOn false) 흘러넘치는 체력도 꺼진다 (게임 m2137 이 32e1d5c 에서 끝남)', () => {
+    expect(battleDamageLines(level20(63), tables.Mastery, label, {}, false)).toEqual([]);
+  });
+
+  it('매직 가드 312 · 313 · 314 (consts MAGIC_GUARD): 전환율 135 → 312 400, 313 3단계 × 50, 314 500 × (5초 / 필드 18초 × 교체 켜짐 100%)', () => {
+    const values = { ...level20(312, 313, 314), [CONSTS.masteryRuneBuff.SWAP_UPTIME_FIELD]: '100' };
+    // 교체 간격 (Option 표 hero_swap_cool → 18게임초) 이 필요해 전체 표를 쓴다
+    const fullTables = loadTestTables();
+    const lines = magicGuardLines(values, fullTables, tables.Mastery, { barrier: 135 }, true, label);
+    expect(lines.map((line) => line.source)).toEqual([
+      'calc.buff.battle.magicGuardOverSource',
+      'calc.buff.battle.magicGuardStepSource',
+      'calc.buff.battle.magicGuardBurstSource',
+    ]);
+    expect(lines.every((line) => line.stat === '_per_attackDamage')).toBe(true);
+    expect(lines[0].value).toBeCloseTo(400, 9);
+    expect(lines[1].value).toBeCloseTo(150, 9);
+    expect(lines[2].value).toBeCloseTo((500 * 5) / 18, 9);
+    // 전환율 100 이하면 312 · 313 없음, 교체가 없으면 314 없음, 기본 항 0 이면 모두 없음
+    expect(magicGuardLines(level20(312, 313, 314), fullTables, tables.Mastery, { barrier: 100 }, true, label)).toEqual([]);
+    expect(magicGuardLines(values, fullTables, tables.Mastery, { barrier: 135 }, false, label)).toEqual([]);
+  });
+
+  it('매직 가드 문턱 얼티밋 (3018 · 3027) 도 기본 항이 0 이면 꺼진다', () => {
+    const learned = masteryValues({ 3018: 1, 3027: 1 });
+    expect(chanceUltimateLines(learned, tables.Mastery, { barrier: 250 }, (key) => key)).toHaveLength(2);
+    expect(chanceUltimateLines(learned, tables.Mastery, { barrier: 250 }, (key) => key, false)).toEqual([]);
   });
 
   it('102 과충전 연타 400 → ×5 는 연타가 100 을 넘을 때만 (100 이하면 없음)', () => {

@@ -52,6 +52,8 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
       '2': '_per_CharSkillDamage',
       '3': '_per_attackDamage',
       '4': '_per_allSkillDamage',
+      // 에이카 1021 ★15 "모든 공격은 보스에게 400% 추가 피해" (표에서 30006 은 1021 에만 있음, battle-missing-effects-2026-11-01.md 2-2절 확정)
+      '30006': '_per_BossMonsterDamage',
     } as Record<string, string>,
     /** 무기 누적 능력치 = 전용 무기 초월 미션 보상 (서버 표 ContentMission 의 missionType WeaponChar_Trans 중 공격력 보상 줄) */
     TRANSCEND_MISSION: {
@@ -102,8 +104,9 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     } as Record<string, string>,
     /**
      * 스탯 꼬리말: 전투 조건 효과 — 합산에서 뺌 (처치 중첩 `_per_attackDamage_Kill` 은 아래 KILL_STAT 으로 따로 합산).
-     * 그 밖의 조건 이름 (_HeroSwap·_MonsterCntShort·_BossTimeShort·_NearSingleEnemy·_StageBoss·_MyHp70Long 공격력, attackSpeed_Kill·criticalRate_Kill)
-     * 은 기계어 정리 문서에 식이 없어 읽지 않은 코드로 남김 (합산에서 뺀 채)
+     * 그 밖의 조건 이름 (_MonsterCntShort·_BossTimeShort·_NearSingleEnemy·_StageBoss, attackSpeed_Kill·criticalRate_Kill)
+     * 은 기계어 정리 문서에 식이 없어 읽지 않은 코드로 남김 (합산에서 뺀 채).
+     * _HeroSwap 은 교체 켜짐 비율로 (countExpandedLines), 공격력 · 스킬 데미지의 _MyHp70Long 은 MY_HP_70_STATS 로 바꿔 합산한다
      */
     BATTLE_CONDITION_SUFFIXES: ['_Kill', '_MonsterCntLong'],
     /**
@@ -112,13 +115,71 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
      */
     KILL_STAT: '_per_attackDamage_Kill',
     KILL_MAX_STACKS: 5,
+    /**
+     * 처치 중첩이 쌓이는 공격 대상: 일반 몬스터뿐이다 (계속 잡으며 나아감).
+     * 보스 · 히어로 몬스터는 한 마리를 잡으면 전투가 거기서 끝나서 전투 중에 처치가 일어나지 않고, 각성 던전 보스는 체력이 무한이라 못 잡는다.
+     * 속성 던전 히어로 몬스터의 마릿수는 확인하지 못해 같이 쌓이지 않는 것으로 둔다 (추정)
+     */
+    KILL_STACK_TARGET: 'normal',
     /** 카드 3번 스킬 사용 중첩 (T410 m2308 @33ce078): 합 계열 `attackDamage_useSkill` 값 v % 를 최대 5중첩 선형으로 공격력 % 에 넣는다. 값 160 → ×9 */
     USE_SKILL_STAT: 'attackDamage_useSkill',
     USE_SKILL_MAX_STACKS: 5,
+    /**
+     * 카드 세트 "혈류" 6세트 (CardSet setId 4): 버프 스킬 발동 시 3초간 `_per_BuffDamage_BuffAttack` 값 v % 의 버프 스킬 데미지 (최대 5중첩).
+     * 카드 스킬 사용 중첩과 같은 방식 (사용자 결정: 최대 상태) 으로 v × 5 % 를 버프 스킬 데미지 (`_per_BuffSkillDamage`) 에 넣는다
+     */
+    BUFF_ATTACK_STAT: '_per_BuffDamage_BuffAttack',
+    BUFF_ATTACK_MAX_STACKS: 5,
+    BUFF_ATTACK_TARGET_STAT: '_per_BuffSkillDamage',
     /** 최종 공격력 증가에 넣는 스탯 (0x61) */
     ATTACK_PERCENT_STAT: '_per_attackDamage',
     /** 스탯 꼬리말: 주위 적 수 조건 효과. 종합 탭 "적 수 5 이상" 을 켜면 이 꼬리말을 뗀 일반 스탯으로 합산 (유력, gap-atk-increase-provider.md 4-5) */
     ENEMY_COUNT_SUFFIX: '_MonsterCntLong',
+    /**
+     * 스탯 꼬리말: 내 체력 70% 이상일 때 효과. 치명타 데미지 쪽 (_per_criticalDmg_MyHp70Long, consts/summary.ts) 과 같이
+     * 프로필은 체력 가득이라 늘 켜진 것으로 보고 (추정), 공격력 · 스킬 데미지는 꼬리말을 뗀 일반 스탯으로 합산한다
+     */
+    MY_HP_70_SUFFIX: '_MyHp70Long',
+    MY_HP_70_STATS: ['_per_attackDamage', '_per_skillDamage'] as readonly string[],
+    /**
+     * 전투 조건 꼬리말 (카탈로그 catalog-monster-card.md): 그 전투 상황이면 꼬리말을 뗀 일반 스탯으로 합산하고, 아니면 줄을 그대로 둔다 (효과 0).
+     * 전투 상황은 대미지 계산이 값 칸 (CONSTS.dpm DAMAGE_TARGET_FIELD · TARGETS_PER_SKILL_FIELD) 으로 넣고, 칸이 없으면 (계산식 확인기 등) 모두 꺼짐.
+     * - enemyShort `_MonsterCntShort` 주위의 적 5마리 이하 · enemyLong `_MonsterCntLong` 5마리 이상: 대상별 ENEMY_COUNT_BY_TARGET
+     *   (전투 상황이 없으면 (계산식 확인기 등) 예전처럼 종합 탭 "적 수 5 이상" 칸이 켜졌을 때만 Long)
+     * - single `_NearSingleEnemy` 주위의 적 1마리: 스테이지는 한 스킬에 맞는 적 수가 1 일 때, 나머지 대상은 늘 켜짐
+     * - stageBoss `_StageBoss` 스테이지 보스전: 스테이지 보스 대상만
+     * - nearHero `_NearHero` 주위에 히어로 몬스터가 있을 경우: 속성 던전 히어로 대상만 (`_per_DamageIncrease_Hero` 도 같은 뜻)
+     * 대상 이름은 대미지 계산의 DamageTarget 이다. (주위 적 수 · 히어로 몬스터 유무는 이 계산이 대상으로만 가정하는 값이다)
+     */
+    CONDITION_SUFFIXES: [
+      ['_MonsterCntShort', 'enemyShort'],
+      ['_MonsterCntLong', 'enemyLong'],
+      ['_NearSingleEnemy', 'single'],
+      ['_StageBoss', 'stageBoss'],
+      ['_NearHero', 'nearHero'],
+    ] as readonly (readonly [string, string])[],
+    DAMAGE_INCREASE_HERO_STAT: '_per_DamageIncrease_Hero',
+    /**
+     * 대상별 주위 적 수 조건 (사용자 지시 2026-11-02 "전부 진행", 근거 claude-docs/react-port/nearby-enemy-range-2026-11-02.md):
+     * 게임은 상대 진영 전체 수로 Short ≤ 5 · Long ≥ 5 (정확히 5 면 둘 다). 여기 없는 대상 (보스 1마리 · 히어로 0마리) 은 Short 만 켜짐.
+     * - stage: 45마리 출현 · 5 이하에서 재소환 → Long 거의 항상, Short 는 재소환 순간만 (끔)
+     * - attributeNormal: 80마리 동시 출현, 남은 수 5 이하부터 Short → 대부분 Long (Short 끔)
+     * - globalRaidNormal: 5기 (체력 무한이라 줄지 않음) → 둘 다 켜짐 (유력)
+     */
+    ENEMY_COUNT_BY_TARGET: {
+      stage: { long: true, short: false },
+      attributeNormal: { long: true, short: false },
+      globalRaidNormal: { long: true, short: true },
+    } as Record<string, { long: boolean; short: boolean }>,
+    STAGE_TARGET: 'stage',
+    STAGE_BOSS_TARGET: 'stageBoss',
+    /** 적이 히어로 몬스터인 대상 (주위 히어로 몬스터 조건이 켜진다) */
+    HERO_TARGETS: ['attributeHero', 'nightmare', 'pvp', 'globalRaidHero'] as readonly string[],
+    /** 꼬리말을 뗀 스탯 중 계산에서 다른 이름으로 읽는 것: `_per_DamageIncrease` (설명 "공격력 {0}% 증가") 는 공격력 증가 */
+    BASE_STAT_ALIASES: { _per_DamageIncrease: '_per_attackDamage' } as Record<string, string>,
+    /** 카드 34 스킬 시전 시 스킬 데미지 (카탈로그: "5초간 스킬 데미지 {0}% 증가 (최대 5중첩)"): 공격력 쪽 USE_SKILL_STAT 과 같이 5중첩 선형 */
+    USE_SKILL_SKILL_STAT: 'skillDamage_useSkill',
+    USE_SKILL_SKILL_TARGET_STAT: '_per_skillDamage',
   },
 
   pet: {
@@ -170,6 +231,8 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     CARD_ICON_SIZE: 40,
     /** 고르기 창 선택지 한 칸의 최소 폭 (px). 열 수는 정하지 않고 창 폭에 들어가는 만큼 놓는다 */
     PICKER_OPTION_MIN_WIDTH: 80,
+    /** 고르기 창 항목 힌트 (마우스 올림) 최대 너비 (px) */
+    PICKER_HINT_MAX_WIDTH: 260,
     /** 한 줄로 놓는 편성 칸 하나의 폭 (px). 6칸이 칸 폭을 넘치면 가로 스크롤 */
     CARD_SLOT_WIDTH: 200,
     PET_SLOT_WIDTH: 260,

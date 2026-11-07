@@ -14,8 +14,7 @@ import { isChecked, screenFieldLines, wholeLevel, type ScreenField, type SourceL
 const {
   TABLE_NAMES,
   FAIRY_BLESSING_STATS,
-  HERO_AWAKEN_STAT_COLUMN,
-  HERO_AWAKEN_VALUE_COLUMN,
+  HERO_AWAKEN_STAT_COLUMNS,
   HERO_NAME_FIELD,
 } = CONSTS.textLines;
 
@@ -91,13 +90,12 @@ export function affinityLines(values: CalcValues, tables: StatTables, sourceLabe
 export function heroAwakenLines(values: CalcValues, tables: StatTables, sourceLabel: SourceLabel): Line[] {
   const heroAwaken = heroAwakenRow(values, tables);
   if (!heroAwaken) return [];
-  return [
-    {
-      source: sourceLabel('calc.other.sources.heroAwaken', { level: heroAwaken.lv, hero: slotHeroName(values, tables, HERO_NAME_FIELD) }),
-      stat: heroAwaken[HERO_AWAKEN_STAT_COLUMN],
-      value: Number(heroAwaken[HERO_AWAKEN_VALUE_COLUMN]),
-    },
-  ];
+  const source = sourceLabel('calc.other.sources.heroAwaken', { level: heroAwaken.lv, hero: slotHeroName(values, tables, HERO_NAME_FIELD) });
+  return HERO_AWAKEN_STAT_COLUMNS.flatMap(([typeColumn, valueColumn]) => {
+    const stat = heroAwaken[typeColumn];
+    const value = Number(heroAwaken[valueColumn]);
+    return stat && !CONSTS.providers.EMPTY_STATS.includes(stat) && value > 0 ? [{ source, stat, value }] : [];
+  });
 }
 
 /** 별자리 요정의 축복 (레벨·켜짐은 공통 입력) */

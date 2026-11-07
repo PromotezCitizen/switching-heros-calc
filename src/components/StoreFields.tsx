@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Checkbox, Group, NumberInput, Text, TextInput } from '@mantine/core';
+import { Checkbox, Group, Input, NumberInput, Stack, Text, TextInput } from '@mantine/core';
 import { parseGameNumber } from '@/calc/gameNumber';
 import { CONSTS } from '@/CONSTS';
 import ChoiceChips, { type ChoiceOption } from '@/components/ChoiceChips';
@@ -8,6 +8,9 @@ import HelpHint from '@/components/HelpHint';
 import { useStoreValue } from '@/components/useStoreValue';
 
 /** 라벨 오른쪽에 ? 안내를 붙인다. 안내가 없으면 라벨만 */
+/** 묶음 고르기 칸의 줄 이름 너비 (px): 이름 옆에 ? 설명이 붙어도 한 줄로 */
+const GROUP_LABEL_WIDTH = 64;
+
 function labelWithHint(label: string, hint?: ReactNode): ReactNode {
   if (!hint) return label;
   return (
@@ -26,6 +29,13 @@ interface FieldBase {
   hint?: ReactNode;
 }
 
+/** 비어 있지 않은데 읽을 수 없는 글인가. 0 ("0" · "0.00") 은 "값 없음" 으로 읽을 수 있는 값이라 오류가 아니다 (불러오기가 값이 없는 연성 옵션에 0.00 을 적는다) */
+const ZERO_TEXT = /^\s*0+([.,]0*)?\s*%?\s*$/;
+export function isUnreadableGameNumber(text: string | undefined): boolean {
+  if (!text || text.trim() === '') return false;
+  return parseGameNumber(text) === null && !ZERO_TEXT.test(text);
+}
+
 interface GameNumberFieldProps extends FieldBase {
   /** 입력 예시 (placeholder) */
   example?: string;
@@ -35,7 +45,7 @@ interface GameNumberFieldProps extends FieldBase {
 export function GameNumberField({ storeKey, label, hint, example }: GameNumberFieldProps) {
   const { t: translate } = useTranslation();
   const [text, setText] = useStoreValue(storeKey);
-  const unreadable = !!text && text.trim() !== '' && parseGameNumber(text) === null;
+  const unreadable = isUnreadableGameNumber(text);
   return (
     <TextInput
       label={labelWithHint(label, hint)}
@@ -54,7 +64,7 @@ export function GameNumberField({ storeKey, label, hint, example }: GameNumberFi
 export function GameNumberRow({ storeKey, label, hint, example }: GameNumberFieldProps) {
   const { t: translate } = useTranslation();
   const [text, setText] = useStoreValue(storeKey);
-  const unreadable = !!text && text.trim() !== '' && parseGameNumber(text) === null;
+  const unreadable = isUnreadableGameNumber(text);
   return (
     <Group justify="space-between" align="flex-start" wrap="nowrap" gap="md">
       <Group gap={4} wrap="nowrap" pt={6} style={{ flex: 1, minWidth: 0 }}>
@@ -131,12 +141,50 @@ export function SelectField({ storeKey, label, hint, options, disabled }: Select
   );
 }
 
+export interface SelectGroup {
+  label: string;
+  options: ChoiceOption[];
+  /** 줄 이름 옆 ? 설명 (없으면 없음) */
+  hint?: ReactNode;
+}
+
+interface GroupedSelectFieldProps extends FieldBase {
+  groups: SelectGroup[];
+  disabled?: boolean;
+}
+
+/** 묶음으로 나눈 고르기 칸: 묶음마다 이름과 버튼 줄이 따로 있고, 전체에서 하나만 고른다. 저장된 값이 없으면 첫 묶음의 첫 항목 */
+export function GroupedSelectField({ storeKey, label, hint, groups, disabled }: GroupedSelectFieldProps) {
+  const [text, setText] = useStoreValue(storeKey);
+  const selected = text ?? groups[0]?.options[0]?.value ?? '';
+  return (
+    <Input.Wrapper label={labelWithHint(label, hint)}>
+      <Stack gap={4}>
+        {groups.map((group) => (
+          <Group key={group.label} gap="sm" wrap="nowrap" align="center">
+            <Text size="xs" c="dimmed" w={GROUP_LABEL_WIDTH} component="div" style={{ whiteSpace: 'nowrap' }}>
+              {labelWithHint(group.label, group.hint)}
+            </Text>
+            <ChoiceChips
+              value={group.options.some((option) => option.value === selected) ? selected : ''}
+              options={group.options}
+              disabled={disabled}
+              onChange={(next) => next && setText(next)}
+            />
+          </Group>
+        ))}
+      </Stack>
+    </Input.Wrapper>
+  );
+}
+
 /** 켬/끔 체크 칸. 저장소에는 'true' / 'false' 글로 저장. 저장된 값이 없을 때는 defaultChecked */
-export function FlagField({ storeKey, label, hint, defaultChecked = false }: FieldBase & { defaultChecked?: boolean }) {
+export function FlagField({ storeKey, label, hint, defaultChecked = false, disabled }: FieldBase & { defaultChecked?: boolean; disabled?: boolean }) {
   const [text, setText] = useStoreValue(storeKey);
   return (
     <Checkbox
       label={labelWithHint(label, hint)}
+      disabled={disabled}
       checked={text === undefined ? defaultChecked : text === 'true'}
       onChange={(event) => setText(String(event.currentTarget.checked))}
     />

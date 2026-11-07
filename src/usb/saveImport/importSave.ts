@@ -6,10 +6,23 @@ import { CONSTS } from '@/CONSTS';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import type { StatTables } from '@/data/statTables';
 import { charValues, type CharSave } from '@/usb/saveImport/charValues';
+import { CONTENT_PRESETS_FIELD, CONTENT_PRESET_KEYS, PRESET_OVERRIDES_FIELD, presetDiff } from '@/usb/saveImport/contentPresets';
 import { collectionValues, type AlchemySave, type CollectionProgress } from '@/usb/saveImport/collectionValues';
 import { equipValues, type EquipSave } from '@/usb/saveImport/equipValues';
 import { reinforceValues, type ReinforceSave } from '@/usb/saveImport/reinforceValues';
-import { relicCardValues, type CardSave, type DungeonProgress, type RelicSave } from '@/usb/saveImport/relicCardValues';
+import { ancientRelicValues, type AncientRelicSave } from '@/usb/saveImport/ancientRelicValues';
+import { foodValues, type FoodSave } from '@/usb/saveImport/foodValues';
+import { frameValues, type FrameSave } from '@/usb/saveImport/frameValues';
+import {
+  coreMasteryValues,
+  figureValues,
+  soulForgeValues,
+  type CoreMasterySave,
+  type FigureSave,
+  type SoulForgeSave,
+} from '@/usb/saveImport/progressValues';
+import { OWNED_CARDS_KEY, ownedCardsText } from '@/usb/saveImport/ownedCards';
+import { relicCardValues,type CardSave, type DungeonProgress, type RelicSave } from '@/usb/saveImport/relicCardValues';
 import { readDictionary, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
 import { skillRuneValues, type RuneSave, type SkillSave } from '@/usb/saveImport/skillRuneValues';
 
@@ -20,10 +33,13 @@ const UNREADABLE_TEXT = /undefined|NaN/;
 
 /** Default 원본에서 읽는 부분 (이 키들만 꺼낸다) */
 interface DefaultRaw {
-  presetData: { presetId: number };
+  /** presetId = 지금 프리셋, 그 밖 bossId · dungeonId1~11 · guildRaidId · guildRaidGlobalId · pveId · stageId = 콘텐츠별 프리셋 */
+  presetData: { presetId: number } & Record<string, unknown>;
   contentMissionData: { _receivedIds: number[] };
   adsBuffData: { lv: number };
   vipLv: number;
+  /** 유저 레벨 (11-02 저장 96052) */
+  userLv?: number;
   /** 저장 시각 "YYYY-MM-DD HH:MM:SS" */
   st: string;
   _newNotInvenDic: SaveDictionary<string, { value: number; exponent: number }>;
@@ -42,9 +58,12 @@ export interface DefaultPicked {
   /** 게임 앱 버전 글 (예: "5.60") */
   gameVersion?: string;
   presetKey?: number;
+  /** 콘텐츠별 프리셋 번호 (presetData 의 CONTENT_PRESET_KEYS 칸) */
+  contentPresets?: Record<string, number>;
   receivedMissionIds?: number[];
   fairyLevel?: number;
   vipLevel?: number;
+  userLevel?: number;
   adsRemoved?: boolean;
   /** 공격력 이벤트 버프가 저장 시각에 켜져 있었나 */
   attackBuffOn?: boolean;
@@ -144,9 +163,15 @@ export function pickDefault(raw: DefaultRaw): DefaultPicked {
   return {
     gameVersion: typeof raw._version === 'number' ? raw._version.toFixed(GAME_VERSION_DECIMALS) : undefined,
     presetKey: attempt(() => raw.presetData.presetId),
+    contentPresets: attempt(() =>
+      Object.fromEntries(
+        CONTENT_PRESET_KEYS.map((key) => [key, raw.presetData[key]] as const).filter((entry): entry is readonly [string, number] => typeof entry[1] === 'number'),
+      ),
+    ),
     receivedMissionIds: attempt(() => [...raw.contentMissionData._receivedIds]),
     fairyLevel: attempt(() => raw.adsBuffData.lv),
     vipLevel: raw.vipLv,
+    userLevel: raw.userLv,
     adsRemoved: attempt(() => readDictionary(raw._newNotInvenDic)) === undefined ? undefined : (adsRemove?.value ?? 0) > 0,
     // 두 시각 모두 "YYYY-MM-DD HH:MM:SS" 라 글 순서 = 시간 순서
     attackBuffOn: raw.st === undefined ? undefined : (attackBuffEnd ?? '') > raw.st,
@@ -167,9 +192,14 @@ function putDefined(target: Record<string, string>, key: string, value: number |
   if (value !== undefined) target[key] = String(value);
 }
 
-export function importSave(files: SaveFiles, tables: StatTables): SaveImport {
+/**
+ * withPresets: 콘텐츠별 프리셋 (contentPresets) 각각을 같은 저장으로 다시 읽어, 현재 프리셋과 다른 칸만 values[PRESET_OVERRIDES_FIELD] 에 JSON 으로 남긴다
+ * (최적화 대상마다 그 콘텐츠 프리셋으로 계산, contentPresets.ts). 다시 읽을 때는 false 로 불러 반복하지 않는다
+ */
+export function importSave(files: SaveFiles, tables: StatTables, withPresets = true): SaveImport {
   const { presetKey = -1, receivedMissionIds = [] } = files.Default;
   const slot1HeroId = attempt(() => readDictionary(files.Char._presetDic).get(presetKey)?.slot1) ?? -1;
+  const slot2HeroId = attempt(() => readDictionary(files.Char._presetDic).get(presetKey)?.slot2) ?? -1;
   // 새 저장 형식은 일기장 · 광산 · 훈련 · 파견을 Default 로 옮겼다: 새 위치를 먼저, 없으면 옛 위치
   const char = {
     ...files.Char,
@@ -180,10 +210,16 @@ export function importSave(files: SaveFiles, tables: StatTables): SaveImport {
   const dispatchLevel = files.Default.dispatchLevel ?? files.Dispatch.lv;
   const parts = [
     charValues(char, presetKey, tables),
-    equipValues(files.Equip, { presetKey, slot1HeroId, receivedMissionIds }, tables),
+    equipValues(files.Equip, { presetKey, slot1HeroId, slot2HeroId, receivedMissionIds }, tables),
     reinforceValues(reinforce, presetKey, tables),
     relicCardValues(files.Relic, files.Card, dispatchLevel, files.Progress, presetKey, tables),
-    skillRuneValues(files.Skill, files.Dispatch, presetKey, slot1HeroId),
+    frameValues(files.Relic as RelicSave & FrameSave, tables),
+    ancientRelicValues(files.Dispatch as AncientRelicSave),
+    soulForgeValues(files.Equip as SoulForgeSave, tables),
+    coreMasteryValues(files.Reinforce as CoreMasterySave),
+    figureValues(files.Relic as FigureSave),
+    foodValues(files.Dispatch as FoodSave),
+    skillRuneValues(files.Skill, files.Dispatch, presetKey, slot1HeroId, slot2HeroId),
     collectionValues(files.Progress, files.Alchemy, tables),
   ];
   const notes = parts.flatMap((part) => part.notes);
@@ -195,15 +231,32 @@ export function importSave(files: SaveFiles, tables: StatTables): SaveImport {
     else values[key] = value;
   }
   if (unreadable.length > 0) notes.push(`읽지 못한 항목: ${unreadable.join(', ')}`);
+  // 콘텐츠별 프리셋: 현재 프리셋과 다른 프리셋마다 다른 칸만
+  const contentPresets = files.Default.contentPresets;
+  if (withPresets && contentPresets) {
+    const overrides: Record<string, Record<string, string>> = {};
+    for (const preset of new Set(Object.values(contentPresets))) {
+      if (preset === presetKey) continue;
+      const other = attempt(() => importSave({ ...files, Default: { ...files.Default, presetKey: preset } }, tables, false));
+      if (other) overrides[preset] = presetDiff(values, other.values);
+      else notes.push(`콘텐츠 프리셋 ${preset} 을 읽지 못했어요`);
+    }
+    values[CONTENT_PRESETS_FIELD] = JSON.stringify(contentPresets);
+    values[PRESET_OVERRIDES_FIELD] = JSON.stringify(overrides);
+  }
   // 요정 유대 레벨 · 요정의 축복 (광고 제거면 상시), 공격력 이벤트 버프
   putDefined(values, 'fairyBondLevel', files.Default.fairyLevel);
   putDefined(values, 'fairyBlessingOn', files.Default.adsRemoved);
   putDefined(values, 'attackEventBuff', files.Default.attackBuffOn);
   const accountValues: Record<string, string> = {};
   putDefined(accountValues, ACCOUNT_KEYS.vipLevel, files.Default.vipLevel);
+  // 유저 레벨 (사용자 지시 2026-11-05 "유저 레벨 불러와라"): 최적 특성의 총 특성 포인트
+  putDefined(accountValues, ACCOUNT_KEYS.userLevel, files.Default.userLevel);
   putDefined(accountValues, ACCOUNT_KEYS.fairyLevel, files.Default.fairyLevel);
   putDefined(accountValues, ACCOUNT_KEYS.adRemoved, files.Default.adsRemoved);
   // 데이터를 읽어 온 게임 버전 (불러오기 창 표시 · 파일로 저장할 때 버전)
   if (files.Default.gameVersion) accountValues[GAME_VERSION_KEY] = files.Default.gameVersion;
+  // 보유 카드 (최적 카드 추천의 후보)
+  accountValues[OWNED_CARDS_KEY] = attempt(() => ownedCardsText(files.Card)) ?? '';
   return { values, accountValues, notes };
 }

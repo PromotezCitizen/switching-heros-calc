@@ -10,5 +10,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // 한 번에 한 파일만 돌린다: 기본값 (모든 코어) 으로 돌리면 PC 에서 다른 프로그램 (게임 등) 이 끊긴다
+    maxWorkers: 1,
   },
 });

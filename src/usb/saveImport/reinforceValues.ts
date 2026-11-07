@@ -39,6 +39,11 @@ export function reinforceValues(reinforce: ReinforceSave, presetKey: number, tab
       const level = typeof entry === 'number' ? entry : entry.lv;
       if (level) values[`mastery_${masteryNo}`] = String(level);
     }
+    // 이 프리셋에서 레벨이 없는 특성은 칸을 비운다: 전에 불러온 (다른 프리셋·예전) 레벨이 합쳐져 남지 않게.
+    // 어느 프리셋에든 나오는 특성 번호를 모두 훑는다
+    for (const preset of readDictionary(reinforce.masteryDatas).values()) {
+      for (const masteryNo of readDictionary(preset).keys()) values[`mastery_${masteryNo}`] ??= '';
+    }
   });
 
   // 훈련: 단계 = grLv + 1, 칸 레벨 = 그 능력치 누적 레벨 − 앞 단계들에서 다 채운 레벨

@@ -10,6 +10,7 @@ import { multiplierLogFromPercent, percentTextFromMultiplierLog } from '@/usb/sa
 const {
   DICE_GRADES,
   WEAPON_DICE_ID,
+  SSS_OPTION,
   WEAPON_LINK_JOBS,
   EXCLUSIVE_WEAPON_ID_ABOVE,
   WEAPON_TRANSCEND_CONTENT_TYPE,
@@ -40,6 +41,8 @@ export interface EquipSave {
 export interface EquipContext {
   presetKey: number;
   slot1HeroId: number;
+  /** 2슬롯 히어로 (교체 DPM 용, 없으면 -1) */
+  slot2HeroId?: number;
   receivedMissionIds: number[];
 }
 
@@ -58,6 +61,7 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
 
   const exclusiveIds = new Set(tableRows(tables.WeaponChar).map((row) => row.weaponId));
   let equippedWeapon: number | undefined;
+  let secondEquippedWeapon: number | undefined;
 
   // 전용 무기: 무기마다 초월 ★·강화 레벨, 1슬롯 히어로가 전용 무기를 꼈는지
   runSection(notes, '전용 무기', () => {
@@ -71,6 +75,9 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
     }
     equippedWeapon = readDictionary(equip.eqWeaponDic).get(context.slot1HeroId);
     values.exclusiveEquipped = String(equippedWeapon !== undefined && equippedWeapon > EXCLUSIVE_WEAPON_ID_ABOVE);
+    // 2슬롯 히어로도 같은 식 (교체했을 때의 DPM 계산용)
+    secondEquippedWeapon = readDictionary(equip.eqWeaponDic).get(context.slot2HeroId ?? -1);
+    values.exclusiveEquipped2 = String(secondEquippedWeapon !== undefined && secondEquippedWeapon > EXCLUSIVE_WEAPON_ID_ABOVE);
   });
 
   // 받은 전용 무기 초월 미션: 무기마다 받은 가장 높은 ★, 받은 보상의 공격력 % 를 곱한 합
@@ -90,16 +97,26 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
     values.weaponTotalAtk = percentTextFromMultiplierLog(transcendLog);
   });
 
-  // 장착 무기 옵션
+  // 장착 무기 옵션 (1슬롯 히어로: weaponOption<칸>, 2슬롯 히어로: weaponOption2<칸>)
   runSection(notes, '무기 옵션', () => {
-    const weaponOptions = equippedWeapon === undefined ? undefined : readDictionary(equip.psWeaponOptionDic).get(equippedWeapon);
-    const firstWeaponOptions = weaponOptions ? [...readDictionary(weaponOptions).values()][0]?.diceOptions ?? [] : [];
-    firstWeaponOptions.forEach((option, index) => {
-      values[`weaponOptionStat${index + 1}`] = option.statType;
-      const value = diceValue(diceRows, WEAPON_DICE_ID, option);
-      if (value === undefined) notes.push(`무기 옵션 값을 찾지 못했어요 (${option.statType})`);
-      else values[`weaponOptionValue${index + 1}`] = String(value);
-    });
+    const weaponOptionDic = readDictionary(equip.psWeaponOptionDic);
+    const fill = (weaponId: number | undefined, statPrefix: string, valuePrefix: string, sssCountField: string) => {
+      const weaponOptions = weaponId === undefined ? undefined : weaponOptionDic.get(weaponId);
+      const firstWeaponOptions = weaponOptions ? [...readDictionary(weaponOptions).values()][0]?.diceOptions ?? [] : [];
+      // 얼티밋 1020 · 1021: 전용 무기 (번호 ≥ 1000) 옵션 중 등급 번호 > 6 (SSS 이상) 개수 (게임 코드 m2690, sss-grade-count-2026-11-01.md)
+      const isExclusive = weaponId !== undefined && weaponId >= SSS_OPTION.EXCLUSIVE_WEAPON_MIN_ID;
+      values[sssCountField] = String(isExclusive ? firstWeaponOptions.filter((option) => option.grade > SSS_OPTION.GRADE_ABOVE).length : 0);
+      firstWeaponOptions.forEach((option, index) => {
+        values[`${statPrefix}${index + 1}`] = option.statType;
+        const value = diceValue(diceRows, WEAPON_DICE_ID, option);
+        if (value === undefined) notes.push(`무기 옵션 값을 찾지 못했어요 (${option.statType})`);
+        else values[`${valuePrefix}${index + 1}`] = String(value);
+      });
+    };
+    const [[firstStat, secondStat], [firstValue, secondValue]] = CONSTS.dpm.SWAP.OPTION_FIELD_PAIRS;
+    const [firstSssField, secondSssField] = CONSTS.dpm.SWAP.SSS_OPTION_COUNT_FIELDS;
+    fill(equippedWeapon, firstStat, firstValue, firstSssField);
+    fill(secondEquippedWeapon, secondStat, secondValue, secondSssField);
   });
 
   // 일반 무기 강화 레벨

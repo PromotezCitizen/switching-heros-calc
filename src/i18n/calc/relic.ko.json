@@ -4,6 +4,8 @@
   "maxGradeLabel": "지금 소환할 수 있는 최고 등급",
   "none": "없음",
   "maxGradeHelp": "이 등급보다 높은 유물은 숨기고 계산에서 빼요. 등급을 고르면 그보다 낮은 등급 유물 중 레벨 0인 것은 1로 채워요.",
+  "countLine": "현재 뽑은 개수 {{owned}}개 / 최대 개수 {{max}}개",
+  "gradeCount": "{{grade}} 등급: 뽑은 {{owned}}개 / 최대 {{max}}개",
   "blessingTitle": "유물의 축복",
   "blessingLabel": "유물의 축복",
   "levelsTitle": "유물 레벨",

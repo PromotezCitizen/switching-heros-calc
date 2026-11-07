@@ -23,6 +23,9 @@ export const SKILL_CONSTS = {
   SLOT_CONDITION_COUNT_COLUMN: 'valueInt2',
   /** "스킬 쿨타임 {0}초 감소" 옵션 종류 (SkillRune type) */
   COOL_OPTION_TYPE: '9',
+  /** "버프 지속 시간 {0}초 증가" (SkillRune type 12) · "스킬 발동 확률 {0}% 증가" (type 2, 발동 판정 천분율에 × 10) — job-skills-buff-2026-11-05.md 1-2 */
+  BUFF_DURATION_OPTION_TYPE: '12',
+  PROC_CHANCE_OPTION_TYPE: '2',
   /** 스킬 문양 표 (stat-calc/scripts/export_skill.py): 스킬마다 해금 레벨 (targetLv 60 ~ 120) 별 후보 2개 중 하나 (catalog-skill-option.md 7-1) */
   PERK_TABLE: 'SkillPerk',
   PERK_LEVEL_COLUMN: 'targetLv',

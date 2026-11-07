@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import alchemySlotTable from '../../../public/data/tables/AlchemySlot.json';
 import awakenTable from '../../../public/data/tables/Awaken.json';
+import { OWNED_CARDS_KEY } from '@/usb/saveImport/ownedCards';
 import cardTable from '../../../public/data/tables/Card.json';
 import characterTable from '../../../public/data/tables/Character.json';
 import affinityTable from '../../../public/data/tables/CharacterAffinity.json';
@@ -55,6 +56,10 @@ const expected: Record<string, string> = savedValues.values;
 const NOT_FROM_SAVE = new Set(['summaryEnemyCountReached', 'berserkStacks', 'killerActive', 'atk', 'hp', 'soulForgeLevel', 'skillOption252']);
 /** 스킬마다 옵션 칸: Python 변환에는 없는 칸이라 따로 대조한다 */
 const SKILL_OPTION_KEY = /^skillOption_\d+_\d+$/;
+/** 스킬 문양 칸: 이것도 Python 변환에는 없는 칸이라 skillRuneValues.test.ts 에서 따로 대조한다 */
+const SKILL_PERK_KEY = /^skillPerk_\d+_\d+$/;
+/** 2슬롯 히어로의 장착 스킬 · 전용 무기 장착 (교체 DPM 용): 이것도 Python 변환에는 없는 칸이라 swapDamage.test.ts 에서 따로 대조한다 */
+const SECOND_HERO_KEY = /^(contentPresets|presetOverrides|alchemySameGradeMax|weaponSssOptionCount2?|skillEquip2_\d+|exclusiveEquipped2|weaponOption2(Stat|Value)\d+|frameOwned_\d+|ancientMastered|ancientProgress|soulForgeLevel|soulForgeSlot_\d+|coreMasteryLevel|figureLevel_\d+|normalMonsterFood)$/;
 const NUMBER_KEY = /(^inheritValue|^weaponOptionValue|^petOption\d+_\d+Value|^artifactTotal(Smite|Barrier|DoubleAttack|SuperCritical|SwitchingBoost|SpearAttack|SkillCombo)$)/;
 const LOG_TOLERANCE = 1e-6;
 const VIP_LEVEL_0154 = '11';
@@ -68,9 +73,23 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
     expect(result.notes).toEqual([]);
   });
 
+  it('전용 무기 SSS 옵션 수 (1 · 2슬롯): 0 이상 정수 글로 채운다', () => {
+    for (const field of ['weaponSssOptionCount', 'weaponSssOptionCount2']) {
+      expect(result.values[field], field).toMatch(/^\d+$/);
+    }
+  });
+
+  it('연성장비 같은 등급 최대 개수: rarity 18 × 7 · 19 × 2 · 20 × 1 → 7 (등급 숫자가 다르면 따로 센다)', () => {
+    expect(result.values.alchemySameGradeMax).toBe('7');
+  });
+
   it('Python 변환의 저장 데이터 칸을 빠짐없이 같은 값으로 낸다', () => {
     const expectedKeys = Object.keys(expected).filter((key) => !NOT_FROM_SAVE.has(key)).sort();
-    expect(Object.keys(result.values).filter((key) => !SKILL_OPTION_KEY.test(key)).sort()).toEqual(expectedKeys);
+    // 비운 칸 ('' = 이 프리셋에서 레벨 없는 특성) 은 파이썬 변환에 없는 칸이라 뺀다
+    const sameKeys = Object.keys(result.values).filter(
+      (key) => !SKILL_OPTION_KEY.test(key) && !SKILL_PERK_KEY.test(key) && !SECOND_HERO_KEY.test(key) && !(key.startsWith('mastery_') && result.values[key] === ''),
+    );
+    expect(sameKeys.sort()).toEqual(expectedKeys);
     for (const key of expectedKeys) {
       const actual = result.values[key];
       const expectedNumber = parseGameNumber(expected[key]);
@@ -131,7 +150,14 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
       [ACCOUNT_KEYS.fairyLevel]: FAIRY_LEVEL_0154,
       [ACCOUNT_KEYS.adRemoved]: 'true',
       'meta.gameVersion': '5.50',
+      [OWNED_CARDS_KEY]: expect.stringMatching(/^\d+:\d+:/),
     });
+  });
+
+  it('공통 입력: 유저 레벨 (Default.userLv) 은 최적 특성의 유저 레벨 칸으로, 없으면 칸을 건드리지 않는다', () => {
+    const withLevel = importSave({ ...raw, Default: pickDefault({ ...raw.Default, userLv: 96052 }) }, tables, false);
+    expect(withLevel.accountValues[ACCOUNT_KEYS.userLevel]).toBe('96052');
+    expect(ACCOUNT_KEYS.userLevel in result.accountValues).toBe(false);
   });
 });
 

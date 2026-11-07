@@ -52,6 +52,8 @@ interface TraitNodeProps {
   level: number;
   /** 늘 같은 함수여야 한다 (memo: 레벨이 바뀐 칸만 다시 그림) */
   onChangeLevel: (trait: MasteryTrait, level: number) => void;
+  /** true 면 값을 바꾸는 입력 (아이콘 클릭 · 레벨 칸 · 최대 버튼) 을 모두 보기 전용으로 만든다 (추천 결과 화면) */
+  readOnly?: boolean;
 }
 
 /**
@@ -59,12 +61,13 @@ interface TraitNodeProps {
  * 일반 = 아이콘을 누르면 최대 (최대면 0) + 레벨 칸, 얼티밋 = 아이콘을 눌러 켬/끔.
  * memo: 특성 하나를 바꿀 때 나머지 100여 칸은 다시 그리지 않는다 (전에는 클릭마다 나무 전체를 다시 그려 0.7초)
  */
-const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel }: TraitNodeProps) {
+const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnly }: TraitNodeProps) {
   const { t: translate } = useTranslation();
   const name = translate(`calc.mastery.names.${trait.rNo}`, { defaultValue: trait.statName });
   const active = level > 0;
   // 일반 특성은 지금 레벨의 효과, 얼티밋은 켬/끔뿐이라 켰을 때 효과 (값이 하나)
   const effectText = traitEffectText(trait, trait.ultimate ? ULTIMATE_ON_LEVEL : level);
+  const note = translate(`calc.mastery.notes.${trait.rNo}`, { defaultValue: '' });
   const icon = (
     <Image
       src={traitIconPath(trait)}
@@ -85,10 +88,18 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel }: Trait
               {name}
             </Text>
             <Text size="xs">{effectText}</Text>
+            {/* 특성별 안내 (예: 같은 등급 연성장비 조건에서 GR · GR+ 는 다른 등급) */}
+            {note && (
+              <Text size="xs" fw={700} mt={4}>
+                {note}
+              </Text>
+            )}
           </>
         }
       >
-        {trait.ultimate ? (
+        {readOnly ? (
+          <Box>{icon}</Box>
+        ) : trait.ultimate ? (
           <UnstyledButton
             aria-label={name}
             aria-pressed={active}
@@ -128,17 +139,24 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel }: Trait
             allowDecimal={false}
             aria-label={translate('calc.mastery.levelInput', { name })}
             value={level}
+            readOnly={readOnly}
             onChange={(next) => onChangeLevel(trait, Number(next) || MIN_LEVEL)}
           />
-          <UnstyledButton
-            aria-label={translate('calc.mastery.levelMax')}
-            title={translate('calc.mastery.levelMax')}
-            onClick={() => onChangeLevel(trait, trait.maxLevel)}
-          >
+          {readOnly ? (
             <Text size={PANEL.NODE_SMALL_TEXT_SIZE} c="dimmed">
               {translate('calc.mastery.maxLevel', { max: trait.maxLevel })}
             </Text>
-          </UnstyledButton>
+          ) : (
+            <UnstyledButton
+              aria-label={translate('calc.mastery.levelMax')}
+              title={translate('calc.mastery.levelMax')}
+              onClick={() => onChangeLevel(trait, trait.maxLevel)}
+            >
+              <Text size={PANEL.NODE_SMALL_TEXT_SIZE} c="dimmed">
+                {translate('calc.mastery.maxLevel', { max: trait.maxLevel })}
+              </Text>
+            </UnstyledButton>
+          )}
         </Group>
       )}
     </Stack>
@@ -149,7 +167,7 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel }: Trait
  * 특성 탭: 게임 특성 화면처럼 단계마다 한 줄에 아이콘과 레벨 칸만 놓는다.
  * 이름·효과는 아이콘 위에 올렸을 때 말풍선으로. 레벨은 칸 mastery_<rNo> 에 저장
  */
-export default function MasteryPanel({ values, setValue, tables, descriptions }: TabPanelProps) {
+export default function MasteryPanel({ values, setValue, tables, descriptions, readOnly }: TabPanelProps & { readOnly?: boolean }) {
   const { t: translate } = useTranslation();
   const changeLevel = useCallback(
     (trait: MasteryTrait, level: number) => setValue(masteryLevelKey(trait.rNo), String(clampedMasteryLevel(trait, level))),
@@ -180,9 +198,11 @@ export default function MasteryPanel({ values, setValue, tables, descriptions }:
             {translate(`calc.mastery.groups.${group}`)} {plainNumber(totals.pointsByGroup[group] ?? 0)}
           </Text>
         ))}
-        <Button size="compact-xs" variant="default" onClick={() => resetTraits(traits)}>
-          {translate('calc.mastery.resetAll')}
-        </Button>
+        {!readOnly && (
+          <Button size="compact-xs" variant="default" onClick={() => resetTraits(traits)}>
+            {translate('calc.mastery.resetAll')}
+          </Button>
+        )}
       </Group>
       <Text size="xs" c="dimmed">
         {translate('calc.mastery.pointsHint')}
@@ -211,9 +231,11 @@ export default function MasteryPanel({ values, setValue, tables, descriptions }:
                   style={{ zIndex: PANEL.COLUMN_HEADER_Z_INDEX }}
                 >
                   <SectionTitle>{translate(`calc.mastery.groups.${group}`)}</SectionTitle>
-                  <Button size="compact-xs" variant="subtle" onClick={() => resetTraits(groupTraits)}>
-                    {translate('calc.mastery.resetGroup')}
-                  </Button>
+                  {!readOnly && (
+                    <Button size="compact-xs" variant="subtle" onClick={() => resetTraits(groupTraits)}>
+                      {translate('calc.mastery.resetGroup')}
+                    </Button>
+                  )}
                 </Group>
                 {groupBySteps(groupTraits).map(({ step, unlockLevel, traits: stepTraits }) => (
                   // 일반 특성 단계 (1~18) 뒤에 얼티밋 단계 (1~7) 가 다시 1부터 나오므로 key 에 둘을 구분해 넣는다
@@ -240,6 +262,7 @@ export default function MasteryPanel({ values, setValue, tables, descriptions }:
                           trait={trait}
                           level={masteryLevel(values, trait)}
                           onChangeLevel={changeLevel}
+                          readOnly={readOnly}
                         />
                       ))}
                     </Group>

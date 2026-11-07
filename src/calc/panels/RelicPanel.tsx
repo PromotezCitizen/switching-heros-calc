@@ -41,6 +41,8 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
   const maxGrade = values[RELIC_MAX_GRADE_FIELD] ?? '';
   const visibleGrade = shownGrade && relicGradeAllowed(grades, shownGrade, maxGrade) ? shownGrade : null;
   const states = relicStates(values, tables);
+  /* 뽑은 유물 = 레벨 1 이상 (최대 등급 이하 유물만 센다) */
+  const ownedCount = states.filter((state) => state.level).length;
   const usedLinks = usedRelicLinkFields(states);
   const blessing = relicBlessingFromStates(states, tables);
 
@@ -56,9 +58,9 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
     );
   }
 
+  /* 유물 효과 = 기본 값 + 강화 값 × 레벨. 미보유 (레벨 0) 는 강화 부분만 0 이라 기본 값이 문구에 나온다 (계산에는 효과 없음: state.value 는 0) */
   function effectText({ row, level, value }: RelicState): string {
-    if (!level) return translate('calc.relic.notOwned');
-    return lineText(descriptions, { source: '', stat: row.statType, value });
+    return lineText(descriptions, { source: '', stat: row.statType, value: level ? value : Number(row.baseVal) });
   }
 
   return (
@@ -75,6 +77,7 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
           ]}
         />
         <Text size="sm" c="dimmed">{translate('calc.relic.maxGradeHelp')}</Text>
+        <Text fw={600}>{translate('calc.relic.countLine', { owned: ownedCount, max: states.length })}</Text>
       </Stack>
 
       <Stack gap="xs">
@@ -108,6 +111,15 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
             ) : null,
           )}
         </Group>
+        {visibleGrade && (
+          <Text size="sm">
+            {translate('calc.relic.gradeCount', {
+              grade: visibleGrade,
+              owned: shownStates.filter((state) => state.level).length,
+              max: shownStates.length,
+            })}
+          </Text>
+        )}
         {visibleGrade ? (
           <AutoGrid minItemWidth={CARD_MIN_WIDTH.small}>
             {sortedStates.map((state) => {

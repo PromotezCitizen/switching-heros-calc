@@ -13,7 +13,7 @@ export interface CollectionProgress {
 
 export interface AlchemySave {
   /** 장착 아이템: uTypes2 · uValues = 보조 능력치, pValues = [공격력 %, 체력 %, …] */
-  equipItemDic: SaveDictionary<number, { uTypes2: string[]; uValues: number[]; pValues: number[] }>;
+  equipItemDic: SaveDictionary<number, { rarity: number; uTypes2: string[]; uValues: number[]; pValues: number[] }>;
   slotData: { slotLvDic: SaveDictionary<number, number> };
 }
 
@@ -90,6 +90,10 @@ function alchemyTotals(alchemy: AlchemySave, tables: StatTables, values: Record<
   values.artifactTotalHp = percentTextFromMultiplierLog(
     itemLog(hpIndex) + (partLogByStat.get(HP_PERCENT_STAT) ?? 0) + (setLogByStat.get(HP_PERCENT_STAT) ?? 0),
   );
+  // 같은 등급 (rarity 숫자 그대로) 이 가장 많은 등급의 개수: 얼티밋 균형의 완성 · 완전한 세트 조건 (게임 코드 m2687)
+  const gradeCounts = new Map<number, number>();
+  for (const item of items) if (Number.isFinite(item.rarity)) gradeCounts.set(item.rarity, (gradeCounts.get(item.rarity) ?? 0) + 1);
+  values[CONSTS.masteryRuneBuff.ALCHEMY_SAME_GRADE_FIELD] = String(Math.max(0, ...gradeCounts.values()));
   for (const [field, stat] of Object.entries(ALCHEMY_SUM_FIELDS)) {
     values[field] = (subStatSums.get(stat) ?? 0).toFixed(ALCHEMY_SUM_DECIMALS);
   }

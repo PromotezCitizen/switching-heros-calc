@@ -140,7 +140,7 @@ export function doubleAttackRushPercent(masteryTable: RawTable, values: CalcValu
  * - 가속 (doubleAttackDmgUp): 중첩당 공격력 % × 10 (광폭화처럼 중첩끼리 선형 합, combat-buff-sources.md 확정, 2026-10-12 01:54 화면 일치)
  * - 연타의 분노 (doubleAttackToDmgUp3): 10중첩 달성 시 공격력 % → 늘 붙음
  * - 스킬 콤보: 4중첩이면 다음 액티브 스킬 최종 데미지 × 8 → 늘 붙음 (붙는 스탯 추정)
- * 연타·스킬 콤보 확률이 0 이면 중첩이 쌓이지 않으므로 줄 없음
+ * 연타·스킬 콤보 확률이 100% 미만이면 효과 0 (사용자 결정 2026-11-01: 확률 100 밑이면 무조건 0) 이라 줄 없음
  */
 export function stackLines(
   values: CalcValues,
@@ -151,7 +151,7 @@ export function stackLines(
 ): Line[] {
   const lines: Line[] = [];
   const traits = masteryTraits(masteryTable);
-  if (doubleAttack > 0) {
+  if (doubleAttack >= CONSTS.dpm.PROBABILITY_MAX) {
     const perStack = learnedTraitValue(traits, values, STATS.DOUBLE_ATTACK_STACK);
     if (perStack) {
       lines.push({
@@ -169,7 +169,7 @@ export function stackLines(
       });
     }
   }
-  if (skillCombo > 0) {
+  if (skillCombo >= CONSTS.dpm.PROBABILITY_MAX) {
     lines.push({
       source: sourceLabel('calc.buff.skillComboStackSource', {
         stacks: SKILL_COMBO_MAX_STACKS,

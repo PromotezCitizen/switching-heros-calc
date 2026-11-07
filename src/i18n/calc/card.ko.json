@@ -10,8 +10,12 @@
   "gradePlaceholder": "등급",
   "starPlaceholder": "성",
   "starText": "{{star}}성",
+  "firstGradeGroup": "최초 {{grade}} 등급",
+  "firstRowHint": "{{grade}} {{star}}성 (가장 낮은 옵션)",
   "setMarks": "세트 마크",
   "markLabel": "{{slot}}번 카드 세트 마크 {{mark}}",
+  "markOpensAt": "{{mark}}번 마크: {{grade}} 등급부터 열림",
+  "markNeverOpens": "{{mark}}번 마크: 이 카드는 열리지 않음",
   "markEmpty": "마크 {{mark}} 없음",
   "setTitle": "카드 세트",
   "setBonus": "세트 보너스 합계 (카드 화면 위쪽)",
@@ -23,6 +27,9 @@
   "stickerName": "스티커 세트 {{id}}",
   "stickerCount": "{{name}} 마크 수",
   "stickerLevel": "{{name}} 레벨",
+  "setFormula": "{{base}} + {{perLevel}} × 세트 레벨 {{level}} = {{value}}",
+  "setLevelFormula": "세트 레벨 {{level}} (편성 카드 세트 점수: {{parts}})",
+  "sssStickerCount": "편성 카드에 붙인 SSS 등급 배지 수 (얼티밋 신위의 표식 · 신위의 보호, 최대 24)",
   "countOption": "{{count}}개",
   "none": "없음",
   "close": "닫기",
@@ -98,8 +105,12 @@
     "set": "{{name}} ({{count}}개)",
     "sssExpanded": "{{source}} × SSS 등급 이상 {{count}}장",
     "enemyCountReached": "{{source}} (주위 적 수 조건)",
+    "myHp70": "{{source}} (내 체력 70% 이상, 늘 켜짐)",
+    "battleCondition": "{{source}} (전투 조건 충족)",
+    "useSkillSkillStacks": "카드 스킬 사용 스킬 데미지 {{stacks}}중첩 (최대)",
     "gradeExpanded": "{{source}} × {{grade}} 등급 이상 {{count}}장",
     "killStacks": "카드 처치 효과 {{stacks}}중첩 (최대)",
-    "useSkillStacks": "카드 스킬 사용 효과 {{stacks}}중첩 (최대)"
+    "useSkillStacks": "카드 스킬 사용 효과 {{stacks}}중첩 (최대)",
+    "buffAttackStacks": "카드 버프 스킬 발동 효과 {{stacks}}중첩 (최대)"
   }
 }

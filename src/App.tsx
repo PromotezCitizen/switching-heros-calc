@@ -6,15 +6,20 @@ import { CONSTS } from '@/CONSTS';
 import CalcPage from '@/calc/CalcPage';
 import HuntingPage from '@/hunting/HuntingPage';
 import LoadDialog from '@/load/LoadDialog';
+import OptimizerPage from '@/masteryOptimizer/OptimizerPage';
 import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
 
 /** 4개 페이지 (자리만 만듦, 내용은 기존 HTML 계산기에서 옮겨 올 예정) */
 const PAGES = [
   { path: '/', labelKey: 'page.calc' },
   { path: '/hunting', labelKey: 'page.hunting' },
+  { path: '/optimizer', labelKey: 'page.optimizer' },
   { path: '/viewer', labelKey: 'page.viewer' },
   { path: '/guide', labelKey: 'page.guide' },
 ] as const;
+
+/** 내용을 만든 페이지 (나머지는 제목만 있는 자리) */
+const IMPLEMENTED_PATHS: readonly string[] = ['/', '/hunting', '/optimizer'];
 
 export default function App() {
   const { t: translate } = useTranslation();
@@ -50,7 +55,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<CalcPage />} />
         <Route path="/hunting" element={<HuntingPage />} />
-        {PAGES.filter((page) => page.path !== '/hunting' && page.path !== '/').map((page) => (
+        <Route path="/optimizer" element={<OptimizerPage />} />
+        {PAGES.filter((page) => !IMPLEMENTED_PATHS.includes(page.path)).map((page) => (
           <Route
             key={page.path}
             path={page.path}

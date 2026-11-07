@@ -23,7 +23,7 @@ export interface CardSetCardsProps {
 export default function CardSetCards({ setStates, descriptions }: CardSetCardsProps) {
   const { translate, setName } = useCardNames();
   return (
-    <AutoGrid minItemWidth={CARD_MIN_WIDTH.medium} gap="var(--mantine-spacing-sm)">
+    <AutoGrid minItemWidth={CARD_MIN_WIDTH.large} gap="var(--mantine-spacing-sm)">
       {setStates
         .filter((set) => set.markCount > 0)
         .map((set) => (
@@ -50,7 +50,7 @@ export default function CardSetCards({ setStates, descriptions }: CardSetCardsPr
                     </Text>
                   }
                 >
-                  <Text size="sm" style={{ opacity: tier.reached ? undefined : UNUSED_OPACITY, cursor: 'help' }} tabIndex={0}>
+                  <Text size="sm" ta="center" style={{ opacity: tier.reached ? undefined : UNUSED_OPACITY, cursor: 'help' }} tabIndex={0}>
                     {translate('calc.card.setTier', {
                       count: tier.setCount,
                       effect: lineText(descriptions, { source: '', stat: tier.stat, value: tier.value }).replace(TRAILING_INCREASE, ''),

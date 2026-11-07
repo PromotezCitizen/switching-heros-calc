@@ -29,7 +29,6 @@ import { CONSTS } from '@/CONSTS';
 import { useJsonData, useJsonFiles } from '@/data/useJsonData';
 import {
   defaultSortDirection,
-  descriptionText,
   entityRows,
   familyMatches,
   formatRange,
@@ -38,7 +37,6 @@ import {
   rawRows,
   sameValueRange,
   statLabel,
-  type ExcludedStat,
   type SortDirection,
   type ViewerMeta,
   type ViewerSource,
@@ -82,64 +80,26 @@ function RawTable({ table, rowIndexes, columns, memberColumns }: { table: Viewer
   );
 }
 
-/** 뺀 스탯 목록 (스탯 이름 · 설명 · 합·곱) */
-function ExcludedTable({ items }: { items: ExcludedStat[] }) {
-  const { t: translate } = useTranslation();
-  return (
-    <Table.ScrollContainer minWidth={0}>
-      <Table fz="xs" verticalSpacing={4}>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>{translate('viewer.desc')}</Table.Th>
-            <Table.Th>{translate('viewer.combine')}</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {items.map((item) => (
-            <Table.Tr key={item.name}>
-              <Table.Td>{item.desc ? descriptionText(item.desc) : '-'}</Table.Td>
-              <Table.Td>{item.combine}</Table.Td>
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
-    </Table.ScrollContainer>
-  );
-}
-
-/** 맨 위 안내: 뺀 스탯 두 목록 + 해석 미확인 표 원본 (접힘) */
-function Notice({ meta, tables }: { meta: ViewerMeta; tables: ViewerTables }) {
+/** 맨 위 안내: 값이 합쳐지는 방식 · N 뜻, 해석 미확인 표가 있으면 그 원본 (접힘) */
+function Notice({ tables }: { tables: ViewerTables }) {
   const { t: translate } = useTranslation();
   const unresolved = UNRESOLVED_TABLES.filter((name) => tables[name]?.unresolved);
   return (
     <Alert color="yellow" variant="light">
-      <Text fw={600} size="sm">
-        {translate('viewer.noticeTitle')}
-      </Text>
       <Text size="sm">{translate('viewer.noticeBody')}</Text>
       <Text size="sm">{translate('viewer.valueHint')}</Text>
-      <Accordion mt="xs" variant="separated" chevronPosition="left" keepMounted={false}>
-        <Accordion.Item value="excluded">
-          <Accordion.Control>{translate('viewer.excludedTitle', { count: meta.excluded.length })}</Accordion.Control>
-          <Accordion.Panel>
-            <ExcludedTable items={meta.excluded} />
-          </Accordion.Panel>
-        </Accordion.Item>
-        <Accordion.Item value="unrelated">
-          <Accordion.Control>{translate('viewer.unrelatedTitle', { count: meta.unrelated.length })}</Accordion.Control>
-          <Accordion.Panel>
-            <ExcludedTable items={meta.unrelated} />
-          </Accordion.Panel>
-        </Accordion.Item>
-        {unresolved.map((name) => (
-          <Accordion.Item key={name} value={name}>
-            <Accordion.Control>{translate('viewer.unresolvedTitle', { label: tables[name].label })}</Accordion.Control>
-            <Accordion.Panel>
-              <RawTable table={tables[name]} />
-            </Accordion.Panel>
-          </Accordion.Item>
-        ))}
-      </Accordion>
+      {unresolved.length > 0 && (
+        <Accordion mt="xs" variant="separated" chevronPosition="left" keepMounted={false}>
+          {unresolved.map((name) => (
+            <Accordion.Item key={name} value={name}>
+              <Accordion.Control>{translate('viewer.unresolvedTitle', { label: tables[name].label })}</Accordion.Control>
+              <Accordion.Panel>
+                <RawTable table={tables[name]} />
+              </Accordion.Panel>
+            </Accordion.Item>
+          ))}
+        </Accordion>
+      )}
     </Alert>
   );
 }
@@ -383,7 +343,7 @@ export default function StatViewerPage() {
   return (
     <Stack gap="md" mt="md">
       <Title order={1}>{translate('page.viewer')}</Title>
-      <Notice meta={meta} tables={tables} />
+      <Notice tables={tables} />
       <Grid gap="md" align="flex-start">
         <Grid.Col span={{ base: 12, md: 3 }}>
           <Paper withBorder p="sm" component="nav" aria-label={translate('viewer.familiesLabel')}>

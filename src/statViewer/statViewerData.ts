@@ -59,18 +59,10 @@ export interface ViewerFamily {
   sourceCount: number;
 }
 
-export interface ExcludedStat {
-  name: string;
-  desc?: string;
-  combine: string;
-}
-
 export interface ViewerMeta {
   stats: Record<string, ViewerStat>;
   families: Record<string, ViewerFamily>;
   sources: ViewerSource[];
-  excluded: ExcludedStat[];
-  unrelated: ExcludedStat[];
 }
 
 /** 수치표 JSON 의 표시용 칸 (label · 레벨 표기 · 열 이름) */

@@ -3,7 +3,7 @@ export const STAT_VIEWER_CONSTS = {
   /** 계산 방식 칩 순서 (statMeta.json stats[].kind) */
   KIND_ORDER: ['percent', 'multiply', 'plain', 'down', 'base', 'pow'] as readonly string[],
   /** 조건 칩 순서 (statMeta.json stats[].tags 의 갈래 이름) */
-  TAG_TYPES: ['기본', '직업', '속성', '성별', '대상', '스킬', '발동', '수량 비례', '기타 조건'] as readonly string[],
+  TAG_TYPES: ['기본', '직업', '속성', '성별', '대상', '스킬', '발동', '수량 비례', '기타 조건', '전투 중'] as readonly string[],
   /** 낮은 등급 → 높은 등급 (각성 MAX1 ~ MAX100 까지). "S ~ SSS" 같은 범위는 앞 등급으로 정렬 */
   GRADE_ORDER: [
     'D', 'C', 'B', 'A', 'S', 'SS', 'SSS', 'R', 'SR', 'SSR', 'UR', 'URP', 'UUR', 'XR', 'XRP', 'LR', 'LRP',

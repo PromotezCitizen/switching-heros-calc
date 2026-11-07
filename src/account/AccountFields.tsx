@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Button, Checkbox, Modal, SimpleGrid, Stack, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { Checkbox, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { CONSTS } from '@/CONSTS';
 import { FlagField, NumberField, SelectField } from '@/components/StoreFields';
 import { RESOURCES } from '@/hunting/huntingCalc';
@@ -25,10 +24,9 @@ function FairyFlag({ storeKey, label, adRemoved }: { storeKey: string; label: st
   return adRemoved ? <Checkbox label={label} checked disabled readOnly /> : <FlagField storeKey={storeKey} label={label} />;
 }
 
-/** 여러 페이지가 같이 쓰는 계정 값 (VIP·길드·요정)을 한 곳에서 입력하는 창 */
-export default function AccountDialog() {
+/** 여러 페이지가 같이 쓰는 계정 값 (VIP · 길드 · 요정 · 전투 버프) 칸. 내 값 페이지의 "계정" 묶음에 그린다 */
+export default function AccountFields() {
   const { t: translate } = useTranslation();
-  const [opened, { open, close }] = useDisclosure(false);
   const guildLevel = useCalcStore((state) => readNumber(state.values, ACCOUNT_KEYS.guildLevel));
   const adRemoved = useCalcStore((state) => state.values[ACCOUNT_KEYS.adRemoved] === 'true');
   const unlockedSkills = CONSTS.guild.SKILLS.map((skill, index) => ({ skill, index })).filter(
@@ -36,12 +34,9 @@ export default function AccountDialog() {
   );
 
   return (
-    <>
-      <Button variant="light" onClick={open}>
-        {translate('account.open')}
-      </Button>
-      <Modal opened={opened} onClose={close} title={translate('account.title')} size="lg">
+    <Paper withBorder>
         <Stack>
+          <Text fw={600}>{translate('account.title')}</Text>
           <Text size="xs" c="dimmed">
             {translate('account.description')}
           </Text>
@@ -108,7 +103,6 @@ export default function AccountDialog() {
             </Stack>
           )}
         </Stack>
-      </Modal>
-    </>
+    </Paper>
   );
 }

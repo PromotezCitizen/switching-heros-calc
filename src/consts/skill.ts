@@ -56,8 +56,11 @@ export const SKILL_CONSTS = {
   LEVEL_INPUT_WIDTH: 56,
   EQUIP_SLOT_WIDTH: 80,
   ROW_ICON_SIZE: 24,
-  /** 보유 스킬 직업 카드 열 수: 넓으면 4, 중간 (sm 이상) 2 × 2, 좁으면 1 */
-  JOB_CARD_COLUMNS: { base: 1, sm: 2, lg: 4 },
+  /**
+   * 보유 스킬 직업 카드 열 수: 카드가 놓인 영역 폭 기준 (컨테이너 쿼리). 카드 하나가 최소 300px 이 되도록
+   * 2열은 300 × 2 + 간격 16 = 616px 이상, 4열은 300 × 4 + 간격 16 × 3 = 1248px 이상, 그보다 좁으면 1열
+   */
+  JOB_CARD_COLUMNS: { base: 1, '616px': 2, '1248px': 4 },
   /** 옵션 고르기 칸 (드롭다운) 펼친 목록 최대 높이 (px) */
   OPTION_DROPDOWN_MAX_HEIGHT: 320,
 } as const;

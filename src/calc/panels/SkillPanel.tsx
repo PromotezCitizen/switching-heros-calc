@@ -142,8 +142,8 @@ export default function SkillPanel({ values, setValue, tables }: TabPanelProps) 
 
       <SectionTitle>{translate('calc.skill.ownedTitle')}</SectionTitle>
       <Text size="xs" c="dimmed">{translate('calc.skill.ownedHelp')}</Text>
-      {/* 직업 카드 4장: 넓으면 한 줄 4개, 좁으면 2 × 2, 더 좁으면 한 줄에 1개 */}
-      <SimpleGrid cols={JOB_CARD_COLUMNS}>
+      {/* 직업 카드 4장: 영역이 넓으면 한 줄 4개, 좁으면 2 × 2, 더 좁으면 한 줄에 1개 (카드 최소 300px) */}
+      <SimpleGrid type="container" cols={JOB_CARD_COLUMNS} spacing="md">
         {JOBS.map((job) => (
           <Card key={job} withBorder padding="xs">
             <Group gap="xs" mb={4}>

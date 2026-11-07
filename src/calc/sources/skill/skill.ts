@@ -56,8 +56,20 @@ export const SKILL_EQUIP_SLOT_NUMBERS = Array.from({ length: EQUIP_SLOTS }, (_, 
 
 /** 장착 칸에서 고를 수 있는 스킬: 보유 (레벨 1 이상) 이고 1슬롯 히어로 직업 스킬 (히어로가 없으면 보유 전부) */
 export function equipChoices(values: CalcValues, tables: StatTables): TableRow[] {
-  const job = heroFirstRow(tables, slotHeroName(values, tables))?.job;
+  return equipChoicesForJob(values, tables, heroFirstRow(tables, slotHeroName(values, tables))?.job);
+}
+
+/** 장착 후보: 보유 (레벨 1 이상) 스킬 중 그 직업 것 (직업을 모르면 전부) */
+export function equipChoicesForJob(values: CalcValues, tables: StatTables, job: string | undefined): TableRow[] {
   return skillRows(tables).filter((row) => skillLevel(values, row.skillId) >= FIRST_LEVEL && (!job || row.job === job));
+}
+
+/**
+ * 2슬롯 히어로 장착 칸 (교체 계산에서 2슬롯 히어로 차례에 쓴다, dpm/swapDamage.ts). 폰 불러오기도 같은 칸을 채운다.
+ * 화면 칸은 사용자 지시 2026-11-07 "2슬롯 만들어라"
+ */
+export function secondSkillEquipField(slot: number): string {
+  return `${CONSTS.dpm.SWAP.SECOND_SKILL_EQUIP_PREFIX}${slot}`;
 }
 
 /** 장착 5칸에 고른 스킬 id (같은 스킬을 두 칸에 골라도 한 번만) */

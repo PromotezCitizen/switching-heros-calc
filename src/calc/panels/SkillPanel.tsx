@@ -8,7 +8,7 @@ import HorizontalScrollRow from '@/components/HorizontalScrollRow';
 import SectionTitle from '@/components/SectionTitle';
 import {
   SKILL_EQUIP_SLOT_NUMBERS,
-  equipChoices,
+  equipChoicesForJob,
   equippedSkillLevelSum,
   skillEquipField,
   skillIconPath,
@@ -22,7 +22,10 @@ import {
   skillRows,
   skillRuneChoices,
   skillRuneText,
+  secondSkillEquipField,
 } from '@/calc/sources/skill/skill';
+import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
+import type { CalcValues } from '@/calc/types';
 import type { TabPanelProps } from '@/calc/types';
 import { joinFieldValues, splitFieldValues } from '@/calc/useTrackedCalcValues';
 import type { StatTables, TableRow } from '@/data/statTables';
@@ -43,53 +46,97 @@ const NOT_EQUIPPED = '';
 const NO_OPTION = '';
 /** 보유 스킬 표의 열 수 (옵션 줄이 한 줄을 다 쓴다) */
 const OWNED_TABLE_COLUMNS = 4;
+const SECOND_HERO_FIELD = CONSTS.dpm.SWAP.HERO_FIELDS[1];
+
+/** 장착 5칸 한 줄 (1슬롯 · 2슬롯 히어로가 같이 쓴다). 후보는 보유 스킬 중 그 히어로 직업 것, 같은 스킬은 한 칸에만 */
+function EquipRow({
+  values,
+  setValue,
+  tables,
+  job,
+  field,
+  pickTitle,
+}: {
+  values: CalcValues;
+  setValue: TabPanelProps['setValue'];
+  tables: StatTables;
+  job: string | undefined;
+  field: (slot: number) => string;
+  pickTitle: (slot: number) => string;
+}) {
+  const { t: translate } = useTranslation();
+  const choices = equipChoicesForJob(values, tables, job);
+  const equippedSlotOf = (skillId: string) => SKILL_EQUIP_SLOT_NUMBERS.find((slot) => values[field(slot)] === skillId);
+  return (
+    <HorizontalScrollRow itemWidth={EQUIP_SLOT_WIDTH}>
+      {SKILL_EQUIP_SLOT_NUMBERS.map((slot) => {
+        const slotLabel = translate('calc.skill.equipSlot', { slot });
+        const options = [
+          { value: NOT_EQUIPPED, label: translate('calc.skill.notEquipped'), icon: '' },
+          ...choices.map((row) => {
+            const otherSlot = equippedSlotOf(row.skillId);
+            return {
+              value: row.skillId,
+              label: row.name,
+              icon: skillIconPath(row.skillId),
+              // 같은 스킬은 한 칸에만 (게임과 같음)
+              disabledReason: otherSlot && otherSlot !== slot ? translate('calc.skill.equippedElsewhere') : undefined,
+            };
+          }),
+        ];
+        return (
+          <Stack key={slot} gap={2} align="center">
+            <Text size="xs" c="dimmed">{slotLabel}</Text>
+            <IconPicker
+              label={slotLabel}
+              title={pickTitle(slot)}
+              value={values[field(slot)] ?? NOT_EQUIPPED}
+              emptyName={translate('calc.skill.notEquipped')}
+              options={options}
+              onPick={(picked) => setValue(field(slot), picked)}
+              closeLabel={translate('calc.skill.close')}
+            />
+          </Stack>
+        );
+      })}
+    </HorizontalScrollRow>
+  );
+}
 
 /**
- * 스킬: 1슬롯 히어로 장착 5칸 (아이콘으로 고름, 보유 스킬 중 그 직업) + 직업별 카드에 보유 스킬마다 레벨 (비우면 미보유)
+ * 스킬: 1슬롯 · 2슬롯 히어로 장착 5칸씩 (아이콘으로 고름, 보유 스킬 중 그 히어로 직업. 2슬롯은 자동 교체 계산용, 사용자 지시 2026-11-07 "2슬롯 만들어라") + 직업별 카드에 보유 스킬마다 레벨 (비우면 미보유)
  * 과 옵션 칸 (스킬 레벨로 열린 칸 수만큼, 그 스킬의 옵션 후보 중 하나씩. 값은 최고 등급),
  * 문양 칸 (스킬 레벨이 해금 레벨 60 ~ 120 에 닿은 칸마다 후보 2개 중 하나)
  */
 export default function SkillPanel({ values, setValue, tables }: TabPanelProps) {
   const { t: translate } = useTranslation();
-  const choices = equipChoices(values, tables);
   const rows = skillRows(tables);
-  const equippedSlotOf = (skillId: string) => SKILL_EQUIP_SLOT_NUMBERS.find((slot) => values[skillEquipField(slot)] === skillId);
+  const secondHero = values[SECOND_HERO_FIELD];
   return (
     <Stack gap="xs">
       <SectionTitle>{translate('calc.skill.equipTitle')}</SectionTitle>
-      <HorizontalScrollRow itemWidth={EQUIP_SLOT_WIDTH}>
-        {SKILL_EQUIP_SLOT_NUMBERS.map((slot) => {
-          const slotLabel = translate('calc.skill.equipSlot', { slot });
-          const options = [
-            { value: NOT_EQUIPPED, label: translate('calc.skill.notEquipped'), icon: '' },
-            ...choices.map((row) => {
-              const otherSlot = equippedSlotOf(row.skillId);
-              return {
-                value: row.skillId,
-                label: row.name,
-                icon: skillIconPath(row.skillId),
-                // 같은 스킬은 한 칸에만 (게임과 같음)
-                disabledReason: otherSlot && otherSlot !== slot ? translate('calc.skill.equippedElsewhere') : undefined,
-              };
-            }),
-          ];
-          return (
-            <Stack key={slot} gap={2} align="center">
-              <Text size="xs" c="dimmed">{slotLabel}</Text>
-              <IconPicker
-                label={slotLabel}
-                title={translate('calc.skill.equipPickTitle', { slot })}
-                value={values[skillEquipField(slot)] ?? NOT_EQUIPPED}
-                emptyName={translate('calc.skill.notEquipped')}
-                options={options}
-                onPick={(picked) => setValue(skillEquipField(slot), picked)}
-                closeLabel={translate('calc.skill.close')}
-              />
-            </Stack>
-          );
-        })}
-      </HorizontalScrollRow>
+      <EquipRow
+        values={values}
+        setValue={setValue}
+        tables={tables}
+        job={heroFirstRow(tables, slotHeroName(values, tables))?.job}
+        field={skillEquipField}
+        pickTitle={(slot) => translate('calc.skill.equipPickTitle', { slot })}
+      />
       <Text size="sm">{translate('calc.skill.equippedLevelSum', { sum: equippedSkillLevelSum(values) })}</Text>
+      <SectionTitle>{translate('calc.skill.equipTitle2', { name: secondHero || translate('calc.skill.noSecondHero') })}</SectionTitle>
+      {secondHero ? (
+        <EquipRow
+          values={values}
+          setValue={setValue}
+          tables={tables}
+          job={heroFirstRow(tables, secondHero)?.job}
+          field={secondSkillEquipField}
+          pickTitle={(slot) => translate('calc.skill.equipPickTitle2', { slot })}
+        />
+      ) : (
+        <Text size="xs" c="dimmed">{translate('calc.skill.secondHeroHelp')}</Text>
+      )}
 
       <SectionTitle>{translate('calc.skill.ownedTitle')}</SectionTitle>
       <Text size="xs" c="dimmed">{translate('calc.skill.ownedHelp')}</Text>

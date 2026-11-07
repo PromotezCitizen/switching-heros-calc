@@ -8,14 +8,15 @@
   },
   "common": {
     "help": "어디서 찾나요?",
-    "invalidGameNumber": "게임에 보이는 대로 단위와 %까지 넣으세요. 예: 5.14N%"
+    "invalidGameNumber": "읽을 수 없는 값이에요. 숫자 뒤에 게임에 보이는 단위를 붙이세요 (% 는 있어도 없어도 돼요). 예: 5.14N%"
   },
   "calc": {
     "groups": {
       "summary": "종합",
       "hero": "히어로",
+      "mastery": "특성",
       "growth": "성장",
-      "equipment": "장비",
+      "equipment": "장비·스킬",
       "card": "몬스터 카드",
       "pet": "펫",
       "figure": "피규어",
@@ -79,8 +80,9 @@
     "guildSkill": "길드 스킬 (스테이지 경험치·골드·정수)",
     "fairyOn": "요정의 축복 사용 중",
     "huntingFairy": "사냥 보상의 요정의 축복",
+    "battleBuff": "전투 버프",
     "adRemoved": "광고 제거 구매",
-    "adRemovedHint": "광고 제거를 샀으면 요정의 축복 (경험치·골드) 이 늘 켜져 있어요. 사지 않았으면 광고로 켠 것만 아래에서 체크하세요.",
+    "adRemovedHint": "광고 제거를 샀으면 요정의 축복 (능력치 · 경험치 · 골드) 이 늘 켜져 있어요. 사지 않았으면 광고로 켠 것만 체크하세요.",
     "huntingFairyOn": "요정의 축복 사용 중 ({{resource}})",
     "guildSkillRow": "스킬 {{number}} (레벨당 +{{percent}}%)",
     "guildSkillLocked": "길드 스킬은 길드 레벨 {{level}}부터 열려요."
@@ -345,5 +347,20 @@
       "coreMasterySelect": "코어 특성에서 켠 항목 (레벨은 불러와요) - 히어로 탭",
       "cardSticker": "스티커 세트 개수와 레벨 - 몬스터 카드 탭"
     }
+  },
+  "masteryDebug": {
+    "title": "특성 찍기 → 필요한 유저 레벨 (디버그)",
+    "help": "아래 특성 나무에서 직접 찍으세요. 찍은 만큼에 필요한 유저 레벨을 계산해요. 여기서 찍은 값은 이 페이지에만 있고 계산식 확인기 특성 값과 섞이지 않아요.",
+    "required": "필요한 유저 레벨: {{level}}",
+    "current": "지금 유저 레벨 {{level}} (부족 {{gap}})",
+    "reset": "모두 지우기",
+    "picked": "찍은 특성 수",
+    "points": "사용 포인트",
+    "vipPoints": "VIP {{vip}} 혜택 포인트",
+    "byPoints": "포인트로 필요한 레벨 (사용 − VIP + 1)",
+    "byUnlock": "해금으로 필요한 레벨 (찍은 특성 중 가장 높은 해금 레벨)",
+    "previousStep": "앞 단계에 최대 레벨 특성이 없어 게임에서는 못 찍는 특성: {{names}}",
+    "ultimateGate": "18단계 특성이 최대가 아니라 못 찍는 얼티밋: {{names}}",
+    "loadFailed": "특성 표를 불러오지 못했어요."
   }
 }

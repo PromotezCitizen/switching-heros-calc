@@ -1,6 +1,5 @@
 /**
- * 대상 상태이상 수 (무자비 · 굳센 정신 · 후벼파기 · 약점 사냥이 반응) 를 입력으로 받지 않고 계산한다 (사용자 결정 2026-11-01:
- * "시뮬레이션 돌려서 일반적으로 이정도면 이런 디버프가 걸리겠다 계산"). 스테이지 (일반몹) 는 3중첩 가정 (consts/dpm.ts STAGE_STATUS_COUNT).
+ * 대상 상태이상 수 (무자비 · 굳센 정신 · 후벼파기 · 약점 사냥이 반응) 를 입력으로 받지 않고 계산한다. 스테이지 (일반몹) 는 3중첩 가정 (consts/dpm.ts STAGE_STATUS_COUNT).
  * 그 밖은 장착 스킬의 상태이상 옵션마다 시전 간격 T · 걸릴 확률 p · 지속시간 D 로 "대상에 걸려 있을 확률" 을 구한다:
  * 시전이 반복되면 임의 시점 직전 D 초 안의 시전 횟수는 floor(D / T) 또는 한 번 더 (소수부의 확률), 그중 한 번이라도 걸렸으면 걸려 있다 →
  * P = Σ_N P(N) × (1 − (1 − p)^N). 시뮬레이션을 무한 번 돌린 기댓값과 같은 식이다 (추천이 평가를 수천 번 해서 식으로 푼다).
@@ -19,7 +18,6 @@ import type { StatTables, TableRow } from '@/data/statTables';
 
 const { STATUS_OPTIONS, TYR_WEAPON, AEIKA_WEAPON, PET_LEADER_STATUS, SWAP, SWAP_SKILL_FREEZE, SWAP_ARROW_INTERVAL, DEVIL_WINK } = CONSTS.dpm;
 const [, SECOND_HERO_FIELD] = SWAP.HERO_FIELDS;
-const [, SECOND_EQUIPPED_FIELD] = SWAP.EQUIPPED_FIELDS;
 const PERCENT = 100;
 
 /** 상태이상을 거는 스킬 옵션 하나 (한 스킬의 시전 간격과 함께) */
@@ -117,10 +115,10 @@ export function petLeaderStatusSource(
   return { kind, chance: 1, durationSeconds, intervalSeconds };
 }
 
-/** 2슬롯 히어로가 전용 무기 weaponId 를 장착했을 때 그 무기의 초월 ★ (다른 무기이거나 장착 안 했으면 0) */
+/** 2슬롯 히어로의 전용 무기가 weaponId 일 때 그 무기의 초월 ★ (보유한 전용 무기는 늘 낀 것으로 봄, 다른 무기면 0) */
 function secondHeroWeaponStar(values: CalcValues, tables: StatTables, weaponId: string): number {
   const hero = heroByName(tables, values[SECOND_HERO_FIELD]);
-  if (!hero || values[SECOND_EQUIPPED_FIELD] !== 'true') return 0;
+  if (!hero) return 0;
   if (exclusiveWeapons(tables).find((weapon) => weapon.charId === hero.charId)?.weaponId !== weaponId) return 0;
   return Number(ownedExclusiveStar(values, tables, hero.charId)) || 0;
 }

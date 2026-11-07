@@ -72,6 +72,8 @@ export const USB_CONSTS = {
   TRAINING_SHOWN_STATS: 4,
   /** 유물 연동 칸: 던전 번호 (Progress.dungeonDataDic 키) → 칸 이름 relicLink_<이름> */
   RELIC_LINK_DUNGEONS: { 3: 'dungeonGold', 5: 'dungeonEquip', 6: 'dungeonRelic' } as Record<number, string>,
+  /** 속성 던전 기록 (저장 Progress.dungeonAttDataDic): 던전 번호 8 불 · 9 물 · 10 땅 (게임 T517 m2985 · T1282 m6858, type-constants.md 232줄) */
+  RELIC_LINK_ATTRIBUTE_DUNGEONS: { 8: 'dungeonFire', 9: 'dungeonWater', 10: 'dungeonEarth' } as Record<number, string>,
   /** 유물 연동 칸: 보유 수를 세는 카드 등급 */
   CARD_GRADE_R: 'R',
   CARD_GRADE_SSR: 'SSR',

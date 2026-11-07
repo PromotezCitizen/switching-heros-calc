@@ -12,6 +12,11 @@ export const PROVIDER_CONSTS = {
    * 행의 k 번째 스탯 · 값을 한 번씩 넣는다. 선택은 칸 (처음 꺼짐) 으로 받고 콘텐츠 조건은 이 제공자 안에 없다
    */
   coreMastery: {
+    /**
+     * 코어 특성이 열리는 유저 레벨 (ContentsUnlock 98행 Reinforce_CoreMastery: 보임 400000, 해금 420000).
+     * 열린 경우만 탭을 보인다
+     */
+    UNLOCK_USER_LEVEL: 420000,
     TABLE: 'CoreMastery',
     LEVEL_FIELD: 'coreMasteryLevel',
     SELECT_FIELD_PREFIX: 'coreMasterySelect_',
@@ -48,7 +53,7 @@ export const PROVIDER_CONSTS = {
     CARD_SET_POINT_FIELD: 'relicLink_cardSetBonus',
     /**
      * 개수형 효과 (게임 m2684, 1 + (v − 1) × N = 값 × N %): 효과 이름 → 넣는 스탯과 N 의 종류
-     * (claude-docs/react-port/stat-provider-formulas.md 453~454줄, 사용자 지시 2026-11-07 "다 계산해라").
+     * (claude-docs/react-port/stat-provider-formulas.md 453~454줄).
      * 등급 글자 ↔ 이름 (D 고급 · C 희귀 · B 영웅 · A 전설 · S 신화) 은 번역 표 이름과 등급별 피규어 수로 맞춘 것 (유력)
      */
     COUNT_STATS: {
@@ -78,7 +83,7 @@ export const PROVIDER_CONSTS = {
   /**
    * 프로필 테두리 보유 효과 (5.70 에서 새로 생긴 합산기 T1282 의 31번째 제공자, 채움 함수 새 @30d69f0 — claude-docs/react-port/attack-formula-5.70.md,
    * 함수 구조 확정 · 이름이 테두리라는 것은 유력). 보유한 테두리 번호 (저장 Relic.frameIdList) 마다 표 Frame 의 (스탯, 값) 을 한 번씩 넣는다.
-   * 장착한 테두리가 아니라 보유한 테두리 전부이고 (사용자 확인), `_per_` 스탯이라 한 줄마다 곱해진다. 표는 5.70 앱 내장 표 (서버 값과 같다는 것은 유력)
+   * 장착한 테두리가 아니라 보유한 테두리 전부이고, `_per_` 스탯이라 한 줄마다 곱해진다. 표는 5.70 앱 내장 표 (서버 값과 같다는 것은 유력)
    */
   frame: {
     TABLE: 'Frame',
@@ -86,8 +91,16 @@ export const PROVIDER_CONSTS = {
     ID_COLUMN: 'frameId',
     STAT_COLUMN: 'statType',
     VALUE_COLUMN: 'statValue',
-    /** 보유 칸 격자 최소 폭 (px) */
-    FLAG_MIN_WIDTH: 260,
+    /** 테두리 그림 칸 격자 최소 폭 (px) */
+    TILE_MIN_WIDTH: 96,
+    /**
+     * 테두리 그림: public/icons/Atlas_profile/frame_<번호 두 자리>.png. 5.70 번들 SpriteAtlas Atlas_profile 의 조각 P_<번호> (아이템 표 imgName,
+     * 테두리 번호와 같음) 을 뽑은 것 (claude-docs/react-port/frame-images-2026-11-07.md, 0~6 은 이름과 그림 대조 확인)
+     */
+    ICON_FOLDER: 'Atlas_profile',
+    ICON_PREFIX: 'frame_',
+    ICON_DIGITS: 2,
+    ICON_SIZE: 72,
   },
 
   /**
@@ -99,8 +112,16 @@ export const PROVIDER_CONSTS = {
    */
   ancientRelic: {
     TABLE: 'AncientRelic',
-    /** 입력 칸: 달성한 별자리 번호 목록 (쉼표), 진행 중 별자리 */
+    /** 입력 칸: 달성한 별자리 번호 목록 (쉼표) */
     MASTERED_FIELD: 'ancientMastered',
+    /**
+     * 진행 중인 별자리: 별자리 번호 · 현재 단계 · 그 단계의 칸마다 레벨 (칸 이름 = 접두 + 칸 번호).
+     * 현재 단계 앞의 단계는 다 찬 상태 (모든 칸 최대 + 단계 보너스) 로 계산
+     */
+    CURRENT_CONST_FIELD: 'ancientCurrentConst',
+    CURRENT_STEP_FIELD: 'ancientCurrentStep',
+    STEP_LEVEL_FIELD_PREFIX: 'ancientStepLevel_',
+    /** 예전 진행 글 칸 (별자리:단계:켜짐:칸=레벨;…). 새 칸이 비었을 때만 읽는다 (이미 저장된 값용) */
     PROGRESS_FIELD: 'ancientProgress',
     CONST_COLUMN: 'constId',
     STEP_COLUMN: 'step',
@@ -117,7 +138,7 @@ export const PROVIDER_CONSTS = {
     LIST_SEPARATOR: ',',
     /** 단계 보너스 칸 번호 */
     STEP_BONUS_NODE: '1000',
-    /** 진행 글 입력 칸 높이 (줄) */
-    PROGRESS_ROWS: 4,
+    /** 칸 레벨 입력 폭 (px) */
+    LEVEL_INPUT_WIDTH: 90,
   },
 } as const;

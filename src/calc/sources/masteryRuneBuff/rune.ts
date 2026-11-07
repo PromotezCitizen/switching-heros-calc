@@ -77,6 +77,14 @@ export function runeName(rune: AttributeRune, sourceLabel: SourceLabel): string 
   return sourceLabel(`calc.rune.names.${rune.key}`, { defaultValue: rune.key });
 }
 
+/** 속성 룬 연구소가 열렸는가: 코어 룬을 뺀 속성 룬이 모두 표 최대 레벨 (consts LAB 해금) */
+export function runeLabUnlocked(values: CalcValues, tables: StatTables): boolean {
+  const table = tables.AttributeRune;
+  if (!table) return false;
+  const runes = attributeRunes(table).filter((rune) => rune.key !== CORE_RUNE_KEY);
+  return runes.length > 0 && runes.every((rune) => runeLevel(values, rune) >= rune.maxLevel);
+}
+
 /** 속성 룬 연구실 레벨 칸 이름 */
 export function runeLabField(attribute: string): string {
   return `${LAB.FIELD_PREFIX}${attribute}`;
@@ -88,7 +96,8 @@ export function runeLabField(attribute: string): string {
  */
 export function runeLabLines(values: CalcValues, tables: StatTables, sourceLabel: SourceLabel): Line[] {
   const table = tables[LAB.TABLE];
-  if (!table) return [];
+  // 연구소가 열렸을 때만 (게임 m5997 해금 판정, consts LAB)
+  if (!table || !runeLabUnlocked(values, tables)) return [];
   const rows = tableRows(table);
   const lines: Line[] = [];
   for (const attribute of LAB.ATTRIBUTES) {

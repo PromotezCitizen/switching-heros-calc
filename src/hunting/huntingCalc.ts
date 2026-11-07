@@ -100,7 +100,7 @@ export function onlineBonusPercent(inputs: HuntingInputs, resource: Resource): n
 
 /**
  * 오프라인 보너스 합 %: 상시 + VIP + 길드 스킬 + 상점 효과 패키지 (요리·이벤트는 온라인 전용).
- * 효과 패키지는 보상 배율 함수의 켜짐 블록 밖에서 읽혀 오프라인에도 들어간다 (hunting-always-bonus.md 2절 5번, 사용자 결정)
+ * 효과 패키지는 보상 배율 함수의 켜짐 블록 밖에서 읽혀 오프라인에도 들어간다 (hunting-always-bonus.md 2절 5번)
  */
 export function offlineBonusPercent(inputs: HuntingInputs, resource: Resource): number {
   return (

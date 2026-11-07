@@ -8,7 +8,12 @@ import type { Line } from '@/calc/combine';
 import type { CalcValues } from '@/calc/types';
 import { slotHeroName } from '@/calc/sources/hero/character';
 import { exclusiveWeapons, ownedExclusiveLevel, ownedExclusiveStar } from '@/calc/sources/hero/roster';
-import { exclusiveMissionReceivedStarField, exclusiveOwnedStarField } from '@/calc/sources/hero/rosterFields';
+import {
+  exclusiveMissionReceivedStarField,
+  exclusiveOptionStatField,
+  exclusiveOptionValueField,
+  exclusiveOwnedStarField,
+} from '@/calc/sources/hero/rosterFields';
 import { integerFieldValue } from '@/calc/sources/trainingRelic/fieldNumbers';
 import {
   RELIC_MAX_GRADE_FIELD,
@@ -25,7 +30,7 @@ import { heroByName, numberValue, rowsOf, screenLog, unique, type SourceLabel } 
 const { JOBS } = CONSTS.heroWeaponCardPet;
 const {
   OPTION_ROWS,
-  OPTION_UNLOCK_LEVELS,
+  MAX_OPTION_COLUMN,
   MIN_EXCLUSIVE_LEVEL,
   PERCENT_LOG_OFFSET,
   TRANSCEND_STATS,
@@ -69,7 +74,7 @@ export interface NormalWeaponPossess {
 /**
  * 일반 무기 보유 효과 (서버 표 WeaponJob): 무기마다 (보유 기본 + 보유 강화당 × 실제 강화 레벨) % 를 × (1 + v/100) 로 곱함
  * (게임 m6836 @306b564 보유 루프, calc0113.py 391~397). 강화 레벨은 무기 탭의 무기별 칸 값이고, 칸이 비어 있으면 최대 레벨
- * ("전부 만렙" 가정, 사용자 결정). 곱한 배율 M 을 한 줄의 % 값 (M − 1) × 100 으로 바꿔 넣는다
+ * ("전부 만렙" 가정). 곱한 배율 M 을 한 줄의 % 값 (M − 1) × 100 으로 바꿔 넣는다
  */
 export function normalWeaponPossessEffect(tables: StatTables, values: CalcValues = {}): NormalWeaponPossess | null {
   const rows = rowsOf(tables, 'WeaponJob');
@@ -139,10 +144,10 @@ export function hasExclusiveWeapon(values: CalcValues, tables: StatTables): bool
 
 /**
  * 히어로가 전용 무기를 끼면 일반 무기 장착 효과는 적용되지 않음 (앱 코드: 장착 무기 번호 999 이하만 일반 무기 — 유력).
- * 전용 무기가 있고 "전용 무기 장착" 을 켰을 때만 전용 무기를 쓰는 것으로 본다
+ * 히어로가 전용 무기를 가졌으면 (히어로 · 전용 무기 표의 초월 ★ 칸에 값이 있으면) 늘 낀 것으로 본다
  */
 export function usesExclusiveWeapon(values: CalcValues, tables: StatTables): boolean {
-  return values[EXCLUSIVE_EQUIPPED_FIELD] === 'true' && hasExclusiveWeapon(values, tables);
+  return hasExclusiveWeapon(values, tables) && exclusiveStarOfHero(values, tables) !== '';
 }
 
 /** 전용 무기 초월 ★ 선택지 (WeaponChar 표의 별, 작은 것부터) */
@@ -252,6 +257,12 @@ export function exclusiveWeaponLines(values: CalcValues, tables: StatTables, lab
   return lines;
 }
 
+/** 웨폰 링크 초월 입력 최대 = 표 WeaponLink 초월 행 (None) 의 가장 큰 lv (저장 transcendLv 와 같은 뜻) */
+export function linkStarMax(tables: StatTables): number {
+  const levels = rowsOf(tables, 'WeaponLink').filter((row) => row.jobType === LINK_TRANSCEND_JOB).map((row) => Number(row.lv));
+  return levels.length ? Math.max(...levels) : 0;
+}
+
 /** 웨폰 링크 초월 행 (표 WeaponLink 의 None 행, lv = 초월 ★ — 이 계정 ★1 = lv1 만 화면과 확인) */
 function linkTranscendRow(values: CalcValues, tables: StatTables) {
   const star = numberValue(values, LINK_STAR_FIELD);
@@ -307,23 +318,59 @@ export function weaponTabLines(values: CalcValues, tables: StatTables, label: So
       log: possess.percentLog,
     });
   }
-  const openSlots = openOptionSlots(values, tables);
-  for (let index = 1; index <= openSlots; index++) {
-    const stat = values[optionStatField(index)];
-    const log = screenLog(values, optionValueField(index));
+  // 능력치는 칸 수를 보지 않고 넣은 옵션을 전부 더한다 (게임 m6836). 전용 무기를 꼈을 때만
+  const fields = heroOptionFields(values, tables);
+  const optionCount = usesExclusiveWeapon(values, tables) ? OPTION_ROWS : 0;
+  for (let index = 1; index <= optionCount; index++) {
+    const stat = values[fields.stat(index)];
+    const log = screenLog(values, fields.value(index));
     if (stat && log !== null) lines.push({ source: label('calc.weapon.sources.option', { index }), stat, log });
   }
   return lines;
 }
 
 /**
- * 열린 무기 옵션 칸 수: 옵션은 전용 무기에 붙으므로 1슬롯 히어로가 전용 무기를 꼈을 때만,
- * 그 무기 강화 레벨이 칸마다 정해진 레벨 (앱 상수 weapon_dice_slot_lock) 이상인 칸까지
+ * 무기의 열린 옵션 칸 수 = WeaponChar 표 (무기 번호, 초월 ★) 행의 maxOptCnt (게임 m15380 → m15260). 미보유 (★ 빈칸) 면 0.
+ * 입력 화면에서 몇 줄까지 열지에만 쓴다 (계산은 넣은 옵션 전부)
  */
+export function optionSlotsForStar(tables: StatTables, weaponId: string, star: string | undefined): number {
+  if (!star) return 0;
+  const row = rowsOf(tables, 'WeaponChar').find((record) => record.weaponId === weaponId && record.star === star);
+  return Math.min(Number(row?.[MAX_OPTION_COLUMN]) || 0, OPTION_ROWS);
+}
+
+/** 무기 옵션 칸 index 가 열리는 가장 낮은 초월 ★ (WeaponChar maxOptCnt ≥ index 인 첫 ★, Option weapon_dice_lock 과 같은 값). 없으면 null */
+export function optionUnlockStar(tables: StatTables, weaponId: string, index: number): number | null {
+  const stars = rowsOf(tables, 'WeaponChar')
+    .filter((record) => record.weaponId === weaponId && Number(record[MAX_OPTION_COLUMN]) >= index)
+    .map((record) => Number(record.star));
+  return stars.length ? Math.min(...stars) : null;
+}
+
+/** 1슬롯 히어로 전용 무기의 열린 옵션 칸 수 (전용 무기를 안 꼈으면 0) */
 export function openOptionSlots(values: CalcValues, tables: StatTables): number {
-  if (!usesExclusiveWeapon(values, tables)) return 0;
-  const level = Number(exclusiveLevelOfHero(values, tables)) || MIN_EXCLUSIVE_LEVEL;
-  return Math.min(OPTION_UNLOCK_LEVELS.filter((unlockLevel) => level >= unlockLevel).length, OPTION_ROWS);
+  const weaponId = exclusiveWeaponIdOfHero(values, tables);
+  if (!weaponId || !usesExclusiveWeapon(values, tables)) return 0;
+  return optionSlotsForStar(tables, weaponId, exclusiveStarOfHero(values, tables));
+}
+
+/** 1슬롯 히어로 전용 무기의 무기 번호 (전용 무기가 없으면 undefined) */
+export function exclusiveWeaponIdOfHero(values: CalcValues, tables: StatTables): string | undefined {
+  const hero = heroByName(tables, slotHeroName(values, tables));
+  return hero ? rowsOf(tables, 'WeaponChar').find((row) => row.charId === hero.charId)?.weaponId : undefined;
+}
+
+/**
+ * 1슬롯 히어로 무기 옵션을 읽을 칸 이름: 무기마다 저장한 칸 (히어로 · 전용 무기 탭) 을 쓰고,
+ * 그 무기 칸이 하나도 안 채워졌으면 예전 칸 (weaponOptionStat<n> · weaponOptionValue<n>, 1슬롯 무기 하나만 저장) 을 쓴다
+ */
+export function heroOptionFields(values: CalcValues, tables: StatTables): { stat: (index: number) => string; value: (index: number) => string } {
+  const weaponId = exclusiveWeaponIdOfHero(values, tables);
+  const indexes = Array.from({ length: OPTION_ROWS }, (_, offset) => offset + 1);
+  if (weaponId && indexes.some((index) => values[exclusiveOptionStatField(weaponId, index)] || values[exclusiveOptionValueField(weaponId, index)])) {
+    return { stat: (index) => exclusiveOptionStatField(weaponId, index), value: (index) => exclusiveOptionValueField(weaponId, index) };
+  }
+  return { stat: optionStatField, value: optionValueField };
 }
 
 /** 소울포지 슬롯 하나가 켜졌는지 넣는 칸 (슬롯 번호 statIdx 마다, 'true' = 활성. 게임 저장의 slotDataDic 에 있고 활성 횟수가 1 이상) */

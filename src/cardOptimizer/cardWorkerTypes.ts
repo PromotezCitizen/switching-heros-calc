@@ -17,7 +17,7 @@ export interface CardRecommendRequest {
   /** marks 모드에서 마크를 정할 카드 번호 (없으면 지금 끼고 있는 카드) */
   cardIds?: string[];
   /**
-   * 하위 작업자 (marks 작업자가 묶음마다 띄움, 사용자 지시 2026-11-02 "마크 계산 묶음별 작업자 분리"):
+   * 하위 작업자 (marks 작업자가 묶음마다 띄움):
    * markGroup = 묶음 하나 (mark, 0부터) 의 세트 몰기, lockedGroup = 안 열린 묶음 하나 (mark, 1부터) 의 0 · 2 · 4 · 6장.
    * picks = 카드마다 지금 고른 세트 (cardIds 순서)
    */

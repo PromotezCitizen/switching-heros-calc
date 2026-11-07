@@ -3,5 +3,6 @@
   "level": "코어 특성 레벨",
   "help": "코어 특성 레벨을 입력하면 그 레벨의 효과가 나와요. 게임에서 선택한 항목만 체크하세요.",
   "slotLabel": "{{slot}}번: {{effect}} (+{{value}})",
-  "source": "코어 특성 Lv{{level}} {{slot}}번"
+  "source": "코어 특성 Lv{{level}} {{slot}}번",
+  "locked": "유저 레벨 {{level}}에 열려요 (지금 {{current}})."
 }

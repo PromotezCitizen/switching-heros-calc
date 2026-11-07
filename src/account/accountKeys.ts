@@ -33,7 +33,8 @@ export function readAccountInputs(values: Record<string, string>): AccountInputs
     vipLevel: readNumber(values, ACCOUNT_KEYS.vipLevel),
     guildLevel: readNumber(values, ACCOUNT_KEYS.guildLevel),
     fairyLevel: readNumber(values, ACCOUNT_KEYS.fairyLevel),
-    fairyOn: values[ACCOUNT_KEYS.fairyOn] !== 'false',
+    // 요정의 축복: 광고 제거면 늘 켜짐, 아니면 직접 켰을 때만 (처음 꺼짐)
+    fairyOn: values[ACCOUNT_KEYS.adRemoved] === 'true' || values[ACCOUNT_KEYS.fairyOn] === 'true',
     adRemoved: values[ACCOUNT_KEYS.adRemoved] === 'true',
     huntingFairyOn: Object.fromEntries(
       RESOURCES.map((resource) => [resource, values[ACCOUNT_KEYS.huntingFairyOn(resource)] === 'true']),

@@ -30,6 +30,11 @@ export const HERO_CONSTS = {
   roster: {
     /** 유물 "★10 전용 무기 수" 의 ★ 기준 */
     STAR10_WEAPON_STAR: 10,
+    /**
+     * 유물 474 체력 (`_per_hp_Star10WeaponCharCnt`) 을 한 번 더 곱하는 ★ 기준: 게임 m2690 이 같은 체력 스탯을 ★5 이상 수 (@33f0050~33f014c)
+     * 와 ★10 이상 수 (@33f0280~33f037c) 로 두 번 곱한다 (claude-docs/react-port/html-verify-A-2026-11-07.md D10, 구조 확정 · 이름 유력)
+     */
+    STAR5_WEAPON_STAR: 5,
     /** 표 칸 폭 (px): 그림 · 등급·성 드롭다운 · 숫자 칸 */
     ICON_SIZE: 28,
     SELECT_WIDTH: 84,
@@ -40,7 +45,7 @@ export const HERO_CONSTS = {
     HERO_AWAKEN_WIDTH: 48,
     /** 표가 이 폭보다 좁아지면 가로 스크롤 */
     TABLE_MIN_WIDTH: 410,
-    /** 히어로 · 전용 무기 표 최대 높이: 넘으면 표 안에서 스크롤, 머리줄은 맨 위 고정 (사용자 지시 2026-11-07 "히어로 입력하는것도 스크롤 생기게 해라", 특성 패널 TREE_MAX_HEIGHT 와 같은 값) */
+    /** 히어로 · 전용 무기 표 최대 높이: 넘으면 표 안에서 스크롤, 머리줄은 맨 위 고정 (특성 패널 TREE_MAX_HEIGHT 와 같은 값) */
     TABLE_MAX_HEIGHT: '70vh',
     /** 호감도 최대 레벨 (서버 표 CharacterAffinity lv 0~15, 히어로 31명 모두 같음) */
     AFFINITY_MAX_LEVEL: 15,

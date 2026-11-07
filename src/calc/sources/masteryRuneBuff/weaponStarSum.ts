@@ -6,13 +6,11 @@ import { heroByName } from '@/calc/sources/heroWeaponCardPet/shared';
 import type { CalcValues } from '@/calc/types';
 import type { StatTables } from '@/data/statTables';
 
-const { HERO_FIELDS, HERO_EQUIPPED_FIELDS } = CONSTS.masteryRuneBuff;
-const EQUIPPED_TEXT = 'true';
+const { HERO_FIELDS } = CONSTS.masteryRuneBuff;
 
-/** 전용 무기를 꼈다고 한 히어로의 전용 무기 ★ (저장에서 가져온 보유 무기 단계) 를 더한다. 비었거나 표에 없으면 0 */
+/** 두 히어로의 전용 무기 ★ (보유한 전용 무기는 늘 낀 것으로 봄) 를 더한다. 비었거나 표에 없으면 0 */
 export function equippedWeaponStarSum(values: CalcValues, tables: StatTables): number {
-  return HERO_FIELDS.reduce((sum, field, index) => {
-    if (values[HERO_EQUIPPED_FIELDS[index]] !== EQUIPPED_TEXT) return sum;
+  return HERO_FIELDS.reduce((sum, field) => {
     const hero = heroByName(tables, slotHeroName(values, tables, field));
     return sum + (hero ? Number(ownedExclusiveStar(values, tables, hero.charId)) || 0 : 0);
   }, 0);

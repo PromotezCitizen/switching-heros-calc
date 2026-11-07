@@ -1,7 +1,7 @@
 /**
  * 교체 스킬 (ChangeSkill, 공격 종류 3) 시전 1번의 적중 수 (판정 한 번의 계수가 곱해지는 횟수의 기대값 = 판정 수 × 맞는 적 수).
  * 교체로 들어올 때 1번 실행된다. 대미지 한 번 = 공격력 × 행 damage / 100 (damageUp · 직업 스킬 옵션 · SS 세트 없음, damage-pipeline.md 3-4).
- * 판정 구조 근거 (사용자 지시 2026-11-05 "진행", 조사 문서 claude-docs/react-port):
+ * 판정 구조 근거 (조사 문서 claude-docs/react-port):
  *   skill-gaps-2026-11-05.md 1절 (티르 · 에이카), hero-skills-swordsman / fighter / archer / mage-2026-11-05.md.
  * targets = 한 판정에 맞는 적 수 (계산기의 "스킬 한 번에 맞는 적 수", 보스 · 히어로 대상은 1). "모든 적" · 반지름 판정은 targets 로 본다.
  * 무기 초월 ★ 효과 (횟수 · 지속 늘림) 는 넣지 않았다. 조사가 "추정" 인 몫은 estimates 에 표시한다.

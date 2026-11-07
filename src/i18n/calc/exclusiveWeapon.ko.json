@@ -3,10 +3,15 @@
   "owner": "주인 히어로",
   "star": "초월 ★",
   "level": "강화 레벨",
-  "missionStar": "받은 초월 미션 ★",
-  "missionStarLabel": "{{name}} 전용 무기 받은 초월 미션 ★ (비우면 초월 ★까지 다 받은 걸로 계산)",
+  "missionStar": "달성한 초월 미션 ★",
+  "missionStarLabel": "{{name}} 전용 무기 달성한 초월 미션 ★ (비우면 초월 ★까지 다 달성한 걸로 계산)",
   "notOwned": "없음",
   "unknownOwner": "무기 {{id}}",
   "starLabel": "{{name}} 전용 무기 초월 ★",
-  "levelLabel": "{{name}} 전용 무기 강화 레벨"
+  "levelLabel": "{{name}} 전용 무기 강화 레벨",
+  "optionColumn": "옵션",
+  "optionButton": "옵션",
+  "optionTitle": "{{name}} 전용 무기 옵션",
+  "optionOpen": "초월 ★{{star}}: {{open}}칸 열림. 다음 칸은 ★{{next}}에 열려요. 계산에는 넣은 옵션이 모두 들어가요.",
+  "optionAllOpen": "초월 ★{{star}}: {{count}}칸 모두 열림."
 }

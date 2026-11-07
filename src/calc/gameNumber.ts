@@ -1,13 +1,15 @@
-/** 게임 큰 수 표기("8.97DC", "356.53CI%")를 log10 으로 읽고 되돌려 쓴다. stat-calc-core.js 와 같은 규칙 */
+/**
+ * 게임 큰 수 표기("8.97DC", "356.53CI%")를 log10 으로 읽고 되돌려 쓴다. 처음엔 stat-calc-core.js 를 옮겼고 (단위 2글자까지),
+ * 단위는 게임 m850 과 같게 8글자까지로 고침
+ */
 import { CONSTS } from '@/CONSTS';
 
 const {
   LOG_PER_UNIT,
   UNIT_FROM_LOG,
   LETTER_COUNT,
-  TWO_LETTER_UNIT_START,
+  MAX_UNIT_LETTERS,
   UPPER_A_CODE,
-  LOWER_A_CODE,
   LOWER_BEFORE_A_CODE,
   CARRY_MANTISSA,
   MANTISSA_DECIMALS,
@@ -15,34 +17,27 @@ const {
   ONE_PLUS_IGNORE_FROM,
 } = CONSTS.gameNumber;
 
-const GAME_NUMBER_PATTERN = /^\s*([\d.,]+)\s*([a-zA-Z]{0,2})\s*(%?)\s*$/;
+const GAME_NUMBER_PATTERN = new RegExp(`^\\s*([\\d.,]+)\\s*([a-zA-Z]{0,${MAX_UNIT_LETTERS}})\\s*(%?)\\s*$`);
 
 export interface ParsedGameNumber {
   log: number;
   percent: boolean;
 }
 
-/** 단위 글자 → 번호 (A=1 … Z=26, AA=27 …). 글자 없으면 0 */
+/** 단위 글자 → 번호 (엑셀 열 이름 방식: A=1 … Z=26, AA=27 … ZZ=702, AAA=703 …). 글자 없으면 0 */
 export function letterIndex(letters: string): number {
-  const lower = letters.toLowerCase();
-  if (!lower) return 0;
-  if (lower.length === 1) return lower.charCodeAt(0) - LOWER_BEFORE_A_CODE;
-  return (
-    TWO_LETTER_UNIT_START +
-    (lower.charCodeAt(0) - LOWER_A_CODE) * LETTER_COUNT +
-    (lower.charCodeAt(1) - LOWER_A_CODE)
-  );
+  let index = 0;
+  for (const letter of letters.toLowerCase()) index = index * LETTER_COUNT + (letter.charCodeAt(0) - LOWER_BEFORE_A_CODE);
+  return index;
 }
 
-/** 단위 번호 → 대문자 글자 (게임 화면 표기) */
+/** 단위 번호 → 대문자 글자 (게임 화면 표기, 게임 m850 과 같은 방식) */
 export function unitSuffix(index: number): string {
-  if (index <= 0) return '';
-  if (index <= LETTER_COUNT) return String.fromCharCode(UPPER_A_CODE - 1 + index);
-  const offset = index - TWO_LETTER_UNIT_START;
-  return (
-    String.fromCharCode(UPPER_A_CODE + Math.floor(offset / LETTER_COUNT)) +
-    String.fromCharCode(UPPER_A_CODE + (offset % LETTER_COUNT))
-  );
+  let suffix = "";
+  for (let rest = index; rest > 0; rest = Math.floor((rest - 1) / LETTER_COUNT)) {
+    suffix = String.fromCharCode(UPPER_A_CODE + ((rest - 1) % LETTER_COUNT)) + suffix;
+  }
+  return suffix;
 }
 
 /** "8.97DC" → { log: 321.95, percent: false }. 해석 못 하거나 0 이하이면 null */

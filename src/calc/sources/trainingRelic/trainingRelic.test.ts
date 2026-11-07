@@ -293,13 +293,16 @@ describe('유물', () => {
       { source: "분노의 붉은 가면 Lv1", stat: "_per_Fighter_BossMonsterDamage", value: 121.1 },
       { source: "붉은 십자가 목걸이 Lv5 × 2", stat: "_per_attackDamage", value: 10.5 },
       { source: "루비 수정 목걸이 Lv5 × 2", stat: "_per_hp", value: 21 },
+      // 게임 m2690 은 유물 474 체력을 ★5 이상 전용 무기 수로 한 번 더 곱한다 (html-verify-A-2026-11-07.md D10). 여기선 ★10 · ★12 둘 다 ★5 이상
+      { source: "루비 수정 목걸이 Lv5 × 2", stat: "_per_hp", value: 21 },
       { source: "유물의 축복", stat: "_per_attackDamage", value: 44281426111100080 },
       { source: "유물의 축복", stat: "_per_hp", value: 44281426111100080 },
     ]);
     expectCombined(lines, {
       /* 직업 일반 무기 합산 레벨 유물 4개 (각 log 0.086849026292592) 가 직업 이름이 아니라 공격력 % 에 곱해져 29줄 */
       "_per_attackDamage": { kind: "multiply", log: 17.22565767868552 + 4 * 0.086849026292592, sum: 0, count: 29 },
-      "_per_hp": { kind: "multiply", log: 18.151335623371367, sum: 0, count: 26 },
+      /* 유물 474 체력 ★5 이상 수 줄 (+21%) 이 하나 더 (게임 m2690) */
+      "_per_hp": { kind: "multiply", log: 18.151335623371367 + Math.log10(1.21), sum: 0, count: 27 },
       "attackSpeed": { kind: "sum", log: 0, sum: 4.75, count: 1 },
       "criticalRate": { kind: "sum", log: 0, sum: 0.8125, count: 1 },
       "_per_hit": { kind: "multiply", log: 0.05002974812757109, sum: 0, count: 2 },

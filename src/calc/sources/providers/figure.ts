@@ -114,7 +114,7 @@ export function figureLines(values: CalcValues, tables: StatTables, label: Sourc
       const stat = row[`${STAT_COLUMN_PREFIX}${slot}`];
       const value = Number(row[`${VALUE_COLUMN_PREFIX}${slot}`]) || 0;
       if (!stat || EMPTY_STATS.includes(stat) || !value) continue;
-      // 사망 방어 뒤 공격력은 넣지 않는다 — 죽을 일이 없으므로 (사용자 결정 2026-11-07)
+      // 사망 방어 뒤 공격력은 넣지 않는다 — 죽을 일이 없으므로
       if (stat === CONSTS.masteryRuneBuff.FIGURE_BATTLE.DEATH_GUARD_STAT) continue;
       const targetHero = TARGET_HERO_PATTERN.exec(stat);
       if (targetHero) {

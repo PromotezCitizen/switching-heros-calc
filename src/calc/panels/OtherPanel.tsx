@@ -4,8 +4,8 @@ import { Group, Stack, Text } from '@mantine/core';
 import { CONSTS } from '@/CONSTS';
 import { combineLines } from '@/calc/combine';
 import { formatLog } from '@/calc/gameNumber';
-import { FAIRY_BOND_LEVEL_FIELD, PROFILE_ICON_FIELDS, affinityLines, fairyBlessingRow } from '@/calc/sources/textLines/other';
-import { wholeLevel } from '@/calc/sources/textLines/screenFields';
+import { FAIRY_BLESSING_ON_FIELD, FAIRY_BOND_LEVEL_FIELD, PROFILE_ICON_FIELDS, affinityLines, fairyBlessingRow } from '@/calc/sources/textLines/other';
+import { isChecked, wholeLevel } from '@/calc/sources/textLines/screenFields';
 import type { TabPanelProps } from '@/calc/types';
 import { ScreenValueInput } from '@/calc/panels/TextLinesFields';
 
@@ -68,17 +68,18 @@ export function AffinityPanel({ values, tables }: TabPanelProps) {
   );
 }
 
-/** 요정의 축복: 레벨·켜짐은 공통 입력에서 받으므로 결과만 보여 준다 */
+/** 요정의 축복: 레벨·켜짐은 공통 입력에서 받으므로 결과만 보여 준다. 꺼져 있으면 계산에 안 들어가니 꺼짐이라고 보인다 */
 export function FairyPanel({ values, tables }: TabPanelProps) {
   const { t: translate } = useTranslation();
   const fairyRow = fairyBlessingRow(wholeLevel(values[FAIRY_BOND_LEVEL_FIELD]), tables);
   const percent = fairyRow?.[FAIRY_BLESSING_SHOWN_COLUMN];
+  const on = isChecked(values[FAIRY_BLESSING_ON_FIELD]);
   return (
     <Stack gap="xs">
       <Group gap="xs">
         <Text size="sm">{translate('calc.fairy.value')}</Text>
         <Text size="sm" fw={600}>
-          {percent === undefined ? '-' : translate('calc.fairy.percent', { value: Number(percent) })}
+          {!on ? translate('calc.fairy.off') : percent === undefined ? '-' : translate('calc.fairy.percent', { value: Number(percent) })}
         </Text>
       </Group>
       <Text size="xs" c="dimmed">

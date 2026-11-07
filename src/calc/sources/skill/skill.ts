@@ -1,6 +1,6 @@
 /**
  * 직업 스킬 (서버 표 Skill, 레벨이 있는 BuffSkill · ActiveSkill 40개): 보유 스킬마다 레벨, 1슬롯 히어로 장착 5칸.
- * 장착 5칸 레벨 합 = 유물 연동 "장착 스킬 레벨 합" (사용자 결정 "자동합")
+ * 장착 5칸 레벨 합 = 유물 연동 "장착 스킬 레벨 합"
  */
 import { CONSTS } from '@/CONSTS';
 import type { StatTables, TableRow } from '@/data/statTables';
@@ -56,8 +56,19 @@ export const SKILL_EQUIP_SLOT_NUMBERS = Array.from({ length: EQUIP_SLOTS }, (_, 
 
 /** 장착 칸에서 고를 수 있는 스킬: 보유 (레벨 1 이상) 이고 1슬롯 히어로 직업 스킬 (히어로가 없으면 보유 전부) */
 export function equipChoices(values: CalcValues, tables: StatTables): TableRow[] {
-  const job = heroFirstRow(tables, slotHeroName(values, tables))?.job;
+  return equipChoicesForJob(values, tables, heroFirstRow(tables, slotHeroName(values, tables))?.job);
+}
+
+/** 장착 후보: 보유 (레벨 1 이상) 스킬 중 그 직업 것 (직업을 모르면 전부) */
+export function equipChoicesForJob(values: CalcValues, tables: StatTables, job: string | undefined): TableRow[] {
   return skillRows(tables).filter((row) => skillLevel(values, row.skillId) >= FIRST_LEVEL && (!job || row.job === job));
+}
+
+/**
+ * 2슬롯 히어로 장착 칸 (교체 계산에서 2슬롯 히어로 차례에 쓴다, dpm/swapDamage.ts). 폰 불러오기도 같은 칸을 채운다.
+ */
+export function secondSkillEquipField(slot: number): string {
+  return `${CONSTS.dpm.SWAP.SECOND_SKILL_EQUIP_PREFIX}${slot}`;
 }
 
 /** 장착 5칸에 고른 스킬 id (같은 스킬을 두 칸에 골라도 한 번만) */
@@ -66,9 +77,10 @@ function equippedSkillIds(values: CalcValues): Set<string> {
 }
 
 /** 장착 5칸의 스킬 레벨 합 (같은 스킬을 두 칸에 골라도 한 번만, 보유가 아니면 0) */
-export function equippedSkillLevelSum(values: CalcValues): number {
+export function equippedSkillLevelSum(values: CalcValues, field: (slot: number) => string = skillEquipField): number {
   let sum = 0;
-  for (const skillId of equippedSkillIds(values)) sum += skillLevel(values, skillId);
+  const ids = new Set(SKILL_EQUIP_SLOT_NUMBERS.map((slot) => values[field(slot)]).filter(Boolean));
+  for (const skillId of ids) sum += skillLevel(values, skillId);
   return sum;
 }
 
@@ -116,7 +128,7 @@ export function skillOptionSlotCount(tables: StatTables, level: number): number 
     .reduce((count, row) => Math.max(count, Number(row[SLOT_CONDITION_COUNT_COLUMN]) || 0), 0);
 }
 
-/** 열린 칸에 고른 옵션 (그 스킬의 후보에 있는 것만, 칸 순서). 같은 옵션은 한 스킬에 하나만 (사용자 확인 "같은 옵션 안된다") */
+/** 열린 칸에 고른 옵션 (그 스킬의 후보에 있는 것만, 칸 순서). 같은 옵션은 한 스킬에 하나만 */
 export function chosenSkillOptions(values: CalcValues, tables: StatTables, skillId: string): TableRow[] {
   const choices = skillRuneChoices(tables, skillId);
   const slotCount = skillOptionSlotCount(tables, skillLevel(values, skillId));

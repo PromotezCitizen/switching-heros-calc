@@ -8,7 +8,7 @@ import type { CalcValues } from '@/calc/types';
 import { characterRows } from '@/calc/sources/hero/character';
 import { exclusiveOwnedLevelField, exclusiveOwnedStarField, rosterGradeField } from '@/calc/sources/hero/rosterFields';
 
-const { STAR10_WEAPON_STAR } = CONSTS.hero.roster;
+const { STAR10_WEAPON_STAR, STAR5_WEAPON_STAR } = CONSTS.hero.roster;
 
 export interface RosterHero {
   charId: string;
@@ -79,7 +79,15 @@ export function ownedExclusiveLevel(values: CalcValues, tables: StatTables, char
 
 /** ★10 이상 전용 무기 수 (유물 연동 "★10 전용 무기 수") */
 export function star10WeaponCount(values: CalcValues, tables: StatTables): number {
-  return exclusiveWeapons(tables).filter(
-    (weapon) => Number(values[exclusiveOwnedStarField(weapon.weaponId)]) >= STAR10_WEAPON_STAR,
-  ).length;
+  return weaponCountAtLeastStar(values, tables, STAR10_WEAPON_STAR);
+}
+
+/** ★5 이상 전용 무기 수 (유물 474 체력의 두 번째 곱, 게임 m2690) */
+export function star5WeaponCount(values: CalcValues, tables: StatTables): number {
+  return weaponCountAtLeastStar(values, tables, STAR5_WEAPON_STAR);
+}
+
+/** 초월 ★ 가 star 이상인 보유 전용 무기 수 (장착 여부와 상관없음) */
+function weaponCountAtLeastStar(values: CalcValues, tables: StatTables, star: number): number {
+  return exclusiveWeapons(tables).filter((weapon) => Number(values[exclusiveOwnedStarField(weapon.weaponId)]) >= star).length;
 }

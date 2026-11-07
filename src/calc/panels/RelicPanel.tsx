@@ -7,6 +7,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { CONSTS } from '@/CONSTS';
 import {
   RELIC_MAX_GRADE_FIELD,
+  DUNGEON_LINKS,
   RELIC_TAB_LINK_FIELDS,
   lowerGradeRelicFill,
   relicBlessingFromStates,
@@ -172,7 +173,7 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
         <SectionTitle>{translate('calc.relic.linksTitle')}</SectionTitle>
         {/* 라벨이 길어 (예: "SSR 등급 이상 몬스터 카드 수") 한 줄에 하나씩 위아래로 */}
         <Stack gap="xs">
-          {RELIC_TAB_LINK_FIELDS.filter((field) => usedLinks.has(field)).map((field) => {
+          {RELIC_TAB_LINK_FIELDS.filter((field) => usedLinks.has(field) && !DUNGEON_LINKS.includes(field)).map((field) => {
             const fieldId = relicLinkFieldId(field);
             return (
               <TextInput
@@ -187,7 +188,7 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
             );
           })}
         </Stack>
-        {!usedLinks.size && <Text size="sm" c="dimmed">{translate('calc.relic.noLinks')}</Text>}
+        {![...usedLinks].some((field) => !(DUNGEON_LINKS as readonly string[]).includes(field)) && <Text size="sm" c="dimmed">{translate('calc.relic.noLinks')}</Text>}
         <Text size="sm" c="dimmed">{translate('calc.relic.linksHelp')}</Text>
       </Stack>
     </Stack>

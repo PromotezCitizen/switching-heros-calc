@@ -286,32 +286,35 @@ export default function PetPanel({ values, setValue, tables, descriptions }: Tab
       </HorizontalScrollRow>
       <Text size="sm" c="dimmed">{translate('calc.pet.equipHelp')}</Text>
 
+      {/* 펫 지역: 열렸으면 입력, 안 열렸으면 언제 열리는지 (2성 SSS 펫 1마리 이상) */}
       <SectionTitle>{translate('calc.pet.regionTitle')}</SectionTitle>
-      <Text size="sm" c="dimmed">{translate('calc.pet.regionHelp')}</Text>
-      <Text size="sm">
-        {regionUnlocked
-          ? translate('calc.pet.regionUnlocked', { count: maxStageTotal })
-          : translate('calc.pet.regionLocked', { count: maxStageTotal })}
-      </Text>
-      {/* 지역 3개 한 줄 (좁으면 가로 스크롤): 속성마다 지역 레벨 */}
-      <HorizontalScrollRow itemWidth={REGION_INPUT_WIDTH}>
-        {REGION_ATTRIBUTES.map((attribute) => {
-          const attributeName = translate(`calc.pet.attributes.${attribute}`);
-          return (
-            <NumberInput
-              key={attribute}
-              size="xs"
-              hideControls
-              min={0}
-              allowNegative={false}
-              allowDecimal={false}
-              label={translate('calc.pet.regionLevelLabel', { attribute: attributeName })}
-              value={values[petRegionLevelField(attribute)] ?? ''}
-              onChange={(next) => setValue(petRegionLevelField(attribute), String(next))}
-            />
-          );
-        })}
-      </HorizontalScrollRow>
+      {regionUnlocked ? (
+        <>
+          <Text size="sm" c="dimmed">{translate('calc.pet.regionHelp')}</Text>
+          <Text size="sm">{translate('calc.pet.regionUnlocked', { count: maxStageTotal })}</Text>
+          {/* 지역 3개 한 줄 (좁으면 가로 스크롤): 속성마다 지역 레벨 */}
+          <HorizontalScrollRow itemWidth={REGION_INPUT_WIDTH}>
+            {REGION_ATTRIBUTES.map((attribute) => {
+              const attributeName = translate(`calc.pet.attributes.${attribute}`);
+              return (
+                <NumberInput
+                  key={attribute}
+                  size="xs"
+                  hideControls
+                  min={0}
+                  allowNegative={false}
+                  allowDecimal={false}
+                  label={translate('calc.pet.regionLevelLabel', { attribute: attributeName })}
+                  value={values[petRegionLevelField(attribute)] ?? ''}
+                  onChange={(next) => setValue(petRegionLevelField(attribute), String(next))}
+                />
+              );
+            })}
+          </HorizontalScrollRow>
+        </>
+      ) : (
+        <Text size="sm" c="dimmed">{translate('calc.pet.regionLocked', { count: maxStageTotal })}</Text>
+      )}
     </Stack>
   );
 }

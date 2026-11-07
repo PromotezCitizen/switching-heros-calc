@@ -64,7 +64,7 @@
   },
   "regionTitle": "펫 지역",
   "regionHelp": "2성 SSS 펫이 1마리라도 있으면 열려요. 펫 지역 화면의 레벨을 속성마다 넣으세요. 빈칸인 지역은 계산하지 않아요.",
-  "regionLocked": "잠김 (2성 SSS 펫 {{count}}마리, 1마리부터 열림)",
+  "regionLocked": "2성 SSS 펫을 1마리 얻으면 열려요 (지금 {{count}}마리).",
   "regionUnlocked": "열림 (2성 SSS 펫 {{count}}마리)",
   "regionLevelLabel": "{{attribute}} 지역 레벨"
 }

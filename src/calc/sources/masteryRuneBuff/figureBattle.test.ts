@@ -10,7 +10,7 @@ const label = (key: string, params?: Record<string, unknown>) => `${key}${params
 const { SWAP_UPTIME_FIELD, FIGURE_BATTLE } = CONSTS.masteryRuneBuff;
 const figureLine = (stat: string, value: number): Line => ({ source: 'figure', stat, value });
 
-describe('피규어 조건형 효과 (figure-special-effects-2026-11-07.md, 사용자 결정 2026-11-07)', () => {
+describe('피규어 조건형 효과 (figure-special-effects-2026-11-07.md)', () => {
   it('확률 200% 초과: 그 확률이 200 을 넘을 때만 공격력 줄 (같으면 안 켜짐)', () => {
     const lines = [figureLine(FIGURE_BATTLE.OVER_STATS.smite, 500)];
     expect(figureBattleLines(lines, {}, tables, { smite: 200 }, false, label)).toEqual([]);

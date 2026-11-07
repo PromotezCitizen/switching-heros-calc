@@ -22,8 +22,19 @@ export function inheritValueField(index: number): string {
   return `inheritValue${index}`;
 }
 
-/** 기록 보관소 레벨 = floor(min(책 4권 레벨) / 10) (사용자 식) */
+/**
+ * 폰 불러오기가 채우는 기록 보관소 레벨 칸 (저장 _libraryData.mainLv). 게임은 보관소 레벨을 계산하지 않고 이 저장값을 쓴다
+ * (조건을 채운 뒤 버튼으로 올림, html-verify-E-2026-11-07.md E20). 책 레벨을 손으로 고치면 비운다 (LibraryPanel)
+ */
+export const ARCHIVE_LEVEL_FIELD = 'libraryArchiveLevel';
+
+/**
+ * 기록 보관소 레벨: 불러온 값이 있으면 그 값,
+ * 없으면 floor(min(책 4권 레벨) / 10) (끝까지 올렸을 때 게임과 같음)
+ */
 export function libraryArchiveLevel(values: CalcValues): number {
+  const imported = values[ARCHIVE_LEVEL_FIELD];
+  if (imported !== undefined && imported !== '') return numberValue(values, ARCHIVE_LEVEL_FIELD);
   return Math.floor(Math.min(...JOBS.map((job) => numberValue(values, bookLevelField(job)))) / ARCHIVE_LEVEL_DIVISOR);
 }
 
@@ -70,14 +81,24 @@ export function libraryLines(values: CalcValues, tables: StatTables, label: Sour
       });
     }
   }
-  // 전승된 능력: 열린 칸만
+  // 전승된 능력: 열린 칸만. 같은 스탯 칸은 값을 먼저 더해 스탯마다 한 줄 (게임 T1283 m6880 부분 C 가 보조 사전에 누적한 뒤 스탯마다 AddPct 한 번,
+  // stat-provider-formulas.md 291줄 · html-verify-A-2026-11-07.md. 예전 HTML 은 칸마다 곱함)
   const openSlots = openInheritSlots(archiveLevel);
+  const inheritSums = new Map<string, { log: number; slots: number[] }>();
   for (let index = 1; index <= Math.min(openSlots, INHERIT_ROWS); index++) {
     const stat = values[inheritStatField(index)];
     const log = screenLog(values, inheritValueField(index));
-    if (stat && log !== null) {
-      lines.push({ source: label('calc.library.sources.inherit', { index }), stat, log });
-    }
+    if (!stat || log === null) continue;
+    const sum = inheritSums.get(stat);
+    if (sum) {
+      // log 끼리 더하기 (큰 값에서도 넘치지 않게: 큰 쪽 + log10(1 + 10^(작은 쪽 − 큰 쪽)))
+      const high = Math.max(sum.log, log);
+      sum.log = high + Math.log10(1 + Math.pow(10, Math.min(sum.log, log) - high));
+      sum.slots.push(index);
+    } else inheritSums.set(stat, { log, slots: [index] });
+  }
+  for (const [stat, { log, slots }] of inheritSums) {
+    lines.push({ source: label('calc.library.sources.inherit', { index: slots.join(' · ') }), stat, log });
   }
   return lines;
 }

@@ -12,7 +12,7 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
   library: {
     /** 서버 표 Library 에서 기록 보관소 행의 job */
     ARCHIVE_JOB: 'None',
-    /** 기록 보관소 레벨 = floor(가장 낮은 책 레벨 ÷ 10) (사용자 식) */
+    /** 기록 보관소 레벨 = floor(가장 낮은 책 레벨 ÷ 10) */
     ARCHIVE_LEVEL_DIVISOR: 10,
     /** 전승된 능력 칸 수 */
     INHERIT_ROWS: 8,
@@ -30,12 +30,14 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
   },
 
   weapon: {
-    /** 무기 옵션 칸 수 */
+    /**
+     * 무기 옵션 칸 최대 8. 무기마다 열린 칸 수는 WeaponChar maxOptCnt (무기, 초월 ★)
+     * (게임 m15380 → m15260, claude-docs/react-port/weapon-option-slot-lock-2026-11-07.md). 예전 HTML 의 "강화 레벨 ≥ weapon_dice_slot_lock" 은 틀림
+     * (그 값은 다시 굴리기 주사위 비용)
+     */
     OPTION_ROWS: 8,
-    /** 무기 옵션 칸 1~8 이 열리는 전용 무기 강화 레벨 (앱 상수 weapon_dice_slot_lock) */
-    OPTION_UNLOCK_LEVELS: [10, 20, 50, 200, 800, 1200, 2500, 7500],
-    /** 웨폰 링크 별 칸 최대 */
-    LINK_STAR_MAX: 5,
+    /** WeaponChar 표의 열린 옵션 칸 수 열 */
+    MAX_OPTION_COLUMN: 'maxOptCnt',
     /** 전용 무기 강화 레벨 최소 (빈칸이면 1 로 읽음) */
     MIN_EXCLUSIVE_LEVEL: 1,
     /** % 를 100 으로 나누므로 log 에 더하는 값 (log10(100)) */
@@ -111,7 +113,7 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     BATTLE_CONDITION_SUFFIXES: ['_Kill', '_MonsterCntLong'],
     /**
      * 카드 2번 처치 중첩 (T410 m2276 @33d1320): 컨테이너의 `_per_attackDamage_Kill` 값 v 를 최대 5중첩 선형으로 공격력 % 에 넣는다
-     * (1 + (v − 1) × 5, 사용자 결정: 최대 상태). 값 140 → ×8
+     * (1 + (v − 1) × 5, : 최대 상태). 값 140 → ×8
      */
     KILL_STAT: '_per_attackDamage_Kill',
     KILL_MAX_STACKS: 5,
@@ -126,7 +128,7 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     USE_SKILL_MAX_STACKS: 5,
     /**
      * 카드 세트 "혈류" 6세트 (CardSet setId 4): 버프 스킬 발동 시 3초간 `_per_BuffDamage_BuffAttack` 값 v % 의 버프 스킬 데미지 (최대 5중첩).
-     * 카드 스킬 사용 중첩과 같은 방식 (사용자 결정: 최대 상태) 으로 v × 5 % 를 버프 스킬 데미지 (`_per_BuffSkillDamage`) 에 넣는다
+     * 카드 스킬 사용 중첩과 같은 방식 (: 최대 상태) 으로 v × 5 % 를 버프 스킬 데미지 (`_per_BuffSkillDamage`) 에 넣는다
      */
     BUFF_ATTACK_STAT: '_per_BuffDamage_BuffAttack',
     BUFF_ATTACK_MAX_STACKS: 5,
@@ -160,7 +162,7 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     ] as readonly (readonly [string, string])[],
     DAMAGE_INCREASE_HERO_STAT: '_per_DamageIncrease_Hero',
     /**
-     * 대상별 주위 적 수 조건 (사용자 지시 2026-11-02 "전부 진행", 근거 claude-docs/react-port/nearby-enemy-range-2026-11-02.md):
+     * 대상별 주위 적 수 조건 (근거 claude-docs/react-port/nearby-enemy-range-2026-11-02.md):
      * 게임은 상대 진영 전체 수로 Short ≤ 5 · Long ≥ 5 (정확히 5 면 둘 다). 여기 없는 대상 (보스 1마리 · 히어로 0마리) 은 Short 만 켜짐.
      * - stage: 45마리 출현 · 5 이하에서 재소환 → Long 거의 항상, Short 는 재소환 순간만 (끔)
      * - attributeNormal: 80마리 동시 출현, 남은 수 5 이하부터 Short → 대부분 Long (Short 끔)
@@ -235,7 +237,8 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     PICKER_HINT_MAX_WIDTH: 260,
     /** 한 줄로 놓는 편성 칸 하나의 폭 (px). 6칸이 칸 폭을 넘치면 가로 스크롤 */
     CARD_SLOT_WIDTH: 200,
-    PET_SLOT_WIDTH: 260,
+    /** 펫 장착 칸 폭 (px): 옵션 이름 "물 속성 히어로의 공격력" 이 잘리지 않게 넓힘 */
+    PET_SLOT_WIDTH: 360,
     /** 펫 지역 레벨 칸 하나의 폭 (px) */
     REGION_INPUT_WIDTH: 150,
     /** 웨폰 링크 직업 카드 최소 폭 (넓으면 4개 한 줄) · 레벨 칸 폭 (px) */
@@ -243,7 +246,7 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     LINK_LEVEL_INPUT_WIDTH: 72,
     /** 일반 무기 강화 레벨 칸 하나의 최소 폭 (px) */
     NORMAL_WEAPON_INPUT_MIN_WIDTH: 90,
-    /** 히어로의 기록 책 카드 최소 폭 (사용자 지정 160) */
+    /** 히어로의 기록 책 카드 최소 폭 */
     BOOK_CARD_MIN_WIDTH: 160,
     /** 쓰지 않는 칸·미보유 카드의 흐림 정도 */
     UNUSED_OPACITY: 0.4,
@@ -260,5 +263,7 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     GROWTH_PER_LEVEL: 1.5,
     /** 광산 투자 레벨 시작값 (이 레벨에서 배율 = 각성 총합 + 1) */
     FIRST_LEVEL: 1,
+    /** 투자 레벨 입력 칸 폭 (px) */
+    LEVEL_INPUT_WIDTH: 160,
   },
 } as const;

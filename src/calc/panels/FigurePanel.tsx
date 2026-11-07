@@ -1,5 +1,5 @@
 /**
- * 피규어 탭 (사용자 결정 2026-11-07: 피규어는 따로 한 탭, 전체 108개): 공용 · 히어로 전용으로 나눠
+ * 피규어 탭: 공용 · 히어로 전용으로 나눠
  * 카드마다 그림 · 이름 · 번호 · 등급 · 효과 이름 · 레벨 입력 (비우면 미보유).
  * 이름 · 효과 이름은 서버 번역 표 (scripts/fill_figure_texts.mjs 가 figure.ko.json 에 채움)
  */
@@ -23,7 +23,7 @@ const UNUSED_OPACITY = CONSTS.heroWeaponCardPet.ui.UNUSED_OPACITY;
 
 /**
  * 피규어 그림: 아이템 표 imgName (figureImages.json, 예: 1번 → Figure_47) 의 번호로 public/icons/Atlas_FigureIMG/figure_<번호>.png.
- * 그림 번호 ≠ 피규어 번호 (사용자 지적 2026-11-07 "피규어랑 이미지랑 같지도 않는데"). 표에 없으면 그림 없음
+ * 그림 번호 ≠ 피규어 번호. 표에 없으면 그림 없음
  */
 function figureIcon(figureId: string): string | null {
   const imageName = (FIGURE_IMAGES as Record<string, string>)[figureId];
@@ -103,8 +103,8 @@ const FigureCard = memo(function FigureCard({ view, level, setValue }: FigureCar
 export default function FigurePanel({ values, setValue, tables, descriptions }: TabPanelProps) {
   const { t: translate, i18n } = useTranslation();
   const views = useMemo(() => buildViews(tables, descriptions, translate), [tables, descriptions, translate]);
-  // 공용 · 히어로 전용 모두 같은 히어로끼리 붙여서 (사용자 지시 2026-11-07 "같은 히어로면 근처에 붙여라" · 공용도 "ㅇ"):
-  // 히어로 이름을 화면 언어의 가나다 (알파벳) 순으로 (사용자 결정 2026-11-07 "2", 언어마다 순서가 다름), 같은 히어로 안에서는 피규어 번호 순, 히어로 모름은 맨 뒤
+  // 공용 · 히어로 전용 모두 같은 히어로끼리 붙여서 (공용도 "ㅇ"):
+  // 히어로 이름을 화면 언어의 가나다 (알파벳) 순으로 (언어마다 순서가 다름), 같은 히어로 안에서는 피규어 번호 순, 히어로 모름은 맨 뒤
   const byHero = (left: FigureView, right: FigureView) => {
     if (left.heroKey !== right.heroKey) {
       if (left.heroKey === null) return 1;

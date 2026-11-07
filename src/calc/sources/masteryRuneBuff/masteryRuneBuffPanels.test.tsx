@@ -12,6 +12,7 @@ import { CALC_KEY_PREFIX, calcValuesOf } from '@/calc/storeKeys';
 import type { Line } from '@/calc/combine';
 import type { CalcTab } from '@/calc/types';
 import { masteryRuneBuffTabs } from '@/calc/sources/masteryRuneBuff/index';
+import BattleBuffFields from '@/account/BattleBuffFields';
 
 const tables: StatTables = {
   Mastery: JSON.parse(masteryText) as RawTable,
@@ -74,13 +75,20 @@ describe('특성·룬·버프 화면', () => {
     expect(screen.getByText('/ 399')).toBeTruthy();
   });
 
-  it('버프: 학살자 칸과 광폭화 안내 (스킬 광폭화 특성을 찍었으면 늘 5중첩, 중첩 칸 없음)', () => {
-    useCalcStore.getState().setValue('calc.mastery_10', '3');
+  it('버프: 광폭화 안내 (광폭화 특성 7 을 찍었으면 늘 5중첩, 중첩 칸 없음), 입력 칸은 공통 입력으로 옮겨 이 탭엔 없음', () => {
+    useCalcStore.getState().setValue('calc.mastery_7', '1');
     renderTab('buff');
-    fireEvent.click(screen.getByLabelText('학살자 발동'));
-    expect(useCalcStore.getState().values['calc.killerActive']).toBe('true');
+    expect(screen.queryByLabelText('학살자 발동')).toBeNull();
+    expect(screen.getByText(/공통 입력/)).toBeTruthy();
     expect(screen.getByText(/^광폭화 5중첩 · 학살자 공격력 ×/)).toBeTruthy();
     expect(screen.queryByLabelText(/광폭화 중첩/)).toBeNull();
+  });
+
+  it('공통 입력의 전투 버프 칸: 학살자 칸이 계산식 확인기 칸 (calc.killerActive) 에 그대로 저장된다', () => {
+    renderWithProviders(<BattleBuffFields />);
+    // 라벨 뒤에 도움말 아이콘이 붙어 이름이 "학살자 발동" 으로 시작한다
+    fireEvent.click(screen.getByRole('checkbox', { name: /^학살자 발동/ }));
+    expect(useCalcStore.getState().values['calc.killerActive']).toBe('true');
   });
 
   it('버프: 연타·스킬 콤보 % 를 다른 탭 줄로 계산해 늘 보여 준다 (저장 데이터 검증 217 / 38.37)', () => {

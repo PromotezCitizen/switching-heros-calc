@@ -24,6 +24,11 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
    * 칸 이름 = 접두사 + 속성 (runeLab_Fire), 비어 있음 = 입력 전 (계산하지 않음)
    */
   LAB: {
+    /*
+     * 해금 (ContentsUnlock 82행 Reinforce_AttributeRune_Lab, 조건 RuneMax): 속성 룬이 끝까지 오른 상태 = 코어 399 + 마지막 단계 여섯 룬 10
+     * = 속성 룬 6개가 모두 표 최대 레벨 (claude-docs/react-port/unlock-relicmax.md 3절). 게임은 해금됐을 때만 연구소 효과를 넣는다 (m5997).
+     * 열린 경우만 칸을 보이고 계산한다
+     */
     TABLE: 'AttributeRuneLab',
     ATTRIBUTES: ['Fire', 'Water', 'Earth'],
     FIELD_PREFIX: 'runeLab_',
@@ -95,7 +100,7 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
   /** 학살자 배율 안내 소수 자리 (기존 HTML renderBuffCheck) */
   KILLER_DISPLAY_DECIMALS: 3,
   /**
-   * 연타 중첩: 늘 최대로 계산 (사용자 결정 "연타, 스킬콤보는 상시 최대중첩").
+   * 연타 중첩: 늘 최대로 계산.
    * 최대 10회 = 특성 14 가속 설명 "(최대 10회 중첩)", 특성 104 연타의 분노 "연타 10중첩 달성 시" (서버 표 Mastery desc)
    */
   DOUBLE_ATTACK_MAX_STACKS: 10,
@@ -139,7 +144,7 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
   } as Record<string, { chance: string; threshold: number }>,
   /**
    * 확률 초과 개수 얼티밋 (3001 잠재력 해방 80, 3007 한계 돌파 120; 설명은 "아티팩트의 유니크 옵션" 이지만
-   * 게임은 히어로 최종 확률 7종을 문턱과 비교한다, claude-docs/react-port/artifact-unique-over-2026-11-05.md, 사용자 지시 2026-11-05 "계산기 넣어라").
+   * 게임은 히어로 최종 확률 7종을 문턱과 비교한다, claude-docs/react-port/artifact-unique-over-2026-11-05.md).
    * 문턱을 넘은 (> , 같으면 안 셈) 확률 종류 수 k → 공격력 증가에 × 값^k (값 = 표 값 2.5 / 5, 레벨 무관). 전투 버프는 확률에 안 들어가 늘 같은 k
    */
   CHANCE_COUNT_ULTIMATES: {
@@ -154,15 +159,15 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
    * 스위칭 부스트 발동 (게임 코드 T410 m2274, claude-docs/react-port/battle-missing-effects-2026-11-01.md 2-1절, 확정):
    * 교체 등장 때 확률 P 로 발동 → 공격력 % 버프 BUFF_PERCENT (× 공명 있으면 (1 + 공명/100)^floor(P/10)), 지속 BASE_SECONDS + 흐름 유지.
    * P > 100 이고 과잉 전환 (206) 을 배웠으면 공격력 % 그 값, 9999초 (그 히어로가 필드에 있는 동안).
-   * 확률은 "100 미만이면 0" 규칙을 따른다 (사용자 결정). 교체 등장 때만이라 교체 켜짐 비율 (swapUptimePercent) 을 곱한다
+   * 확률은 "100 미만이면 0" 규칙을 따른다. 교체 등장 때만이라 교체 켜짐 비율 (swapUptimePercent) 을 곱한다
    */
   /**
-   * 피규어 조건형 효과 (figure-special-effects-2026-11-07.md, 게임 코드 원문 대조, 사용자 결정 2026-11-07):
+   * 피규어 조건형 효과 (figure-special-effects-2026-11-07.md, 게임 코드 원문 대조):
    * - 확률 200% 초과 7종 (m2099 @32e384c): 그 확률 (전투 중 값) 이 OVER_THRESHOLD 를 넘으면 첫 발동 때 9999초 ×(1 + 값/100) → 상시.
    *   스위칭 부스트는 교체가 있을 때만, 매직 가드는 보호막이 있을 때만 (등장 · 피격 때 보호막 > 0)
    * - 교체 등장 때 10초 (m2273 @33cf574): ×(1 + 값/100) 을 교체 켜짐 비율 × (10초 / 교체 간격) 만큼
-   * - 기본 공격 20% 로 체력 100% 면 10초 공격력 (m2042 @32df95c): 체력이 깎일 일 없음 (사용자 "깎일 일 없다") → 상시 ×(1 + 값/100)
-   * - 사망 방어 뒤 공격력 (deathGuardDmgUp, m2042 @32dfac8): 넣지 않는다 — 죽을 일이 없으므로 (사용자 결정 2026-11-07)
+   * - 기본 공격 20% 로 체력 100% 면 10초 공격력 (m2042 @32df95c): 체력이 깎일 일 없음 → 상시 ×(1 + 값/100)
+   * - 사망 방어 뒤 공격력 (deathGuardDmgUp, m2042 @32dfac8): 넣지 않는다 — 죽을 일이 없으므로
    * 값: `_per_` 이름은 피규어마다 곱으로 쌓인 (곱 − 1) × 100, 그 밖 이름은 합
    */
   FIGURE_BATTLE: {
@@ -208,13 +213,13 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     BOSS_DAMAGE_STAT: '_per_BossMonsterDamage',
   },
   /**
-   * 확률 묶음 이름 (일반 특성의 statName 에 들어 있는 확률 이름). 확률은 100% 미만이면 효과 0 이라 (사용자 결정 2026-11-01),
+   * 확률 묶음 이름 (일반 특성의 statName 에 들어 있는 확률 이름). 확률은 100% 미만이면 효과 0 이라,
    * 확률을 100% 로 올리는 특성과 그 문턱 효과 특성을 따로 올리면 효율이 안 오른다 → 추천이 같은 묶음의 특성 둘을 동시에 올려 본다
    * (예: 무자비 306 + 307, 슈퍼 치명타 17 + 108, 매직 가드 전환율 61 · 311 + 312). 스위칭 부스트는 효과 식이 따로라 넣지 않음
    */
   COMBO_FAMILIES: ['superCritical', 'spearAttack', 'doubleAttack', 'skillCombo', 'smite', 'barrier'] as readonly string[],
   /**
-   * 매직 가드 (게임 m2137 @32e1ae8, claude-docs/react-port/barrier-and-atk-gap.md 1절, 사용자 지시 2026-11-05 "틀린 부분 다 고쳐라"):
+   * 매직 가드 (게임 m2137 @32e1ae8, claude-docs/react-port/barrier-and-atk-gap.md 1절):
    * - 기본 항 BASE_STAT (0x105, 특성 60 · 연성 · 주사위) 이 0 이면 보호막 0 으로 두고 함수가 끝난다 (32e1cd8~32e1d5c 직접 확인)
    *   → 흘러넘치는 체력 63, 312 · 313 · 314, 전환율 150 · 200% 초과 얼티밋 (3018 · 3027) 모두 꺼짐
    * - 전환율 S = barrier + barrierAddVal (확률 묶음 barrier). 312: S > 100 이면 값 %, 313: floor((S − 100) / 10) 단계 × 값 %
@@ -284,11 +289,11 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     SUPER_CRITICAL_OVER_DAMAGE: 'superCriticalToDmgUp1',
     /** 특성 202 초과된 힘: 관통 100% 초과 시 공격력 % */
     SPEAR_ATTACK_OVER_DAMAGE: 'spearAttackToDmgUp1',
-    /** 특성 307 무자비 폭주: 무자비 100% 초과 시 공격력 % (대상 상태이상 조건은 넣지 않음, 사용자 결정) */
+    /** 특성 307 무자비 폭주: 무자비 100% 초과 시 공격력 % (대상 상태이상 조건은 넣지 않음) */
     SMITE_OVER_DAMAGE: 'smiteToDmgUp1',
   },
   /**
-   * 전투 중 최대 상태 몫 (사용자 결정: 중첩·켜짐은 최대 상태, 입력 칸 없음).
+   * 전투 중 최대 상태 몫 (: 중첩·켜짐은 최대 상태, 입력 칸 없음).
    * 식 근거: combat0113.py 44~149 (기계어 정리 x10101-1057-gamecode.md 2절, crit-dmg-atkspeed-gamecode.md), 화면 4시점 일치 확인
    */
   BATTLE: {
@@ -311,6 +316,14 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
   JOB_CRITICAL_SUFFIX: '_Critical',
   ATTRIBUTE_CRITICAL_SUFFIX: 'Hero_Critical',
   KILLER_ACTIVE_FIELD: 'killerActive',
+  /**
+   * 학살자 (특성 51 "몬스터 40마리를 2초 안에 처치할 경우, 3초 간 최종 공격력 {0}% 증가") 가 켜지는 대미지 대상
+   *: 일반 몬스터를 실제로 처치하는 곳만 = 스테이지 · 속성 던전 일반 층.
+   * 보스 · 히어로 (1마리) 와 글로벌 레이드 일반 주 (5기 · 체력 무한, 처치 없음) 는 끈다. 2초 안 40마리를 실제로 잡는지 (처치 속도) 는 보지 않는다
+   */
+  KILLER_TARGETS: ['stage', 'attributeNormal'] as readonly string[],
+  /** 대미지 대상을 모르는 계산 (계산식 확인기 종합) 에서 학살자가 켜지는 공격 대상 종류 */
+  KILLER_SUMMARY_TARGET: 'normal',
   /** 버프 탭 일반 몬스터 피해 음식 칸 (값 = FOODS 의 id, 빈칸 = 없음) */
   NORMAL_MONSTER_FOOD_FIELD: 'normalMonsterFood',
   /** 음식 효과 스탯 (서버 표 Item string1) */
@@ -330,7 +343,7 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
   ATTACK_EVENT_BUFF_FIELD: 'attackEventBuff',
   /**
    * 공격력 이벤트 버프 (서버 표 Item itemId 15 = ItemBuffStageAtk, double1 = 200 %, double2 = 60분, 이름 "공격력 버프").
-   * 음식이 아니라 이벤트 구매 버프라 음식과 같이 켜진다 (사용자 확인). 표 string1 이 비어 있어 붙는 스탯은 표에 없음:
+   * 음식이 아니라 이벤트 구매 버프라 음식과 같이 켜진다. 표 string1 이 비어 있어 붙는 스탯은 표에 없음:
    * 공격력 % 로 넣는 것은 02:48 저장 ×3 (gap-atk-increase-provider.md 5절) 과 2026-10-12 01:54 공격력 증가 화면 일치로 확인
    */
   ATTACK_EVENT_BUFF: { itemId: 15, stat: '_per_attackDamage', percent: 200 },
@@ -351,6 +364,9 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     DungeonGoldRecord: 'dungeonGold',
     DungeonEquipRecord: 'dungeonEquip',
     DungeonRelicRecord: 'dungeonRelic',
+    DungeonFireRecord: 'dungeonFire',
+    DungeonWaterRecord: 'dungeonWater',
+    DungeonEarthRecord: 'dungeonEarth',
   } as Record<string, string>,
   /** 얼티밋 "_per_스탯_전투 특화" 의 이름 → Character 표 targetUnit (특성 1012~1017, 1033~1035) */
   ULTIMATE_TARGET_UNIT_KEYS: { TargetUnitBoss: 'Boss', TargetUnitNormal: 'Normal', TargetUnitHero: 'Hero' } as Record<

@@ -60,15 +60,15 @@ describe('히어로의 기록·무기·카드·펫·광산 화면', () => {
     expect(screen.queryAllByLabelText('2번 능력치')).toEqual([]);
   });
 
-  it('무기: 전용 무기 장착 켬 → 전용 무기 장착 효과 표, 일반 무기 장착 칸 없음', () => {
-    renderTab('weapon', { ...EXPECTED_FROM_HTML.weaponWithHero.values, exclusiveEquipped: 'true' });
-    expect(screen.getByText('390.41F%')).toBeTruthy();
+  it('무기: 전용 무기를 가졌으면 일반 무기 장착 칸 없음 (장착 효과 표는 화면에서 뺌)', () => {
+    renderTab('weapon', { ...EXPECTED_FROM_HTML.weaponWithHero.values });
+    expect(screen.queryByText('390.41F%')).toBeNull();
     expect(screen.queryByLabelText('장착 효과 공격력 증가')).toBeNull();
     expect(screen.getByText(EXPECTED_FROM_HTML.weaponWithHero.screen.possess)).toBeTruthy();
   });
 
-  it('무기: 전용 무기 장착 끔 (기본) 이면 장착 효과 표 없음, 일반 무기 장착 칸이 보인다', () => {
-    renderTab('weapon', { ...EXPECTED_FROM_HTML.weaponWithHero.values });
+  it('무기: 전용 무기가 없으면 (★ 빈칸) 일반 무기 장착 칸이 보인다 (보유한 전용 무기는 늘 낀 것으로 봄)', () => {
+    renderTab('weapon', { ...EXPECTED_FROM_HTML.weaponWithHero.values, weaponStar: '' });
     expect(screen.queryByText('390.41F%')).toBeNull();
     expect(screen.getByLabelText('장착 효과 공격력 증가')).toBeTruthy();
   });

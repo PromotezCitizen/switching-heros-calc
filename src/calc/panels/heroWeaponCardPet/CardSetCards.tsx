@@ -23,7 +23,7 @@ export interface CardSetCardsProps {
 export default function CardSetCards({ setStates, descriptions }: CardSetCardsProps) {
   const { translate, setName } = useCardNames();
   return (
-    <AutoGrid minItemWidth={CARD_MIN_WIDTH.medium} gap="var(--mantine-spacing-sm)">
+    <AutoGrid minItemWidth={CARD_MIN_WIDTH.large} gap="var(--mantine-spacing-sm)">
       {setStates
         .filter((set) => set.markCount > 0)
         .map((set) => (
@@ -39,7 +39,7 @@ export default function CardSetCards({ setStates, descriptions }: CardSetCardsPr
                   multiline
                   events={{ hover: true, focus: true, touch: true }}
                   label={
-                    // 세트 레벨이 어떻게 나왔는지 (카드 세트 점수 합) 는 화면에 한 번만 따로 보여 준다 (사용자 결정 2026-11-02)
+                    // 세트 레벨이 어떻게 나왔는지 (카드 세트 점수 합) 는 화면에 한 번만 따로 보여 준다
                     <Text size="xs">
                       {translate('calc.card.setFormula', {
                         base: plainNumber(tier.base),
@@ -50,7 +50,7 @@ export default function CardSetCards({ setStates, descriptions }: CardSetCardsPr
                     </Text>
                   }
                 >
-                  <Text size="sm" style={{ opacity: tier.reached ? undefined : UNUSED_OPACITY, cursor: 'help' }} tabIndex={0}>
+                  <Text size="sm" ta="center" style={{ opacity: tier.reached ? undefined : UNUSED_OPACITY, cursor: 'help' }} tabIndex={0}>
                     {translate('calc.card.setTier', {
                       count: tier.setCount,
                       effect: lineText(descriptions, { source: '', stat: tier.stat, value: tier.value }).replace(TRAILING_INCREASE, ''),

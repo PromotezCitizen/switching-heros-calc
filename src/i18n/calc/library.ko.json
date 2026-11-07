@@ -2,6 +2,7 @@
   "title": "히어로의 기록",
   "archiveTitle": "기록 보관소",
   "archiveLevel": "레벨 {{level}} (자동)",
+  "archiveLevelImported": "레벨 {{level}} (불러온 값)",
   "levelPlaceholder": "레벨",
   "books": {
     "Swordsman": "검사 책",

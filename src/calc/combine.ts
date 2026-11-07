@@ -41,7 +41,7 @@ export function combineKind(stat: string): CombineKind {
 
 /**
  * 줄들을 스탯별로 합친다. 대소문자만 다른 스탯 (예: _per_NormalMonsterDamage / _per_normalMonsterDamage) 은
- * 같은 스탯으로 보고 처음 나온 철자로 합친다 (사용자 확인: 대소문자는 동일).
+ * 같은 스탯으로 보고 처음 나온 철자로 합친다 (: 대소문자는 동일).
  */
 export function combineLines(lines: Line[]): Record<string, CombinedStat> {
   const result: Record<string, CombinedStat> = {};

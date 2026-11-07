@@ -230,10 +230,13 @@ export function cardLines(values: CalcValues, tables: StatTables, label: SourceL
       if (tier.reached) lines.push({ source: label('calc.card.sources.set', { name, count: tier.setCount }), stat: tier.stat, value: tier.value });
     }
   }
-  for (const group of groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId')) {
+  const stickerGroups = stickerUnlocked(values, tables) ? groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId') : [];
+  // 세트 값의 레벨 = 편성 카드에 붙은 모든 배지 점수 (CardSticker point) 의 합 하나, 세트마다 따로가 아님
+  // (게임 m6809 · m15802 @0x3357c74, html-verify-B-2026-11-07.md E14 유력. 피규어의 stickerPoints 와 같은 값)
+  const level = stickerGroups.reduce((sum, group) => sum + numberValue(values, stickerLevelField(group.key)), 0);
+  for (const group of stickerGroups) {
     const count = Number(values[stickerCountField(group.key)]) || 0;
-    const level = numberValue(values, stickerLevelField(group.key));
-    const name = label('calc.card.stickerName', { id: group.key });
+    const name = label('calc.card.stickerName', { name: stickerDisplayName(group.key, label) });
     for (const row of group.rows) {
       if (Number(row.setCnt) <= count) {
         lines.push({
@@ -245,6 +248,20 @@ export function cardLines(values: CalcValues, tables: StatTables, label: SourceL
     }
   }
   return lines;
+}
+
+/**
+ * 카드 스티커 (배지) 가 열렸는가: 장착한 카드 중 배지 칸이 있는 카드 (Card 표 stickerSlotCnt > 0, URP 이상) 가 있을 때.
+ * 게임 해금 ContentsUnlock 75행 Gear_Sticker = CardGrade 12 (URP, sticker-sss-howto-2026-11-01.md). 안 열렸으면 칸을 숨기고 계산도 안 한다
+ *
+ */
+export function stickerUnlocked(values: CalcValues, tables: StatTables): boolean {
+  return CARD_SLOT_NUMBERS.some((slot) => Number(selectedCardRow(values, tables, slot)?.stickerSlotCnt) > 0);
+}
+
+/** 스티커 세트 이름 (게임 이름, 예: 블루 서클 배지). 표에 없으면 번호 */
+export function stickerDisplayName(stickerId: string, label: (key: string, params?: Record<string, string | number>) => string): string {
+  return label(`calc.card.stickerNames.${stickerId}`, { defaultValue: stickerId });
 }
 
 /** 편성 칸 하나의 등급·화면 성 (칸이 비었거나 맞는 행이 없으면 등급 빈 글, 성 0) */
@@ -397,7 +414,7 @@ export function countExpandedLines(
 }
 
 /**
- * 카드 전투 중 중첩 줄 (버프 탭이 다른 탭 줄 otherLines 에서 읽어 넣음, 사용자 결정: 최대 상태):
+ * 카드 전투 중 중첩 줄 (버프 탭이 다른 탭 줄 otherLines 에서 읽어 넣음, : 최대 상태):
  * - 카드 2번 처치 중첩 `_per_attackDamage_Kill` (T410 m2276 @33d1320): 컨테이너 값 v (같은 이름 줄은 먼저 곱해 합침) 를 5중첩 선형으로 공격력 % 에 → 1 + (v − 1) × 5. 값 140 → ×8
  * - 카드 3번 스킬 사용 중첩 `attackDamage_useSkill` (T410 m2308 @33ce078): 합 계열 값 합 % 를 5중첩 선형으로 공격력 % 에 → 1 + 값 / 100 × 5. 값 160 → ×9
  */

@@ -28,7 +28,7 @@ export const CONSTS = {
   common: {
     PERCENT_DIVISOR: 100,
     SECONDS_PER_MINUTE: 60,
-    /** 계산식에서 빼는 스탯 (사용자 지시: "계산식에서 명중은 뺀다", 대소문자 구분 없음) */
+    /** 계산식에서 빼는 스탯 (: "계산식에서 명중은 뺀다", 대소문자 구분 없음) */
     EXCLUDED_STATS: ['_per_hit', 'hit'],
   },
 
@@ -74,7 +74,8 @@ export const CONSTS = {
       { unlock: 23, perLevel: 2 },
       { unlock: 32, perLevel: 4 },
       { unlock: 44, perLevel: 6 },
-      { unlock: 58, perLevel: 8 },
+      // 4번째 (스킬 order 8) 는 길드 Lv56 (서버 Option guild_lv_56 add_guild_skill_order 8, 예전 HTML 58 은 틀림 — html-verify-B-2026-11-07.md G07, 2026-11-07 확인)
+      { unlock: 56, perLevel: 8 },
       { unlock: 60, perLevel: 10 },
     ],
     SKILL_MAX_LEVEL: 5,
@@ -95,7 +96,7 @@ export const CONSTS = {
   } as Record<string, number>,
 
   /**
-   * 사냥 계산기 (온라인 효율 계산기 floor-calc 를 옮김, 사용자 지시 2026-11-07 "전부 다 가져온다").
+   * 사냥 계산기 (온라인 효율 계산기 floor-calc 를 옮김).
    * 예전 "간격으로 훑기 · -50층까지만" 은 floor-calc 의 25층 벽 목록으로 바뀌었다.
    */
   hunting: {
@@ -163,16 +164,19 @@ export const CONSTS = {
     },
   },
 
-  /** 게임 큰 수 표기: 단위 문자 A=1e3, B=1e6 … Z, AA … (대소문자 구분 없이 읽고 대문자로 표기) */
+  /**
+   * 게임 큰 수 표기: 단위 문자 A=1e3, B=1e6 … Z, AA … ZZ, AAA … (대소문자 구분 없이 읽고 대문자로 표기).
+   * 게임 단위 함수 m850 과 같은 엑셀 열 이름 방식 (1=a … 26=z, 27=aa, 53=ba …), 최대 8글자
+   * (claude-docs/app_dump/il2cpp_analysis/full/library-calc-relevant.md 81줄. 예전 HTML 은 2글자까지만 읽었음)
+   */
   gameNumber: {
     LOG_PER_UNIT: 3,
     /** 이 값(log10) 미만은 단위 없이 일반 숫자로 표기 */
     UNIT_FROM_LOG: 4,
     LETTER_COUNT: 26,
-    /** 두 글자 단위(AA…)의 시작 번호 */
-    TWO_LETTER_UNIT_START: 27,
+    /** 단위 글자 최대 수 (게임 m850 버퍼 8칸) */
+    MAX_UNIT_LETTERS: 8,
     UPPER_A_CODE: 65,
-    LOWER_A_CODE: 97,
     /** 'a' 의 코드 − 1 (a → 1 번) */
     LOWER_BEFORE_A_CODE: 96,
     /** 가수가 이 값 이상이면 다음 단위로 올림 */
@@ -206,11 +210,11 @@ export const CONSTS = {
     SMALL_VALUE_BELOW: 10,
     SMALL_VALUE_DECIMALS: 2,
     GUILD_SELECT_WIDTH: 72,
-    /** 선택지가 이 개수 이하이면 버튼으로 다 보여 주고, 넘으면 드롭다운 (사용자 결정 "dropdown", 경계 개수는 제안값) */
+    /** 선택지가 이 개수 이하이면 버튼으로 다 보여 주고, 넘으면 드롭다운 (경계 개수는 제안값) */
     CHOICE_BUTTONS_MAX_OPTIONS: 10,
     /** 콘텐츠 칸 폭 종류별 최소 폭 (px). 화면 폭이 남으면 칸들이 나란히 놓이고 늘어나 한 줄을 채운다 */
     TAB_MIN_WIDTH: { narrow: 450, wide: 720 },
-    /** 화면 폭이 이보다 크면 TAB_STACKS 의 칸들을 한 칸 폭 안에 위아래로 쌓는다 (사용자 지시 "1400보다 크면 캐릭터, 베르 위아래로") */
+    /** 화면 폭이 이보다 크면 TAB_STACKS 의 칸들을 한 칸 폭 안에 위아래로 쌓는다 */
     TAB_STACK_MIN_SCREEN_WIDTH: 1400,
     /** 칸 안 카드 격자: 열 수를 정하지 않고 카드 최소 폭만 정한다 (화면에 들어가는 만큼 가로로) */
     CARD_MIN_WIDTH: { small: 120, medium: 180, large: 260 },

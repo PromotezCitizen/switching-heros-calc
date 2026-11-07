@@ -1,5 +1,5 @@
 /**
- * 계산기에 줄이 없던 전투 효과 (claude-docs/react-port/battle-missing-effects-2026-11-01.md, 2026-11-01 사용자 "넣어라"):
+ * 계산기에 줄이 없던 전투 효과 (claude-docs/react-port/battle-missing-effects-2026-11-01.md):
  * - 스위칭 부스트 발동 버프 (특성 33 계열) · 과잉 전환 (206): 교체 등장 때 걸린다 → 교체 켜짐 비율 (swapUptimePercent) 을 곱한다
  * - 에이카 전용 무기 ★12 (보스 적중 시 공격력) · ★1 (보스 받는 피해, 무한 체력 보스 제외)
  * 버프 탭 줄이다 (전투 중 몫)
@@ -46,7 +46,7 @@ function productPercent(lines: Line[], stat: string): number {
 
 /**
  * 피규어 조건형 효과 줄 (consts FIGURE_BATTLE): 확률 200% 초과 7종 · 교체 등장 10초 · 기본 공격 (체력 100%) 공격력.
- * 사망 방어 뒤 공격력은 넣지 않는다 — 죽을 일이 없으므로 (사용자 결정 2026-11-07)
+ * 사망 방어 뒤 공격력은 넣지 않는다 — 죽을 일이 없으므로
  */
 export function figureBattleLines(
   otherLines: Line[],
@@ -98,7 +98,7 @@ export function switchingBoostLines(
 ): Line[] {
   const uptime = swapUptime(values);
   const chance = chances.switchingBoost ?? 0;
-  // 확률 100 미만이면 효과 0 (사용자 결정), 교체가 없으면 발동하지 않는다
+  // 확률 100 미만이면 효과 0, 교체가 없으면 발동하지 않는다
   if (!(uptime > 0) || chance < PROBABILITY_MAX) return [];
   const traits = masteryTraits(masteryTable);
   const lines: Line[] = [];

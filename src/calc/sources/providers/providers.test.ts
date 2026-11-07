@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import '@/i18n';
+import AttributeRuneTable from '../../../../public/data/tables/AttributeRune.json';
 import AttributeRuneLabTable from '../../../../public/data/tables/AttributeRuneLab.json';
 import CharacterTable from '../../../../public/data/tables/Character.json';
 import CoreMasteryTable from '../../../../public/data/tables/CoreMastery.json';
 import FigureStatTable from '../../../../public/data/tables/FigureStat.json';
 import { tableRows, type StatTables } from '@/data/statTables';
+import { CONSTS } from '@/CONSTS';
 import type { CalcValues } from '@/calc/types';
-import { runeLabField, runeLabLines } from '@/calc/sources/masteryRuneBuff/rune';
+import { attributeRunes, runeFieldKey, runeLabField, runeLabLines } from '@/calc/sources/masteryRuneBuff/rune';
 import { coreMasteryLines, coreMasterySelectField, maxCoreMasteryLevel } from '@/calc/sources/providers/coreMastery';
 import { figureLevelField, figureLines, figureRow, figures } from '@/calc/sources/providers/figure';
 import { providerTabs } from '@/calc/sources/providers/index';
@@ -16,6 +18,7 @@ import { providerTabs } from '@/calc/sources/providers/index';
  * CoreMastery Lv1 = 모든 항목 33.3521, Lv2 = 77.8279 (5.70 앱 내장 표) / FigureStat 1번 Lv1 = `_per_targetHero0_hp` 100, Lv2 = 141.42
  */
 const tables = {
+  AttributeRune: AttributeRuneTable,
   AttributeRuneLab: AttributeRuneLabTable,
   Character: CharacterTable,
   CoreMastery: CoreMasteryTable,
@@ -137,8 +140,17 @@ describe('속성 룬 연구실 (T1262 (다), stat-provider-formulas.md 3-3절)',
     expect(runeLabLines({ [runeLabField('Fire')]: '0' }, tables, label)).toEqual([]);
   });
 
+  // 연구소는 속성 룬 6개가 모두 최대일 때만 열린다 (ContentsUnlock RuneMax)
+  const maxedRunes: CalcValues = Object.fromEntries(
+    attributeRunes(tables.AttributeRune).filter((rune) => rune.key !== CONSTS.masteryRuneBuff.CORE_RUNE_KEY).map((rune) => [runeFieldKey(rune), String(rune.maxLevel)]),
+  );
+
+  it('속성 룬이 최대가 아니면 (잠김) 연구소 레벨을 넣어도 줄 없음', () => {
+    expect(runeLabLines({ [runeLabField('Fire')]: '5' }, tables, label)).toEqual([]);
+  });
+
   it('속성마다 (속성, 레벨) 행 하나의 보상 스탯 · 값 (낮은 레벨 행을 더하지 않음)', () => {
-    const lines = runeLabLines({ [runeLabField('Fire')]: '5', [runeLabField('Water')]: '2' }, tables, label);
+    const lines = runeLabLines({ ...maxedRunes, [runeLabField('Fire')]: '5', [runeLabField('Water')]: '2' }, tables, label);
     expect(lines.map((line) => [line.stat, line.value])).toEqual([
       ['_per_FireHero_AttackDamage', Number(labRow('Fire', 5).rwdValue)],
       ['_per_WaterHero_AttackDamage', Number(labRow('Water', 2).rwdValue)],

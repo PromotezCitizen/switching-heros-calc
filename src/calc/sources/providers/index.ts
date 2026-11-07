@@ -6,6 +6,7 @@ import AncientRelicPanel from '@/calc/panels/AncientRelicPanel';
 import FigurePanel from '@/calc/panels/FigurePanel';
 import { ancientRelicLines } from '@/calc/sources/providers/ancientRelic';
 import FramePanel from '@/calc/panels/FramePanel';
+import DungeonPanel from '@/calc/panels/DungeonPanel';
 import { frameLines } from '@/calc/sources/providers/frame';
 import type { CalcTab } from '@/calc/types';
 import type { SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
@@ -31,9 +32,16 @@ export const providerTabs: CalcTab[] = [
   },
   {
     id: 'ancientRelic',
-    tableNames: [CONSTS.providers.ancientRelic.TABLE],
+    // 해금 판정 (유물 끝까지 모음) 에 유물 표 Relic
+    tableNames: [CONSTS.providers.ancientRelic.TABLE, 'Relic'],
     Panel: AncientRelicPanel,
     lines: (values, tables) => ancientRelicLines(values, tables, sourceLabel),
+  },
+  {
+    id: 'dungeon',
+    tableNames: [],
+    Panel: DungeonPanel,
+    lines: () => [],
   },
   {
     id: 'frame',

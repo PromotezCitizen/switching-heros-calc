@@ -6,7 +6,7 @@ import { CONSTS } from '@/CONSTS';
 import { tableRows, type StatTables } from '@/data/statTables';
 import { groupBy, readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
 
-const { RELIC_LINK_DUNGEONS, CARD_GRADE_R, CARD_GRADE_SSR } = CONSTS.usb;
+const { RELIC_LINK_DUNGEONS, RELIC_LINK_ATTRIBUTE_DUNGEONS, CARD_GRADE_R, CARD_GRADE_SSR } = CONSTS.usb;
 const DECIMAL_BASE = 10;
 
 export interface RelicSave {
@@ -22,6 +22,14 @@ type DungeonRecord = number | { value: number; exponent: number };
 
 export interface DungeonProgress {
   dungeonDataDic: SaveDictionary<number, { recordValue: DungeonRecord }>;
+  /** 속성 던전 (8 불 · 9 물 · 10 땅) 기록 */
+  dungeonAttDataDic?: SaveDictionary<number, { recordValue: DungeonRecord }>;
+  /** 모험 던전 (펫 구출): 이번 주 cur (시작일 · 레벨 · 속성 1 불 · 2 물 · 3 땅) */
+  petRescueDungeonData?: { _bestLv?: number[] };
+}
+
+function recordText(record: DungeonRecord): string {
+  return typeof record === 'number' ? String(record) : String(Math.round(record.value * Math.pow(DECIMAL_BASE, record.exponent)));
 }
 
 export function relicCardValues(
@@ -56,9 +64,22 @@ export function relicCardValues(
     for (const [dungeonKey, field] of Object.entries(RELIC_LINK_DUNGEONS)) {
       const record = dungeons.get(Number(dungeonKey))?.recordValue;
       if (record === undefined) continue;
-      values[`relicLink_${field}`] =
-        typeof record === 'number' ? String(record) : String(Math.round(record.value * Math.pow(DECIMAL_BASE, record.exponent)));
+      values[`relicLink_${field}`] = recordText(record);
     }
+  });
+  runSection(notes, '속성 던전 기록', () => {
+    const dungeons = readDictionary(progress.dungeonAttDataDic ?? { k: [], v: [] });
+    for (const [dungeonKey, field] of Object.entries(RELIC_LINK_ATTRIBUTE_DUNGEONS)) {
+      const record = dungeons.get(Number(dungeonKey))?.recordValue;
+      values[`relicLink_${field}`] = record === undefined ? '' : recordText(record);
+    }
+  });
+  // 모험 던전: 계산에는 안 쓰고 속성별 최고 기록만 (유물 탭에 보여 줌). _bestLv = [불, 물, 땅]
+  runSection(notes, '모험 던전', () => {
+    const best = progress.petRescueDungeonData?._bestLv ?? [];
+    [1, 2, 3].forEach((attribute, index) => {
+      values[`petRescueBest_${attribute}`] = best[index] === undefined ? '' : String(best[index]);
+    });
   });
 
   // 몬스터 카드: 쓰는 프리셋의 슬롯 카드·등급·세트 선택, 세트 점수 합, R · SSR 보유 수

@@ -1,24 +1,16 @@
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Checkbox, Stack, Text } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import HorizontalScrollRow from '@/components/HorizontalScrollRow';
-import SectionTitle from '@/components/SectionTitle';
 import { CONSTS } from '@/CONSTS';
 import type { StatTables, TableRow } from '@/data/statTables';
 import { useCalcStore } from '@/store/useCalcStore';
 import type { CalcValues, TabPanelProps } from '@/calc/types';
 import { sharedCalcValues } from '@/calc/useTrackedCalcValues';
-import { EXCLUSIVE_EQUIPPED_FIELD, hasExclusiveWeapon } from '@/calc/sources/heroWeaponCardPet/weapon';
-import { heroAwakenRow } from '@/calc/sources/textLines/other';
-import BaseCheckTable from '@/calc/sources/hero/BaseCheckTable';
-import { baseCheck } from '@/calc/sources/hero/baseCheck';
-import { characterRows, heroFirstRow, selectedHero, slotHeroName } from '@/calc/sources/hero/character';
+import { characterRows, slotHeroName } from '@/calc/sources/hero/character';
 import HeroPicker from '@/calc/sources/hero/HeroPicker';
-import { rosterAwakenField, rosterGradeField } from '@/calc/sources/hero/rosterFields';
+import { rosterGradeField } from '@/calc/sources/hero/rosterFields';
 
 const { FIELDS } = CONSTS.hero;
-const { HERO_AWAKEN_STAT_COLUMNS } = CONSTS.textLines;
-const ATTACK_PERCENT_STAT = '_per_attackDamage';
 const HERO_SLOT_FIELDS = [FIELDS.HERO_1, FIELDS.HERO_2] as const;
 const { CARD_MIN_WIDTH } = CONSTS.display;
 
@@ -35,21 +27,14 @@ function pickableHeroes(allHeroes: TableRow[], values: CalcValues): TableRow[] {
 }
 
 /**
- * 캐릭터 각성 칸: 1·2슬롯 히어로 고르기 (칸 charName, charName2) + 1슬롯 히어로의 등급·성·각성 요약 + 기본값 확인.
- * 등급·성·각성 입력은 히어로 표 (heroOwnedGrade_<charId> 등)
+ * 캐릭터 각성 칸: 1·2슬롯 히어로 고르기 (칸 charName, charName2).
+ * 등급·성·각성 입력은 히어로 표 (heroOwnedGrade_<charId> 등), 전용 무기 장착 여부는 폰 불러오기 값을 쓴다
  */
 export default function HeroPanel({ values, setValue, tables }: TabPanelProps) {
-  const { t: translate } = useTranslation();
-
   const allHeroes = useMemo(() => firstRowPerHero(tables), [tables]);
   // 고르기 창 목록은 창을 열 때만 만든다 (히어로 표 등급 칸 전부를 읽으므로, 그릴 때마다 읽으면 그 칸을 바꿀 때마다 이 탭이 다시 그려짐).
   // 창이 열린 동안에는 히어로 표를 고칠 수 없어 열 때의 저장소 값으로 충분하다
   const listHeroes = () => pickableHeroes(allHeroes, sharedCalcValues(useCalcStore.getState().values));
-
-  const hero = selectedHero(values, tables);
-  const heroAwaken = heroAwakenRow(values, tables);
-  const slotCharId = heroFirstRow(tables, hero.name)?.charId;
-  const awakenLevel = slotCharId ? values[rosterAwakenField(slotCharId)] || '0' : '';
 
   return (
     <Stack gap="xs">
@@ -70,32 +55,6 @@ export default function HeroPanel({ values, setValue, tables }: TabPanelProps) {
           );
         })}
       </HorizontalScrollRow>
-      {/* 1슬롯 히어로의 등급·성·캐릭터 각성은 히어로 표 값 (여기서는 보여 주기만) */}
-      {hero.name && (
-        <Text size="sm">
-          {translate('calc.hero.slotSummary', {
-            grade: hero.grade || '-',
-            star: hero.star || '-',
-            awaken: awakenLevel,
-            // 요약에는 각성 행 세 쌍 중 공격력 % 칸만 보여 준다 (전용 · 교체 스킬 대미지는 계산에만 들어감)
-            effect: heroAwaken ? Number(heroAwaken[HERO_AWAKEN_STAT_COLUMNS.find(([typeColumn]) => heroAwaken[typeColumn] === ATTACK_PERCENT_STAT)?.[1] ?? '']) || 0 : 0,
-          })}
-        </Text>
-      )}
-      {/* 전용 무기가 있는 히어로만: 꼈는지 (끄면 일반 무기 장착 효과, 켜면 전용 무기 장착 효과) */}
-      {hasExclusiveWeapon(values, tables) && (
-        <Checkbox
-          label={translate('calc.hero.exclusiveEquipped')}
-          checked={values[EXCLUSIVE_EQUIPPED_FIELD] === 'true'}
-          onChange={(event) => setValue(EXCLUSIVE_EQUIPPED_FIELD, String(event.currentTarget.checked))}
-        />
-      )}
-      <Text size="xs" c="dimmed">
-        {translate('calc.hero.heroHint')}
-      </Text>
-
-      <SectionTitle>{translate('calc.hero.baseCheck.title')}</SectionTitle>
-      <BaseCheckTable rows={baseCheck(values, tables)} />
     </Stack>
   );
 }

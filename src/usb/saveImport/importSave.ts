@@ -121,7 +121,7 @@ export const SAVE_TOP_KEYS: Record<SaveFileKind, readonly string[]> = {
   Card: ['cardDic'],
   Skill: ['psSkillDic', 'eqPresetSkillDic', 'psSkillOptionDic'],
   Dispatch: ['attributeData'],
-  Progress: ['dungeonDataDic', 'collectionDic', 'titleData'],
+  Progress: ['dungeonDataDic', 'dungeonAttDataDic', 'petRescueDungeonData', 'collectionDic', 'titleData'],
   Alchemy: ['equipItemDic', 'slotData'],
   Default: ['presetData', 'contentMissionData', 'adsBuffData', 'vipLv', 'st', '_newNotInvenDic', 'buffItemDic'],
 };
@@ -250,17 +250,15 @@ export function importSave(files: SaveFiles, tables: StatTables, withPresets = t
     values[CONTENT_PRESETS_FIELD] = JSON.stringify(contentPresets);
     values[PRESET_OVERRIDES_FIELD] = JSON.stringify(overrides);
   }
-  // 요정 유대 레벨 · 요정의 축복 (광고 제거면 상시), 공격력 이벤트 버프
-  putDefined(values, 'fairyBondLevel', files.Default.fairyLevel);
-  putDefined(values, 'fairyBlessingOn', files.Default.adsRemoved);
+  // 공격력 이벤트 버프. 요정 레벨 · 광고 제거 (요정의 축복 상시) 는 공통 입력 칸으로 (아래)
   putDefined(values, 'attackEventBuff', files.Default.attackBuffOn);
   const accountValues: Record<string, string> = {};
   putDefined(accountValues, ACCOUNT_KEYS.vipLevel, files.Default.vipLevel);
-  // 유저 레벨 (사용자 지시 2026-11-05 "유저 레벨 불러와라"): 최적 특성의 총 특성 포인트
+  // 유저 레벨: 최적 특성의 총 특성 포인트
   putDefined(accountValues, ACCOUNT_KEYS.userLevel, files.Default.userLevel);
   putDefined(accountValues, ACCOUNT_KEYS.fairyLevel, files.Default.fairyLevel);
   putDefined(accountValues, ACCOUNT_KEYS.adRemoved, files.Default.adsRemoved);
-  // 사냥 계산기 오프라인 층 = 최대층 (사용자 결정 2026-11-07 "\"최대층\"이 오프라인 기준이다")
+  // 사냥 계산기 오프라인 층 = 최대층
   putDefined(accountValues, HUNTING_KEYS.offlineFloor, files.Default.maxStage);
   // 데이터를 읽어 온 게임 버전 (불러오기 창 표시 · 파일로 저장할 때 버전)
   if (files.Default.gameVersion) accountValues[GAME_VERSION_KEY] = files.Default.gameVersion;

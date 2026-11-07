@@ -76,7 +76,7 @@ export default function OptimizerPage() {
   const target = bundleTarget(chosenTarget);
   // 특성 추천은 더 크게 묶어 계산 · 저장한다 (보스끼리 · 히어로끼리 하나, MASTERY_BUNDLES). 카드 추천은 target 그대로
   const masteryTarget = masteryBundleTarget(chosenTarget);
-  // 버튼도 묶는다 (사용자 지시 2026-11-05 "버튼을 묶어라"): 같은 대상으로 계산되는 대상은 버튼 하나, 이름은 이어 붙이고 값은 묶음 앞 대상
+  // 버튼도 묶는다: 같은 대상으로 계산되는 대상은 버튼 하나, 이름은 이어 붙이고 값은 묶음 앞 대상
   const targetGroups = useMemo(() => {
     return TARGET_UNITS.map((unit) => {
       const merged = new Map<DamageTarget, string[]>();
@@ -85,7 +85,7 @@ export default function OptimizerPage() {
         merged.set(representative, [...(merged.get(representative) ?? []), translate(`optimizer.targets.${value}`)]);
       }
       const options = [...merged].map(([value, labels]) => ({ value, label: labels.join(TARGET_LABEL_JOINER) }));
-      // 특성 추천을 같이 쓰는 버튼이 여러 개인 줄 (보스 · 히어로, MASTERY_BUNDLES) 에 설명 (사용자 문구 2026-11-05)
+      // 특성 추천을 같이 쓰는 버튼이 여러 개인 줄 (보스 · 히어로, MASTERY_BUNDLES) 에 설명
       const sharesMastery = options.length > 1 && new Set(options.map((option) => masteryBundleTarget(option.value))).size === 1;
       return {
         label: translate(`optimizer.targetGroups.${unit}`),

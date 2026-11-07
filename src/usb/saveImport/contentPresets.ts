@@ -1,5 +1,5 @@
 /**
- * 콘텐츠별 프리셋 (사용자 지시 2026-11-02 "바꿔라"): 게임은 콘텐츠마다 다른 프리셋을 쓴다 (저장 Default.presetData).
+ * 콘텐츠별 프리셋: 게임은 콘텐츠마다 다른 프리셋을 쓴다 (저장 Default.presetData).
  * 예: presetId (지금) 2 "스테이지", bossId 3 "보스전", dungeonId1 6 "각던", dungeonId11 5 "악몽던전", guildRaidId 3, guildRaidGlobalId 1, pveId 4
  * (claude-docs/react-port/hp-gap-2026-11-01.md 끝 절. dungeonId1 = 각성 · dungeonId11 = 악몽은 프리셋 이름으로 맞춤, dungeonId2~10 은 미확인).
  * 저장 가져오기는 현재 프리셋으로 칸을 채우고, 다른 프리셋은 "현재와 다른 칸" 만 PRESET_OVERRIDES_FIELD 에 JSON 으로 둔다.

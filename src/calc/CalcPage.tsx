@@ -6,7 +6,7 @@ import { CONSTS } from '@/CONSTS';
 import { useUiValue } from '@/store/useUiStore';
 import { useJsonData } from '@/data/useJsonData';
 import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
-import { CALC_TAB_GROUPS, groupTabs } from '@/calc/tabGroups';
+import { CALC_TAB_GROUPS, shownGroupTabs } from '@/calc/tabGroups';
 import { TAB_ITEM_STYLE, TAB_ROW_STYLE, TAB_STACK_STYLE, TAB_STACKS } from '@/calc/tabWidths';
 import TabItem from '@/calc/TabItem';
 import type { StatDescriptions } from '@/calc/statText';
@@ -20,7 +20,7 @@ export default function CalcPage() {
   const descriptions = useJsonData<StatDescriptions>('statDescriptions.json');
   const [savedGroup, setSavedGroup] = useUiValue(GROUP_UI_KEY);
   const subTabBarRef = useStickyHeaderHeight<HTMLDivElement>(CONSTS.display.STICKY_SUB_TAB_HEIGHT_VAR);
-  const groups = CALC_TAB_GROUPS.filter((group) => groupTabs(group.tabIds).length > 0);
+  const groups = CALC_TAB_GROUPS.filter((group) => shownGroupTabs(group.tabIds).length > 0);
   const activeGroup = groups.find((group) => group.id === savedGroup) ?? groups[0];
   /* 한 번 연 하위 탭은 다른 탭으로 가도 지우지 않고 숨겨 둔다 (다시 열 때 처음부터 그리지 않음). 열지 않은 탭은 그리지 않는다 */
   const [openedGroupIds, setOpenedGroupIds] = useState<string[]>([]);
@@ -58,7 +58,7 @@ export default function CalcPage() {
           </Tabs.List>
         </Box>
         {groups.map((group) => {
-          const tabs = groupTabs(group.tabIds);
+          const tabs = shownGroupTabs(group.tabIds);
           if (!renderedGroupIds.includes(group.id)) return null;
           // 칸이 하나뿐인 묶음 (종합 · 몬스터 카드 · 펫) 은 접을 일이 없어 접이식 제목 줄 없이 그린다
           if (tabs.length === 1) {

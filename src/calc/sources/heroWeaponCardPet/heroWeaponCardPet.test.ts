@@ -25,16 +25,19 @@ import { cardCountsByGrade, cardSlotGradeStars, cardStackLines, countExpandedLin
 import { EXPECTED_FROM_HTML } from '@/calc/sources/heroWeaponCardPet/expectedFromHtml';
 import { equippedPetIds, heroWeaponCardPetTabs } from '@/calc/sources/heroWeaponCardPet/index';
 import { libraryArchiveLevel } from '@/calc/sources/heroWeaponCardPet/library';
-import { mineMultiplier } from '@/calc/sources/heroWeaponCardPet/mine';
+import { mineAwakenTotal, mineMultiplier } from '@/calc/sources/heroWeaponCardPet/mine';
 import { maxStagePetCounts, ownedPetField, petLines, petRegionLevelField, petRegionLines, petRegionUnlocked } from '@/calc/sources/heroWeaponCardPet/pet';
 import { gradeStarValue, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 import {
   equipWeaponRelicMultiplier,
   exclusiveWeaponEffectFromValues,
+  exclusiveWeaponIdOfHero,
   exclusiveWeaponLines,
+  heroOptionFields,
   linkLevelField,
   normalWeaponPossessEffect,
   openOptionSlots,
+  optionUnlockStar,
   receivedMissionStar,
   weaponLinkLog,
   weaponTotalAtk,
@@ -136,11 +139,11 @@ describe('바뀐 계산', () => {
     expect(tabLines('weapon', values).filter(isOption)).toEqual([]);
   });
 
-  it('무기 옵션: 전용 무기 장착 + 강화 레벨에 따라 열린 칸만 (레벨 50 = 3칸)', () => {
+  it('무기 옵션: 열린 칸 수는 초월 ★ 의 maxOptCnt (★4 = 3칸, ★14 = 8칸), 계산은 장착했을 때 넣은 옵션 전부 (게임 m6836)', () => {
     const values: CalcValues = {
       charName: '에이카',
       exclusiveEquipped: 'true',
-      weaponLevel: '50',
+      exclusiveOwnedStar_1021: '4',
       weaponOptionStat1: '_per_attackDamage',
       weaponOptionValue1: '100%',
       weaponOptionStat3: '_per_hp',
@@ -149,19 +152,32 @@ describe('바뀐 계산', () => {
       weaponOptionValue4: '70%',
     };
     expect(openOptionSlots(values, tables)).toBe(3);
-    const optionLines = tabLines('weapon', values).filter((line) => line.source.startsWith('무기 옵션'));
-    expect(optionLines.map((line) => line.source)).toEqual(['무기 옵션 1번', '무기 옵션 3번']);
-    expect(openOptionSlots({ ...values, exclusiveEquipped: 'false' }, tables)).toBe(0);
-    expect(openOptionSlots({ ...values, weaponLevel: '7500' }, tables)).toBe(8);
+    const optionLines = (input: CalcValues) => tabLines('weapon', input).filter((line) => line.source.startsWith('무기 옵션'));
+    expect(optionLines(values).map((line) => line.source)).toEqual(['무기 옵션 1번', '무기 옵션 3번', '무기 옵션 4번']);
+    expect(openOptionSlots({ ...values, exclusiveOwnedStar_1021: '' }, tables)).toBe(0);
+    expect(optionLines({ ...values, exclusiveOwnedStar_1021: '' })).toEqual([]);
+    expect(openOptionSlots({ ...values, exclusiveOwnedStar_1021: '14' }, tables)).toBe(8);
+    // 칸 n 을 여는 ★ = Option weapon_dice_lock_n (1 · 2 · 4 · 6 · 8 · 10 · 12 · 14)
+    expect([1, 2, 3, 4, 5, 6, 7, 8].map((index) => optionUnlockStar(tables, '1021', index))).toEqual([1, 2, 4, 6, 8, 10, 12, 14]);
+  });
+
+  it('무기 옵션은 전용 무기마다 저장 (1슬롯 히어로 무기 칸), 그 무기 칸이 비었으면 예전 칸', () => {
+    const base: CalcValues = { charName: '에이카' };
+    expect(exclusiveWeaponIdOfHero(base, tables)).toBe('1021');
+    expect(heroOptionFields(base, tables).stat(1)).toBe('weaponOptionStat1');
+    const perWeapon = heroOptionFields({ ...base, exclusiveOptionStat_1021_1: '_per_attackDamage' }, tables);
+    expect(perWeapon.stat(1)).toBe('exclusiveOptionStat_1021_1');
+    expect(perWeapon.value(3)).toBe('exclusiveOptionValue_1021_3');
+    // 다른 무기 칸만 있으면 예전 칸
+    expect(heroOptionFields({ ...base, exclusiveOptionStat_9999_1: '_per_attackDamage' }, tables).stat(1)).toBe('weaponOptionStat1');
   });
 
   it('전용 무기 초월 스탯 줄 (statType 1~4): 그 히어로가 전용 무기를 장착했을 때만 (게임 @306b564), 같은 스탯은 줄마다 따로', () => {
     const values: CalcValues = { charName: '에이카', exclusiveOwnedStar_1021: '11', exclusiveOwnedLevel_1021: '10' };
     const transcendLines = (input: CalcValues) =>
       exclusiveWeaponLines(input, tables, label).filter((line) => line.source !== label('calc.weapon.sources.exclusive'));
-    // ★ 만 있고 장착 안 함 / 장착 껐음 = 초월 줄 없음
-    expect(transcendLines(values)).toEqual([]);
-    expect(transcendLines({ ...values, exclusiveEquipped: 'false' })).toEqual([]);
+    // 무기 미보유 (★ 빈칸) = 초월 줄 없음 (보유한 전용 무기는 늘 낀 것으로 봄)
+    expect(transcendLines({ ...values, exclusiveOwnedStar_1021: '' })).toEqual([]);
     // 장착하면 ★11 이하의 statType 1~4 줄 (교체 스킬 ★2/5/8, 전용 스킬 ★3/6/9, 공격력 ★11)
     const equippedLines = transcendLines({ ...values, exclusiveEquipped: 'true' });
     expect(equippedLines.map((line) => line.stat)).toEqual(
@@ -171,17 +187,25 @@ describe('바뀐 계산', () => {
     expect(equippedLines.filter((line) => line.stat === '_per_attackDamage').map((line) => line.value)).toEqual([100]);
   });
 
+  /** 각성 총합이 n 이 되는 히어로 탭 값 (보유 히어로 1명, 각성 n) */
+  const awakenValues = (total: string) => ({ heroOwnedGrade_205: 'SSS', heroOwnedAwaken_205: total });
   it('광산: 투자 레벨 · 광부 각성 총합 → 축복 (이 계정 화면 14·17 = 36.8A%, 14·18 = 38.85A%), 합산에는 화면 값 + 100%', () => {
     const screenOf = (level: string, awakenTotal: string) => {
-      const multiplier = mineMultiplier({ mineLevel: level, mineAwakenLevel: awakenTotal })!;
+      const multiplier = mineMultiplier({ mineLevel: level, ...awakenValues(awakenTotal) })!;
       return formatLog(Math.log10(multiplier - 1) + 2);
     };
     expect(screenOf('14', '17')).toBe('36.80A');
     expect(screenOf('14', '18')).toBe('38.85A');
-    const lines = tabLines('mine', { mineLevel: '14', mineAwakenLevel: '18' });
+    const lines = tabLines('mine', { mineLevel: '14', ...awakenValues('18') });
     expect(lines.map((line) => line.stat)).toEqual(['_per_attackDamage', '_per_hp']);
     expect(lines[0].log).toBeCloseTo(Math.log10(38_950), 12);
-    expect(tabLines('mine', { mineAwakenLevel: '18' })).toEqual([]);
+    expect(tabLines('mine', awakenValues('18'))).toEqual([]);
+    // 게임 m17380: 투자 레벨 1 이면 축복 0
+    expect(tabLines('mine', { mineLevel: '1', ...awakenValues('18') })).toEqual([]);
+  });
+  it('광산 각성 총합 = 보유 히어로 (등급 있음) 전체의 각성 레벨 합, 배치 여부 · 미보유 칸은 안 봄', () => {
+    expect(mineAwakenTotal({ heroOwnedGrade_0: 'S', heroOwnedAwaken_0: '3', heroOwnedGrade_205: 'SSS', heroOwnedAwaken_205: '12', heroOwnedAwaken_999: '5' })).toBe(15);
+    expect(mineAwakenTotal({})).toBe(0);
   });
 
   it('웨폰 링크: 레벨 + 초월 별 → 직업 행 값 × (1 + 900%) (이 계정 화면 818.2A% / 818A% / 792.6A% / 793A%)', () => {

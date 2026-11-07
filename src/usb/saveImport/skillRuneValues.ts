@@ -1,6 +1,6 @@
 /**
  * 저장 데이터 Skill · Dispatch (속성 룬) → 스킬 레벨 · 장착 · 스킬 옵션 · 룬 입력 칸 값.
- * 스킬 옵션은 고른 옵션 번호 (rNo) 만 읽는다. 값은 등급과 상관없이 최고 등급으로 계산한다 (사용자 결정 "최대 옵션 수치")
+ * 스킬 옵션은 고른 옵션 번호 (rNo) 만 읽는다. 값은 등급과 상관없이 최고 등급으로 계산한다
  */
 import { CONSTS } from '@/CONSTS';
 import { readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';

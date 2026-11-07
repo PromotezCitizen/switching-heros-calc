@@ -9,7 +9,7 @@ import type { Line } from '@/calc/combine';
 import type { CalcValues } from '@/calc/types';
 import { integerFieldValue } from '@/calc/sources/trainingRelic/fieldNumbers';
 import { trainingGrade } from '@/calc/sources/trainingRelic/training';
-import { heroCountAtLeast, star10WeaponCount } from '@/calc/sources/hero/roster';
+import { heroCountAtLeast, star10WeaponCount, star5WeaponCount } from '@/calc/sources/hero/roster';
 import { equippedSkillLevelSum } from '@/calc/sources/skill/skill';
 
 const { WEAPON_LEVEL_DIVISOR, RUNE_NUMBER_OFFSET, BLESSING_LEVEL_OFFSET, FILL_LOWER_GRADE_LEVEL, BLESSING_PER_ENHANCE } =
@@ -38,12 +38,17 @@ export const RELIC_LINK_FIELDS = [
   'dungeonGold',
   'dungeonEquip',
   'dungeonRelic',
+  'dungeonFire',
+  'dungeonWater',
+  'dungeonEarth',
   'rCards',
   'ssrCards',
   'star10Weapons',
 ] as const;
 export type RelicLinkField = (typeof RELIC_LINK_FIELDS)[number];
-/** 직업 일반 무기 합산 레벨 연동 (칸 없이 자동: 일반 무기 전부 최대 레벨 가정, 사용자 결정) */
+/** 던전 클리어 단계 칸 (유물 연동 · 던전 얼티밋이 쓴다). 유물 탭이 아니라 수집 · 기타의 던전 기록 칸에서 넣는다 */
+export const DUNGEON_LINKS: readonly RelicLinkField[] = ['dungeonGold', 'dungeonEquip', 'dungeonRelic', 'dungeonFire', 'dungeonWater', 'dungeonEarth'];
+/** 직업 일반 무기 합산 레벨 연동 (칸 없이 자동: 일반 무기 전부 최대 레벨 가정) */
 const WEAPON_LEVEL_LINK_PREFIX = 'weaponLevel';
 export const WEAPON_JOB_TABLE = 'WeaponJob';
 /** 히어로 표 · 전용 무기 표에서 자동으로 세는 연동 수치 (칸 없음) */
@@ -51,7 +56,7 @@ const ROSTER_COUNT_LINKS: Record<string, (values: CalcValues, tables: StatTables
   ssHeroes: (values, tables) => heroCountAtLeast(values, tables, SS_GRADE),
   sssHeroes: (values, tables) => heroCountAtLeast(values, tables, SSS_GRADE),
   star10Weapons: (values, tables) => star10WeaponCount(values, tables),
-  // 장착 스킬 레벨 합 = 스킬 탭 장착 5칸 레벨 합 (사용자 결정 "자동합")
+  // 장착 스킬 레벨 합 = 스킬 탭 장착 5칸 레벨 합
   equipSkillLevel: (values) => equippedSkillLevelSum(values),
 };
 /** 유물 탭에 칸이 있는 연동 수치 (세트 보너스 합계 = 카드 탭, 일반 무기 합산 레벨·히어로 수·★10 무기 수·장착 스킬 레벨 합 = 자동 이라 제외) */
@@ -75,7 +80,7 @@ export function normalWeaponLevelFieldId(weaponId: string): string {
 }
 
 /**
- * 일반 무기 한 개의 강화 레벨. 칸이 비어 있으면 최대 레벨 (사용자 결정 "전부 최대 레벨" 가정을 칸이 비었을 때 그대로 씀),
+ * 일반 무기 한 개의 강화 레벨. 칸이 비어 있으면 최대 레벨 ("전부 최대 레벨" 가정을 칸이 비었을 때 그대로 씀),
  * 값을 넣으면 그 값 (0 ~ 최대 레벨, 소수 버림)
  */
 export function normalWeaponLevel(values: CalcValues, row: TableRow): number {
@@ -126,6 +131,17 @@ export function relicGrades(tables: StatTables): string[] {
   return grades;
 }
 
+/**
+ * 유물을 끝까지 모았는가 (콘텐츠 해금 RelicMax, claude-docs/react-port/unlock-relicmax.md 2절):
+ * 유물 최대 등급이 표의 마지막 등급이고, 표의 유물을 전부 갖고, 모두 그 유물의 최대 레벨 (maxLv). 별자리 유물이 이때 열린다
+ */
+export function relicAllMaxed(values: CalcValues, tables: StatTables): boolean {
+  const rows = relicRows(tables);
+  const grades = relicGrades(tables);
+  if (!rows.length || values[RELIC_MAX_GRADE_FIELD] !== grades[grades.length - 1]) return false;
+  return rows.every((row) => Math.floor(Number(values[relicLevelFieldId(row.relicId)]) || EMPTY_LEVEL) >= Number(row.maxLv));
+}
+
 /** 최대 등급 이하인지 (최대 등급을 안 골랐으면 전부) */
 export function relicGradeAllowed(grades: string[], grade: string, maxGrade: string | undefined): boolean {
   return !maxGrade || grades.indexOf(grade) <= grades.indexOf(maxGrade);
@@ -137,12 +153,12 @@ export function relicValue(row: TableRow, level: number): number {
   return clamped ? Number(row.baseVal) + Number(row.enhVal) * clamped : EMPTY_LEVEL;
 }
 
-/** 유물의 축복 두 가지: Σ (레벨 − 1) × 등급별 획득량, Σ 레벨 × 등급별 획득량. levels = {relicId: 레벨} */
+/** 유물의 축복: Σ (레벨 − 1) × 등급별 획득량. levels = {relicId: 레벨} */
 export function relicBlessing(
   tables: StatTables,
   levels: Record<string, number>,
-): { fromEnhance: number; fromLevel: number } {
-  const result = { fromEnhance: EMPTY_LEVEL, fromLevel: EMPTY_LEVEL };
+): { fromEnhance: number } {
+  const result = { fromEnhance: EMPTY_LEVEL };
   for (const row of relicRows(tables)) {
     const level = Math.min(
       Math.max(Math.floor(Number(levels[row.relicId]) || EMPTY_LEVEL), EMPTY_LEVEL),
@@ -151,7 +167,6 @@ export function relicBlessing(
     const perEnhance = BLESSING_PER_ENHANCE[row.grade] || EMPTY_LEVEL;
     if (!level) continue;
     result.fromEnhance += (level - BLESSING_LEVEL_OFFSET) * perEnhance;
-    result.fromLevel += level * perEnhance;
   }
   return result;
 }
@@ -271,6 +286,9 @@ export function relicBlessingFromStates(states: RelicState[], tables: StatTables
   return relicBlessing(tables, levels).fromEnhance;
 }
 
+/** ★10 전용 무기 수 연동 체력 유물 (게임은 ★5 이상 수로도 한 번 더 곱함) */
+const STAR10_HP_STAT = /^_per_hp_Star10WeaponCharCnt$/;
+
 export interface RelicSourceLabels {
   /** 유물 줄 출처 (예: "에메랄드 반지 Lv5", 연동이면 "… Lv5 × 37") */
   relic: (relicId: string, level: number, multiplier: number | null) => string;
@@ -286,6 +304,11 @@ export function relicLines(values: CalcValues, tables: StatTables, labels: Relic
     const source = labels.relic(row.relicId, level, multiplier);
     if (multiplier === null) lines.push({ source, stat: row.statType, value });
     else lines.push({ source, stat: relicTargetStat(row.statType), value: value * multiplier });
+    // 유물 474 체력: 게임은 같은 스탯을 ★5 이상 전용 무기 수로 한 번 더 곱한다 (m2690, consts hero.roster STAR5_WEAPON_STAR)
+    if (multiplier !== null && STAR10_HP_STAT.test(row.statType)) {
+      const star5 = star5WeaponCount(values, tables);
+      lines.push({ source: labels.relic(row.relicId, level, star5), stat: relicTargetStat(row.statType), value: value * star5 });
+    }
   }
   const blessing = relicBlessingFromStates(states, tables);
   if (blessing) {
@@ -295,7 +318,7 @@ export function relicLines(values: CalcValues, tables: StatTables, labels: Relic
 }
 
 /**
- * 최대 등급을 고르면 그보다 낮은 등급 유물 중 레벨 0·빈칸을 1 로 채운다 (사용자 요청, 기존 relicMaxGrade change 처리).
+ * 최대 등급을 고르면 그보다 낮은 등급 유물 중 레벨 0·빈칸을 1 로 채운다 (기존 relicMaxGrade change 처리).
  * 최대 등급 자체는 직접 입력. 돌려주는 값 = 바꿀 칸 → 새 글
  */
 export function lowerGradeRelicFill(values: CalcValues, tables: StatTables, maxGrade: string): Record<string, string> {

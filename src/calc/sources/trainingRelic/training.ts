@@ -14,7 +14,7 @@ const EMPTY_LEVEL = CONSTS.emptyInput.LEVEL;
 
 export const TRAINING_TABLE = 'Training';
 export const TRAINING_STAGE_FIELD = 'trainingStage';
-/** 명중 (hit) 항목은 계산에서 뺀다 (사용자 지시) */
+/** 명중 (hit) 항목은 계산에서 뺀다 */
 export const TRAINING_HIDDEN_STAT = 'hit';
 
 /** 현재 단계 항목 레벨 칸 이름 (trainingLevel1 ~ 4) */

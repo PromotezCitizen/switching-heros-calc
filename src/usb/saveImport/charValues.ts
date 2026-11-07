@@ -22,6 +22,8 @@ export interface CharSave {
   _libraryData: {
     _subLvDic: SaveDictionary<string, number>;
     _optionDic: SaveDictionary<number, { list: LibraryOption[] }>;
+    /** 기록 보관소 레벨 (게임이 계산에 쓰는 값) */
+    mainLv?: number;
   };
   diaryData: { tabIdx: number; levelBySlotId: SaveDictionary<number, number> };
   heroMineData: { lv: number; eqList: number[] };
@@ -74,9 +76,11 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
       }
       values[`heroOwnedGrade_${id}`] = row.grade;
       values[`heroOwnedStar_${id}`] = row.star;
-      if (hero.awakeLv) values[`heroOwnedAwaken_${id}`] = String(hero.awakeLv);
+      // 각성 0 도 적는다: 광산 각성 총합이 이 칸의 합이라 전에 불러온 값이 남으면 안 된다
+      values[`heroOwnedAwaken_${id}`] = String(hero.awakeLv ?? 0);
       const level = affinityLevel(affinityRowsByHero.get(id) ?? [], affinityExp.get(hero.id) ?? 0);
-      if (level) values[`heroOwnedAffinity_${id}`] = String(level);
+      // 호감도 0 도 적는다: 전에 불러온 값이 남지 않게
+      values[`heroOwnedAffinity_${id}`] = String(level);
     }
   });
 
@@ -85,13 +89,16 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
     for (const [job, level] of readDictionary(char._libraryData._subLvDic)) {
       values[`library_${job}`] = String(Math.trunc(level));
     }
+    // 기록 보관소 레벨은 저장값 그대로
+    values.libraryArchiveLevel = char._libraryData.mainLv === undefined ? '' : String(Math.trunc(char._libraryData.mainLv));
     const diceRows = tableRows(tables.DiceOption).filter((row) => row.diceId === LIBRARY_DICE_ID);
     const options = readDictionary(char._libraryData._optionDic).get(LIBRARY_OPTION_KEY)?.list ?? [];
     options.forEach((option, index) => {
       const slot = index + 1;
       values[`inheritStat${slot}`] = option.statType;
       const dice = diceRows.find((row) => row.statType === option.statType && row.grade === option.grade);
-      if (dice) values[`inheritValue${slot}`] = String(Number(dice.statMin) + Number(dice.statUnit) * option.unitLv);
+      // 값 = min(최소 + 단계 × 단위, 최대) (게임 m6053)
+      if (dice) values[`inheritValue${slot}`] = String(Math.min(Number(dice.statMin) + Number(dice.statUnit) * option.unitLv, Number(dice.statMax)));
       else notes.push(`계산기에 없는 전승 능력이에요 (${option.statType} ${option.grade})`);
     });
   });
@@ -102,11 +109,9 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
     for (const [slot, level] of readDictionary(char.diaryData.levelBySlotId)) values[`diarySlotLevel${slot}`] = String(level);
   });
 
-  // 광산: 레벨, 배치한 히어로들의 각성 합
+  // 광산: 레벨만 (각성 총합은 히어로 탭 각성 레벨 합으로 계산, mine.ts)
   runSection(notes, '광산', () => {
-    const awakenByHero = new Map(char.charList.map((hero) => [hero.id, hero.awakeLv]));
     values.mineLevel = String(char.heroMineData.lv);
-    values.mineAwakenLevel = String(char.heroMineData.eqList.reduce((sum, hero) => sum + (awakenByHero.get(hero) ?? 0), 0));
   });
 
   // 코스튬: 보유 코스튬 레벨 값을 곱한 공격력 %, 보유 수

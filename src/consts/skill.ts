@@ -12,7 +12,7 @@ export const SKILL_CONSTS = {
   MAX_LEVEL: 120,
   /** 스킬 옵션 표 (stat-calc/scripts/export_skill.py, 스킬마다 후보 12행. rNo = 저장 데이터 diceOptions[].rNo) */
   RUNE_TABLE: 'SkillRune',
-  /** 옵션 값은 최고 등급 (SS) 열 (사용자 결정 2026-10-08 "스킬은 항상 최대 단계 최대 옵션 수치로 가정한다") */
+  /** 옵션 값은 최고 등급 (SS) 열 */
   RUNE_VALUE_COLUMN: 'gradeSS',
   /** 옵션 문구에서 값이 들어가는 자리 */
   RUNE_VALUE_PLACEHOLDER: '{0}',
@@ -56,7 +56,11 @@ export const SKILL_CONSTS = {
   LEVEL_INPUT_WIDTH: 56,
   EQUIP_SLOT_WIDTH: 80,
   ROW_ICON_SIZE: 24,
-  JOB_CARD_MIN_WIDTH: 300,
+  /**
+   * 보유 스킬 직업 카드 열 수: 카드가 놓인 영역 폭 기준 (컨테이너 쿼리). 카드 하나가 최소 300px 이 되도록
+   * 2열은 300 × 2 + 간격 16 = 616px 이상, 4열은 300 × 4 + 간격 16 × 3 = 1248px 이상, 그보다 좁으면 1열
+   */
+  JOB_CARD_COLUMNS: { base: 1, '616px': 2, '1248px': 4 },
   /** 옵션 고르기 칸 (드롭다운) 펼친 목록 최대 높이 (px) */
   OPTION_DROPDOWN_MAX_HEIGHT: 320,
 } as const;

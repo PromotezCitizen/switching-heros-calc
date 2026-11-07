@@ -12,17 +12,16 @@ export const CALC_TAB_GROUPS: { id: string; tabIds: string[] }[] = [
   { id: 'equipment', tabIds: ['artifact', 'weapon', 'skill', 'soulForge'] },
   { id: 'card', tabIds: ['card'] },
   { id: 'pet', tabIds: ['pet'] },
-  // 피규어는 따로 한 탭 (전용 · 공용 108개 전부, 사용자 결정 2026-11-07 "피규어를 새로운 탭으로 만들라니까")
+  // 피규어는 따로 한 탭 (전용 · 공용 108개 전부)
   { id: 'figure', tabIds: ['figure'] },
   { id: 'collection', tabIds: ['costume', 'collection', 'title', 'profileIcon', 'affinity', 'fairy', 'mine', 'frame'] },
   { id: 'battle', tabIds: ['buff', 'profile'] },
 ];
 
 /**
- * 화면에 칸을 그리지 않는 탭 (입력 칸이 없고 결과만 보이던 칸). 계산 (종합 · 소계 · 대미지) 에는 그대로 들어간다
- * (사용자 지시 2026-11-07 호감도 · 별자리 요정의 축복 칸을 보이고 "제거", 버프 칸 "버프탭 - 뺀다" — 입력은 공통 입력으로 옮겼음)
+ * 화면에 칸을 그리지 않는 탭 (계산에는 그대로 들어감). 보이는 칸이 없는 묶음은 탭째 숨는다
  */
-export const HIDDEN_PANEL_TAB_IDS: readonly string[] = ['affinity', 'fairy', 'buff'];
+export const HIDDEN_PANEL_TAB_IDS: readonly string[] = ['affinity', 'fairy', 'buff', 'profile'];
 
 /** 화면에 그리는 탭 (묶음 안에서 HIDDEN_PANEL_TAB_IDS 를 뺀 것) */
 export function shownGroupTabs(tabIds: string[]): CalcTab[] {

@@ -27,7 +27,11 @@ function representatives(pick: (target: DamageTarget) => DamageTarget): DamageTa
 export const BATCH_MASTERY_TARGETS = representatives(masteryBundleTarget);
 export const BATCH_CARD_TARGETS = representatives(bundleTarget);
 
+/** 일괄 계산 범위: 둘 다 (특성 → 카드) / 특성만 / 몬스터 카드만 */
+export type BatchParts = 'all' | 'mastery' | 'cards';
+
 export interface BatchProgress {
+  parts: BatchParts;
   phase: 'mastery' | 'cards' | 'done';
   masteryDone: number;
   cardsDone: number;
@@ -41,6 +45,8 @@ export interface BatchOptions {
   storeValues: Record<string, string>;
   tables: StatTables;
   monsterHp: MonsterHpData | null;
+  /** 계산 범위 (기본 둘 다) */
+  parts?: BatchParts;
   save: (key: string, value: string) => void;
   onProgress: (progress: BatchProgress) => void;
 }
@@ -63,10 +69,12 @@ export interface BatchHandle {
   stop: () => void;
 }
 
-export function startBatch({ storeValues, tables, monsterHp, save, onProgress }: BatchOptions): BatchHandle {
+export function startBatch({ storeValues, tables, monsterHp, parts = 'all', save, onProgress }: BatchOptions): BatchHandle {
   const workers = new Set<Worker>();
   let stopped = false;
-  const progress: BatchProgress = { phase: 'mastery', masteryDone: 0, cardsDone: 0, running: [], failed: [] };
+  const runsMastery = parts !== 'cards';
+  const runsCards = parts !== 'mastery';
+  const progress: BatchProgress = { parts, phase: runsMastery ? 'mastery' : 'cards', masteryDone: 0, cardsDone: 0, running: [], failed: [] };
   const report = () => onProgress({ ...progress, running: [...progress.running], failed: [...progress.failed] });
 
   /** 작업자 하나를 돌려 끝 메시지의 결과를 받는다 (멈추면 끝내고 null) */
@@ -118,7 +126,7 @@ export function startBatch({ storeValues, tables, monsterHp, save, onProgress }:
 
   const done = (async (): Promise<BatchProgress> => {
     report();
-    await runPool(BATCH_MASTERY_TARGETS, BATCH.MASTERY_LANES, (target) =>
+    await runPool(runsMastery ? BATCH_MASTERY_TARGETS : [], BATCH.MASTERY_LANES, (target) =>
       withRunning(target, async () => {
         const request: RecommendRequest = { values: optimizerValuesFor(storeValues, target), tables, inputs: optimizerInputsFor(storeValues, target, monsterHp) };
         const result = await runWorker<RecommendRequest, Recommendation>(masteryUrl, request, (message) =>
@@ -133,7 +141,7 @@ export function startBatch({ storeValues, tables, monsterHp, save, onProgress }:
     if (stopped) return progress;
     progress.phase = 'cards';
     report();
-    await runPool(BATCH_CARD_TARGETS, BATCH.CARD_LANES, (target) =>
+    await runPool(runsCards ? BATCH_CARD_TARGETS : [], BATCH.CARD_LANES, (target) =>
       withRunning(target, async () => {
         const base: CardRecommendRequest = { values: optimizerValuesFor(storeValues, target), tables, inputs: optimizerInputsFor(storeValues, target, monsterHp), ownedText, mode: 'cards' };
         const takeDone = (message: unknown) =>

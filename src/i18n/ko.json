@@ -282,11 +282,23 @@
       "hero": "특성 추천은 두 버튼이 같아요. 상대가 히어로 1마리로 같아서 하나만 계산하면 돼요."
     },
     "batch": {
-      "start": "일괄 계산",
+      "start": {
+        "all": "일괄 계산 (특성 → 카드)",
+        "mastery": "특성만 일괄 계산",
+        "cards": "몬스터 카드만 일괄 계산"
+      },
       "stop": "일괄 계산 멈추기",
-      "help": "특성 추천 {{mastery}}번 (콘텐츠 2개씩) 을 먼저, 끝나면 몬스터 카드 추천 {{cards}}번 (3개씩) 을 계산해 콘텐츠마다 저장해요.",
-      "running": "일괄 계산 중… 특성 {{masteryDone}}/{{mastery}} · 카드 {{cardsDone}}/{{cards}} · 계산 중: {{targets}}",
-      "done": "일괄 계산 끝: 특성 {{masteryDone}}/{{mastery}} · 카드 {{cardsDone}}/{{cards}}",
+      "help": "특성 추천 {{mastery}}번 (콘텐츠 2개씩) 을 먼저, 끝나면 몬스터 카드 추천 {{cards}}번 (3개씩) 을 계산해 콘텐츠마다 저장해요. '특성만' · '몬스터 카드만' 은 그쪽만 계산하고, 다른 쪽 저장 결과는 그대로 둬요.",
+      "running": {
+        "all": "일괄 계산 중… 특성 {{masteryDone}}/{{mastery}} · 카드 {{cardsDone}}/{{cards}} · 계산 중: {{targets}}",
+        "mastery": "특성만 일괄 계산 중… {{masteryDone}}/{{mastery}} · 계산 중: {{targets}}",
+        "cards": "몬스터 카드만 일괄 계산 중… {{cardsDone}}/{{cards}} · 계산 중: {{targets}}"
+      },
+      "done": {
+        "all": "일괄 계산 끝: 특성 {{masteryDone}}/{{mastery}} · 카드 {{cardsDone}}/{{cards}}",
+        "mastery": "특성만 일괄 계산 끝: {{masteryDone}}/{{mastery}}",
+        "cards": "몬스터 카드만 일괄 계산 끝: {{cardsDone}}/{{cards}}"
+      },
       "failed": "계산하지 못한 대상: {{list}}"
     },
     "lockedWhileRunning": "계산하는 동안에는 최적화 대상과 자동 교체를 바꿀 수 없어요. 계산이 끝나면 바꿀 수 있어요.",

@@ -27,7 +27,7 @@ import { optimizerSnapshot, type OptimizerInputs } from '@/masteryOptimizer/snap
 import { masteryResultKey, parseMasteryResult, type StoredMasteryResult } from '@/masteryOptimizer/storedResult';
 import { useRecommendation } from '@/masteryOptimizer/useRecommendation';
 import { useBatchRecommendation } from '@/masteryOptimizer/useBatchRecommendation';
-import { BATCH_CARD_TARGETS, BATCH_MASTERY_TARGETS } from '@/masteryOptimizer/batchRecommend';
+import { BATCH_CARD_TARGETS, BATCH_MASTERY_TARGETS, type BatchParts } from '@/masteryOptimizer/batchRecommend';
 import { readNumber } from '@/store/storedValues';
 import { useCalcStore } from '@/store/useCalcStore';
 
@@ -49,6 +49,8 @@ const LOADING_MIN_HEIGHT = 120;
 const SECONDS_DECIMALS = 2;
 /** 추정한 값을 알리는 코드의 앞부분 (src/dpm: `estimate:<이름>:<스킬 번호>`) */
 const ESTIMATE_PREFIX = 'estimate';
+/** 일괄 계산 버튼 순서: 둘 다 · 특성만 · 몬스터 카드만 */
+const BATCH_PARTS: readonly BatchParts[] = ['all', 'mastery', 'cards'];
 /** 카드 조건부 효과 코드 (`conditionStatsNotCounted:<스탯>,<스탯>`, src/dpm/targetDamage.ts) */
 const CONDITION_STATS_KEY = 'conditionStatsNotCounted';
 const PERCENT = 100;
@@ -255,22 +257,28 @@ export default function OptimizerPage() {
               {translate('optimizer.lockedWhileRunning')}
             </Text>
           )}
-          {/* 일괄 계산: 특성 묶음 (2개씩) → 카드 묶음 (3개씩), 끝나는 대상마다 저장 (batchRecommend.ts) */}
+          {/* 일괄 계산: 특성 묶음 (2개씩) → 카드 묶음 (3개씩), 끝나는 대상마다 저장 (batchRecommend.ts). 특성만 · 카드만 버튼은 그 단계만 */}
           <Group>
-            <Button
-              variant={batch.running ? 'default' : 'light'}
-              onClick={batch.running ? batch.stop : () => tables.status === 'ready' && batch.start(tables.data, monsterHp.status === 'ready' ? monsterHp.data : null)}
-              disabled={!batch.running && (tables.status !== 'ready' || monsterHp.status === 'loading' || userLevel <= 0 || running || cardRunning)}
-            >
-              {translate(batch.running ? 'optimizer.batch.stop' : 'optimizer.batch.start')}
-            </Button>
-            <Text size="sm" c="dimmed">
-              {translate('optimizer.batch.help', { mastery: BATCH_MASTERY_TARGETS.length, cards: BATCH_CARD_TARGETS.length })}
-            </Text>
+            {BATCH_PARTS.map((parts) => {
+              const runningThis = batch.running && batch.progress?.parts === parts;
+              return (
+                <Button
+                  key={parts}
+                  variant={runningThis ? 'default' : 'light'}
+                  onClick={runningThis ? batch.stop : () => tables.status === 'ready' && batch.start(tables.data, monsterHp.status === 'ready' ? monsterHp.data : null, parts)}
+                  disabled={!runningThis && (batch.running || tables.status !== 'ready' || monsterHp.status === 'loading' || userLevel <= 0 || running || cardRunning)}
+                >
+                  {translate(runningThis ? 'optimizer.batch.stop' : `optimizer.batch.start.${parts}`)}
+                </Button>
+              );
+            })}
           </Group>
+          <Text size="sm" c="dimmed">
+            {translate('optimizer.batch.help', { mastery: BATCH_MASTERY_TARGETS.length, cards: BATCH_CARD_TARGETS.length })}
+          </Text>
           {batch.progress && (
             <Text size="sm">
-              {translate(batch.progress.phase === 'done' ? 'optimizer.batch.done' : 'optimizer.batch.running', {
+              {translate(`optimizer.batch.${batch.progress.phase === 'done' ? 'done' : 'running'}.${batch.progress.parts}`, {
                 masteryDone: batch.progress.masteryDone,
                 mastery: BATCH_MASTERY_TARGETS.length,
                 cardsDone: batch.progress.cardsDone,

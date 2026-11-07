@@ -7,6 +7,7 @@ import CalcPage from '@/calc/CalcPage';
 import HuntingPage from '@/hunting/HuntingPage';
 import LoadDialog from '@/load/LoadDialog';
 import OptimizerPage from '@/masteryOptimizer/OptimizerPage';
+import MasteryLevelPage from '@/masteryDebug/MasteryLevelPage';
 import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
 
 /** 4개 페이지 (자리만 만듦, 내용은 기존 HTML 계산기에서 옮겨 올 예정) */
@@ -56,6 +57,8 @@ export default function App() {
         <Route path="/" element={<CalcPage />} />
         <Route path="/hunting" element={<HuntingPage />} />
         <Route path="/optimizer" element={<OptimizerPage />} />
+        {/* 디버그 페이지: 개발 서버에서만, 탭 없이 주소로 (/mastery-level) */}
+        {import.meta.env.DEV && <Route path="/mastery-level" element={<MasteryLevelPage />} />}
         {PAGES.filter((page) => !IMPLEMENTED_PATHS.includes(page.path)).map((page) => (
           <Route
             key={page.path}

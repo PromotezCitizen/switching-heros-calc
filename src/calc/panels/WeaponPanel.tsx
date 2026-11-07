@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Accordion, Card, Group, Image, NumberInput, Stack, Table, Text, TextInput } from '@mantine/core';
+import { Accordion, Card, Group, Image, NumberInput, Stack, Text, TextInput } from '@mantine/core';
 import AutoGrid from '@/components/AutoGrid';
 import SectionTitle from '@/components/SectionTitle';
 import { CONSTS } from '@/CONSTS';
@@ -11,7 +11,6 @@ import {
   LINK_STAR_FIELD,
   linkStarMax,
   NORMAL_EQUIP_FIELD,
-  exclusiveWeaponEffectFromValues,
   linkLevelField,
   weaponLinkLog,
   normalWeaponPossessEffect,
@@ -37,7 +36,6 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
     />
   );
   // 장착 효과는 1슬롯 히어로가 전용 무기를 꼈을 때만 (캐릭터 각성 칸의 "전용 무기 장착")
-  const exclusiveEffect = usesExclusiveWeapon(values, tables) ? exclusiveWeaponEffectFromValues(values, tables) : null;
   const possess = normalWeaponPossessEffect(tables, values);
   const normalWeaponRows = rowsOf(tables, 'WeaponJob');
   const exclusiveHero = usesExclusiveWeapon(values, tables) ? heroByName(tables, slotHeroName(values, tables)) : undefined;
@@ -45,26 +43,6 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
 
   return (
     <Stack gap="md">
-      {/* 전용 무기 초월 ★·강화 레벨은 히어로 탭의 전용 무기 표에서 넣는다 (여기는 1슬롯 히어로 무기의 장착 효과만) */}
-      <SectionTitle>{translate('calc.weapon.exclusiveTitle')}</SectionTitle>
-      <Text size="xs" c="dimmed">
-        {translate('calc.weapon.exclusiveFromTable')}
-      </Text>
-      {exclusiveEffect && (
-        <Table>
-          <Table.Tbody>
-            <Table.Tr>
-              <Table.Td>{translate('calc.weapon.exclusiveEffectRow')}</Table.Td>
-              <Table.Td ta="right">{formatLog(Math.log10(exclusiveEffect.percent))}%</Table.Td>
-            </Table.Tr>
-            <Table.Tr>
-              <Table.Td>{translate('calc.weapon.exclusiveLevelRow', { max: exclusiveEffect.maxLv })}</Table.Td>
-              <Table.Td ta="right">{exclusiveEffect.level}</Table.Td>
-            </Table.Tr>
-          </Table.Tbody>
-        </Table>
-      )}
-
       <SectionTitle>{translate('calc.weapon.linkTitle')}</SectionTitle>
       {/* 직업 4개 한 줄 (좁으면 줄바꿈): 아이콘 · 이름 · 레벨 칸 · 계산된 공격력 % */}
       <AutoGrid minItemWidth={LINK_CARD_MIN_WIDTH}>
@@ -180,11 +158,6 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
         </Accordion>
       )}
 
-      {/* 무기 옵션은 무기마다 히어로 · 전용 무기 탭에서 넣는다. SSS 옵션 수 칸은 뺌 (값은 불러오기 그대로 계산) */}
-      <SectionTitle>{translate('calc.weapon.optionTitle')}</SectionTitle>
-      <Text size="sm" c="dimmed">
-        {translate('calc.weapon.optionMoved')}
-      </Text>
     </Stack>
   );
 }

@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import '@/i18n';
 import type { RawTable, StatTables } from '@/data/statTables';
+import { LEGACY_TABLES } from '@/test/legacyTables';
 import { parseGameNumber } from '@/calc/gameNumber';
 import { CALC_TABS } from '@/calc/tabs';
 import { expandedTabLines } from '@/calc/tabLines';
@@ -23,7 +24,7 @@ async function loadTables(): Promise<StatTables> {
     const load = TABLE_FILES[`../../../../public/data/tables/${name}.json`];
     if (load) tables[name] = JSON.parse(await load()) as RawTable;
   }
-  return tables;
+  return { ...tables, ...LEGACY_TABLES };
 }
 
 /**

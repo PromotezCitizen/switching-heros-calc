@@ -492,6 +492,96 @@ describe('출처 합산 단계용 함수', () => {
     expect(reached.lines[1]).toEqual({ source: '카드 (주위 적 수 조건)', stat: '_per_attackDamage', value: 700 });
     expect(reached.skippedStats).toEqual(['_per_attackDamage_Kill']);
   });
+  it('내 체력 70% 이상 조건의 공격력 · 스킬 데미지 줄은 꼬리말을 뗀 일반 스탯으로 합산하고, 치명타 데미지 줄은 그대로 둔다', () => {
+    const lines: Line[] = [
+      { source: '카드', stat: '_per_attackDamage_MyHp70Long', value: 1200 },
+      { source: '카드', stat: '_per_skillDamage_MyHp70Long', value: 1200 },
+      { source: '카드', stat: '_per_criticalDmg_MyHp70Long', value: 800 },
+    ];
+    const expanded = countExpandedLines(lines, 0, label).lines;
+    expect(expanded.map((line) => [line.stat, line.value])).toEqual([
+      ['_per_attackDamage', 1200],
+      ['_per_skillDamage', 1200],
+      ['_per_criticalDmg_MyHp70Long', 800],
+    ]);
+  });
+  describe('전투 조건 꼬리말 (주위 적 5마리 이하 · 적 1마리 · 스테이지 보스전 · 주위 히어로 몬스터)', () => {
+    const lines: Line[] = [
+      { source: '카드', stat: '_per_attackDamage_MonsterCntShort', value: 1000 },
+      { source: '카드', stat: '_per_DamageIncrease_MonsterCntShort', value: 300 },
+      { source: '카드', stat: '_per_skillDamage_NearSingleEnemy', value: 400 },
+      { source: '카드', stat: '_per_criticalDmg_StageBoss', value: 900 },
+      { source: '카드', stat: '_per_skillDamage_NearHero', value: 250 },
+      { source: '카드', stat: '_per_DamageIncrease_Hero', value: 50 },
+    ];
+    const statsOf = (result: ReturnType<typeof countExpandedLines>) => result.lines.map((line) => line.stat);
+    const stage = { damageTarget: 'stage', targetsPerSkill: 3 };
+
+    it('전투 상황이 없으면 (계산식 확인기 등) 모두 꺼짐: 줄을 그대로 둔다', () => {
+      expect(countExpandedLines(lines, 0, label).lines).toEqual(lines);
+    });
+    it('스테이지 (적 3마리 맞음): 5마리 이하 · 적 1마리 · 스테이지 보스전 · 히어로 몬스터 모두 꺼짐 (적 45마리라 5 이하는 재소환 순간뿐)', () => {
+      expect(statsOf(countExpandedLines(lines, 0, label, false, {}, 0, stage))).toEqual(lines.map((line) => line.stat));
+    });
+    it('스테이지에서 한 스킬에 적 1마리만 맞으면 적 1마리 줄이 켜진다', () => {
+      expect(statsOf(countExpandedLines(lines, 0, label, false, {}, 0, { damageTarget: 'stage', targetsPerSkill: 1 }))[2]).toBe('_per_skillDamage');
+    });
+    describe('주위 적 5마리 이상 (_MonsterCntLong) · 이하 (_MonsterCntShort) 는 대상별 (nearby-enemy-range-2026-11-02.md)', () => {
+      const countLines: Line[] = [
+        { source: '용암거미', stat: '_per_attackDamage_MonsterCntShort', value: 100 },
+        { source: '부러진 뿔 예티', stat: '_per_DamageIncrease_MonsterCntLong', value: 200 },
+      ];
+      const statsFor = (damageTarget: string, enemyCountReached = false) =>
+        statsOf(countExpandedLines(countLines, 0, label, enemyCountReached, {}, 0, { damageTarget, targetsPerSkill: 1 }));
+      it('스테이지 · 속성 일반 층: 이상만 켜짐 ("적 수 5 이상" 칸과 상관없음)', () => {
+        expect(statsFor('stage')).toEqual(['_per_attackDamage_MonsterCntShort', '_per_attackDamage']);
+        expect(statsFor('stage', true)).toEqual(['_per_attackDamage_MonsterCntShort', '_per_attackDamage']);
+        expect(statsFor('attributeNormal')).toEqual(['_per_attackDamage_MonsterCntShort', '_per_attackDamage']);
+      });
+      it('글로벌 길드 레이드 일반 주 (5기): 이상 · 이하 둘 다 켜짐', () => {
+        expect(statsFor('globalRaidNormal')).toEqual(['_per_attackDamage', '_per_attackDamage']);
+      });
+      it('보스 · 히어로 대상: 이하만 켜짐, "적 수 5 이상" 칸을 켜도 이상은 꺼짐', () => {
+        expect(statsFor('awaken', true)).toEqual(['_per_attackDamage', '_per_DamageIncrease_MonsterCntLong']);
+        expect(statsFor('pvp')).toEqual(['_per_attackDamage', '_per_DamageIncrease_MonsterCntLong']);
+      });
+    });
+    it('스테이지 보스: 5마리 이하 · 적 1마리 (적 1마리) · 스테이지 보스전이 켜진다', () => {
+      expect(statsOf(countExpandedLines(lines, 0, label, false, {}, 0, { damageTarget: 'stageBoss', targetsPerSkill: 1 }))).toEqual([
+        '_per_attackDamage',
+        '_per_attackDamage',
+        '_per_skillDamage',
+        '_per_criticalDmg',
+        '_per_skillDamage_NearHero',
+        '_per_DamageIncrease_Hero',
+      ]);
+    });
+    it('각성 던전: 스테이지 보스전은 꺼짐. 속성 던전 히어로: 주위 히어로 몬스터 줄 (_per_DamageIncrease_Hero 포함) 이 켜진다', () => {
+      expect(statsOf(countExpandedLines(lines, 0, label, false, {}, 0, { damageTarget: 'awaken', targetsPerSkill: 1 }))[3]).toBe('_per_criticalDmg_StageBoss');
+      expect(statsOf(countExpandedLines(lines, 0, label, false, {}, 0, { damageTarget: 'attributeHero', targetsPerSkill: 1 })).slice(4)).toEqual([
+        '_per_skillDamage',
+        '_per_attackDamage',
+      ]);
+    });
+    it('스킬 시전 시 스킬 데미지 (skillDamage_useSkill) 는 5중첩 선형으로 스킬 데미지 % 에 넣는다 (250 → 1250)', () => {
+      const stacks = cardStackLines([{ source: '카드 34', stat: 'skillDamage_useSkill', value: 250 }], label);
+      expect(stacks.map((line) => [line.stat, line.value])).toEqual([['_per_skillDamage', 1250]]);
+    });
+  });
+  it('교체 등장 후 지속 효과 (_HeroSwap) 는 켜진 시간 비율이 있을 때만 기본 스탯으로 바꿔 평균 값을 넣고, 비율이 0 이면 줄을 그대로 둔다', () => {
+    const lines: Line[] = [
+      { source: '카드', stat: '_per_attackDamage_HeroSwap', value: 1000 },
+      { source: '카드', stat: '_per_skillDamage_HeroSwap', value: 400 },
+      { source: '그 밖', stat: '_per_hp', value: 3 },
+    ];
+    expect(countExpandedLines(lines, 0, label, false, {}, 0).lines).toEqual(lines);
+    const swapped = countExpandedLines(lines, 0, label, false, {}, 50).lines;
+    expect(swapped.map((line) => [line.stat, line.value])).toEqual([
+      ['_per_attackDamage', 500],
+      ['_per_skillDamage', 200],
+      ['_per_hp', 3],
+    ]);
+  });
   it('카드 2번 처치 중첩 140% 는 5중첩 선형으로 x8 (공격력 % 700), 카드 3번 스킬 사용 160% 는 x9 (공격력 % 800) (combat0113.py 112~115)', () => {
     const lines: Line[] = [
       { source: '카드 2번', stat: '_per_attackDamage_Kill', value: 140 },

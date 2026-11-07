@@ -17,7 +17,8 @@ import HeroPicker from '@/calc/sources/hero/HeroPicker';
 import { rosterAwakenField, rosterGradeField } from '@/calc/sources/hero/rosterFields';
 
 const { FIELDS } = CONSTS.hero;
-const { HERO_AWAKEN_VALUE_COLUMN } = CONSTS.textLines;
+const { HERO_AWAKEN_STAT_COLUMNS } = CONSTS.textLines;
+const ATTACK_PERCENT_STAT = '_per_attackDamage';
 const HERO_SLOT_FIELDS = [FIELDS.HERO_1, FIELDS.HERO_2] as const;
 const { CARD_MIN_WIDTH } = CONSTS.display;
 
@@ -76,7 +77,8 @@ export default function HeroPanel({ values, setValue, tables }: TabPanelProps) {
             grade: hero.grade || '-',
             star: hero.star || '-',
             awaken: awakenLevel,
-            effect: heroAwaken ? Number(heroAwaken[HERO_AWAKEN_VALUE_COLUMN]) : 0,
+            // 요약에는 각성 행 세 쌍 중 공격력 % 칸만 보여 준다 (전용 · 교체 스킬 대미지는 계산에만 들어감)
+            effect: heroAwaken ? Number(heroAwaken[HERO_AWAKEN_STAT_COLUMNS.find(([typeColumn]) => heroAwaken[typeColumn] === ATTACK_PERCENT_STAT)?.[1] ?? '']) || 0 : 0,
           })}
         </Text>
       )}

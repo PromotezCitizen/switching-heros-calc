@@ -10,5 +10,10 @@
   "skillSource": "{{name}} ({{value}} ^ 장착 스킬 {{count}}개)",
   "dungeonSource": "{{name}} × 클리어 단계 {{count}}",
   "targetUnitSource": "{{name}} (1슬롯 히어로 전투 특화)",
-  "chanceSource": "{{name}} (확률 {{chance}}% > {{threshold}}%)"
+  "weaponStarSource": "{{name}} (두 히어로 전용 무기 초월 합 {{count}})",
+  "alchemySameGradeSource": "{{name}} (같은 등급 연성장비 {{count}}개)",
+  "countSource": "{{name}} × {{count}}개",
+  "heroSwapSource": "{{name}} (교체 등장 후 20초간, 켜진 시간 {{percent}}%)",
+  "chanceSource": "{{name}} (확률 {{chance}}% > {{threshold}}%)",
+  "chanceCountSource": "{{name}} ({{value}} ^ 확률 {{threshold}}% 초과 {{count}}종)"
 }

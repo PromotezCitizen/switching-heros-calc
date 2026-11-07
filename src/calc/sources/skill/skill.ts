@@ -128,6 +128,13 @@ export function chosenSkillOptions(values: CalcValues, tables: StatTables, skill
   return chosen;
 }
 
+/** 고른 옵션 중 그 종류 (SkillRune type) 값의 합 (최고 등급 값) */
+export function skillOptionSum(values: CalcValues, tables: StatTables, skillId: string, type: string): number {
+  return chosenSkillOptions(values, tables, skillId)
+    .filter((row) => row.type === type)
+    .reduce((sum, row) => sum + skillRuneValue(row), 0);
+}
+
 /** 고른 옵션 중 "스킬 쿨타임 {0}초 감소" 의 합 (초, 최고 등급 값) */
 export function skillCoolOptionSeconds(values: CalcValues, tables: StatTables, skillId: string): number {
   return chosenSkillOptions(values, tables, skillId)

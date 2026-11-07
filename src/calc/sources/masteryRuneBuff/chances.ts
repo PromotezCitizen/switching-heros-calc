@@ -10,7 +10,7 @@ import { combineLines, type CombinedStat, type Line } from '@/calc/combine';
 import type { CalcValues } from '@/calc/types';
 import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
 import { hasEquippedActiveSkill } from '@/calc/sources/skill/skill';
-import { attackSpeedPercent, combinedSum, doubleAttackPercent } from '@/calc/sources/masteryRuneBuff/buff';
+import { attackSpeedPercent, combinedSum, doubleAttackPercent, multiplierPercentLog } from '@/calc/sources/masteryRuneBuff/buff';
 import { masteryLevel, masteryTraits, plainNumber, traitName, traitValue } from '@/calc/sources/masteryRuneBuff/mastery';
 import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 import { formationHeroAttributes, formationPair } from '@/calc/sources/masteryRuneBuff/ultimate';
@@ -19,12 +19,17 @@ const {
   STATS,
   CHANCE_STATS,
   CHANCE_ULTIMATES,
+  CHANCE_COUNT_ULTIMATES,
+  CHANCE_COUNT_NAMES,
   SWITCHING_SAME_ATTRIBUTE_STAT,
   SWITCHING_DIFFERENT_ATTRIBUTE_STAT,
   SUPER_CRITICAL_RATE_THRESHOLD,
   SUPER_CRITICAL_RATE_STEP,
   JOB_CRITICAL_SUFFIX,
   ATTRIBUTE_CRITICAL_SUFFIX,
+  SWAP_ONLY_CHANCE,
+  MAGIC_GUARD,
+  SWAP_UPTIME_FIELD,
 } = CONSTS.masteryRuneBuff;
 
 /** 확률 이름 (doubleAttack, superCritical, spearAttack, switchingBoost, skillCombo, smite, barrier) → % */
@@ -67,17 +72,41 @@ export function chancesFromLines(lines: Line[], values: CalcValues, tables: Stat
   return chances;
 }
 
-/** 켠 확률 문턱 얼티밋 중 확률이 문턱을 넘은 것 → 공격력 % 줄 (발동 시 효과를 늘 붙는 것으로 넣음, 추정) */
+/**
+ * 켠 확률 문턱 얼티밋 중 확률이 문턱을 넘은 것 → 공격력 % 줄 (발동 시 효과를 늘 붙는 것으로 넣음, 추정).
+ * 스위칭 부스트 문턱은 교체 등장 때만 발동하므로 교체 켜짐 비율 칸이 0 (교체 없음) 이면 줄을 만들지 않는다
+ */
 export function chanceUltimateLines(
   values: CalcValues,
   masteryTable: RawTable,
   chances: Chances,
   sourceLabel: SourceLabel,
+  magicGuardOn = true,
 ): Line[] {
   const lines: Line[] = [];
+  const hasSwap = Number(values[SWAP_UPTIME_FIELD]) > 0;
   for (const trait of masteryTraits(masteryTable)) {
+    // 확률 초과 개수 얼티밋 (3001 · 3007): 문턱을 넘은 확률 종류 수 k → 공격력 증가 × 값^k
+    const countThreshold = trait.ultimate ? CHANCE_COUNT_ULTIMATES[trait.statName] : undefined;
+    if (countThreshold !== undefined) {
+      const level = masteryLevel(values, trait);
+      if (!(level > 0)) continue;
+      const value = traitValue(trait, level);
+      const count = CHANCE_COUNT_NAMES.filter((name) => (chances[name] ?? 0) > countThreshold).length;
+      if (count > 0 && value > 0) {
+        lines.push({
+          source: sourceLabel('calc.ultimate.chanceCountSource', { name: traitName(trait, sourceLabel), value, count, threshold: countThreshold }),
+          stat: STATS.ATTACK_PERCENT,
+          log: multiplierPercentLog(count * Math.log10(value)),
+        });
+      }
+      continue;
+    }
     const rule = trait.ultimate ? CHANCE_ULTIMATES[trait.statName] : undefined;
     if (!rule) continue;
+    if (rule.chance === SWAP_ONLY_CHANCE && !hasSwap) continue;
+    // 매직 가드 문턱 (3018 · 3027) 은 게임 m2137 안에서 판정 → 기본 항이 0 이면 꺼짐
+    if (rule.chance === MAGIC_GUARD.CHANCE && !magicGuardOn) continue;
     const level = masteryLevel(values, trait);
     const chance = chances[rule.chance] ?? 0;
     if (!(level > 0) || !(chance > rule.threshold)) continue;

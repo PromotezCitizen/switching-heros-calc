@@ -46,4 +46,50 @@ export const PROVIDER_CONSTS = {
     /** 레벨 입력 칸 격자 최소 폭 (px) */
     INPUT_MIN_WIDTH: 150,
   },
+
+  /**
+   * 프로필 테두리 보유 효과 (5.70 에서 새로 생긴 합산기 T1282 의 31번째 제공자, 채움 함수 새 @30d69f0 — claude-docs/react-port/attack-formula-5.70.md,
+   * 함수 구조 확정 · 이름이 테두리라는 것은 유력). 보유한 테두리 번호 (저장 Relic.frameIdList) 마다 표 Frame 의 (스탯, 값) 을 한 번씩 넣는다.
+   * 장착한 테두리가 아니라 보유한 테두리 전부이고 (사용자 확인), `_per_` 스탯이라 한 줄마다 곱해진다. 표는 5.70 앱 내장 표 (서버 값과 같다는 것은 유력)
+   */
+  frame: {
+    TABLE: 'Frame',
+    OWNED_FIELD_PREFIX: 'frameOwned_',
+    ID_COLUMN: 'frameId',
+    STAT_COLUMN: 'statType',
+    VALUE_COLUMN: 'statValue',
+    /** 보유 칸 격자 최소 폭 (px) */
+    FLAG_MIN_WIDTH: 260,
+  },
+
+  /**
+   * 별자리 유물 (유물 화면의 "별자리 유물", 표 AncientRelic 5.70 앱 내장 값 · 저장 Dispatch.ancientRelicData).
+   * 칸 하나 = (별자리, 단계, 칸 번호) 의 줄 하나: 값 = 기본 + 강화당 × 레벨 (`_per_` 스탯이라 줄마다 곱해진다).
+   * 달성한 별자리 (_masteredList) 는 모든 칸이 최대 레벨 · 모든 단계 켜짐, 진행 중인 별자리는 저장 레벨 그대로이고 단계가 켜졌을 때만
+   * 단계 보너스 칸 (번호 1000, 최대 레벨 1) 이 들어간다. 이 규칙으로 별자리 효과 화면 9개 값 (검사 공격력 3,806% · 공격력 1,500% · 체력 12.4A% …)
+   * 이 정확히 재현됨 (2026-10-31 화면). 화면의 % 는 줄을 곱한 값 − 1
+   */
+  ancientRelic: {
+    TABLE: 'AncientRelic',
+    /** 입력 칸: 달성한 별자리 번호 목록 (쉼표), 진행 중 별자리 */
+    MASTERED_FIELD: 'ancientMastered',
+    PROGRESS_FIELD: 'ancientProgress',
+    CONST_COLUMN: 'constId',
+    STEP_COLUMN: 'step',
+    NODE_COLUMN: 'idx',
+    MAX_LEVEL_COLUMN: 'maxLv',
+    BASE_COLUMN: 'baseVal',
+    ENHANCE_COLUMN: 'enhVal',
+    STAT_COLUMN: 'statType',
+    /** 진행 글: 항목 구분 ';', 항목 = 별자리:단계:켜짐(0/1):칸=레벨,칸=레벨 */
+    ENTRY_SEPARATOR: ';',
+    FIELD_SEPARATOR: ':',
+    NODE_SEPARATOR: ',',
+    LEVEL_SEPARATOR: '=',
+    LIST_SEPARATOR: ',',
+    /** 단계 보너스 칸 번호 */
+    STEP_BONUS_NODE: '1000',
+    /** 진행 글 입력 칸 높이 (줄) */
+    PROGRESS_ROWS: 4,
+  },
 } as const;

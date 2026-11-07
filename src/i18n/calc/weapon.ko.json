@@ -27,6 +27,7 @@
   "normalLevelLabel": "{{grade}} {{star}}성",
   "optionTitle": "무기 옵션",
   "optionLocked": "전용 무기를 장착하고 강화 레벨 10 이상이면 옵션을 입력할 수 있어요.",
+  "sssOptionCount": "전용 무기 옵션 중 SSS 등급 수 (얼티밋 극한의 단련 · 강철의 육신)",
   "exclusiveTitle": "전용 무기",
   "exclusiveFromTable": "초월 ★와 강화 레벨은 히어로 탭의 전용 무기 목록에서 입력하세요.",
   "exclusiveStar": "초월 ★",

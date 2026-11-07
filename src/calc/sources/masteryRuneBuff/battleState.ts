@@ -82,7 +82,7 @@ export function chancesWithBattleState(
 
 /**
  * 버프 탭에 넣는 전투 중 최대 상태 공격력 % 줄 (곱 계열). chances = 다른 탭 줄 + 전투 중 줄로 계산한 확률.
- * - 63 흘러넘치는 체력: 체력 가득이면 값 % (사용자 결정: 항상 켜짐)
+ * - 63 흘러넘치는 체력: 체력 가득이면 값 % (사용자 결정: 항상 켜짐). 매직 가드 기본 항이 0 이면 (magicGuardOn false) 꺼짐 — 게임 m2137 이 그 앞에서 끝난다
  * - 102 과충전 연타: 연타 100% 초과면 값 %
  * - 108 한계 돌파: floor((슈퍼 치명타 − 100) / 10) 단계 × 값 % (0단계면 없음)
  * - 202 초과된 힘: 관통 100% 초과면 값 %
@@ -93,13 +93,14 @@ export function battleDamageLines(
   masteryTable: RawTable,
   sourceLabel: SourceLabel,
   chances: Chances,
+  magicGuardOn = true,
 ): Line[] {
   const traits = masteryTraits(masteryTable);
   const lines: Line[] = [];
   const add = (value: number, sourceKey: string, params: Record<string, string | number> = {}) => {
     if (value) lines.push({ source: sourceLabel(sourceKey, params), stat: STATS.ATTACK_PERCENT, value });
   };
-  add(learnedTraitValue(traits, values, STATS.BARRIER_FULL_DAMAGE), 'calc.buff.battle.barrierFullSource');
+  if (magicGuardOn) add(learnedTraitValue(traits, values, STATS.BARRIER_FULL_DAMAGE), 'calc.buff.battle.barrierFullSource');
   const doubleAttack = chances.doubleAttack ?? 0;
   if (doubleAttack > DOUBLE_ATTACK_THRESHOLD) {
     add(learnedTraitValue(traits, values, STATS.OVERCHARGE), 'calc.buff.battle.overchargeSource', {

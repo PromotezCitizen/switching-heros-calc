@@ -13,7 +13,7 @@ import { providerTabs } from '@/calc/sources/providers/index';
 
 /**
  * 입력은 전부 테스트 안에서 만든다 (기본값 = 비어 있음). 표 값은 서버 표 그대로:
- * CoreMastery Lv1 = 모든 항목 25.8925, Lv2 = 58.4893 / FigureStat 1번 Lv1 = `_per_targetHero0_hp` 100, Lv2 = 141.42
+ * CoreMastery Lv1 = 모든 항목 33.3521, Lv2 = 77.8279 (5.70 앱 내장 표) / FigureStat 1번 Lv1 = `_per_targetHero0_hp` 100, Lv2 = 141.42
  */
 const tables = {
   AttributeRuneLab: AttributeRuneLabTable,
@@ -30,7 +30,7 @@ describe('코어 특성 (T1271, stat-provider-formulas.md 10-4절)', () => {
     expect(coreMasteryLines({ [coreMasterySelectField(2)]: 'true' }, tables, label)).toEqual([]);
   });
 
-  it('켠 항목 k 마다 그 레벨 행의 k 번째 스탯 · 값을 한 번씩 (Lv1: 2번 물 속성 공격력, 8번 히어로 대상 공격력 25.8925)', () => {
+  it('켠 항목 k 마다 그 레벨 행의 k 번째 스탯 · 값을 한 번씩 (Lv1: 2번 물 속성 공격력, 8번 히어로 대상 공격력 33.3521)', () => {
     const values: CalcValues = {
       coreMasteryLevel: '1',
       [coreMasterySelectField(2)]: 'true',
@@ -38,14 +38,14 @@ describe('코어 특성 (T1271, stat-provider-formulas.md 10-4절)', () => {
     };
     const lines = coreMasteryLines(values, tables, label);
     expect(lines.map((line) => [line.stat, line.value])).toEqual([
-      ['_per_WaterHero_AttackDamage', 25.8925],
-      ['_per_attackDamage_TargetUnitHero', 25.8925],
+      ['_per_WaterHero_AttackDamage', 33.3521],
+      ['_per_attackDamage_TargetUnitHero', 33.3521],
     ]);
   });
 
-  it('레벨이 오르면 그 레벨 행의 값 (Lv2 = 58.4893), 표 범위를 벗어나면 줄 없음', () => {
+  it('레벨이 오르면 그 레벨 행의 값 (Lv2 = 77.8279), 표 범위를 벗어나면 줄 없음', () => {
     const select = { [coreMasterySelectField(1)]: 'true' };
-    expect(coreMasteryLines({ ...select, coreMasteryLevel: '2' }, tables, label)[0].value).toBe(58.4893);
+    expect(coreMasteryLines({ ...select, coreMasteryLevel: '2' }, tables, label)[0].value).toBe(77.8279);
     expect(maxCoreMasteryLevel(tables)).toBe(150);
     expect(coreMasteryLines({ ...select, coreMasteryLevel: '151' }, tables, label)).toEqual([]);
   });

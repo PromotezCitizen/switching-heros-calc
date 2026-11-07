@@ -3,7 +3,7 @@ import adsBuffTable from '../../../../public/data/tables/AdsBuff.json';
 import characterTable from '../../../../public/data/tables/Character.json';
 import characterAffinityTable from '../../../../public/data/tables/CharacterAffinity.json';
 import characterAwakenTable from '../../../../public/data/tables/CharacterAwaken.json';
-import diaryStatTable from '../../../../public/data/tables/DiaryStat.json';
+import diaryStatTable from '@/test/legacyTables/DiaryStat.json';
 import type { RawTable, StatTables } from '@/data/statTables';
 import { combineLines, type Line } from '@/calc/combine';
 import type { CalcValues } from '@/calc/types';
@@ -152,6 +152,9 @@ describe('기타', () => {
     const lines = formerOtherLines(FILLED);
     expectLines(lines, [
       ['프로필 아이콘', '_per_attackDamage', 'log', 3.700617195682057],
+      // 각성 행 세 쌍 모두 (CharacterAwaken 린 Lv10: 교체 · 전용 스킬 대미지 5.00E+16 %, 공격력 132 %)
+      ['히어로 각성 Lv10 (린)', '_per_ChangeSkillDamage', 'value', 5e16],
+      ['히어로 각성 Lv10 (린)', '_per_CharSkillDamage', 'value', 5e16],
       ['히어로 각성 Lv10 (린)', '_per_attackDamage', 'value', 132],
       ['별자리 요정의 축복 (요정의 유대 Lv 627)', '_per_attackDamage', 'value', 656],
       ['별자리 요정의 축복 (요정의 유대 Lv 627)', '_per_hp', 'value', 656],
@@ -161,6 +164,8 @@ describe('기타', () => {
     const formerAffinityHpLog = Math.log10(1 + 10 ** 7.2743887955503785 / 100);
     expectCombined(lines, {
       _per_attackDamage: [11.149094565117792 - formerAffinityAtkLog, 3],
+      _per_ChangeSkillDamage: [Math.log10(1 + 5e16 / 100), 1],
+      _per_CharSkillDamage: [Math.log10(1 + 5e16 / 100), 1],
       _per_hp: [6.152912899894368 - formerAffinityHpLog, 1],
     });
   });
@@ -192,11 +197,15 @@ describe('기타', () => {
       heroAwakenLevel: '2.7',
     });
     expectLines(lines, [
+      ['히어로 각성 Lv2 (린)', '_per_ChangeSkillDamage', 'value', 2000],
+      ['히어로 각성 Lv2 (린)', '_per_CharSkillDamage', 'value', 2000],
       ['히어로 각성 Lv2 (린)', '_per_attackDamage', 'value', 24],
       ['별자리 요정의 축복 (요정의 유대 Lv 972)', '_per_attackDamage', 'value', 1010],
       ['별자리 요정의 축복 (요정의 유대 Lv 972)', '_per_hp', 'value', 1010],
     ]);
     expectCombined(lines, {
+      _per_ChangeSkillDamage: [Math.log10(1 + 2000 / 100), 1],
+      _per_CharSkillDamage: [Math.log10(1 + 2000 / 100), 1],
       _per_attackDamage: [1.1387446639488927, 2],
       _per_hp: [1.0453229787866576, 1],
     });

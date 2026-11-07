@@ -25,6 +25,7 @@ import { iconUrl } from '@/calc/panels/heroWeaponCardPet/IconPicker';
 import StatValueRows, { allStatChoices } from '@/calc/panels/heroWeaponCardPet/StatValueRows';
 
 const { JOBS, MIN_NUMBER } = CONSTS.heroWeaponCardPet;
+const SSS_OPTION_COUNT_FIELD = CONSTS.masteryRuneBuff.ULTIMATE_COUNT_FIELDS.EquipSSSOptionCnt;
 const { LINK_STAR_MAX, LINK_ICONS } = CONSTS.heroWeaponCardPet.weapon;
 const { CARD_ICON_SIZE, LINK_CARD_MIN_WIDTH, LINK_LEVEL_INPUT_WIDTH, NORMAL_WEAPON_INPUT_MIN_WIDTH } = CONSTS.heroWeaponCardPet.ui;
 
@@ -198,6 +199,15 @@ export default function WeaponPanel({ values, setValue, tables, descriptions }: 
         statLabel={(index) => translate('calc.weapon.statLabel', { index })}
         valueLabel={(index) => translate('calc.weapon.valueLabel', { index })}
         valuePlaceholder={translate('calc.weapon.valuePlaceholder')}
+      />
+      {/* 얼티밋 1020 · 1021 의 개수 (저장 가져오기가 채움, 직업 무기면 0) */}
+      <TextInput
+        type="number"
+        min={MIN_NUMBER}
+        inputMode="numeric"
+        label={translate('calc.weapon.sssOptionCount')}
+        value={values[SSS_OPTION_COUNT_FIELD] ?? ''}
+        onChange={(event) => setValue(SSS_OPTION_COUNT_FIELD, event.currentTarget.value)}
       />
     </Stack>
   );

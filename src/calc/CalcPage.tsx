@@ -10,12 +10,15 @@ import { CALC_TAB_GROUPS, shownGroupTabs } from '@/calc/tabGroups';
 import { TAB_ITEM_STYLE, TAB_ROW_STYLE, TAB_STACK_STYLE, TAB_STACKS } from '@/calc/tabWidths';
 import TabItem from '@/calc/TabItem';
 import AccountFields from '@/account/AccountFields';
+import CalcSettingsFields from '@/masteryOptimizer/CalcSettingsFields';
 import type { StatDescriptions } from '@/calc/statText';
 
 const EMPTY_DESCRIPTIONS: StatDescriptions = {};
 const GROUP_UI_KEY = 'calcGroup';
 /** 맨 앞 묶음: 여러 페이지가 같이 쓰는 계정 값 (계산 탭이 아니라 AccountFields 를 그린다) */
 const ACCOUNT_GROUP_ID = 'account';
+/** 맨 뒤 묶음: 추천 계산 설정 (유저 레벨 · 맞는 적 수 · 스테이지 층, CalcSettingsFields) */
+const CALC_SETTINGS_GROUP_ID = 'calcSettings';
 
 /** 계산식 확인기: 하위 탭(묶음) 안에 콘텐츠마다 접이식 칸 */
 export default function CalcPage() {
@@ -24,7 +27,7 @@ export default function CalcPage() {
   const [savedGroup, setSavedGroup] = useUiValue(GROUP_UI_KEY);
   const subTabBarRef = useStickyHeaderHeight<HTMLDivElement>(CONSTS.display.STICKY_SUB_TAB_HEIGHT_VAR);
   const groups = CALC_TAB_GROUPS.filter((group) => shownGroupTabs(group.tabIds).length > 0);
-  const groupIds = [ACCOUNT_GROUP_ID, ...groups.map((group) => group.id)];
+  const groupIds = [ACCOUNT_GROUP_ID, ...groups.map((group) => group.id), CALC_SETTINGS_GROUP_ID];
   const activeGroup = { id: groupIds.includes(savedGroup ?? '') ? (savedGroup as string) : ACCOUNT_GROUP_ID };
   /* 한 번 연 하위 탭은 다른 탭으로 가도 지우지 않고 숨겨 둔다 (다시 열 때 처음부터 그리지 않음). 열지 않은 탭은 그리지 않는다 */
   const [openedGroupIds, setOpenedGroupIds] = useState<string[]>([]);
@@ -64,6 +67,11 @@ export default function CalcPage() {
         {renderedGroupIds.includes(ACCOUNT_GROUP_ID) && (
           <Tabs.Panel value={ACCOUNT_GROUP_ID} pt={CONSTS.display.CONTENT_TOP_GAP}>
             <AccountFields />
+          </Tabs.Panel>
+        )}
+        {renderedGroupIds.includes(CALC_SETTINGS_GROUP_ID) && (
+          <Tabs.Panel value={CALC_SETTINGS_GROUP_ID} pt={CONSTS.display.CONTENT_TOP_GAP}>
+            <CalcSettingsFields />
           </Tabs.Panel>
         )}
         {groups.map((group) => {

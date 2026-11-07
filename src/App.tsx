@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Box, Container, Group, Tabs, Title } from '@mantine/core';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { CONSTS } from '@/CONSTS';
 import CalcPage from '@/calc/CalcPage';
 import HuntingPage from '@/hunting/HuntingPage';
@@ -10,17 +10,19 @@ import MasteryLevelPage from '@/masteryDebug/MasteryLevelPage';
 import StatViewerPage from '@/statViewer/StatViewerPage';
 import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
 
-/** 4개 페이지 (자리만 만듦, 내용은 기존 HTML 계산기에서 옮겨 올 예정) */
+/** 페이지 순서: 추천 (첫 화면) · 사냥 · 내 값 · 스탯 모아 보기 · 값 찾는 법 */
 const PAGES = [
-  { path: '/', labelKey: 'page.calc' },
+  { path: '/', labelKey: 'page.optimizer' },
   { path: '/hunting', labelKey: 'page.hunting' },
-  { path: '/optimizer', labelKey: 'page.optimizer' },
+  { path: '/values', labelKey: 'page.calc' },
   { path: '/viewer', labelKey: 'page.viewer' },
   { path: '/guide', labelKey: 'page.guide' },
 ] as const;
 
 /** 내용을 만든 페이지 (나머지는 제목만 있는 자리) */
-const IMPLEMENTED_PATHS: readonly string[] = ['/', '/hunting', '/optimizer', '/viewer'];
+const IMPLEMENTED_PATHS: readonly string[] = ['/', '/hunting', '/values', '/viewer'];
+/** 예전 주소 → 지금 주소 (추천이 첫 화면이 되기 전 주소) */
+const OLD_OPTIMIZER_PATH = '/optimizer';
 
 export default function App() {
   const { t: translate } = useTranslation();
@@ -53,9 +55,10 @@ export default function App() {
         </Tabs>
       </Box>
       <Routes>
-        <Route path="/" element={<CalcPage />} />
+        <Route path="/" element={<OptimizerPage />} />
         <Route path="/hunting" element={<HuntingPage />} />
-        <Route path="/optimizer" element={<OptimizerPage />} />
+        <Route path="/values" element={<CalcPage />} />
+        <Route path={OLD_OPTIMIZER_PATH} element={<Navigate to="/" replace />} />
         <Route path="/viewer" element={<StatViewerPage />} />
         {/* 디버그 페이지: 개발 서버에서만, 탭 없이 주소로 (/mastery-level) */}
         {import.meta.env.DEV && <Route path="/mastery-level" element={<MasteryLevelPage />} />}

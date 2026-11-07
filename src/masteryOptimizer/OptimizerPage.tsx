@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Box, Button, Group, LoadingOverlay, Paper, SimpleGrid, Stack, Table, Text, Title } from '@mantine/core';
+import { Alert, Box, Button, Group, LoadingOverlay, Paper, Stack, Table, Text, Title } from '@mantine/core';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import { CONSTS } from '@/CONSTS';
 import MasteryPanel from '@/calc/panels/MasteryPanel';
@@ -11,7 +11,7 @@ import { formatLog } from '@/calc/gameNumber';
 import { valuesForTarget } from '@/usb/saveImport/contentPresets';
 import { calcValuesOf } from '@/calc/storeKeys';
 import type { CalcValues } from '@/calc/types';
-import { FlagField, GroupedSelectField, NumberField } from '@/components/StoreFields';
+import { FlagField, GroupedSelectField } from '@/components/StoreFields';
 import CardRecommendSection from '@/cardOptimizer/CardRecommendSection';
 import { useStatTables } from '@/data/statTables';
 import { OWNED_CARDS_KEY } from '@/usb/saveImport/ownedCards';
@@ -28,22 +28,20 @@ import { masteryResultKey, parseMasteryResult, type StoredMasteryResult } from '
 import { useRecommendation } from '@/masteryOptimizer/useRecommendation';
 import { useBatchRecommendation } from '@/masteryOptimizer/useBatchRecommendation';
 import { BATCH_CARD_TARGETS, BATCH_MASTERY_TARGETS, type BatchParts } from '@/masteryOptimizer/batchRecommend';
+import { DEFAULT_TARGETS_PER_SKILL, OPTIMIZER_KEYS } from '@/masteryOptimizer/optimizerKeys';
 import { readNumber } from '@/store/storedValues';
 import { useCalcStore } from '@/store/useCalcStore';
 
 const { TARGETS } = CONSTS.dpm;
 /** 최적화 대상 묶음 (대상 종류 순서: 일반 · 보스 · 히어로) */
 const TARGET_UNITS = ['normal', 'boss', 'hero'] as const;
-const KEY_PREFIX = 'optimizer.';
-const USER_LEVEL_KEY = ACCOUNT_KEYS.userLevel;
-const TARGET_KEY = `${KEY_PREFIX}target`;
+const USER_LEVEL_KEY = OPTIMIZER_KEYS.userLevel;
+const TARGET_KEY = OPTIMIZER_KEYS.target;
 /** 묶인 대상 버튼 이름을 잇는 글 */
 const TARGET_LABEL_JOINER = ' · ';
-const TARGETS_PER_SKILL_KEY = `${KEY_PREFIX}targetsPerSkill`;
-const STAGE_FLOOR_KEY = `${KEY_PREFIX}stageFloor`;
-/** 자동 교체 (저장된 값이 없으면 켜짐: 2026-10-28 결정) */
-const AUTO_SWAP_KEY = `${KEY_PREFIX}autoSwap`;
-const DEFAULT_TARGETS_PER_SKILL = 3;
+const TARGETS_PER_SKILL_KEY = OPTIMIZER_KEYS.targetsPerSkill;
+const STAGE_FLOOR_KEY = OPTIMIZER_KEYS.stageFloor;
+const AUTO_SWAP_KEY = OPTIMIZER_KEYS.autoSwap;
 /** 계산 중 덮개: 보여 줄 결과가 없을 때도 스피너가 보이는 최소 높이 (px) */
 const LOADING_MIN_HEIGHT = 120;
 const SECONDS_DECIMALS = 2;
@@ -232,18 +230,7 @@ export default function OptimizerPage() {
       </Text>
 
       <Paper withBorder p="md">
-        <Title order={3} mb="sm">{translate('optimizer.inputsTitle')}</Title>
-        <SimpleGrid cols={{ base: 1, sm: 3 }}>
-          <NumberField storeKey={USER_LEVEL_KEY} label={translate('optimizer.userLevel')} min={0} />
-          <NumberField
-            storeKey={TARGETS_PER_SKILL_KEY}
-            label={translate('optimizer.targetsPerSkill')}
-            hint={translate('optimizer.targetsPerSkillHint')}
-            min={1}
-            fallback={DEFAULT_TARGETS_PER_SKILL}
-          />
-          <NumberField storeKey={STAGE_FLOOR_KEY} label={translate('optimizer.stageFloor')} min={0} />
-        </SimpleGrid>
+        <Title order={3} mb="sm">{translate('optimizer.targetTitle')}</Title>
         <Stack gap="sm">
           <GroupedSelectField
             storeKey={TARGET_KEY}
@@ -257,6 +244,21 @@ export default function OptimizerPage() {
               {translate('optimizer.lockedWhileRunning')}
             </Text>
           )}
+          {/* 계산 설정 (유저 레벨 · 맞는 적 수 · 스테이지 층) 은 내 값 › 계산 설정에서 넣고 여기는 요약만 */}
+          <Text size="sm" c="dimmed">
+            {translate('optimizer.settingsSummary', {
+              level: userLevel > 0 ? formatCount(userLevel) : '-',
+              targets: readNumber(storeValues, TARGETS_PER_SKILL_KEY, DEFAULT_TARGETS_PER_SKILL),
+              floor: readNumber(storeValues, STAGE_FLOOR_KEY) > 0 ? formatCount(readNumber(storeValues, STAGE_FLOOR_KEY)) : '-',
+            })}
+          </Text>
+        </Stack>
+      </Paper>
+
+      {/* 일괄 계산: 몇 분 걸리는 계산을 시작하는 버튼이라 대상 고르기 바로 아래 */}
+      <Paper withBorder p="md">
+        <Title order={3} mb="sm">{translate('optimizer.batch.title')}</Title>
+        <Stack gap="sm">
           {/* 일괄 계산: 특성 묶음 (2개씩) → 카드 묶음 (3개씩), 끝나는 대상마다 저장 (batchRecommend.ts). 특성만 · 카드만 버튼은 그 단계만 */}
           <Group>
             {BATCH_PARTS.map((parts) => {
@@ -452,6 +454,7 @@ export default function OptimizerPage() {
               </Stack>
             )}
           </Paper>
+
         </>
       )}
     </Stack>

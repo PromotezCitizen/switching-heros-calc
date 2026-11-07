@@ -22,8 +22,19 @@ export function inheritValueField(index: number): string {
   return `inheritValue${index}`;
 }
 
-/** 기록 보관소 레벨 = floor(min(책 4권 레벨) / 10) (사용자 식) */
+/**
+ * 폰 불러오기가 채우는 기록 보관소 레벨 칸 (저장 _libraryData.mainLv). 게임은 보관소 레벨을 계산하지 않고 이 저장값을 쓴다
+ * (조건을 채운 뒤 버튼으로 올림, html-verify-E-2026-11-07.md E20). 책 레벨을 손으로 고치면 비운다 (LibraryPanel)
+ */
+export const ARCHIVE_LEVEL_FIELD = 'libraryArchiveLevel';
+
+/**
+ * 기록 보관소 레벨: 불러온 값이 있으면 그 값 (사용자 결정 2026-11-07 "불러올땐 불러온 값으로"),
+ * 없으면 floor(min(책 4권 레벨) / 10) (사용자 식, 끝까지 올렸을 때 게임과 같음)
+ */
 export function libraryArchiveLevel(values: CalcValues): number {
+  const imported = values[ARCHIVE_LEVEL_FIELD];
+  if (imported !== undefined && imported !== '') return numberValue(values, ARCHIVE_LEVEL_FIELD);
   return Math.floor(Math.min(...JOBS.map((job) => numberValue(values, bookLevelField(job)))) / ARCHIVE_LEVEL_DIVISOR);
 }
 

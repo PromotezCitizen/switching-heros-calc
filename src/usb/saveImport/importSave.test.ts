@@ -26,6 +26,7 @@ import { readDictionary } from '@/usb/saveImport/saveDictionary';
 import saveSubset from '@/usb/saveImport/saveSubset0154.json';
 import saveSubset1018 from '@/usb/saveImport/saveSubset1018.json';
 import { exclusiveWeaponIdOfHero } from '@/calc/sources/heroWeaponCardPet/weapon';
+import { libraryArchiveLevel } from '@/calc/sources/heroWeaponCardPet/library';
 
 /**
  * 2026-10-12 01:54 저장 데이터 (필요한 키만 뽑은 사본 saveSubset0154.json) 를 변환해
@@ -56,6 +57,8 @@ const expected: Record<string, string> = savedValues.values;
  * 영혼 연성 레벨 (잠김 여부를 저장 데이터로 못 가려 Python 도 빈칸), Python 판의 다발 화살 옵션 칸 (지금은 스킬마다 옵션 칸 skillOption_<스킬>_<칸>)
  */
 const NOT_FROM_SAVE = new Set(['summaryEnemyCountReached', 'berserkStacks', 'killerActive', 'atk', 'hp', 'soulForgeLevel', 'skillOption252', 'mineAwakenLevel', 'fairyBondLevel', 'fairyBlessingOn']);
+/** 기록 보관소 레벨은 저장 mainLv 를 그대로 (2026-11-07, 파이썬 변환에 없는 칸). 따로 대조 */
+const ARCHIVE_LEVEL_KEY = 'libraryArchiveLevel';
 /** 호감도 0 도 칸에 적는다 (2026-11-07, 파이썬 변환에 없는 칸) */
 const ZERO_AFFINITY_KEY = /^heroOwnedAffinity_/;
 /** 광산 각성 총합은 이제 불러오지 않고 히어로 탭 각성 레벨 합으로 계산한다 (2026-11-07). 각성 0 도 칸에 적어 파이썬 변환에 없는 칸이 생긴다 */
@@ -95,7 +98,7 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
     const expectedKeys = Object.keys(expected).filter((key) => !NOT_FROM_SAVE.has(key) && !WEAPON_OPTION_KEY.test(key)).sort();
     // 비운 칸 ('' = 이 프리셋에서 레벨 없는 특성) 은 파이썬 변환에 없는 칸이라 뺀다
     const sameKeys = Object.keys(result.values).filter(
-      (key) => !SKILL_OPTION_KEY.test(key) && !SKILL_PERK_KEY.test(key) && !SECOND_HERO_KEY.test(key) && !WEAPON_OPTION_KEY.test(key) && !(key.startsWith('mastery_') && result.values[key] === '') && !((ZERO_AWAKEN_KEY.test(key) || ZERO_AFFINITY_KEY.test(key)) && result.values[key] === '0'),
+      (key) => !SKILL_OPTION_KEY.test(key) && !SKILL_PERK_KEY.test(key) && !SECOND_HERO_KEY.test(key) && !WEAPON_OPTION_KEY.test(key) && key !== ARCHIVE_LEVEL_KEY && !(key.startsWith('mastery_') && result.values[key] === '') && !((ZERO_AWAKEN_KEY.test(key) || ZERO_AFFINITY_KEY.test(key)) && result.values[key] === '0'),
     );
     expect(sameKeys.sort()).toEqual(expectedKeys);
     for (const key of expectedKeys) {
@@ -109,6 +112,12 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
         expect(actual, key).toBe(expected[key]);
       }
     }
+  });
+
+  it('기록 보관소 레벨: 저장 _libraryData.mainLv 그대로 (불러온 값이 책 레벨 식보다 먼저)', () => {
+    const mainLv = (raw.Char as unknown as { _libraryData: { mainLv?: number } })._libraryData.mainLv;
+    expect(result.values[ARCHIVE_LEVEL_KEY]).toBe(String(mainLv));
+    expect(libraryArchiveLevel(result.values)).toBe(mainLv);
   });
 
   it('무기 옵션: 1슬롯 히어로가 낀 전용 무기 칸에 예전 1슬롯 칸과 같은 값, 예전 칸은 비움', () => {

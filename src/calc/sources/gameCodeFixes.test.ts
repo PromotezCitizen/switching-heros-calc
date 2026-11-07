@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CONSTS } from '@/CONSTS';
 import { tableRows } from '@/data/statTables';
 import { cardGradeField, cardLines, cardSlotField, stickerCountField, stickerLevelField } from '@/calc/sources/heroWeaponCardPet/card';
-import { bookLevelField, inheritStatField, inheritValueField, libraryLines } from '@/calc/sources/heroWeaponCardPet/library';
+import { ARCHIVE_LEVEL_FIELD, bookLevelField, inheritStatField, inheritValueField, libraryArchiveLevel, libraryLines } from '@/calc/sources/heroWeaponCardPet/library';
 import { gradeStarValue } from '@/calc/sources/heroWeaponCardPet/shared';
 import { loadTestTables } from '@/test/loadTestTables';
 
@@ -27,6 +27,15 @@ describe('기록 보관소 전승된 능력: 같은 스탯 칸은 값을 더해 
       label,
     ).filter((line) => line.source.includes('inherit'));
     expect(different).toHaveLength(2);
+  });
+});
+
+describe('기록 보관소 레벨: 불러온 값이 있으면 그 값, 없으면 책 레벨 식 (게임은 저장 mainLv)', () => {
+  const books = Object.fromEntries((["Swordsman", "Fighter", "Archer", "Mage"] as const).map((job) => [bookLevelField(job), "44"]));
+  it('책 44 → 식으로 4, 불러온 3 이 있으면 3, 빈칸이면 식', () => {
+    expect(libraryArchiveLevel(books)).toBe(4);
+    expect(libraryArchiveLevel({ ...books, [ARCHIVE_LEVEL_FIELD]: "3" })).toBe(3);
+    expect(libraryArchiveLevel({ ...books, [ARCHIVE_LEVEL_FIELD]: "" })).toBe(4);
   });
 });
 

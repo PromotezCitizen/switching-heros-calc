@@ -28,7 +28,8 @@ function renderPanel(screenValues: CalcValues, setValue = vi.fn()) {
       text,
     ]),
   );
-  useCalcStore.getState().setValues(storeValues);
+  // 요정의 축복: 이 저장의 계정은 광고 제거를 샀다 (fairyBlessingOn true). 축복 켜짐은 공통 입력 광고 제거로 정해진다 (2026-11-07)
+  useCalcStore.getState().setValues({ ...storeValues, 'account.adRemoved': 'true' });
   renderWithProviders(<SummaryPanel values={screenValues} setValue={setValue} tables={tables} descriptions={{}} />);
 }
 

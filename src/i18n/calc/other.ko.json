@@ -4,9 +4,6 @@
       "label": "공격력 증가",
       "example": "예: 5,019%"
     },
-    "fairyBondLevel": {
-      "label": "요정의 유대 레벨"
-    },
     "heroAwakenLevel": {
       "label": "히어로 각성 레벨"
     }

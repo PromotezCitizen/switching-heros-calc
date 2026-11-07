@@ -54,7 +54,9 @@ const expected: Record<string, string> = savedValues.values;
  * 저장 데이터에서 오지 않는 칸 (Python 이 따로 넣은 값): 전투 중 최대 상태 3개, 프로필 비교값 2개,
  * 영혼 연성 레벨 (잠김 여부를 저장 데이터로 못 가려 Python 도 빈칸), Python 판의 다발 화살 옵션 칸 (지금은 스킬마다 옵션 칸 skillOption_<스킬>_<칸>)
  */
-const NOT_FROM_SAVE = new Set(['summaryEnemyCountReached', 'berserkStacks', 'killerActive', 'atk', 'hp', 'soulForgeLevel', 'skillOption252', 'mineAwakenLevel']);
+const NOT_FROM_SAVE = new Set(['summaryEnemyCountReached', 'berserkStacks', 'killerActive', 'atk', 'hp', 'soulForgeLevel', 'skillOption252', 'mineAwakenLevel', 'fairyBondLevel', 'fairyBlessingOn']);
+/** 호감도 0 도 칸에 적는다 (2026-11-07, 파이썬 변환에 없는 칸) */
+const ZERO_AFFINITY_KEY = /^heroOwnedAffinity_/;
 /** 광산 각성 총합은 이제 불러오지 않고 히어로 탭 각성 레벨 합으로 계산한다 (2026-11-07). 각성 0 도 칸에 적어 파이썬 변환에 없는 칸이 생긴다 */
 const ZERO_AWAKEN_KEY = /^heroOwnedAwaken_/;
 /** 스킬마다 옵션 칸: Python 변환에는 없는 칸이라 따로 대조한다 */
@@ -90,7 +92,7 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
     const expectedKeys = Object.keys(expected).filter((key) => !NOT_FROM_SAVE.has(key)).sort();
     // 비운 칸 ('' = 이 프리셋에서 레벨 없는 특성) 은 파이썬 변환에 없는 칸이라 뺀다
     const sameKeys = Object.keys(result.values).filter(
-      (key) => !SKILL_OPTION_KEY.test(key) && !SKILL_PERK_KEY.test(key) && !SECOND_HERO_KEY.test(key) && !(key.startsWith('mastery_') && result.values[key] === '') && !(ZERO_AWAKEN_KEY.test(key) && result.values[key] === '0'),
+      (key) => !SKILL_OPTION_KEY.test(key) && !SKILL_PERK_KEY.test(key) && !SECOND_HERO_KEY.test(key) && !(key.startsWith('mastery_') && result.values[key] === '') && !((ZERO_AWAKEN_KEY.test(key) || ZERO_AFFINITY_KEY.test(key)) && result.values[key] === '0'),
     );
     expect(sameKeys.sort()).toEqual(expectedKeys);
     for (const key of expectedKeys) {

@@ -184,6 +184,8 @@ describe('바뀐 계산', () => {
     expect(lines.map((line) => line.stat)).toEqual(['_per_attackDamage', '_per_hp']);
     expect(lines[0].log).toBeCloseTo(Math.log10(38_950), 12);
     expect(tabLines('mine', awakenValues('18'))).toEqual([]);
+    // 게임 m17380: 투자 레벨 1 이면 축복 0
+    expect(tabLines('mine', { mineLevel: '1', ...awakenValues('18') })).toEqual([]);
   });
   it('광산 각성 총합 = 보유 히어로 (등급 있음) 전체의 각성 레벨 합, 배치 여부 · 미보유 칸은 안 봄', () => {
     expect(mineAwakenTotal({ heroOwnedGrade_0: 'S', heroOwnedAwaken_0: '3', heroOwnedGrade_205: 'SSS', heroOwnedAwaken_205: '12', heroOwnedAwaken_999: '5' })).toBe(15);

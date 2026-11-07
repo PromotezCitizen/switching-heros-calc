@@ -13,13 +13,13 @@ describe('공통 입력 칸', () => {
     renderWithProviders(<GameNumberField storeKey="calc.x" label="공격력" example="예: 5.14N%" />);
     fireEvent.change(screen.getByLabelText('공격력'), { target: { value: '5.14N%' } });
     expect(useCalcStore.getState().values['calc.x']).toBe('5.14N%');
-    expect(screen.queryByText(/단위와 %까지 넣으세요/)).toBeNull();
+    expect(screen.queryByText(/읽을 수 없는 값이에요/)).toBeNull();
   });
 
   it('읽을 수 없는 글이면 오류를 보여 준다', () => {
     renderWithProviders(<GameNumberField storeKey="calc.x" label="공격력" />);
     fireEvent.change(screen.getByLabelText('공격력'), { target: { value: 'abc' } });
-    expect(screen.getByText(/단위와 %까지 넣으세요/)).toBeTruthy();
+    expect(screen.getByText(/읽을 수 없는 값이에요/)).toBeTruthy();
   });
 
   it('고르기 칸은 선택지가 모두 보이고, 값이 없으면 첫 항목이 골라져 있다', () => {

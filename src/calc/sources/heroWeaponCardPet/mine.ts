@@ -31,10 +31,11 @@ export function mineAwakenTotal(values: CalcValues): number {
   return total;
 }
 
-/** 광산 축복 배율 M. 투자 레벨이 비었으면 (광산 없음) null */
+/** 광산 축복 배율 M. 투자 레벨이 비었거나 1 이면 (축복 없음) null */
 export function mineMultiplier(values: CalcValues): number | null {
   const level = numberValue(values, MINE_LEVEL_FIELD);
-  if (level < FIRST_LEVEL) return null;
+  // 게임 m17380: 투자 레벨 − 1 = 0 이면 0 (축복 없음, work_weapon/mine/README.md). 레벨 1 은 화면 '-' 와 같게 줄 없음
+  if (level <= FIRST_LEVEL) return null;
   const awakenTotal = mineAwakenTotal(values);
   return (awakenTotal + 1) * (1 + (level - FIRST_LEVEL) * GROWTH_PER_LEVEL);
 }

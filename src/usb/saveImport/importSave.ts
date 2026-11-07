@@ -250,9 +250,7 @@ export function importSave(files: SaveFiles, tables: StatTables, withPresets = t
     values[CONTENT_PRESETS_FIELD] = JSON.stringify(contentPresets);
     values[PRESET_OVERRIDES_FIELD] = JSON.stringify(overrides);
   }
-  // 요정 유대 레벨 · 요정의 축복 (광고 제거면 상시), 공격력 이벤트 버프
-  putDefined(values, 'fairyBondLevel', files.Default.fairyLevel);
-  putDefined(values, 'fairyBlessingOn', files.Default.adsRemoved);
+  // 공격력 이벤트 버프. 요정 레벨 · 광고 제거 (요정의 축복 상시) 는 공통 입력 칸으로 (아래)
   putDefined(values, 'attackEventBuff', files.Default.attackBuffOn);
   const accountValues: Record<string, string> = {};
   putDefined(accountValues, ACCOUNT_KEYS.vipLevel, files.Default.vipLevel);

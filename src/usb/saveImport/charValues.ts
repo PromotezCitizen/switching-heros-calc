@@ -77,7 +77,8 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
       // 각성 0 도 적는다: 광산 각성 총합이 이 칸의 합이라 전에 불러온 값이 남으면 안 된다
       values[`heroOwnedAwaken_${id}`] = String(hero.awakeLv ?? 0);
       const level = affinityLevel(affinityRowsByHero.get(id) ?? [], affinityExp.get(hero.id) ?? 0);
-      if (level) values[`heroOwnedAffinity_${id}`] = String(level);
+      // 호감도 0 도 적는다: 전에 불러온 값이 남지 않게
+      values[`heroOwnedAffinity_${id}`] = String(level);
     }
   });
 

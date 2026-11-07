@@ -8,7 +8,7 @@
   },
   "common": {
     "help": "어디서 찾나요?",
-    "invalidGameNumber": "게임에 보이는 대로 단위와 %까지 넣으세요. 예: 5.14N%"
+    "invalidGameNumber": "읽을 수 없는 값이에요. 숫자 뒤에 게임에 보이는 단위를 붙이세요 (% 는 있어도 없어도 돼요). 예: 5.14N%"
   },
   "calc": {
     "groups": {
@@ -80,7 +80,7 @@
     "fairyOn": "요정의 축복 사용 중",
     "huntingFairy": "사냥 보상의 요정의 축복",
     "adRemoved": "광고 제거 구매",
-    "adRemovedHint": "광고 제거를 샀으면 요정의 축복 (경험치·골드) 이 늘 켜져 있어요. 사지 않았으면 광고로 켠 것만 아래에서 체크하세요.",
+    "adRemovedHint": "광고 제거를 샀으면 요정의 축복 (능력치 · 경험치 · 골드) 이 늘 켜져 있어요. 사지 않았으면 광고로 켠 것만 체크하세요.",
     "huntingFairyOn": "요정의 축복 사용 중 ({{resource}})",
     "guildSkillRow": "스킬 {{number}} (레벨당 +{{percent}}%)",
     "guildSkillLocked": "길드 스킬은 길드 레벨 {{level}}부터 열려요."

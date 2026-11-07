@@ -1,3 +1,4 @@
+import ancientRelicTable from '../../public/data/tables/AncientRelic.json';
 import adsBuffTable from '../../public/data/tables/AdsBuff.json';
 import alchemySlotTable from '../../public/data/tables/AlchemySlot.json';
 import attributeRuneTable from '../../public/data/tables/AttributeRune.json';
@@ -7,6 +8,7 @@ import cardTable from '../../public/data/tables/Card.json';
 import cardSetTable from '../../public/data/tables/CardSet.json';
 import cardStickerSetTable from '../../public/data/tables/CardStickerSet.json';
 import charSkillTable from '../../public/data/tables/CharSkill.json';
+import changeSkillTable from '../../public/data/tables/ChangeSkill.json';
 import characterTable from '../../public/data/tables/Character.json';
 import characterAffinityTable from '../../public/data/tables/CharacterAffinity.json';
 import characterAwakenTable from '../../public/data/tables/CharacterAwaken.json';
@@ -17,6 +19,7 @@ import costumeTable from '../../public/data/tables/Costume.json';
 import diaryStatTable from '../../public/data/tables/DiaryStat.json';
 import diceOptionTable from '../../public/data/tables/DiceOption.json';
 import figureStatTable from '../../public/data/tables/FigureStat.json';
+import frameTable from '../../public/data/tables/Frame.json';
 import iconTable from '../../public/data/tables/Icon.json';
 import libraryTable from '../../public/data/tables/Library.json';
 import masteryTable from '../../public/data/tables/Mastery.json';
@@ -44,6 +47,7 @@ import type { StatTables } from '@/data/statTables';
 export function loadTestTables(): StatTables {
   return {
     AdsBuff: adsBuffTable,
+    AncientRelic: ancientRelicTable,
     AlchemySlot: alchemySlotTable,
     AttributeRune: attributeRuneTable,
     AttributeRuneLab: attributeRuneLabTable,
@@ -52,6 +56,7 @@ export function loadTestTables(): StatTables {
     CardSet: cardSetTable,
     CardStickerSet: cardStickerSetTable,
     CharSkill: charSkillTable,
+    ChangeSkill: changeSkillTable,
     Character: characterTable,
     CharacterAffinity: characterAffinityTable,
     CharacterAwaken: characterAwakenTable,
@@ -62,6 +67,7 @@ export function loadTestTables(): StatTables {
     DiaryStat: diaryStatTable,
     DiceOption: diceOptionTable,
     FigureStat: figureStatTable,
+    Frame: frameTable,
     Icon: iconTable,
     Library: libraryTable,
     Mastery: masteryTable,

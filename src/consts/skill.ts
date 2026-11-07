@@ -56,7 +56,8 @@ export const SKILL_CONSTS = {
   LEVEL_INPUT_WIDTH: 56,
   EQUIP_SLOT_WIDTH: 80,
   ROW_ICON_SIZE: 24,
-  JOB_CARD_MIN_WIDTH: 300,
+  /** 보유 스킬 직업 카드 열 수: 넓으면 4, 중간 (sm 이상) 2 × 2, 좁으면 1 */
+  JOB_CARD_COLUMNS: { base: 1, sm: 2, lg: 4 },
   /** 옵션 고르기 칸 (드롭다운) 펼친 목록 최대 높이 (px) */
   OPTION_DROPDOWN_MAX_HEIGHT: 320,
 } as const;

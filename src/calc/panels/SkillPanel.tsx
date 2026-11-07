@@ -1,9 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { memo } from 'react';
-import { Card, Collapse, Group, Image, NumberInput, Select, Stack, Table, Text, UnstyledButton } from '@mantine/core';
+import { Card, Collapse, Group, Image, NumberInput, Select, SimpleGrid, Stack, Table, Text, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { CONSTS } from '@/CONSTS';
-import AutoGrid from '@/components/AutoGrid';
 import HorizontalScrollRow from '@/components/HorizontalScrollRow';
 import SectionTitle from '@/components/SectionTitle';
 import {
@@ -36,7 +35,7 @@ const {
   LEVEL_INPUT_WIDTH,
   EQUIP_SLOT_WIDTH,
   ROW_ICON_SIZE,
-  JOB_CARD_MIN_WIDTH,
+  JOB_CARD_COLUMNS,
   OPTION_DROPDOWN_MAX_HEIGHT,
   PERK_LEVEL_LABEL_WIDTH,
 } = CONSTS.skill;
@@ -125,8 +124,8 @@ export default function SkillPanel({ values, setValue, tables }: TabPanelProps) 
       />
       <Text size="sm">{translate('calc.skill.equippedLevelSum', { sum: equippedSkillLevelSum(values) })}</Text>
       <SectionTitle>{translate('calc.skill.equipTitle2', { name: secondHero || translate('calc.skill.noSecondHero') })}</SectionTitle>
-        <>
       {secondHero ? (
+        <>
         <EquipRow
           values={values}
           setValue={setValue}
@@ -134,16 +133,17 @@ export default function SkillPanel({ values, setValue, tables }: TabPanelProps) 
           job={heroFirstRow(tables, secondHero)?.job}
           field={secondSkillEquipField}
           pickTitle={(slot) => translate('calc.skill.equipPickTitle2', { slot })}
+        />
         <Text size="sm">{translate('calc.skill.equippedLevelSum', { sum: equippedSkillLevelSum(values, secondSkillEquipField) })}</Text>
         </>
-        />
       ) : (
         <Text size="xs" c="dimmed">{translate('calc.skill.secondHeroHelp')}</Text>
       )}
 
       <SectionTitle>{translate('calc.skill.ownedTitle')}</SectionTitle>
       <Text size="xs" c="dimmed">{translate('calc.skill.ownedHelp')}</Text>
-      <AutoGrid minItemWidth={JOB_CARD_MIN_WIDTH}>
+      {/* 직업 카드 4장: 넓으면 한 줄 4개, 좁으면 2 × 2, 더 좁으면 한 줄에 1개 */}
+      <SimpleGrid cols={JOB_CARD_COLUMNS}>
         {JOBS.map((job) => (
           <Card key={job} withBorder padding="xs">
             <Group gap="xs" mb={4}>
@@ -175,7 +175,7 @@ export default function SkillPanel({ values, setValue, tables }: TabPanelProps) 
             </Table>
           </Card>
         ))}
-      </AutoGrid>
+      </SimpleGrid>
     </Stack>
   );
 }

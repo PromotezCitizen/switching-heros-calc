@@ -11,7 +11,7 @@
   "dungeonSource": "{{name}} (클리어 단계 {{count}}만큼)",
   "targetUnitSource": "{{name}} (1슬롯 히어로 전투 특화)",
   "weaponStarSource": "{{name}} (두 히어로 전용 무기 초월 합 {{count}})",
-  "alchemySameGradeSource": "{{name}} (같은 등급 연성장비 {{count}}개)",
+  "alchemySameGradeSource": "{{name}} (같은 등급 아티팩트 {{count}}개)",
   "countSource": "{{name}} ({{count}}개만큼)",
   "heroSwapSource": "{{name}} (교체해 나온 뒤 20초간, 전체 시간의 {{percent}}% 동안 켜짐)",
   "chanceSource": "{{name}} (확률 {{chance}}% 가 기준 {{threshold}}% 를 넘음)",

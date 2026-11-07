@@ -30,6 +30,11 @@ export const HERO_CONSTS = {
   roster: {
     /** 유물 "★10 전용 무기 수" 의 ★ 기준 */
     STAR10_WEAPON_STAR: 10,
+    /**
+     * 유물 474 체력 (`_per_hp_Star10WeaponCharCnt`) 을 한 번 더 곱하는 ★ 기준: 게임 m2690 이 같은 체력 스탯을 ★5 이상 수 (@33f0050~33f014c)
+     * 와 ★10 이상 수 (@33f0280~33f037c) 로 두 번 곱한다 (claude-docs/react-port/html-verify-A-2026-11-07.md D10, 구조 확정 · 이름 유력)
+     */
+    STAR5_WEAPON_STAR: 5,
     /** 표 칸 폭 (px): 그림 · 등급·성 드롭다운 · 숫자 칸 */
     ICON_SIZE: 28,
     SELECT_WIDTH: 84,

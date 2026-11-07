@@ -9,7 +9,7 @@ import type { Line } from '@/calc/combine';
 import type { CalcValues } from '@/calc/types';
 import { integerFieldValue } from '@/calc/sources/trainingRelic/fieldNumbers';
 import { trainingGrade } from '@/calc/sources/trainingRelic/training';
-import { heroCountAtLeast, star10WeaponCount } from '@/calc/sources/hero/roster';
+import { heroCountAtLeast, star10WeaponCount, star5WeaponCount } from '@/calc/sources/hero/roster';
 import { equippedSkillLevelSum } from '@/calc/sources/skill/skill';
 
 const { WEAPON_LEVEL_DIVISOR, RUNE_NUMBER_OFFSET, BLESSING_LEVEL_OFFSET, FILL_LOWER_GRADE_LEVEL, BLESSING_PER_ENHANCE } =
@@ -282,6 +282,9 @@ export function relicBlessingFromStates(states: RelicState[], tables: StatTables
   return relicBlessing(tables, levels).fromEnhance;
 }
 
+/** ★10 전용 무기 수 연동 체력 유물 (게임은 ★5 이상 수로도 한 번 더 곱함) */
+const STAR10_HP_STAT = /^_per_hp_Star10WeaponCharCnt$/;
+
 export interface RelicSourceLabels {
   /** 유물 줄 출처 (예: "에메랄드 반지 Lv5", 연동이면 "… Lv5 × 37") */
   relic: (relicId: string, level: number, multiplier: number | null) => string;
@@ -297,6 +300,11 @@ export function relicLines(values: CalcValues, tables: StatTables, labels: Relic
     const source = labels.relic(row.relicId, level, multiplier);
     if (multiplier === null) lines.push({ source, stat: row.statType, value });
     else lines.push({ source, stat: relicTargetStat(row.statType), value: value * multiplier });
+    // 유물 474 체력: 게임은 같은 스탯을 ★5 이상 전용 무기 수로 한 번 더 곱한다 (m2690, consts hero.roster STAR5_WEAPON_STAR)
+    if (multiplier !== null && STAR10_HP_STAT.test(row.statType)) {
+      const star5 = star5WeaponCount(values, tables);
+      lines.push({ source: labels.relic(row.relicId, level, star5), stat: relicTargetStat(row.statType), value: value * star5 });
+    }
   }
   const blessing = relicBlessingFromStates(states, tables);
   if (blessing) {

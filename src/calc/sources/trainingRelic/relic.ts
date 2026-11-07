@@ -148,12 +148,12 @@ export function relicValue(row: TableRow, level: number): number {
   return clamped ? Number(row.baseVal) + Number(row.enhVal) * clamped : EMPTY_LEVEL;
 }
 
-/** 유물의 축복 두 가지: Σ (레벨 − 1) × 등급별 획득량, Σ 레벨 × 등급별 획득량. levels = {relicId: 레벨} */
+/** 유물의 축복: Σ (레벨 − 1) × 등급별 획득량. levels = {relicId: 레벨} */
 export function relicBlessing(
   tables: StatTables,
   levels: Record<string, number>,
-): { fromEnhance: number; fromLevel: number } {
-  const result = { fromEnhance: EMPTY_LEVEL, fromLevel: EMPTY_LEVEL };
+): { fromEnhance: number } {
+  const result = { fromEnhance: EMPTY_LEVEL };
   for (const row of relicRows(tables)) {
     const level = Math.min(
       Math.max(Math.floor(Number(levels[row.relicId]) || EMPTY_LEVEL), EMPTY_LEVEL),
@@ -162,7 +162,6 @@ export function relicBlessing(
     const perEnhance = BLESSING_PER_ENHANCE[row.grade] || EMPTY_LEVEL;
     if (!level) continue;
     result.fromEnhance += (level - BLESSING_LEVEL_OFFSET) * perEnhance;
-    result.fromLevel += level * perEnhance;
   }
   return result;
 }

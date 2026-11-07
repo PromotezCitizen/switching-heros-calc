@@ -1,7 +1,7 @@
-/** 히어로 표 · 전용 무기 표: 가진 것만 등급·성·각성 / 초월 ★ 를 넣는다 (비우면 미보유) */
+/** 히어로 · 전용 무기 표 (한 탭): 가진 것만 등급·성·각성 / 초월 ★ 를 넣는다 (비우면 미보유) */
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Group, NumberInput, Table, Text } from '@mantine/core';
+import { Box, Group, NumberInput, Table, Text } from '@mantine/core';
 import { CONSTS } from '@/CONSTS';
 import LazySelect from '@/components/LazySelect';
 import type { StatTables } from '@/data/statTables';
@@ -24,12 +24,110 @@ const {
   SELECT_WIDTH,
   NUMBER_WIDTH,
   TABLE_MIN_WIDTH,
+  TABLE_MAX_HEIGHT,
   AFFINITY_MAX_LEVEL,
   HERO_GRADE_WIDTH,
   HERO_STAR_WIDTH,
   HERO_AWAKEN_WIDTH,
 } = CONSTS.hero.roster;
 const NOT_OWNED = '';
+/** 표 칸 수: 히어로 쪽 (이름 · 등급 · 성 · 각성 · 호감도), 전용 무기 쪽 (초월 ★ · 강화 레벨 · 받은 초월 미션 ★) */
+const HERO_COLUMN_COUNT = 5;
+const WEAPON_COLUMN_COUNT = 3;
+/** 히어로 칸과 전용 무기 칸 사이 세로 줄 */
+const WEAPON_DIVIDER = '1px solid var(--mantine-color-default-border)';
+
+/** 전용 무기 칸 값 (초월 ★ · 강화 레벨 · 받은 초월 미션 ★) */
+interface WeaponValues {
+  star: string | undefined;
+  level: string | undefined;
+  /** 받은 초월 미션 ★ (비어 있으면 초월 ★ 까지 받은 것으로 침) */
+  missionStar: string | undefined;
+}
+
+function weaponValuesOf(values: TabPanelProps['values'], weapon: ExclusiveWeapon | undefined): WeaponValues {
+  if (!weapon) return { star: undefined, level: undefined, missionStar: undefined };
+  return {
+    star: values[exclusiveOwnedStarField(weapon.weaponId)],
+    level: values[exclusiveOwnedLevelField(weapon.weaponId)],
+    missionStar: values[exclusiveMissionReceivedStarField(weapon.weaponId)],
+  };
+}
+
+/** 줄의 전용 무기 칸 세 개. 전용 무기가 없는 히어로는 "—" */
+function ExclusiveWeaponCells({
+  weapon,
+  ownerName,
+  weaponValues,
+  setValue,
+}: {
+  weapon: ExclusiveWeapon | undefined;
+  ownerName: string;
+  weaponValues: WeaponValues;
+  setValue: TabPanelProps['setValue'];
+}) {
+  const { t: translate } = useTranslation();
+  if (!weapon) {
+    return (
+      <Table.Td colSpan={WEAPON_COLUMN_COUNT}>
+        <Text size="xs" c="dimmed">
+          {translate('calc.heroRoster.noWeapon')}
+        </Text>
+      </Table.Td>
+    );
+  }
+  const { star, level, missionStar } = weaponValues;
+  const owned = !!star;
+  return (
+    <>
+      <Table.Td style={{ borderLeft: WEAPON_DIVIDER }}>
+        {/* 초월 ★ 드롭다운: 없음 (미보유) + ★0 ~ 그 무기 최대 ★ */}
+        <LazySelect
+          size="xs"
+          style={{ width: SELECT_WIDTH }}
+          aria-label={translate('calc.exclusiveWeapon.starLabel', { name: ownerName })}
+          data={[
+            { value: NOT_OWNED, label: translate('calc.exclusiveWeapon.notOwned') },
+            ...Array.from({ length: weapon.maxStar + 1 }, (_, starNumber) => ({ value: String(starNumber), label: `★${starNumber}` })),
+          ]}
+          value={star ?? NOT_OWNED}
+          allowDeselect={false}
+          onChange={(next) => setValue(exclusiveOwnedStarField(weapon.weaponId), next ?? NOT_OWNED)}
+        />
+      </Table.Td>
+      <Table.Td>
+        <NumberInput
+          size="xs"
+          w={NUMBER_WIDTH}
+          hideControls
+          min={1}
+          allowNegative={false}
+          allowDecimal={false}
+          disabled={!owned}
+          aria-label={translate('calc.exclusiveWeapon.levelLabel', { name: ownerName })}
+          value={level ?? ''}
+          onChange={(next) => setValue(exclusiveOwnedLevelField(weapon.weaponId), String(next))}
+        />
+      </Table.Td>
+      <Table.Td>
+        {/* 받은 초월 미션 ★: 비워 두면 초월 ★ 까지 받은 것으로 계산 */}
+        <NumberInput
+          size="xs"
+          w={NUMBER_WIDTH}
+          hideControls
+          min={0}
+          max={weapon.maxStar}
+          allowNegative={false}
+          allowDecimal={false}
+          placeholder={star ?? ''}
+          aria-label={translate('calc.exclusiveWeapon.missionStarLabel', { name: ownerName })}
+          value={missionStar ?? ''}
+          onChange={(next) => setValue(exclusiveMissionReceivedStarField(weapon.weaponId), String(next))}
+        />
+      </Table.Td>
+    </>
+  );
+}
 
 interface HeroRosterRowProps {
   hero: RosterHero;
@@ -38,12 +136,29 @@ interface HeroRosterRowProps {
   star: string | undefined;
   awaken: string | undefined;
   affinity: string | undefined;
+  /** 이 히어로의 전용 무기 (없으면 undefined) 와 그 칸 값 */
+  weapon: ExclusiveWeapon | undefined;
+  weaponStar: string | undefined;
+  weaponLevel: string | undefined;
+  weaponMissionStar: string | undefined;
   tables: StatTables;
   setValue: TabPanelProps['setValue'];
 }
 
-/** 히어로 표 한 줄 (memo: 칸 하나를 바꾸면 그 줄만 다시 그린다) */
-const HeroRosterRow = memo(function HeroRosterRow({ hero, grade, star, awaken, affinity, tables, setValue }: HeroRosterRowProps) {
+/** 히어로 · 전용 무기 표 한 줄 (memo: 칸 하나를 바꾸면 그 줄만 다시 그린다) */
+const HeroRosterRow = memo(function HeroRosterRow({
+  hero,
+  grade,
+  star,
+  awaken,
+  affinity,
+  weapon,
+  weaponStar,
+  weaponLevel,
+  weaponMissionStar,
+  tables,
+  setValue,
+}: HeroRosterRowProps) {
   const { t: translate } = useTranslation();
   const grades = heroGradeChoices(tables, hero.name);
   const stars = grade ? heroStarChoices(tables, hero.name, grade) : [];
@@ -115,168 +230,89 @@ const HeroRosterRow = memo(function HeroRosterRow({ hero, grade, star, awaken, a
           onChange={(next) => setValue(rosterAffinityField(hero.charId), String(next))}
         />
       </Table.Td>
+      <ExclusiveWeaponCells
+        weapon={weapon}
+        ownerName={hero.name}
+        weaponValues={{ star: weaponStar, level: weaponLevel, missionStar: weaponMissionStar }}
+        setValue={setValue}
+      />
     </Table.Tr>
   );
 });
 
-/** 히어로 표: 히어로마다 등급 (없음 = 미보유) · 성 · 캐릭터 각성 */
+/**
+ * 히어로 · 전용 무기 표 (사용자 결정 2026-11-07 "히어로와 전용무기는 하나로 합친다"): 히어로마다 한 줄에
+ * 등급 (없음 = 미보유) · 성 · 캐릭터 각성 · 호감도와 그 히어로 전용 무기의 초월 ★ (비우면 미보유) · 강화 레벨 · 받은 초월 미션 ★.
+ * 강화 레벨은 장착 효과에만 쓰여 계산에는 1슬롯 히어로 무기 줄 값만 쓰지만, 1슬롯 히어로를 바꿔도 다시 넣지 않게 무기마다 받는다.
+ * 주인이 히어로 목록에 없는 전용 무기는 맨 아래에 따로 한 줄씩
+ */
 export function HeroRosterPanel({ values, setValue, tables }: TabPanelProps) {
-  const { t: translate } = useTranslation();
-  const heroes = useMemo(() => rosterHeroes(tables), [tables]);
+  const { t: translate, i18n } = useTranslation();
+  // 히어로 이름을 화면 언어의 가나다 (알파벳) 순으로 (사용자 지시 2026-11-07 "히어로 탭도 가나다 순으로 해라", 피규어 탭과 같은 기준)
+  const heroes = useMemo(
+    () => [...rosterHeroes(tables)].sort((left, right) => left.name.localeCompare(right.name, i18n.language)),
+    [tables, i18n.language],
+  );
+  const weapons = useMemo(() => exclusiveWeapons(tables), [tables]);
+  const weaponByHero = useMemo(() => new Map(weapons.map((weapon) => [weapon.charId, weapon])), [weapons]);
+  const heroIds = useMemo(() => new Set(heroes.map((hero) => hero.charId)), [heroes]);
+  const orphanWeapons = weapons.filter((weapon) => !heroIds.has(weapon.charId));
   return (
-    <Table.ScrollContainer minWidth={TABLE_MIN_WIDTH}>
-      <Table verticalSpacing={4} horizontalSpacing="xs">
+    // 높이가 TABLE_MAX_HEIGHT 를 넘으면 표 안에서 위아래 스크롤, 좁으면 가로 스크롤. 머리줄 (두 단) 은 맨 위 고정
+    <Box style={{ overflow: 'auto', maxHeight: TABLE_MAX_HEIGHT }}>
+      <Table verticalSpacing={4} horizontalSpacing="xs" miw={TABLE_MIN_WIDTH} stickyHeader>
         <Table.Thead>
+          <Table.Tr>
+            <Table.Th colSpan={HERO_COLUMN_COUNT}>{translate('calc.heroRoster.heroGroup')}</Table.Th>
+            <Table.Th colSpan={WEAPON_COLUMN_COUNT} style={{ borderLeft: WEAPON_DIVIDER }}>
+              {translate('calc.heroRoster.weaponGroup')}
+            </Table.Th>
+          </Table.Tr>
           <Table.Tr>
             <Table.Th>{translate('calc.heroRoster.hero')}</Table.Th>
             <Table.Th>{translate('calc.heroRoster.grade')}</Table.Th>
             <Table.Th>{translate('calc.heroRoster.star')}</Table.Th>
             <Table.Th>{translate('calc.heroRoster.awaken')}</Table.Th>
             <Table.Th>{translate('calc.heroRoster.affinity')}</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {heroes.map((hero) => (
-            <HeroRosterRow
-              key={hero.charId}
-              hero={hero}
-              grade={values[rosterGradeField(hero.charId)] ?? NOT_OWNED}
-              star={values[rosterStarField(hero.charId)]}
-              awaken={values[rosterAwakenField(hero.charId)]}
-              affinity={values[rosterAffinityField(hero.charId)]}
-              tables={tables}
-              setValue={setValue}
-            />
-          ))}
-        </Table.Tbody>
-      </Table>
-    </Table.ScrollContainer>
-  );
-}
-
-interface ExclusiveWeaponRowProps {
-  weapon: ExclusiveWeapon;
-  owner: RosterHero | undefined;
-  /** 칸 값 (초월 ★ · 강화 레벨) */
-  star: string | undefined;
-  level: string | undefined;
-  /** 받은 초월 미션 ★ (비어 있으면 초월 ★ 까지 받은 것으로 침) */
-  missionStar: string | undefined;
-  tables: StatTables;
-  setValue: TabPanelProps['setValue'];
-}
-
-/** 전용 무기 표 한 줄 (memo: 칸 하나를 바꾸면 그 줄만 다시 그린다) */
-const ExclusiveWeaponRow = memo(function ExclusiveWeaponRow({
-  weapon,
-  owner,
-  star,
-  level,
-  missionStar,
-  tables,
-  setValue,
-}: ExclusiveWeaponRowProps) {
-  const { t: translate } = useTranslation();
-  const ownerName = owner?.name ?? translate('calc.exclusiveWeapon.unknownOwner', { id: weapon.weaponId });
-  const starField = exclusiveOwnedStarField(weapon.weaponId);
-  const owned = !!star;
-  const levelField = exclusiveOwnedLevelField(weapon.weaponId);
-  const missionStarField = exclusiveMissionReceivedStarField(weapon.weaponId);
-  return (
-    <Table.Tr style={{ opacity: owned ? undefined : CONSTS.heroWeaponCardPet.ui.UNUSED_OPACITY }}>
-      <Table.Td>
-        <Group gap={6} wrap="nowrap">
-          <HeroImage hero={owner ? heroFirstRow(tables, owner.name) : undefined} size={ICON_SIZE} />
-          <Text size="sm">{ownerName}</Text>
-        </Group>
-      </Table.Td>
-      <Table.Td>
-        {/* 초월 ★ 드롭다운: 없음 (미보유) + ★0 ~ 그 무기 최대 ★ */}
-        <LazySelect
-          size="xs"
-          style={{ width: SELECT_WIDTH }}
-          aria-label={translate('calc.exclusiveWeapon.starLabel', { name: ownerName })}
-          data={[
-            { value: NOT_OWNED, label: translate('calc.exclusiveWeapon.notOwned') },
-            ...Array.from({ length: weapon.maxStar + 1 }, (_, starNumber) => ({ value: String(starNumber), label: `★${starNumber}` })),
-          ]}
-          value={star ?? NOT_OWNED}
-          allowDeselect={false}
-          onChange={(next) => setValue(starField, next ?? NOT_OWNED)}
-        />
-      </Table.Td>
-      <Table.Td>
-        <NumberInput
-          size="xs"
-          w={NUMBER_WIDTH}
-          hideControls
-          min={1}
-          allowNegative={false}
-          allowDecimal={false}
-          disabled={!owned}
-          aria-label={translate('calc.exclusiveWeapon.levelLabel', { name: ownerName })}
-          value={level ?? ''}
-          onChange={(next) => setValue(levelField, String(next))}
-        />
-      </Table.Td>
-      <Table.Td>
-        {/* 받은 초월 미션 ★: 비워 두면 초월 ★ 까지 받은 것으로 계산 */}
-        <NumberInput
-          size="xs"
-          w={NUMBER_WIDTH}
-          hideControls
-          min={0}
-          max={weapon.maxStar}
-          allowNegative={false}
-          allowDecimal={false}
-          placeholder={star ?? ''}
-          aria-label={translate('calc.exclusiveWeapon.missionStarLabel', { name: ownerName })}
-          value={missionStar ?? ''}
-          onChange={(next) => setValue(missionStarField, String(next))}
-        />
-      </Table.Td>
-    </Table.Tr>
-  );
-});
-
-/**
- * 전용 무기 표: 무기마다 초월 ★ (비우면 미보유) · 강화 레벨. 강화 레벨은 장착 효과에만 쓰여 계산에는 1슬롯 히어로 무기 줄 값만 쓰지만,
- * 1슬롯 히어로를 바꿔도 다시 넣지 않게 무기마다 받는다
- */
-export function ExclusiveWeaponRosterPanel({ values, setValue, tables }: TabPanelProps) {
-  const { t: translate } = useTranslation();
-  const weapons = useMemo(() => exclusiveWeapons(tables), [tables]);
-  // 무기 주인 히어로 (히어로 목록은 한 번만 만든다)
-  const heroById = useMemo(
-    () => new Map(tables.Character ? rosterHeroes(tables).map((hero) => [hero.charId, hero]) : []),
-    [tables],
-  );
-  return (
-    <Table.ScrollContainer minWidth={TABLE_MIN_WIDTH}>
-      <Table verticalSpacing={4} horizontalSpacing="xs">
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>{translate('calc.exclusiveWeapon.owner')}</Table.Th>
-            <Table.Th>{translate('calc.exclusiveWeapon.star')}</Table.Th>
+            <Table.Th style={{ borderLeft: WEAPON_DIVIDER }}>{translate('calc.exclusiveWeapon.star')}</Table.Th>
             <Table.Th>{translate('calc.exclusiveWeapon.level')}</Table.Th>
             <Table.Th>{translate('calc.exclusiveWeapon.missionStar')}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {weapons.map((weapon) => (
-            <ExclusiveWeaponRow
-              key={weapon.weaponId}
-              weapon={weapon}
-              owner={heroById.get(weapon.charId)}
-              star={values[exclusiveOwnedStarField(weapon.weaponId)]}
-              level={values[exclusiveOwnedLevelField(weapon.weaponId)]}
-              missionStar={values[exclusiveMissionReceivedStarField(weapon.weaponId)]}
-              tables={tables}
-              setValue={setValue}
-            />
-          ))}
+          {heroes.map((hero) => {
+            const weapon = weaponByHero.get(hero.charId);
+            const weaponValues = weaponValuesOf(values, weapon);
+            return (
+              <HeroRosterRow
+                key={hero.charId}
+                hero={hero}
+                grade={values[rosterGradeField(hero.charId)] ?? NOT_OWNED}
+                star={values[rosterStarField(hero.charId)]}
+                awaken={values[rosterAwakenField(hero.charId)]}
+                affinity={values[rosterAffinityField(hero.charId)]}
+                weapon={weapon}
+                weaponStar={weaponValues.star}
+                weaponLevel={weaponValues.level}
+                weaponMissionStar={weaponValues.missionStar}
+                tables={tables}
+                setValue={setValue}
+              />
+            );
+          })}
+          {orphanWeapons.map((weapon) => {
+            const ownerName = translate('calc.exclusiveWeapon.unknownOwner', { id: weapon.weaponId });
+            return (
+              <Table.Tr key={`weapon-${weapon.weaponId}`}>
+                <Table.Td colSpan={HERO_COLUMN_COUNT}>
+                  <Text size="sm">{ownerName}</Text>
+                </Table.Td>
+                <ExclusiveWeaponCells weapon={weapon} ownerName={ownerName} weaponValues={weaponValuesOf(values, weapon)} setValue={setValue} />
+              </Table.Tr>
+            );
+          })}
         </Table.Tbody>
       </Table>
-    </Table.ScrollContainer>
+    </Box>
   );
 }

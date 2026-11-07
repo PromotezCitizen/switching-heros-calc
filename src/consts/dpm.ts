@@ -446,6 +446,13 @@ export const DPM_CONSTS = {
   /** 화살형 교체 스킬의 화살 발사 간격 (게임초, damage-pipeline.md 80 "0.12초 간격") */
   SWAP_ARROW_INTERVAL: 0.12,
   /**
+   * 피규어 데빌윙크 (charSkillDevilWink, figure-special-effects-2026-11-07.md 6절, 게임 m2042 @32df7a0 · m2709 원문 대조):
+   * 전용 스킬 적중 (정보 종류 4) 마다 10% 확률로 대상에 6초 상태 0x4e34 (최대 1, 갱신) → 대상이 받는 피해 ×(1 + 값/100) (공격 종류 제한 없음),
+   * 상태이상 수에도 센다. 한 시전에 대상 하나가 맞는 수 h 로 시전마다 걸릴 확률 1 − 0.9^h, 시전 간격 · 6초로 걸려 있는 비율 p 를 구해 1 + p × 값/100 을 곱한다
+   * (사용자 지시 2026-11-07 "다 계산해라", 넣기 결정)
+   */
+  DEVIL_WINK: { STAT: 'charSkillDevilWink', KIND: 'devilWink', HIT_CHANCE: 0.1, SECONDS: 6 },
+  /**
    * 에이카 전용 무기 (1021) ★4 (WeaponTranscend statType 30004, val1 50 · val2 6): 얼음 유성에 적중한 적 val1 % 확률로 val2 초간 빙결
    * (catalog-skill-hits.md 540 · 646). 얼음 유성은 에이카 전용 스킬 (시전 간격 charSkill) 이 만든다. 한 시전의 판정은 한 번으로 센다 (유성 10개 중 하나만, 추정)
    */

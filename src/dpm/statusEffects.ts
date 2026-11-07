@@ -17,7 +17,7 @@ import { skillRuneValue } from '@/calc/sources/skill/skill';
 import type { CalcValues } from '@/calc/types';
 import type { StatTables, TableRow } from '@/data/statTables';
 
-const { STATUS_OPTIONS, TYR_WEAPON, AEIKA_WEAPON, PET_LEADER_STATUS, SWAP, SWAP_SKILL_FREEZE, SWAP_ARROW_INTERVAL } = CONSTS.dpm;
+const { STATUS_OPTIONS, TYR_WEAPON, AEIKA_WEAPON, PET_LEADER_STATUS, SWAP, SWAP_SKILL_FREEZE, SWAP_ARROW_INTERVAL, DEVIL_WINK } = CONSTS.dpm;
 const [, SECOND_HERO_FIELD] = SWAP.HERO_FIELDS;
 const [, SECOND_EQUIPPED_FIELD] = SWAP.EQUIPPED_FIELDS;
 const PERCENT = 100;
@@ -59,6 +59,20 @@ export function statusProbabilities(sources: StatusSource[]): Record<string, num
   const absent: Record<string, number> = {};
   for (const source of sources) absent[source.kind] = (absent[source.kind] ?? 1) * (1 - activeProbability(source));
   return Object.fromEntries(Object.entries(absent).map(([kind, none]) => [kind, 1 - none]));
+}
+
+/**
+ * 피규어 데빌윙크 (consts DEVIL_WINK): 전용 스킬 적중마다 10% 로 6초. 한 시전에 대상 하나가 hitsPerTarget 번 맞으면
+ * 그 시전에 걸릴 확률 = 1 − 0.9^hitsPerTarget. 데빌윙크 피규어가 없거나 전용 스킬이 없으면 null
+ */
+export function devilWinkSource(charSkillSeconds: number | null, hitsPerTarget: number, devilWinkValue: number): StatusSource | null {
+  if (!(devilWinkValue > 0) || !charSkillSeconds || !(hitsPerTarget > 0)) return null;
+  return {
+    kind: DEVIL_WINK.KIND,
+    chance: 1 - Math.pow(1 - DEVIL_WINK.HIT_CHANCE, hitsPerTarget),
+    durationSeconds: DEVIL_WINK.SECONDS,
+    intervalSeconds: charSkillSeconds,
+  };
 }
 
 /**

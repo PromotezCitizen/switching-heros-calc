@@ -4,7 +4,11 @@
  * 이 계정 값이 비어 있어 화면 대조는 못 했다 (구조 확정, 이름 연결 유력)
  */
 import { CONSTS } from '@/CONSTS';
-import { tableRows, type StatTables, type TableRow } from '@/data/statTables';
+import { tableRows, type RawTable, type StatTables, type TableRow } from '@/data/statTables';
+import type { FigureCountKind } from '@/consts/providers';
+import { exclusiveWeapons, rosterHeroes } from '@/calc/sources/hero/roster';
+import { exclusiveOwnedStarField, rosterAwakenField } from '@/calc/sources/hero/rosterFields';
+import { stickerLevelField } from '@/calc/sources/heroWeaponCardPet/card';
 import type { Line } from '@/calc/combine';
 import type { CalcValues } from '@/calc/types';
 import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
@@ -25,7 +29,11 @@ const {
   CARD_SET_POINT_STAT,
   CARD_SET_POINT_TARGET_STAT,
   CARD_SET_POINT_FIELD,
+  COUNT_STATS,
+  LEVEL_SUM_GRADES,
+  MYTHIC_GRADE,
 } = CONSTS.providers.figure;
+const EMPTY_TABLE: RawTable = { columns: [], rows: [] };
 
 export function figureLevelField(figureId: string): string {
   return `${LEVEL_FIELD_PREFIX}${figureId}`;
@@ -75,10 +83,28 @@ export function figureLevel(values: CalcValues, figureId: string): number {
   return numberValue(values, figureLevelField(figureId));
 }
 
+/** 개수형 효과의 N (피규어 레벨 합 · 신화 피규어 수 · 배지 점수 합 · 전용 무기 초월 합 · 히어로 각성 합) */
+export function figureCounts(values: CalcValues, tables: StatTables): Record<FigureCountKind, number> {
+  const owned = figures(tables).map((figure) => ({ grade: figure.grade, level: Math.min(figureLevel(values, figure.figureId), figure.maxLevel) }));
+  const levelSum = (grades: string[]) => owned.reduce((sum, figure) => (grades.includes(figure.grade) ? sum + figure.level : sum), 0);
+  const stickerIds = [...new Set(tableRows(tables.CardStickerSet ?? EMPTY_TABLE).map((row) => row.stickerId))];
+  return {
+    figureLevelDC: levelSum(LEVEL_SUM_GRADES.figureLevelDC),
+    figureLevelDCB: levelSum(LEVEL_SUM_GRADES.figureLevelDCB),
+    mythicFigures: owned.filter((figure) => figure.grade === MYTHIC_GRADE && figure.level > 0).length,
+    stickerPoints: stickerIds.reduce((sum, stickerId) => sum + numberValue(values, stickerLevelField(stickerId)), 0),
+    weaponTranscend: exclusiveWeapons(tables).reduce((sum, weapon) => sum + numberValue(values, exclusiveOwnedStarField(weapon.weaponId)), 0),
+    heroAwaken: tables.Character
+      ? rosterHeroes(tables).reduce((sum, hero) => sum + numberValue(values, rosterAwakenField(hero.charId)), 0)
+      : 0,
+  };
+}
+
 export function figureLines(values: CalcValues, tables: StatTables, label: SourceLabel): Line[] {
   const lines: Line[] = [];
   const heroId = heroFirstRow(tables, slotHeroName(values, tables))?.charId;
   const cardSetPoint = numberValue(values, CARD_SET_POINT_FIELD);
+  let counts: Record<FigureCountKind, number> | undefined;
   for (const figure of figures(tables)) {
     const level = Math.min(figureLevel(values, figure.figureId), figure.maxLevel);
     const row = figureRow(tables, figure.figureId, level);
@@ -88,6 +114,8 @@ export function figureLines(values: CalcValues, tables: StatTables, label: Sourc
       const stat = row[`${STAT_COLUMN_PREFIX}${slot}`];
       const value = Number(row[`${VALUE_COLUMN_PREFIX}${slot}`]) || 0;
       if (!stat || EMPTY_STATS.includes(stat) || !value) continue;
+      // 사망 방어 뒤 공격력은 넣지 않는다 — 죽을 일이 없으므로 (사용자 결정 2026-11-07)
+      if (stat === CONSTS.masteryRuneBuff.FIGURE_BATTLE.DEATH_GUARD_STAT) continue;
       const targetHero = TARGET_HERO_PATTERN.exec(stat);
       if (targetHero) {
         // 히어로 번호가 같을 때만: 체력 % · 공격력 % 로 넣는다 (m2730)
@@ -97,6 +125,11 @@ export function figureLines(values: CalcValues, tables: StatTables, label: Sourc
       } else if (stat === CARD_SET_POINT_STAT) {
         // 개수 수집기 m2684: 1 + (v − 1) x 세트 점수 = 값 x 세트 점수 %
         if (cardSetPoint) lines.push({ source, stat: CARD_SET_POINT_TARGET_STAT, value: value * cardSetPoint });
+      } else if (COUNT_STATS[stat]) {
+        // 개수 수집기 m2684: 값 x N % (N = 레벨 합 · 신화 수 · 배지 점수 합 · 초월 합 · 각성 합)
+        counts ??= figureCounts(values, tables);
+        const count = counts[COUNT_STATS[stat].count];
+        if (count) lines.push({ source, stat: COUNT_STATS[stat].target, value: value * count });
       } else {
         lines.push({ source, stat, value });
       }

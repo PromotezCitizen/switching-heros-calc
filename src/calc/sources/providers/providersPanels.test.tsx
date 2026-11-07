@@ -50,13 +50,14 @@ describe('코어 특성 · 피규어 · 룬 연구실 · 스킬 옵션 화면', 
     expect(boxes.every((box) => !box.checked)).toBe(true);
   });
 
-  it('피규어: 접이식 안에 피규어 108종 레벨 칸', () => {
+  it('피규어: 펼친 채로 공용 · 히어로 전용 카드 (이름 · 레벨 칸), 108종', () => {
     const figure = providerTabs.find((tab) => tab.id === 'figure')!;
     const setValue = renderTab(figure, {});
-    fireEvent.click(screen.getByText('피규어 레벨 입력 (108종)'));
-    const input = screen.getByLabelText('1번 (D등급)');
-    fireEvent.change(input, { target: { value: '5' } });
-    expect(setValue).toHaveBeenCalledWith('figureLevel_1', '5');
+    expect(screen.getByText('공용 피규어 (46종)')).toBeTruthy();
+    expect(screen.getByText('히어로 전용 피규어 (62종)')).toBeTruthy();
+    expect(screen.getByText('<버서커> 티르')).toBeTruthy();
+    fireEvent.change(screen.getByLabelText('<버서커> 티르 레벨'), { target: { value: '5' } });
+    expect(setValue).toHaveBeenCalledWith('figureLevel_108', '5');
   });
 
   it('룬 탭: 속성 룬 연구실 레벨 칸 세 개 (비어 있음) 가 보이고 입력하면 runeLab_<속성> 칸 이름', () => {

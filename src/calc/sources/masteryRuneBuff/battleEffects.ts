@@ -16,7 +16,7 @@ import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 import { summaryTarget } from '@/calc/sources/summary/summary';
 import { swapCycle } from '@/dpm/swapCycle';
 
-const { STATS, SWAP_UPTIME_FIELD, SWITCHING_BOOST, EXCLUSIVE_BATTLE, MAGIC_GUARD } = CONSTS.masteryRuneBuff;
+const { STATS, SWAP_UPTIME_FIELD, SWITCHING_BOOST, EXCLUSIVE_BATTLE, MAGIC_GUARD, FIGURE_BATTLE } = CONSTS.masteryRuneBuff;
 const { PROBABILITY_MAX, DAMAGE_TARGET_FIELD, AEIKA_WEAPON } = CONSTS.dpm;
 const PERCENT = 100;
 const BOSS_TARGET = 'boss';
@@ -30,6 +30,62 @@ function swapUptime(values: CalcValues): number {
 function stintShare(tables: StatTables, seconds: number): number {
   const stint = swapCycle(tables)?.fullSeconds;
   return stint && stint > 0 ? Math.min(seconds / stint, 1) : 1;
+}
+
+/** 같은 이름 줄 (대소문자 무시) */
+function linesOf(lines: Line[], stat: string): Line[] {
+  const lower = stat.toLowerCase();
+  return lines.filter((line) => line.stat.toLowerCase() === lower && Number(line.value));
+}
+
+/** `_per_` 이름: 줄마다 곱 → (곱 − 1) × 100 */
+function productPercent(lines: Line[], stat: string): number {
+  const product = linesOf(lines, stat).reduce((total, line) => total * (1 + Number(line.value) / PERCENT), 1);
+  return (product - 1) * PERCENT;
+}
+
+/**
+ * 피규어 조건형 효과 줄 (consts FIGURE_BATTLE): 확률 200% 초과 7종 · 교체 등장 10초 · 기본 공격 (체력 100%) 공격력.
+ * 사망 방어 뒤 공격력은 넣지 않는다 — 죽을 일이 없으므로 (사용자 결정 2026-11-07)
+ */
+export function figureBattleLines(
+  otherLines: Line[],
+  values: CalcValues,
+  tables: StatTables,
+  chances: Chances,
+  magicGuardOn: boolean,
+  sourceLabel: SourceLabel,
+): Line[] {
+  const { OVER_THRESHOLD, OVER_STATS, SWAP_ONLY, BARRIER, CHANGE_SKILL_CAST_STAT, CHANGE_SKILL_CAST_SECONDS, NORMAL_ATTACK_UP_STAT } = FIGURE_BATTLE;
+  const lines: Line[] = [];
+  const uptime = swapUptime(values);
+  for (const [chanceName, stat] of Object.entries(OVER_STATS)) {
+    const percent = productPercent(otherLines, stat);
+    const chance = chances[chanceName] ?? 0;
+    // 문턱은 넘어야 (같으면 안 켜짐), 스위칭 부스트는 교체가 있어야, 매직 가드는 보호막이 있어야
+    if (!(percent > 0) || !(chance > OVER_THRESHOLD)) continue;
+    if (chanceName === SWAP_ONLY && !(uptime > 0)) continue;
+    if (chanceName === BARRIER && !magicGuardOn) continue;
+    lines.push({
+      source: sourceLabel('calc.buff.battle.figureOverSource', { chance: plainNumber(chance), name: sourceLabel(`calc.buff.battle.chanceNames.${chanceName}`) }),
+      stat: STATS.ATTACK_PERCENT,
+      value: percent,
+    });
+  }
+  const castPercent = productPercent(otherLines, CHANGE_SKILL_CAST_STAT);
+  if (castPercent > 0 && uptime > 0) {
+    const share = uptime * stintShare(tables, CHANGE_SKILL_CAST_SECONDS);
+    lines.push({
+      source: sourceLabel('calc.buff.battle.figureSwapSource', { seconds: CHANGE_SKILL_CAST_SECONDS, percent: plainNumber(share * PERCENT) }),
+      stat: STATS.ATTACK_PERCENT,
+      value: castPercent * share,
+    });
+  }
+  const normalAttackUp = linesOf(otherLines, NORMAL_ATTACK_UP_STAT).reduce((sum, line) => sum + Number(line.value), 0);
+  if (normalAttackUp > 0) {
+    lines.push({ source: sourceLabel('calc.buff.battle.figureNormalAttackSource'), stat: STATS.ATTACK_PERCENT, value: normalAttackUp });
+  }
+  return lines;
 }
 
 /** 스위칭 부스트 발동 버프 · 과잉 전환 줄 */

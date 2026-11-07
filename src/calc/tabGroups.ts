@@ -7,12 +7,14 @@ import type { CalcTab } from '@/calc/types';
  */
 export const CALC_TAB_GROUPS: { id: string; tabIds: string[] }[] = [
   { id: 'summary', tabIds: ['summary'] },
-  { id: 'hero', tabIds: ['hero', 'awakenDetail', 'heroRoster', 'exclusiveWeapon', 'mastery', 'coreMastery', 'library'] },
+  { id: 'hero', tabIds: ['hero', 'awakenDetail', 'heroRoster', 'mastery', 'coreMastery', 'library'] },
   { id: 'growth', tabIds: ['training', 'relic', 'ancientRelic', 'diary', 'rune'] },
   { id: 'equipment', tabIds: ['artifact', 'weapon', 'skill', 'soulForge'] },
   { id: 'card', tabIds: ['card'] },
   { id: 'pet', tabIds: ['pet'] },
-  { id: 'collection', tabIds: ['costume', 'collection', 'title', 'profileIcon', 'affinity', 'fairy', 'mine', 'figure', 'frame'] },
+  // 피규어는 따로 한 탭 (전용 · 공용 108개 전부, 사용자 결정 2026-11-07 "피규어를 새로운 탭으로 만들라니까")
+  { id: 'figure', tabIds: ['figure'] },
+  { id: 'collection', tabIds: ['costume', 'collection', 'title', 'profileIcon', 'affinity', 'fairy', 'mine', 'frame'] },
   { id: 'battle', tabIds: ['buff', 'profile'] },
 ];
 

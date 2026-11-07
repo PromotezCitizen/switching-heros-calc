@@ -23,7 +23,16 @@ import { chanceOf, expectedSmite, expectedSpear, expectedSuperCritical } from '@
 import { attributeFloorHpLog, killFractions, stageMonsterHpLog, timelinePhases, type HpPhase, type MonsterHpData } from '@/dpm/hpCondition';
 import { skillCoefficient } from '@/dpm/skillCoefficient';
 import { swapCycle } from '@/dpm/swapCycle';
-import { petLeaderStatusSource, statusSourceOf, swapSkillFreezeSources, typicalStatusCount, weaponFreezeSource, weaponStatus } from '@/dpm/statusEffects';
+import {
+  devilWinkSource,
+  petLeaderStatusSource,
+  statusProbabilities,
+  statusSourceOf,
+  swapSkillFreezeSources,
+  typicalStatusCount,
+  weaponFreezeSource,
+  weaponStatus,
+} from '@/dpm/statusEffects';
 import { dpmTiming } from '@/dpm/timing';
 
 const {
@@ -46,6 +55,7 @@ const {
   SMITE,
   HP_CONDITION,
   CHANGE_SKILL,
+  DEVIL_WINK,
 } = CONSTS.dpm;
 const { ACTIVE_SKILL_TYPE } = CONSTS.skill;
 const { TARGET_FIELD } = CONSTS.summary;
@@ -238,6 +248,17 @@ export function targetDamage(values: CalcValues, tables: StatTables, target: Dam
         ? activeSkillGameSeconds(values, tables, stats.read, skillId, unit)
         : null;
   };
+  // 피규어 데빌윙크: 전용 스킬 적중으로 대상에 걸리는 받는 피해 증가 (consts DEVIL_WINK). 걸려 있는 비율 p 만큼 모든 공격에 ×(1 + p × 값/100)
+  const charHits = charSkillHits(values, tables, targets, inputs.orbShardHits[target] ?? 0);
+  const devilWinkValue = stats.read.sum(DEVIL_WINK.STAT);
+  const devilWink = devilWinkSource(
+    charHits.supported ? timing.charSkill?.gameSeconds ?? null : null,
+    charHits.supported ? charHits.hits / targets : 0,
+    devilWinkValue,
+  );
+  const devilWinkShare = devilWink ? statusProbabilities([devilWink])[DEVIL_WINK.KIND] ?? 0 : 0;
+  const devilWinkLog = Math.log10(1 + (devilWinkShare * devilWinkValue) / PERCENT_DIVISOR);
+  const hitLogOf = (kind: AttackKind, count: number) => kindHitLog(stats, kind, count) + devilWinkLog;
   // 대상 상태이상 수: 입력으로 정한 값이 없으면 계산 (스테이지 3중첩 가정 · 그 밖 장착 스킬 옵션이 시전 간격 · 확률 · 지속시간으로 걸려 있을 확률, statusEffects.ts)
   let statusCount = inputs.targetStatusCount[target] ?? STAGE_STATUS_COUNT;
   if (inputs.targetStatusCount[target] === undefined) {
@@ -255,7 +276,14 @@ export function targetDamage(values: CalcValues, tables: StatTables, target: Dam
       const petLeader = petLeaderStatusSource(values, tables, timing.normalAttackGameSeconds, skillSeconds, swapSeconds);
       const tyr = weaponStatus(values, tables, swapSeconds);
       statusCount = typicalStatusCount(
-        [...sources, ...(freeze ? [freeze] : []), ...(petLeader ? [petLeader] : []), ...tyr.sources, ...swapSkillFreezeSources(values, tables, swapSeconds)],
+        [
+          ...sources,
+          ...(freeze ? [freeze] : []),
+          ...(petLeader ? [petLeader] : []),
+          ...tyr.sources,
+          ...swapSkillFreezeSources(values, tables, swapSeconds),
+          ...(devilWink ? [devilWink] : []),
+        ],
         tyr.alwaysKinds,
         tyr.fractions,
       );
@@ -267,7 +295,7 @@ export function targetDamage(values: CalcValues, tables: StatTables, target: Dam
 
   // 평타: 대상 1, 한 번 = 한 적중
   const normalSeconds = timing.normalAttackGameSeconds;
-  const normalHit = kindHitLog(stats, 'normal', statusCount);
+  const normalHit = hitLogOf('normal', statusCount);
   plans.push({
     part: { kind: 'normal', castsPerMinute: toMinute(normalSeconds), damagePerCastLog: normalHit, perMinuteLog: -Infinity },
     hitLog: normalHit,
@@ -294,7 +322,7 @@ export function targetDamage(values: CalcValues, tables: StatTables, target: Dam
     const gameSeconds = castSecondsOf(skillId);
     if (gameSeconds === null) continue;
     const coefficient = skillCoefficient(values, tables, { skillId, target: unit, targets, heroAttribute: stats.hero?.attribute });
-    const hitLog = kindHitLog(stats, kind, statusCount) + coefficient.coefficientLog + Math.log10(hits.coefficientFactor);
+    const hitLog = hitLogOf(kind, statusCount) + coefficient.coefficientLog + Math.log10(hits.coefficientFactor);
     plans.push({
       part: { kind, skillId, castsPerMinute: toMinute(gameSeconds), damagePerCastLog: hitLog + Math.log10(hits.hits), perMinuteLog: -Infinity },
       hitLog,
@@ -305,11 +333,10 @@ export function targetDamage(values: CalcValues, tables: StatTables, target: Dam
     });
   }
 
-  // 전용 스킬
-  const charHits = charSkillHits(values, tables, targets, inputs.orbShardHits[target] ?? 0);
+  // 전용 스킬 (적중 수 charHits 는 위 데빌윙크에서 구함)
   if (timing.charSkill && charHits.supported) {
     missing.push(...(charHits.estimates ?? []).map((estimate) => `${estimate}:${charHits.skillId}`));
-    const hitLog = kindHitLog(stats, 'char', statusCount) + charHits.coefficientLog;
+    const hitLog = hitLogOf('char', statusCount) + charHits.coefficientLog;
     plans.push({
       part: { kind: 'char', skillId: charHits.skillId ?? undefined, castsPerMinute: toMinute(timing.charSkill.gameSeconds), damagePerCastLog: hitLog + Math.log10(charHits.hits), perMinuteLog: -Infinity },
       hitLog,
@@ -331,7 +358,7 @@ export function targetDamage(values: CalcValues, tables: StatTables, target: Dam
     if (swapRow && swapHits.supported && swapHits.hits > 0) {
       missing.push(...(swapHits.estimates ?? []).map((estimate) => `${estimate}:${swapRow.skillId}`));
       // 대미지 한 번 = 공격력 × damage / 100 × 영웅 옵션 곱 (전용 스킬과 같은 정보 만들기, damage-pipeline.md 3-4)
-      const hitLog = kindHitLog(stats, 'swap', statusCount) + Math.log10((Number(swapRow.damage) || 0) / PERCENT_DIVISOR) + Math.log10(heroOptionMultiplier(values, tables));
+      const hitLog = hitLogOf('swap', statusCount) + Math.log10((Number(swapRow.damage) || 0) / PERCENT_DIVISOR) + Math.log10(heroOptionMultiplier(values, tables));
       plans.push({
         part: { kind: 'swap', skillId: swapRow.skillId, castsPerMinute: toMinute(swapStintSeconds), damagePerCastLog: hitLog + Math.log10(swapHits.hits), perMinuteLog: -Infinity },
         hitLog,

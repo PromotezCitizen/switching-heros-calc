@@ -257,6 +257,12 @@ export function exclusiveWeaponLines(values: CalcValues, tables: StatTables, lab
   return lines;
 }
 
+/** 웨폰 링크 초월 입력 최대 = 표 WeaponLink 초월 행 (None) 의 가장 큰 lv (저장 transcendLv 와 같은 뜻) */
+export function linkStarMax(tables: StatTables): number {
+  const levels = rowsOf(tables, 'WeaponLink').filter((row) => row.jobType === LINK_TRANSCEND_JOB).map((row) => Number(row.lv));
+  return levels.length ? Math.max(...levels) : 0;
+}
+
 /** 웨폰 링크 초월 행 (표 WeaponLink 의 None 행, lv = 초월 ★ — 이 계정 ★1 = lv1 만 화면과 확인) */
 function linkTranscendRow(values: CalcValues, tables: StatTables) {
   const star = numberValue(values, LINK_STAR_FIELD);

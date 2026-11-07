@@ -38,8 +38,6 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     OPTION_ROWS: 8,
     /** WeaponChar 표의 열린 옵션 칸 수 열 */
     MAX_OPTION_COLUMN: 'maxOptCnt',
-    /** 웨폰 링크 별 칸 최대 */
-    LINK_STAR_MAX: 5,
     /** 전용 무기 강화 레벨 최소 (빈칸이면 1 로 읽음) */
     MIN_EXCLUSIVE_LEVEL: 1,
     /** % 를 100 으로 나누므로 log 에 더하는 값 (log10(100)) */

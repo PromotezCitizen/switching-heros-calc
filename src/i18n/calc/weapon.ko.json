@@ -11,7 +11,7 @@
   "linkLevelLabel": "{{job}} 무기 레벨",
   "linkLevelPlaceholder": "레벨",
   "linkValue": "공격력 {{value}}%",
-  "linkStar": "초월 별 (켜진 개수)",
+  "linkStar": "링크 초월 횟수",
   "totalTitle": "무기 누적 능력치",
   "totalAtk": "공격력 증가",
   "totalZero": "0%",

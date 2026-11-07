@@ -9,6 +9,7 @@ import { slotHeroName } from '@/calc/sources/hero/character';
 import { normalWeaponLevelFieldId, normalWeaponLevelSum } from '@/calc/sources/trainingRelic/relic';
 import {
   LINK_STAR_FIELD,
+  linkStarMax,
   NORMAL_EQUIP_FIELD,
   exclusiveWeaponEffectFromValues,
   linkLevelField,
@@ -21,7 +22,7 @@ import type { TabPanelProps } from '@/calc/types';
 import { iconUrl } from '@/calc/panels/heroWeaponCardPet/IconPicker';
 
 const { JOBS, MIN_NUMBER } = CONSTS.heroWeaponCardPet;
-const { LINK_STAR_MAX, LINK_ICONS } = CONSTS.heroWeaponCardPet.weapon;
+const { LINK_ICONS } = CONSTS.heroWeaponCardPet.weapon;
 const { CARD_ICON_SIZE, LINK_CARD_MIN_WIDTH, LINK_LEVEL_INPUT_WIDTH, NORMAL_WEAPON_INPUT_MIN_WIDTH } = CONSTS.heroWeaponCardPet.ui;
 
 /** 무기: 전용 무기·웨폰 링크·누적 능력치·일반 무기·무기 옵션 (소울포지는 탭 따로) */
@@ -102,14 +103,14 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
           w={LINK_LEVEL_INPUT_WIDTH}
           hideControls
           min={MIN_NUMBER}
-          max={LINK_STAR_MAX}
+          max={linkStarMax(tables)}
           allowNegative={false}
           allowDecimal={false}
           aria-label={translate('calc.weapon.linkStar')}
           value={values[LINK_STAR_FIELD] ?? ''}
           onChange={(next) => setValue(LINK_STAR_FIELD, String(next))}
         />
-        <Text size="xs" c="dimmed">/ {LINK_STAR_MAX}</Text>
+        <Text size="xs" c="dimmed">/ {linkStarMax(tables)}</Text>
       </Group>
 
       <SectionTitle>{translate('calc.weapon.totalTitle')}</SectionTitle>

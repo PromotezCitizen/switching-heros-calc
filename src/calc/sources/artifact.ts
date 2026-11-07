@@ -14,7 +14,7 @@ export interface ArtifactTotalField {
 export const ARTIFACT_TOTAL_FIELDS: ArtifactTotalField[] = [
   { id: 'artifactTotalAtk', stat: '_per_attackDamage' },
   { id: 'artifactTotalHp', stat: '_per_hp' },
-  // 게임 목록 3번째 줄 명중은 계산과 관계없어 칸을 두지 않는다 (사용자 지시 "연성 명중 칸 삭제")
+  // 게임 목록 3번째 줄 명중은 계산과 관계없어 칸을 두지 않는다
   { id: 'artifactTotalSmite', stat: 'smite' },
   { id: 'artifactTotalBarrier', stat: 'barrier' },
   { id: 'artifactTotalDoubleAttack', stat: 'doubleAttack' },

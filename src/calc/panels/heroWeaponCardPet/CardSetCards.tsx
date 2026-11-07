@@ -39,7 +39,7 @@ export default function CardSetCards({ setStates, descriptions }: CardSetCardsPr
                   multiline
                   events={{ hover: true, focus: true, touch: true }}
                   label={
-                    // 세트 레벨이 어떻게 나왔는지 (카드 세트 점수 합) 는 화면에 한 번만 따로 보여 준다 (사용자 결정 2026-11-02)
+                    // 세트 레벨이 어떻게 나왔는지 (카드 세트 점수 합) 는 화면에 한 번만 따로 보여 준다
                     <Text size="xs">
                       {translate('calc.card.setFormula', {
                         base: plainNumber(tier.base),

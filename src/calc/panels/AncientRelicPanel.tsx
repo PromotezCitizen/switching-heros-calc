@@ -27,12 +27,12 @@ const PERCENT_LOG_SHIFT = 2;
 
 /**
  * 별자리 유물: 달성한 별자리 번호, 진행 중인 별자리 (번호 · 현재 단계 · 그 단계 칸 레벨, USB 가져오기가 채운다).
- * 현재 단계 앞은 다 찬 단계로 계산 (사용자 지시 2026-11-07). 아래 "별자리 효과" 는 게임 화면과 같은 값이고 접어 둔다 (사용자 지시 "detail 처리")
+ * 현재 단계 앞은 다 찬 단계로 계산. 아래 "별자리 효과" 는 게임 화면과 같은 값이고 접어 둔다
  */
 export default function AncientRelicPanel({ values, setValue, tables, descriptions }: TabPanelProps) {
   const { t: translate } = useTranslation();
   const combined = Object.entries(combineLines(ancientRelicLines(values, tables, (key) => key)));
-  // 안 열렸으면 언제 열리는지만 (유물을 끝까지 모으면 열림, 사용자 지시 2026-11-07 "열린 경우만 보인다" · "안열린 콘텐츠는 언제 열려요")
+  // 안 열렸으면 언제 열리는지만 (유물을 끝까지 모으면 열림)
   if (!relicAllMaxed(values, tables)) {
     return (
       <Text size="sm" c="dimmed">
@@ -71,7 +71,7 @@ export default function AncientRelicPanel({ values, setValue, tables, descriptio
         {translate('calc.ancientRelic.help')}
       </Text>
       <Group gap="sm" align="flex-start">
-        {/* 이름으로 고른다 (번호로는 알 수 없음, 사용자 지적 2026-11-07 "번호면 알겠냐고") */}
+        {/* 이름으로 고른다 (번호로는 알 수 없음) */}
         {/* 드롭다운은 공통 테마에 작은 크기 기본값이 없어 옆 숫자 칸 (테마 xs) 과 같은 크기를 직접 준다 */}
         <LazySelect
           size="xs"

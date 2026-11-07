@@ -1,7 +1,7 @@
 /**
- * 사냥 계산기: 온라인 효율 계산기 (floor-calc) 를 옮김 (사용자 지시 2026-11-07 "전부 다 가져온다").
+ * 사냥 계산기: 온라인 효율 계산기 (floor-calc) 를 옮김.
  * 25층 벽 목록 · 목표 레벨까지 시간 · 도시락 · 오프라인/온라인 요약 · 1마리 보상 · 배수 · 제보 링크.
- * 좁은 화면은 floor-calc 처럼 층마다 카드, 넓은 화면은 한 줄에 층 하나씩 보는 표 (사용자 지시 "작을때는 저렇게 하고 클때는 어떻게 하는게 나을지")
+ * 좁은 화면은 floor-calc 처럼 층마다 카드, 넓은 화면은 한 줄에 층 하나씩 보는 표
  */
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -237,7 +237,7 @@ export default function HuntingPage() {
       {result?.kind === 'badFloor' && <Alert color="yellow">{translate('hunting.badFloor', { max: result.max })}</Alert>}
       {result?.kind === 'ok' && (
         <Stack gap="sm">
-          {/* 요약: 항목마다 숫자 카드 (오프라인 → 온라인), 사용자 결정 2026-11-07 "1 - 2" (표가 작아 안 보임 → 숫자 카드) */}
+          {/* 요약: 항목마다 숫자 카드 (오프라인 → 온라인) (표가 작아 안 보임 → 숫자 카드) */}
           <SimpleGrid cols={SUMMARY_COLUMNS}>
             {[
               {

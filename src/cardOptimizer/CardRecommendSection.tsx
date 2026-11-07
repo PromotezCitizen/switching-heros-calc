@@ -306,7 +306,7 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
                   setValue={IGNORE_CHANGE}
                   showMarks={false}
                 />
-                {/* 지금 고정 목록에 있는 카드 (결과에 저장하지 않음, 사용자 결정 2026-11-05) */}
+                {/* 지금 고정 목록에 있는 카드 (결과에 저장하지 않음) */}
                 {shownFixed.includes(shownValues[CARD_SLOT_FIELDS[slot - 1]] ?? '') && (
                   <Badge size="sm" variant="light" pos="absolute" top={FIXED_BADGE_OFFSET} right={FIXED_BADGE_OFFSET}>
                     {translate('optimizer.cards.fixedBadge')}
@@ -373,7 +373,7 @@ interface LockedGroupPickerProps {
 }
 
 /**
- * 안 열린 마크 묶음 하나: 0 · 2 · 4 · 6장 버튼 (사용자 지시 "버튼으로 눌러서 볼 수 있게"). 고른 장수의 최선 세트를
+ * 안 열린 마크 묶음 하나: 0 · 2 · 4 · 6장 버튼. 고른 장수의 최선 세트를
  * 열린 묶음과 같은 세트 카드 (CardSetCards) 로 보여 준다 — 추천 편성에 계산 전용 칸으로 그 세트 개수를 더한 상태의 세트 효과
  */
 function LockedGroupPicker({ mark, options, shownValues, tables, descriptions, markGroupOf, gainText }: LockedGroupPickerProps) {

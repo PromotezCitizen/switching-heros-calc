@@ -286,7 +286,7 @@ export default function PetPanel({ values, setValue, tables, descriptions }: Tab
       </HorizontalScrollRow>
       <Text size="sm" c="dimmed">{translate('calc.pet.equipHelp')}</Text>
 
-      {/* 펫 지역: 열렸으면 입력, 안 열렸으면 언제 열리는지 (2성 SSS 펫 1마리 이상, 사용자 지시 2026-11-07 "펫 지역 - 열리는 경우 보여준다") */}
+      {/* 펫 지역: 열렸으면 입력, 안 열렸으면 언제 열리는지 (2성 SSS 펫 1마리 이상) */}
       <SectionTitle>{translate('calc.pet.regionTitle')}</SectionTitle>
       {regionUnlocked ? (
         <>

@@ -98,7 +98,7 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
     values.weaponTotalAtk = percentTextFromMultiplierLog(transcendLog);
   });
 
-  // 무기 옵션: 전용 무기마다 (exclusiveOption*_<무기>_<칸>, 사용자 결정 2026-11-07 무기마다 따로). 예전 1슬롯 · 2슬롯 칸은 비운다.
+  // 무기 옵션: 전용 무기마다 (exclusiveOption*_<무기>_<칸> 무기마다 따로). 예전 1슬롯 · 2슬롯 칸은 비운다.
   // SSS 옵션 수 (얼티밋 1020 · 1021) 는 1슬롯 · 2슬롯 장착 무기 기준 그대로
   runSection(notes, '무기 옵션', () => {
     const weaponOptionDic = readDictionary(equip.psWeaponOptionDic);

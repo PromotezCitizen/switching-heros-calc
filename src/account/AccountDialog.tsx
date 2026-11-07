@@ -19,7 +19,7 @@ const FIRST_SKILL_UNLOCK = Math.min(...CONSTS.guild.SKILLS.map((skill) => skill.
 
 /**
  * 요정의 축복 켬 칸: 광고 제거를 샀으면 늘 켜짐 (켜진 채 잠금), 안 샀으면 직접 켜야만 켜짐 (처음 꺼짐)
- * (사용자 지시 2026-11-07 "광고 제거 샀으면 항상 켜지기, 안샀으면 선택해야만 켜기")
+ *
  */
 function FairyFlag({ storeKey, label, adRemoved }: { storeKey: string; label: string; adRemoved: boolean }) {
   return adRemoved ? <Checkbox label={label} checked disabled readOnly /> : <FlagField storeKey={storeKey} label={label} />;

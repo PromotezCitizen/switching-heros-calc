@@ -28,7 +28,7 @@ export const CONSTS = {
   common: {
     PERCENT_DIVISOR: 100,
     SECONDS_PER_MINUTE: 60,
-    /** 계산식에서 빼는 스탯 (사용자 지시: "계산식에서 명중은 뺀다", 대소문자 구분 없음) */
+    /** 계산식에서 빼는 스탯 (: "계산식에서 명중은 뺀다", 대소문자 구분 없음) */
     EXCLUDED_STATS: ['_per_hit', 'hit'],
   },
 
@@ -96,7 +96,7 @@ export const CONSTS = {
   } as Record<string, number>,
 
   /**
-   * 사냥 계산기 (온라인 효율 계산기 floor-calc 를 옮김, 사용자 지시 2026-11-07 "전부 다 가져온다").
+   * 사냥 계산기 (온라인 효율 계산기 floor-calc 를 옮김).
    * 예전 "간격으로 훑기 · -50층까지만" 은 floor-calc 의 25층 벽 목록으로 바뀌었다.
    */
   hunting: {
@@ -167,7 +167,7 @@ export const CONSTS = {
   /**
    * 게임 큰 수 표기: 단위 문자 A=1e3, B=1e6 … Z, AA … ZZ, AAA … (대소문자 구분 없이 읽고 대문자로 표기).
    * 게임 단위 함수 m850 과 같은 엑셀 열 이름 방식 (1=a … 26=z, 27=aa, 53=ba …), 최대 8글자
-   * (claude-docs/app_dump/il2cpp_analysis/full/library-calc-relevant.md 81줄. 예전 HTML 은 2글자까지만 읽었음, 사용자 지시 2026-11-07 "고쳐라")
+   * (claude-docs/app_dump/il2cpp_analysis/full/library-calc-relevant.md 81줄. 예전 HTML 은 2글자까지만 읽었음)
    */
   gameNumber: {
     LOG_PER_UNIT: 3,
@@ -210,11 +210,11 @@ export const CONSTS = {
     SMALL_VALUE_BELOW: 10,
     SMALL_VALUE_DECIMALS: 2,
     GUILD_SELECT_WIDTH: 72,
-    /** 선택지가 이 개수 이하이면 버튼으로 다 보여 주고, 넘으면 드롭다운 (사용자 결정 "dropdown", 경계 개수는 제안값) */
+    /** 선택지가 이 개수 이하이면 버튼으로 다 보여 주고, 넘으면 드롭다운 (경계 개수는 제안값) */
     CHOICE_BUTTONS_MAX_OPTIONS: 10,
     /** 콘텐츠 칸 폭 종류별 최소 폭 (px). 화면 폭이 남으면 칸들이 나란히 놓이고 늘어나 한 줄을 채운다 */
     TAB_MIN_WIDTH: { narrow: 450, wide: 720 },
-    /** 화면 폭이 이보다 크면 TAB_STACKS 의 칸들을 한 칸 폭 안에 위아래로 쌓는다 (사용자 지시 "1400보다 크면 캐릭터, 베르 위아래로") */
+    /** 화면 폭이 이보다 크면 TAB_STACKS 의 칸들을 한 칸 폭 안에 위아래로 쌓는다 */
     TAB_STACK_MIN_SCREEN_WIDTH: 1400,
     /** 칸 안 카드 격자: 열 수를 정하지 않고 카드 최소 폭만 정한다 (화면에 들어가는 만큼 가로로) */
     CARD_MIN_WIDTH: { small: 120, medium: 180, large: 260 },

@@ -74,7 +74,7 @@ export interface NormalWeaponPossess {
 /**
  * 일반 무기 보유 효과 (서버 표 WeaponJob): 무기마다 (보유 기본 + 보유 강화당 × 실제 강화 레벨) % 를 × (1 + v/100) 로 곱함
  * (게임 m6836 @306b564 보유 루프, calc0113.py 391~397). 강화 레벨은 무기 탭의 무기별 칸 값이고, 칸이 비어 있으면 최대 레벨
- * ("전부 만렙" 가정, 사용자 결정). 곱한 배율 M 을 한 줄의 % 값 (M − 1) × 100 으로 바꿔 넣는다
+ * ("전부 만렙" 가정). 곱한 배율 M 을 한 줄의 % 값 (M − 1) × 100 으로 바꿔 넣는다
  */
 export function normalWeaponPossessEffect(tables: StatTables, values: CalcValues = {}): NormalWeaponPossess | null {
   const rows = rowsOf(tables, 'WeaponJob');
@@ -312,7 +312,7 @@ export function weaponTabLines(values: CalcValues, tables: StatTables, label: So
       log: possess.percentLog,
     });
   }
-  // 능력치는 칸 수를 보지 않고 넣은 옵션을 전부 더한다 (게임 m6836, 사용자 지시 2026-11-07 "1,2 진행"). 전용 무기를 꼈을 때만
+  // 능력치는 칸 수를 보지 않고 넣은 옵션을 전부 더한다 (게임 m6836). 전용 무기를 꼈을 때만
   const fields = heroOptionFields(values, tables);
   const optionCount = usesExclusiveWeapon(values, tables) ? OPTION_ROWS : 0;
   for (let index = 1; index <= optionCount; index++) {

@@ -28,7 +28,7 @@ export interface CardRecommendOptions {
   baseEfficiency?: number;
   /** false 면 세트 마크는 건드리지 않는다 (카드만 고른다, 마크는 recommendMarks 가 따로 계산). 기본 true */
   withMarks?: boolean;
-  /** 출발 편성 앞쪽의 이 칸 수는 바꾸지 않는다 (고정 카드, 사용자 결정 2026-11-05 "몬스터카드는 3개 고정"). 기본 0 */
+  /** 출발 편성 앞쪽의 이 칸 수는 바꾸지 않는다 (고정 카드). 기본 0 */
   fixedCount?: number;
 }
 

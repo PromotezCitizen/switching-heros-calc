@@ -49,7 +49,7 @@ export interface CardSlotCardProps {
 
 /**
  * 카드 그림 고르기 창의 카드 목록: 최초 등급 (Card 표의 첫 행) 별로 묶고, 마우스를 올리면 그 첫 행 (가장 낮은 등급 · 성) 고유 효과를 보여 준다
- * (사용자 지시 2026-11-02). 편성 칸과 추천의 고정 카드가 같이 쓴다. onlyCardIds 를 주면 그 카드만
+ *. 편성 칸과 추천의 고정 카드가 같이 쓴다. onlyCardIds 를 주면 그 카드만
  */
 export function cardPickerOptions(
   tables: StatTables,
@@ -120,7 +120,7 @@ export const CardSlotCard = memo(function CardSlotCard(props: CardSlotCardProps)
           options={slotOptions}
           onPick={(picked) => {
             setValue(cardSlotField(slot), picked);
-            // 기본값 (사용자 결정 2026-11-02): 보유 카드 목록에 있으면 그 등급 · 성 (여러 장이면 표에서 가장 높은 것), 없으면 그 카드의 첫 행 (최초 등급 1성).
+            // 기본값: 보유 카드 목록에 있으면 그 등급 · 성 (여러 장이면 표에서 가장 높은 것), 없으면 그 카드의 첫 행 (최초 등급 1성).
             // 비워 두면 칸이 흐려지고 계산에서 빠진다
             const rows = cardRowsOf(tables, picked);
             const ownedRows = parseOwnedCards(ownedText)

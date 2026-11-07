@@ -14,7 +14,7 @@ export const PROVIDER_CONSTS = {
   coreMastery: {
     /**
      * 코어 특성이 열리는 유저 레벨 (ContentsUnlock 98행 Reinforce_CoreMastery: 보임 400000, 해금 420000).
-     * 열린 경우만 탭을 보인다 (사용자 지시 2026-11-07 "코어특성 - 열린 경우만 보여라")
+     * 열린 경우만 탭을 보인다
      */
     UNLOCK_USER_LEVEL: 420000,
     TABLE: 'CoreMastery',
@@ -53,7 +53,7 @@ export const PROVIDER_CONSTS = {
     CARD_SET_POINT_FIELD: 'relicLink_cardSetBonus',
     /**
      * 개수형 효과 (게임 m2684, 1 + (v − 1) × N = 값 × N %): 효과 이름 → 넣는 스탯과 N 의 종류
-     * (claude-docs/react-port/stat-provider-formulas.md 453~454줄, 사용자 지시 2026-11-07 "다 계산해라").
+     * (claude-docs/react-port/stat-provider-formulas.md 453~454줄).
      * 등급 글자 ↔ 이름 (D 고급 · C 희귀 · B 영웅 · A 전설 · S 신화) 은 번역 표 이름과 등급별 피규어 수로 맞춘 것 (유력)
      */
     COUNT_STATS: {
@@ -83,7 +83,7 @@ export const PROVIDER_CONSTS = {
   /**
    * 프로필 테두리 보유 효과 (5.70 에서 새로 생긴 합산기 T1282 의 31번째 제공자, 채움 함수 새 @30d69f0 — claude-docs/react-port/attack-formula-5.70.md,
    * 함수 구조 확정 · 이름이 테두리라는 것은 유력). 보유한 테두리 번호 (저장 Relic.frameIdList) 마다 표 Frame 의 (스탯, 값) 을 한 번씩 넣는다.
-   * 장착한 테두리가 아니라 보유한 테두리 전부이고 (사용자 확인), `_per_` 스탯이라 한 줄마다 곱해진다. 표는 5.70 앱 내장 표 (서버 값과 같다는 것은 유력)
+   * 장착한 테두리가 아니라 보유한 테두리 전부이고, `_per_` 스탯이라 한 줄마다 곱해진다. 표는 5.70 앱 내장 표 (서버 값과 같다는 것은 유력)
    */
   frame: {
     TABLE: 'Frame',
@@ -116,7 +116,7 @@ export const PROVIDER_CONSTS = {
     MASTERED_FIELD: 'ancientMastered',
     /**
      * 진행 중인 별자리: 별자리 번호 · 현재 단계 · 그 단계의 칸마다 레벨 (칸 이름 = 접두 + 칸 번호).
-     * 현재 단계 앞의 단계는 다 찬 상태 (모든 칸 최대 + 단계 보너스) 로 계산 (사용자 지시 2026-11-07 "현재 단계만 보이면 이전은 다 된 상태")
+     * 현재 단계 앞의 단계는 다 찬 상태 (모든 칸 최대 + 단계 보너스) 로 계산
      */
     CURRENT_CONST_FIELD: 'ancientCurrentConst',
     CURRENT_STEP_FIELD: 'ancientCurrentStep',

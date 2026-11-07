@@ -597,7 +597,7 @@ describe('확률 계산·확률 문턱 얼티밋·중첩', () => {
     ]);
     expect(lines[2]).toMatchObject({ source: 'calc.buff.skillComboStackSource', stat: '_per_ActiveSkillDamage' });
     expect(lines[2].log).toBeCloseTo(Math.log10(8 - 1) + 2, 12);
-    // 확률이 100 미만이면 중첩이 효과 0 이라 줄이 없다 (사용자 결정 2026-11-01), 0 이어도 없다
+    // 확률이 100 미만이면 중첩이 효과 0 이라 줄이 없다, 0 이어도 없다
     expect(stackLines(values, tables.Mastery, (key) => key, 217, 38.37)).toHaveLength(2);
     expect(stackLines(values, tables.Mastery, (key) => key, 99.99, 99.99)).toEqual([]);
     expect(stackLines(values, tables.Mastery, (key) => key, 0, 0)).toEqual([]);
@@ -746,7 +746,7 @@ describe('음식 효과 (일반 몬스터 피해 3종, 하나만) · 공격력 �
 });
 
 /**
- * 전투 중 최대 상태 몫 (사용자 결정: 입력 칸 없이 최대 중첩). 기대값은 게임 식 스크립트 combat0113.py · crit_check.py 의 값
+ * 전투 중 최대 상태 몫 (: 입력 칸 없이 최대 중첩). 기대값은 게임 식 스크립트 combat0113.py · crit_check.py 의 값
  * (복리 10중첩: 204 값 10 → +159.37, 309 값 5 → +62.89, 109 값 20 → +519.17. 곱: 63 값 50 → ×1.5, 102·202·307 값 400 → ×5, 108 값 50 x 1단계 → ×1.5).
  * 입력은 이 테스트 안에서 만든다 (기본값에 기대지 않음)
  */

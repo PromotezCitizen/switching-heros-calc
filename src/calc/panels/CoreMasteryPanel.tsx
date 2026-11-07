@@ -25,7 +25,7 @@ const PLACEHOLDER_SHOWN = 'N';
 /** 코어 특성: 레벨 하나 + 켠 항목 (1 ~ 13번, 그 레벨 행의 스탯). 처음은 레벨 비어 있음 · 항목 꺼짐 */
 export default function CoreMasteryPanel({ values, setValue, tables, descriptions }: TabPanelProps) {
   const { t: translate } = useTranslation();
-  // 유저 레벨 해금 (ContentsUnlock 98행): 안 열렸으면 언제 열리는지만 (사용자 지시 2026-11-07)
+  // 유저 레벨 해금 (ContentsUnlock 98행): 안 열렸으면 언제 열리는지만
   const userLevel = useCalcStore((state) => readNumber(state.values, ACCOUNT_KEYS.userLevel));
   const unlockLevel = CONSTS.providers.coreMastery.UNLOCK_USER_LEVEL;
   const maxLevel = maxCoreMasteryLevel(tables);

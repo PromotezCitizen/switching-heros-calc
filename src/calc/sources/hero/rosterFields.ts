@@ -26,7 +26,6 @@ export function exclusiveMissionReceivedStarField(weaponId: string): string {
 }
 /**
  * 전용 무기마다 무기 옵션 칸 (칸 번호 1~8 의 능력치 · 값). 1슬롯 히어로를 바꿔도 다시 넣지 않게 무기마다 저장
- * (사용자 결정 2026-11-07 "무기 옵션 선택을 전용무기 입력칸으로" → "1" 무기마다 따로)
  */
 export function exclusiveOptionStatField(weaponId: string, index: number): string {
   return `exclusiveOptionStat_${weaponId}_${index}`;

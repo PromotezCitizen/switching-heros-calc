@@ -53,7 +53,7 @@ export function useCardRecommendation() {
     [terminate],
   );
 
-  /** 멈추면 중간 결과는 버린다 (끝까지 돌지 않은 결과는 최선이 아니라서, 사용자 결정 2026-11-01). 화면은 이전에 저장한 결과를 보여 준다 */
+  /** 멈추면 중간 결과는 버린다 (끝까지 돌지 않은 결과는 최선이 아니라서). 화면은 이전에 저장한 결과를 보여 준다 */
   const stop = useCallback(() => {
     terminate();
     setState({ status: 'idle' });

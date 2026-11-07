@@ -43,7 +43,7 @@ export const RELIC_LINK_FIELDS = [
   'star10Weapons',
 ] as const;
 export type RelicLinkField = (typeof RELIC_LINK_FIELDS)[number];
-/** 직업 일반 무기 합산 레벨 연동 (칸 없이 자동: 일반 무기 전부 최대 레벨 가정, 사용자 결정) */
+/** 직업 일반 무기 합산 레벨 연동 (칸 없이 자동: 일반 무기 전부 최대 레벨 가정) */
 const WEAPON_LEVEL_LINK_PREFIX = 'weaponLevel';
 export const WEAPON_JOB_TABLE = 'WeaponJob';
 /** 히어로 표 · 전용 무기 표에서 자동으로 세는 연동 수치 (칸 없음) */
@@ -51,7 +51,7 @@ const ROSTER_COUNT_LINKS: Record<string, (values: CalcValues, tables: StatTables
   ssHeroes: (values, tables) => heroCountAtLeast(values, tables, SS_GRADE),
   sssHeroes: (values, tables) => heroCountAtLeast(values, tables, SSS_GRADE),
   star10Weapons: (values, tables) => star10WeaponCount(values, tables),
-  // 장착 스킬 레벨 합 = 스킬 탭 장착 5칸 레벨 합 (사용자 결정 "자동합")
+  // 장착 스킬 레벨 합 = 스킬 탭 장착 5칸 레벨 합
   equipSkillLevel: (values) => equippedSkillLevelSum(values),
 };
 /** 유물 탭에 칸이 있는 연동 수치 (세트 보너스 합계 = 카드 탭, 일반 무기 합산 레벨·히어로 수·★10 무기 수·장착 스킬 레벨 합 = 자동 이라 제외) */
@@ -75,7 +75,7 @@ export function normalWeaponLevelFieldId(weaponId: string): string {
 }
 
 /**
- * 일반 무기 한 개의 강화 레벨. 칸이 비어 있으면 최대 레벨 (사용자 결정 "전부 최대 레벨" 가정을 칸이 비었을 때 그대로 씀),
+ * 일반 무기 한 개의 강화 레벨. 칸이 비어 있으면 최대 레벨 ("전부 최대 레벨" 가정을 칸이 비었을 때 그대로 씀),
  * 값을 넣으면 그 값 (0 ~ 최대 레벨, 소수 버림)
  */
 export function normalWeaponLevel(values: CalcValues, row: TableRow): number {
@@ -314,7 +314,7 @@ export function relicLines(values: CalcValues, tables: StatTables, labels: Relic
 }
 
 /**
- * 최대 등급을 고르면 그보다 낮은 등급 유물 중 레벨 0·빈칸을 1 로 채운다 (사용자 요청, 기존 relicMaxGrade change 처리).
+ * 최대 등급을 고르면 그보다 낮은 등급 유물 중 레벨 0·빈칸을 1 로 채운다 (기존 relicMaxGrade change 처리).
  * 최대 등급 자체는 직접 입력. 돌려주는 값 = 바꿀 칸 → 새 글
  */
 export function lowerGradeRelicFill(values: CalcValues, tables: StatTables, maxGrade: string): Record<string, string> {

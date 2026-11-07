@@ -29,8 +29,8 @@ export function inheritValueField(index: number): string {
 export const ARCHIVE_LEVEL_FIELD = 'libraryArchiveLevel';
 
 /**
- * 기록 보관소 레벨: 불러온 값이 있으면 그 값 (사용자 결정 2026-11-07 "불러올땐 불러온 값으로"),
- * 없으면 floor(min(책 4권 레벨) / 10) (사용자 식, 끝까지 올렸을 때 게임과 같음)
+ * 기록 보관소 레벨: 불러온 값이 있으면 그 값,
+ * 없으면 floor(min(책 4권 레벨) / 10) (끝까지 올렸을 때 게임과 같음)
  */
 export function libraryArchiveLevel(values: CalcValues): number {
   const imported = values[ARCHIVE_LEVEL_FIELD];
@@ -82,7 +82,7 @@ export function libraryLines(values: CalcValues, tables: StatTables, label: Sour
     }
   }
   // 전승된 능력: 열린 칸만. 같은 스탯 칸은 값을 먼저 더해 스탯마다 한 줄 (게임 T1283 m6880 부분 C 가 보조 사전에 누적한 뒤 스탯마다 AddPct 한 번,
-  // stat-provider-formulas.md 291줄 · html-verify-A-2026-11-07.md, 사용자 지시 2026-11-07 "틀린부분 진행". 예전 HTML 은 칸마다 곱함)
+  // stat-provider-formulas.md 291줄 · html-verify-A-2026-11-07.md. 예전 HTML 은 칸마다 곱함)
   const openSlots = openInheritSlots(archiveLevel);
   const inheritSums = new Map<string, { log: number; slots: number[] }>();
   for (let index = 1; index <= Math.min(openSlots, INHERIT_ROWS); index++) {

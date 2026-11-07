@@ -15,9 +15,9 @@ const PLACEHOLDER = '{0}';
 const { CHECKED_TEXT } = CONSTS.textLines;
 
 /**
- * 프로필 테두리: 가진 테두리를 그림을 눌러 켜고 끈다 (사용자 지시 2026-11-07 "선택 toggle로 바꿔라", 특성 얼티밋 아이콘과 같은 방식).
- * 장착과 무관하게 보유한 테두리 전부 효과가 들어간다. 그림과 이름을 붙인다 (번호만으로는 알 수 없음, 사용자 지적 2026-11-07).
- * 효과는 아직 모두 같은 고정값이라 (사용자 말 2026-11-07) 칸마다 쓰지 않고 그림에 마우스를 올리면 보인다
+ * 프로필 테두리: 가진 테두리를 그림을 눌러 켜고 끈다 (특성 얼티밋 아이콘과 같은 방식).
+ * 장착과 무관하게 보유한 테두리 전부 효과가 들어간다. 그림과 이름을 붙인다 (번호만으로는 알 수 없음).
+ * 효과는 아직 모두 같은 고정값이라 칸마다 쓰지 않고 그림에 마우스를 올리면 보인다
  */
 export default function FramePanel({ values, setValue, tables, descriptions }: TabPanelProps) {
   const { t: translate, i18n } = useTranslation();

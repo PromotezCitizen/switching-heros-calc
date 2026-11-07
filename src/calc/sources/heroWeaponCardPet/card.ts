@@ -232,7 +232,7 @@ export function cardLines(values: CalcValues, tables: StatTables, label: SourceL
   }
   const stickerGroups = stickerUnlocked(values, tables) ? groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId') : [];
   // 세트 값의 레벨 = 편성 카드에 붙은 모든 배지 점수 (CardSticker point) 의 합 하나, 세트마다 따로가 아님
-  // (게임 m6809 · m15802 @0x3357c74, html-verify-B-2026-11-07.md E14 유력, 사용자 지시 2026-11-07 "틀린부분 진행". 피규어의 stickerPoints 와 같은 값)
+  // (게임 m6809 · m15802 @0x3357c74, html-verify-B-2026-11-07.md E14 유력. 피규어의 stickerPoints 와 같은 값)
   const level = stickerGroups.reduce((sum, group) => sum + numberValue(values, stickerLevelField(group.key)), 0);
   for (const group of stickerGroups) {
     const count = Number(values[stickerCountField(group.key)]) || 0;
@@ -253,7 +253,7 @@ export function cardLines(values: CalcValues, tables: StatTables, label: SourceL
 /**
  * 카드 스티커 (배지) 가 열렸는가: 장착한 카드 중 배지 칸이 있는 카드 (Card 표 stickerSlotCnt > 0, URP 이상) 가 있을 때.
  * 게임 해금 ContentsUnlock 75행 Gear_Sticker = CardGrade 12 (URP, sticker-sss-howto-2026-11-01.md). 안 열렸으면 칸을 숨기고 계산도 안 한다
- * (사용자 지시 2026-11-07 "스티커 - 안열리면 안보이게 해라")
+ *
  */
 export function stickerUnlocked(values: CalcValues, tables: StatTables): boolean {
   return CARD_SLOT_NUMBERS.some((slot) => Number(selectedCardRow(values, tables, slot)?.stickerSlotCnt) > 0);
@@ -414,7 +414,7 @@ export function countExpandedLines(
 }
 
 /**
- * 카드 전투 중 중첩 줄 (버프 탭이 다른 탭 줄 otherLines 에서 읽어 넣음, 사용자 결정: 최대 상태):
+ * 카드 전투 중 중첩 줄 (버프 탭이 다른 탭 줄 otherLines 에서 읽어 넣음, : 최대 상태):
  * - 카드 2번 처치 중첩 `_per_attackDamage_Kill` (T410 m2276 @33d1320): 컨테이너 값 v (같은 이름 줄은 먼저 곱해 합침) 를 5중첩 선형으로 공격력 % 에 → 1 + (v − 1) × 5. 값 140 → ×8
  * - 카드 3번 스킬 사용 중첩 `attackDamage_useSkill` (T410 m2308 @33ce078): 합 계열 값 합 % 를 5중첩 선형으로 공격력 % 에 → 1 + 값 / 100 × 5. 값 160 → ×9
  */

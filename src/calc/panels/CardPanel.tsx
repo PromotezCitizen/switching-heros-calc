@@ -71,7 +71,7 @@ export default function CardPanel({ values, setValue, tables, descriptions }: Ta
       <CardSetCards setStates={setStates} descriptions={descriptions} />
       {!hasMarks && <Text size="sm" c="dimmed">{translate('calc.card.setNone')}</Text>}
 
-      {/* 스티커 (배지): 열렸을 때만 (장착 카드에 배지 칸이 있을 때, 사용자 지시 2026-11-07 "안열리면 안보이게") */}
+      {/* 스티커 (배지): 열렸을 때만 (장착 카드에 배지 칸이 있을 때) */}
       {stickerOpen && (
         <>
           <SectionTitle>{translate('calc.card.stickerTitle')}</SectionTitle>

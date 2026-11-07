@@ -19,7 +19,7 @@ export function calcValuesOf(storeValues: Record<string, string>): Record<string
   for (const [fieldId, accountKey] of Object.entries(ACCOUNT_FIELD_ALIASES)) {
     if (storeValues[accountKey] !== undefined) result[fieldId] = storeValues[accountKey];
   }
-  // 요정의 축복 켜짐: 광고 제거면 늘 켜짐, 아니면 공통 입력에서 직접 켰을 때만 (사용자 지시 2026-11-07)
+  // 요정의 축복 켜짐: 광고 제거면 늘 켜짐, 아니면 공통 입력에서 직접 켰을 때만
   result.fairyBlessingOn = String(readAccountInputs(storeValues).fairyOn);
   return result;
 }

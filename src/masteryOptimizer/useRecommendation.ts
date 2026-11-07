@@ -10,8 +10,8 @@ export type RecommendationState =
   | { status: 'failed'; message: string };
 
 /**
- * 추천 계산을 작업자에서 돌린다. start 로 시작, stop 으로 멈추면 중간 결과는 버린다 (끝까지 돌지 않은 결과는 최선이 아니라서,
- * 사용자 결정 2026-11-01). 화면은 이전에 저장한 결과를 그대로 보여 준다
+ * 추천 계산을 작업자에서 돌린다. start 로 시작, stop 으로 멈추면 중간 결과는 버린다 (끝까지 돌지 않은 결과는 최선이 아니라서).
+ * 화면은 이전에 저장한 결과를 그대로 보여 준다
  */
 export function useRecommendation() {
   const [state, setState] = useState<RecommendationState>({ status: 'idle' });

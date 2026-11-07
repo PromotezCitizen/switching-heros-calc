@@ -7,7 +7,7 @@ import type { Loadout } from '@/cardOptimizer/loadout';
 export const CARD_RESULT_KEY = 'optimizer.cardResult';
 /** 고정 카드 칸 (카드 번호를 쉼표로). 칸이 없으면 기본 고정 카드, 빈 글이면 고정 없음 */
 export const CARD_FIXED_KEY = 'optimizer.cardFixed';
-/** 기본 고정 카드: 씨도그 해피 36 · 화산갑주 거북 33 · 그렘린 캐티 35 (사용자 결정 2026-11-05 "몬스터카드는 3개 고정", 대상 6개 추천에 모두 들어간 카드) */
+/** 기본 고정 카드: 씨도그 해피 36 · 화산갑주 거북 33 · 그렘린 캐티 35 (대상 6개 추천에 모두 들어간 카드) */
 export const DEFAULT_FIXED_CARDS = ['36', '33', '35'];
 /** 고정할 수 있는 최대 장수 (적어도 한 칸은 찾게) */
 export const MAX_FIXED_CARDS = CARD_SLOT_NUMBERS.length - 1;

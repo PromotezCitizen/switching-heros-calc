@@ -89,7 +89,7 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
     for (const [job, level] of readDictionary(char._libraryData._subLvDic)) {
       values[`library_${job}`] = String(Math.trunc(level));
     }
-    // 기록 보관소 레벨은 저장값 그대로 (사용자 결정 2026-11-07 "불러올땐 불러온 값으로")
+    // 기록 보관소 레벨은 저장값 그대로
     values.libraryArchiveLevel = char._libraryData.mainLv === undefined ? '' : String(Math.trunc(char._libraryData.mainLv));
     const diceRows = tableRows(tables.DiceOption).filter((row) => row.diceId === LIBRARY_DICE_ID);
     const options = readDictionary(char._libraryData._optionDic).get(LIBRARY_OPTION_KEY)?.list ?? [];

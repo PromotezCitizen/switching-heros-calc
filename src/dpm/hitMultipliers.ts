@@ -7,8 +7,7 @@ import { CONSTS } from '@/CONSTS';
 const { CRITICAL_DAMAGE_DIVISOR, PROBABILITY_MAX, PERCENT_DIVISOR, SUPER_CRITICAL, SPEAR, SMITE } = CONSTS.dpm;
 
 /**
- * 확률 % → 성공 여부 (1 또는 0). 100 이상이면 늘 성공, 100 미만이면 효과 0 (사용자 결정 2026-11-01:
- * "확률 100 밑으로 내려가면 무조건 0 으로 간주", "비율 기반 대미지 필요 없다, 99든 98이든 안 뜨면 그만큼 딜로스").
+ * 확률 % → 성공 여부 (1 또는 0). 100 이상이면 늘 성공, 100 미만이면 효과 0.
  * 확률로 켜지는 효과의 기대값 (확률 × 성공 배수) 을 쓰지 않는다
  */
 export function chanceOf(percent: number): number {

@@ -9,7 +9,7 @@ const { MIN_NUMBER } = CONSTS.heroWeaponCardPet;
 const { PERCENT_LOG, LEVEL_INPUT_WIDTH } = CONSTS.heroWeaponCardPet.mine;
 /**
  * 광산: 광산 주인 창의 투자 레벨 → 광산 주인의 축복 (공격력·체력 증가, 화면 값과 같은 꼴).
- * 모든 광부 각성 레벨 총합은 히어로 탭 각성 레벨 합으로 계산해 보여 주기만 한다 (입력 칸 없음, 사용자 승인 2026-11-07)
+ * 모든 광부 각성 레벨 총합은 히어로 탭 각성 레벨 합으로 계산해 보여 주기만 한다 (입력 칸 없음)
  */
 export default function MinePanel({ values, setValue }: TabPanelProps) {
   const { t: translate } = useTranslation();

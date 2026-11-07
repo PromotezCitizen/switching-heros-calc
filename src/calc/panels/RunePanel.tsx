@@ -87,7 +87,7 @@ export default function RunePanel({ values, setValue, tables, descriptions }: Ta
         {translate('calc.rune.hint')}
       </Text>
 
-      {/* 속성 룬 연구소: 열렸으면 입력, 안 열렸으면 언제 열리는지 (속성 룬 6개 모두 최대 레벨, 사용자 지시 2026-11-07) */}
+      {/* 속성 룬 연구소: 열렸으면 입력, 안 열렸으면 언제 열리는지 (속성 룬 6개 모두 최대 레벨) */}
       <SectionTitle>{translate('calc.rune.labTitle')}</SectionTitle>
       {labUnlocked ? (
         <>

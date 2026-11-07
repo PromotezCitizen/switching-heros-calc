@@ -12,7 +12,7 @@ import {
 const NO_SUPER: SuperCriticalStats = { base: 0, add: 0, over: 0, damage: 0, supremeChance: 0, supremeDamage: 0, supremeOverToDamage: 0 };
 
 describe('확률', () => {
-  it('100 이상이면 늘 성공 (1), 100 미만이면 0 — 비율로 섞지 않는다 (사용자 결정)', () => {
+  it('100 이상이면 늘 성공 (1), 100 미만이면 0 — 비율로 섞지 않는다', () => {
     expect(chanceOf(-5)).toBe(0);
     expect(chanceOf(50)).toBe(0);
     expect(chanceOf(99.99)).toBe(0);

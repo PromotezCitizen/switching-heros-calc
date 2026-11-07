@@ -9,7 +9,7 @@ const { KILLER_ACTIVE_FIELD, NORMAL_MONSTER_FOOD_FIELD, NORMAL_MONSTER_FOODS, AT
 
 /**
  * 전투 버프 입력 (학살자 발동 · 음식 효과 · 공격력 이벤트 버프). 계산식 확인기 버프 탭에 있던 칸을 공통 입력으로 옮김
- * (사용자 지시 2026-11-07 "공통입력"). 저장 칸 이름은 그대로 (calc.*) 라 이미 넣은 값 · 폰 불러오기 값이 그대로 쓰인다
+ *. 저장 칸 이름은 그대로 (calc.*) 라 이미 넣은 값 · 폰 불러오기 값이 그대로 쓰인다
  */
 export default function BattleBuffFields() {
   const { t: translate } = useTranslation();

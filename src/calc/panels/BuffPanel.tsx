@@ -17,7 +17,7 @@ interface BuffPanelProps extends TabPanelProps {
 }
 
 /**
- * 버프: 결과만 보여 준다. 입력 (학살자 켬/끔 · 음식 · 공격력 이벤트 버프) 은 공통 입력으로 옮김 (account/BattleBuffFields, 사용자 지시 2026-11-07 "공통입력").
+ * 버프: 결과만 보여 준다. 입력 (학살자 켬/끔 · 음식 · 공격력 이벤트 버프) 은 공통 입력으로 옮김 (account/BattleBuffFields).
  * 학살자 배율은 특성 탭 레벨로 정해진다.
  * 연타·스킬 콤보 % 는 다른 탭 줄로 계산해 늘 보여 준다 (다른 탭 칸을 많이 읽어 그 칸이 바뀔 때마다 이 칸만 다시 그림)
  */

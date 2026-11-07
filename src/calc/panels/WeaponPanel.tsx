@@ -179,7 +179,7 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
         </Accordion>
       )}
 
-      {/* 무기 옵션은 무기마다 히어로 · 전용 무기 탭에서 넣는다 (사용자 결정 2026-11-07). SSS 옵션 수 칸은 뺌 (값은 불러오기 그대로 계산) */}
+      {/* 무기 옵션은 무기마다 히어로 · 전용 무기 탭에서 넣는다. SSS 옵션 수 칸은 뺌 (값은 불러오기 그대로 계산) */}
       <SectionTitle>{translate('calc.weapon.optionTitle')}</SectionTitle>
       <Text size="sm" c="dimmed">
         {translate('calc.weapon.optionMoved')}

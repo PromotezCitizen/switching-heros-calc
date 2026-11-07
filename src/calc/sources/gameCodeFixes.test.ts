@@ -6,7 +6,7 @@ import { ARCHIVE_LEVEL_FIELD, bookLevelField, inheritStatField, inheritValueFiel
 import { gradeStarValue } from '@/calc/sources/heroWeaponCardPet/shared';
 import { loadTestTables } from '@/test/loadTestTables';
 
-/** 예전 HTML 규칙을 게임 코드로 확인해 고친 것 (claude-docs/react-port/html-verify-A · B-2026-11-07.md, 사용자 지시 2026-11-07 "틀린부분 진행") */
+/** 예전 HTML 규칙을 게임 코드로 확인해 고친 것 (claude-docs/react-port/html-verify-A · B-2026-11-07.md) */
 const tables = loadTestTables();
 const label = (key: string, params?: Record<string, unknown>) => `${key}${params ? JSON.stringify(params) : ''}`;
 

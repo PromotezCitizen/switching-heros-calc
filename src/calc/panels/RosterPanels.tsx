@@ -135,7 +135,7 @@ function ExclusiveWeaponCells({
         />
       </Table.Td>
       <Table.Td>
-        {/* 무기 옵션: 줄마다 버튼, 누르면 그 무기 옵션 창 (사용자 지시 2026-11-07 "여기 버튼 넣고 하라고") */}
+        {/* 무기 옵션: 줄마다 버튼, 누르면 그 무기 옵션 창 */}
         <Button size="compact-xs" variant="default" disabled={!owned} onClick={() => onOpenOption(weapon.weaponId)}>
           {translate('calc.exclusiveWeapon.optionButton')}
         </Button>
@@ -259,14 +259,14 @@ const HeroRosterRow = memo(function HeroRosterRow({
 });
 
 /**
- * 히어로 · 전용 무기 표 (사용자 결정 2026-11-07 "히어로와 전용무기는 하나로 합친다"): 히어로마다 한 줄에
+ * 히어로 · 전용 무기 표: 히어로마다 한 줄에
  * 등급 (없음 = 미보유) · 성 · 캐릭터 각성 · 호감도와 그 히어로 전용 무기의 초월 ★ (비우면 미보유) · 강화 레벨 · 받은 초월 미션 ★.
  * 강화 레벨은 장착 효과에만 쓰여 계산에는 1슬롯 히어로 무기 줄 값만 쓰지만, 1슬롯 히어로를 바꿔도 다시 넣지 않게 무기마다 받는다.
  * 주인이 히어로 목록에 없는 전용 무기는 맨 아래에 따로 한 줄씩
  */
 export function HeroRosterPanel({ values, setValue, tables, descriptions }: TabPanelProps) {
   const { t: translate, i18n } = useTranslation();
-  // 히어로 이름을 화면 언어의 가나다 (알파벳) 순으로 (사용자 지시 2026-11-07 "히어로 탭도 가나다 순으로 해라", 피규어 탭과 같은 기준)
+  // 히어로 이름을 화면 언어의 가나다 (알파벳) 순으로 (피규어 탭과 같은 기준)
   const heroes = useMemo(
     () => [...rosterHeroes(tables)].sort((left, right) => left.name.localeCompare(right.name, i18n.language)),
     [tables, i18n.language],
@@ -352,7 +352,7 @@ export function HeroRosterPanel({ values, setValue, tables, descriptions }: TabP
 }
 
 /**
- * 전용 무기 옵션 창: 표의 무기 줄 "옵션" 버튼으로 연다 (무기마다 저장, 사용자 결정 2026-11-07 "1" · "여기 버튼 넣고 하라고").
+ * 전용 무기 옵션 창: 표의 무기 줄 "옵션" 버튼으로 연다 (무기마다 저장).
  * 8칸을 다 보이고, 그 무기 초월 ★ 로 아직 안 열린 칸 (WeaponChar maxOptCnt) 은 흐리게 · 막고 다음 칸이 열리는 ★ 를 적는다.
  * 계산은 넣은 옵션 전부 (게임 m6836)
  */

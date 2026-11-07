@@ -192,7 +192,7 @@ export function ancientRelicLines(values: CalcValues, tables: StatTables, label:
   if (!index) return [];
   const lines: Line[] = [];
   // 진행 중인 별자리 앞의 별자리는 모두 달성 (별자리는 순서대로만 열림: 게임 문구 "다음 별자리로!" · "이전 별을 활성화하세요!",
-  // 훈련 단계와 같은 방식, 사용자 지시 2026-11-07 "당연히 이전은 다 포함")
+  // 훈련 단계와 같은 방식)
   const current = ancientCurrent(values, tables);
   const mastered = new Set(current ? [...index.byConst.keys()].filter((id) => Number(id) < Number(current.constId)) : []);
   for (const constId of mastered) {

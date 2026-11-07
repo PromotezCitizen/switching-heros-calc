@@ -45,7 +45,7 @@ export const HERO_CONSTS = {
     HERO_AWAKEN_WIDTH: 48,
     /** 표가 이 폭보다 좁아지면 가로 스크롤 */
     TABLE_MIN_WIDTH: 410,
-    /** 히어로 · 전용 무기 표 최대 높이: 넘으면 표 안에서 스크롤, 머리줄은 맨 위 고정 (사용자 지시 2026-11-07 "히어로 입력하는것도 스크롤 생기게 해라", 특성 패널 TREE_MAX_HEIGHT 와 같은 값) */
+    /** 히어로 · 전용 무기 표 최대 높이: 넘으면 표 안에서 스크롤, 머리줄은 맨 위 고정 (특성 패널 TREE_MAX_HEIGHT 와 같은 값) */
     TABLE_MAX_HEIGHT: '70vh',
     /** 호감도 최대 레벨 (서버 표 CharacterAffinity lv 0~15, 히어로 31명 모두 같음) */
     AFFINITY_MAX_LEVEL: 15,

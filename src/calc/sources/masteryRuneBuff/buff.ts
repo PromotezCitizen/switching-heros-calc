@@ -57,8 +57,8 @@ export function multiplierPercentLog(multiplierLog: number): number {
 /**
  * 광폭화 중첩 = 광폭화 특성 (특성 7 berserk, "일반 공격시 5% 확률로 … 최대 중첩 5회") 을 찍었으면 늘 최대 5중첩, 안 찍었으면 0.
  * 게임은 특성 7 이 있으면 일반 공격으로 발동하고, 특성 10 berserkSkillUse 는 스킬로도 발동하게 하는 경로를 더할 뿐이다
- * (claude-docs/react-port/html-verify-D-2026-11-07.md C08, 사용자 결정 2026-11-07 "ㅇ". 예전 HTML 은 특성 10 을 조건으로 써서 틀림).
- * 늘 5중첩은 사용자 말 2026-10-05 "광폭화 5중첩밖에 안될건데" 그대로 (입력 칸 없음)
+ * (claude-docs/react-port/html-verify-D-2026-11-07.md C08. 예전 HTML 은 특성 10 을 조건으로 써서 틀림).
+ * 늘 5중첩으로 본다 (입력 칸 없음)
  */
 export function berserkStacks(masteryTable: RawTable, values: CalcValues): number {
   const berserkTrait = masteryTraits(masteryTable).find((trait) => trait.statName === STATS.BERSERK);
@@ -152,11 +152,11 @@ export function doubleAttackRushPercent(masteryTable: RawTable, values: CalcValu
 }
 
 /**
- * 연타·스킬 콤보 중첩 줄 (사용자 결정 "연타, 스킬콤보는 상시 최대중첩": 칸 없이 늘 최대 중첩).
+ * 연타·스킬 콤보 중첩 줄 (칸 없이 늘 최대 중첩).
  * - 가속 (doubleAttackDmgUp): 중첩당 공격력 % × 10 (광폭화처럼 중첩끼리 선형 합, combat-buff-sources.md 확정, 2026-10-12 01:54 화면 일치)
  * - 연타의 분노 (doubleAttackToDmgUp3): 10중첩 달성 시 공격력 % → 늘 붙음
  * - 스킬 콤보: 4중첩이면 다음 액티브 스킬 최종 데미지 × 8 → 늘 붙음 (붙는 스탯 추정)
- * 연타·스킬 콤보 확률이 100% 미만이면 효과 0 (사용자 결정 2026-11-01: 확률 100 밑이면 무조건 0) 이라 줄 없음
+ * 연타·스킬 콤보 확률이 100% 미만이면 효과 0 이라 줄 없음
  */
 export function stackLines(
   values: CalcValues,

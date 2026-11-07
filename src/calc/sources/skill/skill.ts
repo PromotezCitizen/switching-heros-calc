@@ -1,6 +1,6 @@
 /**
  * 직업 스킬 (서버 표 Skill, 레벨이 있는 BuffSkill · ActiveSkill 40개): 보유 스킬마다 레벨, 1슬롯 히어로 장착 5칸.
- * 장착 5칸 레벨 합 = 유물 연동 "장착 스킬 레벨 합" (사용자 결정 "자동합")
+ * 장착 5칸 레벨 합 = 유물 연동 "장착 스킬 레벨 합"
  */
 import { CONSTS } from '@/CONSTS';
 import type { StatTables, TableRow } from '@/data/statTables';
@@ -66,7 +66,6 @@ export function equipChoicesForJob(values: CalcValues, tables: StatTables, job: 
 
 /**
  * 2슬롯 히어로 장착 칸 (교체 계산에서 2슬롯 히어로 차례에 쓴다, dpm/swapDamage.ts). 폰 불러오기도 같은 칸을 채운다.
- * 화면 칸은 사용자 지시 2026-11-07 "2슬롯 만들어라"
  */
 export function secondSkillEquipField(slot: number): string {
   return `${CONSTS.dpm.SWAP.SECOND_SKILL_EQUIP_PREFIX}${slot}`;
@@ -128,7 +127,7 @@ export function skillOptionSlotCount(tables: StatTables, level: number): number 
     .reduce((count, row) => Math.max(count, Number(row[SLOT_CONDITION_COUNT_COLUMN]) || 0), 0);
 }
 
-/** 열린 칸에 고른 옵션 (그 스킬의 후보에 있는 것만, 칸 순서). 같은 옵션은 한 스킬에 하나만 (사용자 확인 "같은 옵션 안된다") */
+/** 열린 칸에 고른 옵션 (그 스킬의 후보에 있는 것만, 칸 순서). 같은 옵션은 한 스킬에 하나만 */
 export function chosenSkillOptions(values: CalcValues, tables: StatTables, skillId: string): TableRow[] {
   const choices = skillRuneChoices(tables, skillId);
   const slotCount = skillOptionSlotCount(tables, skillLevel(values, skillId));

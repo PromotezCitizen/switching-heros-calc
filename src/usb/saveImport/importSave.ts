@@ -254,11 +254,11 @@ export function importSave(files: SaveFiles, tables: StatTables, withPresets = t
   putDefined(values, 'attackEventBuff', files.Default.attackBuffOn);
   const accountValues: Record<string, string> = {};
   putDefined(accountValues, ACCOUNT_KEYS.vipLevel, files.Default.vipLevel);
-  // 유저 레벨 (사용자 지시 2026-11-05 "유저 레벨 불러와라"): 최적 특성의 총 특성 포인트
+  // 유저 레벨: 최적 특성의 총 특성 포인트
   putDefined(accountValues, ACCOUNT_KEYS.userLevel, files.Default.userLevel);
   putDefined(accountValues, ACCOUNT_KEYS.fairyLevel, files.Default.fairyLevel);
   putDefined(accountValues, ACCOUNT_KEYS.adRemoved, files.Default.adsRemoved);
-  // 사냥 계산기 오프라인 층 = 최대층 (사용자 결정 2026-11-07 "\"최대층\"이 오프라인 기준이다")
+  // 사냥 계산기 오프라인 층 = 최대층
   putDefined(accountValues, HUNTING_KEYS.offlineFloor, files.Default.maxStage);
   // 데이터를 읽어 온 게임 버전 (불러오기 창 표시 · 파일로 저장할 때 버전)
   if (files.Default.gameVersion) accountValues[GAME_VERSION_KEY] = files.Default.gameVersion;

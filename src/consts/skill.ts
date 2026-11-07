@@ -12,7 +12,7 @@ export const SKILL_CONSTS = {
   MAX_LEVEL: 120,
   /** 스킬 옵션 표 (stat-calc/scripts/export_skill.py, 스킬마다 후보 12행. rNo = 저장 데이터 diceOptions[].rNo) */
   RUNE_TABLE: 'SkillRune',
-  /** 옵션 값은 최고 등급 (SS) 열 (사용자 결정 2026-10-08 "스킬은 항상 최대 단계 최대 옵션 수치로 가정한다") */
+  /** 옵션 값은 최고 등급 (SS) 열 */
   RUNE_VALUE_COLUMN: 'gradeSS',
   /** 옵션 문구에서 값이 들어가는 자리 */
   RUNE_VALUE_PLACEHOLDER: '{0}',

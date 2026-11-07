@@ -291,7 +291,7 @@ export function prepareTargetDamage(values: CalcValues, tables: StatTables, targ
     let statusCount = inputs.targetStatusCount[target] ?? STAGE_STATUS_COUNT;
     if (inputs.targetStatusCount[target] === undefined) {
       missing.push('statusCountEstimated');
-      // 일반몹 대상은 3중첩 가정 (사용자 결정), 보스 · 히어로 대상만 계산
+      // 일반몹 대상은 3중첩 가정, 보스 · 히어로 대상만 계산
       if (TARGETS[target].UNIT !== 'normal') {
         const skillSeconds = equipped.flatMap((skillId) => (skillLevel(values, skillId) > 0 ? [castSecondsOf(skillId)] : [])).filter((seconds): seconds is number => seconds !== null);
         const sources = sharedSkillSources ?? skillStatusSources;

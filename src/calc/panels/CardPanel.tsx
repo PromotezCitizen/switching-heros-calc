@@ -79,6 +79,7 @@ export default function CardPanel({ values, setValue, tables, descriptions }: Ta
             <Text c="blue">{translate('calc.card.stickerExpand')}</Text>
           </UnstyledButton>
           <Collapse expanded={stickersOpened}>
+            <Text size="xs" c="dimmed">{translate('calc.card.stickerLevelHelp')}</Text>
             <AutoGrid minItemWidth={CARD_MIN_WIDTH.large} gap="var(--mantine-spacing-sm)">
               {stickerGroups.map((group) => (
                 <StickerRow

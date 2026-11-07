@@ -231,9 +231,11 @@ export function cardLines(values: CalcValues, tables: StatTables, label: SourceL
     }
   }
   const stickerGroups = stickerUnlocked(values, tables) ? groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId') : [];
+  // 세트 값의 레벨 = 편성 카드에 붙은 모든 배지 점수 (CardSticker point) 의 합 하나, 세트마다 따로가 아님
+  // (게임 m6809 · m15802 @0x3357c74, html-verify-B-2026-11-07.md E14 유력, 사용자 지시 2026-11-07 "틀린부분 진행". 피규어의 stickerPoints 와 같은 값)
+  const level = stickerGroups.reduce((sum, group) => sum + numberValue(values, stickerLevelField(group.key)), 0);
   for (const group of stickerGroups) {
     const count = Number(values[stickerCountField(group.key)]) || 0;
-    const level = numberValue(values, stickerLevelField(group.key));
     const name = label('calc.card.stickerName', { name: stickerDisplayName(group.key, label) });
     for (const row of group.rows) {
       if (Number(row.setCnt) <= count) {

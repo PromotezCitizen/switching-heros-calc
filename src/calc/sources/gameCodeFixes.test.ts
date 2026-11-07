@@ -1,0 +1,55 @@
+import { describe, expect, it } from 'vitest';
+import { CONSTS } from '@/CONSTS';
+import { tableRows } from '@/data/statTables';
+import { cardGradeField, cardLines, cardSlotField, stickerCountField, stickerLevelField } from '@/calc/sources/heroWeaponCardPet/card';
+import { bookLevelField, inheritStatField, inheritValueField, libraryLines } from '@/calc/sources/heroWeaponCardPet/library';
+import { gradeStarValue } from '@/calc/sources/heroWeaponCardPet/shared';
+import { loadTestTables } from '@/test/loadTestTables';
+
+/** 예전 HTML 규칙을 게임 코드로 확인해 고친 것 (claude-docs/react-port/html-verify-A · B-2026-11-07.md, 사용자 지시 2026-11-07 "틀린부분 진행") */
+const tables = loadTestTables();
+const label = (key: string, params?: Record<string, unknown>) => `${key}${params ? JSON.stringify(params) : ''}`;
+
+describe('기록 보관소 전승된 능력: 같은 스탯 칸은 값을 더해 한 줄 (게임 m6880 부분 C)', () => {
+  // 책 4권 Lv40 → 보관소 Lv4 → 칸 2개 열림
+  const books = Object.fromEntries((['Swordsman', 'Fighter', 'Archer', 'Mage'] as const).map((job) => [bookLevelField(job), '40']));
+  it('200% + 200% → 400% 한 줄 (×5), 다른 스탯은 따로', () => {
+    const same = libraryLines(
+      { ...books, [inheritStatField(1)]: '_per_CharSkillDamage', [inheritValueField(1)]: '200%', [inheritStatField(2)]: '_per_CharSkillDamage', [inheritValueField(2)]: '200%' },
+      tables,
+      label,
+    ).filter((line) => line.stat === '_per_CharSkillDamage');
+    expect(same).toHaveLength(1);
+    expect(same[0].log).toBeCloseTo(Math.log10(400), 10);
+    const different = libraryLines(
+      { ...books, [inheritStatField(1)]: '_per_CharSkillDamage', [inheritValueField(1)]: '200%', [inheritStatField(2)]: '_per_hp', [inheritValueField(2)]: '200%' },
+      tables,
+      label,
+    ).filter((line) => line.source.includes('inherit'));
+    expect(different).toHaveLength(2);
+  });
+});
+
+describe('카드 스티커 세트: 레벨은 모든 배지 점수의 합 하나 (게임 m15802)', () => {
+  it('세트 값 = val1 + valUp1 × (모든 배지 점수 합)', () => {
+    const card = tableRows(tables.Card).find((row) => Number(row.stickerSlotCnt) > 0)!;
+    const sets = tableRows(tables.CardStickerSet);
+    const [first, second] = [...new Set(sets.map((row) => row.stickerId))];
+    const firstRow = sets.find((row) => row.stickerId === first && Number(row.setCnt) === Math.min(...sets.filter((r) => r.stickerId === first).map((r) => Number(r.setCnt))))!;
+    const values = {
+      [cardSlotField(1)]: card.cardId,
+      [cardGradeField(1)]: gradeStarValue(card),
+      [stickerCountField(first)]: firstRow.setCnt,
+      [stickerLevelField(first)]: '3',
+      [stickerLevelField(second)]: '4',
+    };
+    const line = cardLines(values, tables, label).find((candidate) => candidate.stat === firstRow.statName && candidate.source.includes('sources.set'));
+    expect(line?.value).toBeCloseTo(Number(firstRow.val1) + Number(firstRow.valUp1) * 7, 10);
+  });
+});
+
+describe('길드 스킬 열림 레벨 (서버 Option guild_lv_N add_guild_skill_order)', () => {
+  it('스테이지 골드 스킬 (order 2 · 4 · 6 · 8 · 10) = 길드 Lv 23 · 32 · 44 · 56 · 60', () => {
+    expect(CONSTS.guild.SKILLS.map((skill) => skill.unlock)).toEqual([23, 32, 44, 56, 60]);
+  });
+});

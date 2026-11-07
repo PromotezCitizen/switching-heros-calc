@@ -5,8 +5,11 @@ import {
   offlineBonusPercent,
   offlineEfficiency,
   onlineBonusPercent,
+  durationParts,
+  floorRows,
+  lunchboxCount,
   requiredKillsPerMinute,
-  scanFloors,
+  wallFloors,
   type HuntingInputs,
   type StageRewards,
 } from '@/hunting/huntingCalc';
@@ -104,9 +107,54 @@ describe('손익분기 분당 처치 수', () => {
     const inputs = withInputs({ offlineFloor: 3, eventOn: { exp: false, gold: true, ess: false } });
     expect(requiredKillsPerMinute(inputs, REWARDS, 3, 'gold')).toBeCloseTo(100);
   });
-  it('층 범위를 훑으면 층마다 한 줄', () => {
-    const rows = scanFloors(withInputs({ offlineFloor: 3 }), REWARDS, 1, 5, 2);
-    expect(rows.map((row) => row.floor)).toEqual([1, 3, 5]);
-    expect(rows[1].required.gold).toBeCloseTo(200);
+});
+
+describe('25층 벽 목록 (floor-calc 와 같은 층)', () => {
+  it('현재 층, 그리고 벽마다 벽 직후 · 벽 · 벽 직전', () => {
+    expect(wallFloors(60)).toEqual([
+      { floor: 60, kind: 'current' },
+      { floor: 51, kind: 'afterWall' },
+      { floor: 50, kind: 'wall' },
+      { floor: 49, kind: 'beforeWall' },
+      { floor: 26, kind: 'afterWall' },
+      { floor: 25, kind: 'wall' },
+      { floor: 24, kind: 'beforeWall' },
+    ]);
+  });
+  it('현재 층이 벽 직후 (25n+1) 면 현재 층 줄 없이 벽 직후로', () => {
+    expect(wallFloors(51).slice(0, 2)).toEqual([
+      { floor: 51, kind: 'afterWall' },
+      { floor: 50, kind: 'wall' },
+    ]);
+  });
+  it('현재 층이 벽 (25n) 이면 현재 층 다음 바로 벽 직전 (벽 직후 · 벽 줄 없음)', () => {
+    expect(wallFloors(50).slice(0, 2)).toEqual([
+      { floor: 50, kind: 'current' },
+      { floor: 49, kind: 'beforeWall' },
+    ]);
+  });
+  it('경험치 필요 처치 수가 max(내 처치 수, 1000) 을 넘는 층에서 끊는다', () => {
+    // 층 f 보상 10^f: 60층 오프라인 (분당 200) 이면 60층은 200 으로 통과, 51층은 200 × 10^9 이라 1000 을 넘어 끊김
+    const rewards: StageRewards = { count: 60, gold: Array.from({ length: 60 }, (_, i) => i + 1), ess: Array.from({ length: 60 }, (_, i) => i) };
+    const { rows, cut } = floorRows(withInputs({ offlineFloor: 60 }), rewards, 800);
+    expect(rows.map((row) => row.floor)).toEqual([60, 51]);
+    expect(cut).toBe(true);
+  });
+});
+
+describe('목표 레벨까지 시간 · 도시락', () => {
+  it('도시락은 광고 배수를 항상 넣고 1시간 단위로 올림', () => {
+    // 오프라인 광고 포함 240마리/분 × 3층 보상 10^3 → 목표 경험치가 2시간치면 2개
+    const inputs = withInputs({ offlineFloor: 3 });
+    const targetLog = Math.log10(240 * 1000 * 120);
+    expect(lunchboxCount(targetLog, inputs, REWARDS)).toEqual({ count: 2, over: false });
+    expect(lunchboxCount(targetLog + 10, inputs, REWARDS).over).toBe(true);
+  });
+  it('걸리는 시간 나누기', () => {
+    expect(durationParts(0.2)).toEqual({ kind: 'minutes', minutes: 1 });
+    expect(durationParts(59.5)).toEqual({ kind: 'hours', hours: 1, minutes: 0 });
+    expect(durationParts(125)).toEqual({ kind: 'hours', hours: 2, minutes: 5 });
+    expect(durationParts(60 * 30)).toEqual({ kind: 'days', hours: 30, days: 1.25 });
+    expect(durationParts(1e9)).toEqual({ kind: 'over', days: 999 });
   });
 });

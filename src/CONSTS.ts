@@ -90,17 +90,77 @@ export const CONSTS = {
   /** 사냥 계산기 입력 기본값 */
   huntingDefaults: {
     offlineFloor: 7632,
-    scanStep: 1,
-    myKills: 0,
+    /** 온라인 분당 처치 수를 비우면 쓰는 값 (온라인 효율 계산기 floor-calc DEFAULT_KILLS) */
+    myKills: 800,
   } as Record<string, number>,
 
+  /**
+   * 사냥 계산기 (온라인 효율 계산기 floor-calc 를 옮김, 사용자 지시 2026-11-07 "전부 다 가져온다").
+   * 예전 "간격으로 훑기 · -50층까지만" 은 floor-calc 의 25층 벽 목록으로 바뀌었다.
+   */
   hunting: {
     /** 가장 낮은 층 */
     MIN_FLOOR: 1,
-    /** 오프라인 받는 층에서 몇 층 아래까지 볼지 (사용자 지시 "-50층까지만") */
-    SCAN_DEPTH: 50,
-    /** 층별 결과 표: 넓은 화면 2열, 좁은 화면 1열 */
-    RESULT_COLUMNS: { base: 1, lg: 2 },
+    /** 25층마다 벽: 25n 층에서 몬스터가 세지고 25n+1 층부터 보상이 오른다 */
+    WALL_STEP: 25,
+    /** 목록을 자르는 손익분기 처치 수 (한 방에 잡으면 분당 1000마리 안팎). 분당 처치 수를 더 크게 넣으면 그 수 */
+    CUT_KILLS: 1000,
+    /** 목록 최대 줄 수 */
+    MAX_ROWS: 300,
+    /** 걸리는 시간 · 도시락 표시 상한 (넘으면 "999일+" · "99,999개+") */
+    MAX_SHOWN_DAYS: 999,
+    MAX_SHOWN_LUNCHBOXES: 99999,
+    MINUTES_PER_HOUR: 60,
+    HOURS_PER_DAY: 24,
+    /** 시간을 일로 함께 적을 때 소수 자리 */
+    DAY_DECIMALS: 1,
+    /** 배수 소수 자리 */
+    RATIO_DECIMALS: 2,
+    /** 도시락 (먹으면 오프라인 보상을 그 시간만큼 바로 받음, 최고 층 기준): 중급 1시간 */
+    LUNCHBOX_MINUTES: 60,
+    /** 넓은 화면 표로 바꾸는 너비 (Mantine 중단점). 좁으면 층마다 카드 */
+    WIDE_FROM: 'md',
+    /** 제보 링크 (floor-calc 와 같은 구글 폼) */
+    REPORT_URL:
+      'https://docs.google.com/forms/d/e/1FAIpQLSfmcH7NM7QumUckh_tdUuuk_VmXXNBT5JLEygmdB1jTY1A0RQ/viewform?usp=pp_url&entry.1594761751=0%25(%EC%97%86%EC%9D%8C)&entry.506801763=0%25(%EC%97%86%EC%9D%8C)&entry.1270816294=0%25(%EC%97%86%EC%9D%8C)&entry.1020448729=X&entry.135084558=X&entry.1144504272=X',
+    /**
+     * 계정 레벨 L → L+1 필요 경험치 (레벨 구간별 식, floor-calc LEVEL_EXP 그대로). 1e308 을 넘는 구간이 있어 log10 으로 다룬다.
+     * early: [시작, 끝, 필요 경험치], 149~7799 묶음 바탕값 d_1 = midFirst, d_(j+1) = (d_j + midStep × j²) × midGrowth
+     */
+    LEVEL_EXP: {
+      EARLY: [
+        [1, 1, 20000],
+        [2, 15, 1000],
+        [16, 30, 3000],
+        [31, 148, 8000],
+      ] as [number, number, number][],
+      MID_END: 7799,
+      MID_FIRST: 3122.93,
+      MID_STEP: 9900,
+      MID_GROWTH: 1.57,
+      MID_PER_LEVEL: 100,
+      HIGH_END: 140499,
+      HIGH_BASE_LOG: Math.log10(4.1495685767029427) + 20,
+      HIGH_BUNDLE_BASE: 78,
+      BUNDLE_GROWTH_LOG: Math.log10(1.647715),
+      PER_LEVEL_RATE: 0.0005,
+      ROUND_FROM: 60000,
+      ROUND_DIGITS: 1000,
+      HIGHER_END: 299999,
+      HIGHER_BASE_LOG: Math.log10(2.63289) + 308,
+      HIGHER_BUNDLE_BASE: 1405,
+      TOP_END: 315000,
+      TOP_BASE_LOG: Math.log10(2.225) + 654,
+      TOP_BUNDLE_BASE: 3000,
+      TOP_BUNDLE_GROWTH_LOG: Math.log10(1.6485),
+      TOP_IN_BUNDLE_LOG: Math.log10(1.05),
+      LAST_BASE_LOG: Math.log10(8.141) + 686,
+      LAST_PER_LEVEL_LOG: Math.log10(1.0004880206850599),
+      LAST_BUNDLE_LOG: Math.log10(1.5700708684432332),
+      BUNDLE: 100,
+      /** 이보다 먼 목표는 계산하지 않음 */
+      MAX_SPAN: 1000000,
+    },
   },
 
   /** 게임 큰 수 표기: 단위 문자 A=1e3, B=1e6 … Z, AA … (대소문자 구분 없이 읽고 대문자로 표기) */

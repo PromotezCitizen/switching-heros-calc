@@ -244,8 +244,8 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     /** 웨폰 링크 직업 카드 최소 폭 (넓으면 4개 한 줄) · 레벨 칸 폭 (px) */
     LINK_CARD_MIN_WIDTH: 150,
     LINK_LEVEL_INPUT_WIDTH: 72,
-    /** 일반 무기 강화 레벨 칸 하나의 최소 폭 (px) */
-    NORMAL_WEAPON_INPUT_MIN_WIDTH: 90,
+    /** 일반 무기 강화 레벨 칸: 화면 폭과 상관없이 한 줄에 5개 (등급 하나의 1~5성) */
+    NORMAL_WEAPON_COLUMNS: 5,
     /** 히어로의 기록 책 카드 최소 폭 */
     BOOK_CARD_MIN_WIDTH: 160,
     /** 쓰지 않는 칸·미보유 카드의 흐림 정도 */

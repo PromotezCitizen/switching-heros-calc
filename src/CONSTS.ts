@@ -220,6 +220,8 @@ export const CONSTS = {
     CARD_MIN_WIDTH: { small: 120, medium: 180, large: 260 },
     /** 위쪽에 고정한 메인 탭 줄의 실제 높이를 담는 CSS 변수 이름. 그 아래에 하위 탭 줄을 붙여 고정할 때 위치로 쓴다 */
     STICKY_HEADER_HEIGHT_VAR: '--sticky-header-height',
+    /** 일기장 슬롯 12개는 화면 폭과 상관없이 늘 4행 × 3열 */
+    DIARY_SLOT_COLUMNS: 3,
     /** 메인 탭 줄 아래에 고정한 하위 탭 줄의 실제 높이 CSS 변수. 그 아래에 붙여 고정하는 제목 줄 (특성 열 제목 등) 이 쓴다 */
     STICKY_SUB_TAB_HEIGHT_VAR: '--sticky-sub-tab-height',
     /** 하위 탭 줄 아래에 고정한 콘텐츠 칸 제목 줄 (특성·룬 등) 의 실제 높이 CSS 변수. 칸 안 고정 줄 (특성 열 제목) 이 그 아래에 붙는다 */

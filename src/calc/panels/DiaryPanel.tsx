@@ -1,8 +1,7 @@
 /** 일기장: 현재 책 번호 + 슬롯 12개 레벨을 입력하면 누적 효과를 계산해 보여 준다 */
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, Group, Image, Stack, Text } from '@mantine/core';
-import AutoGrid from '@/components/AutoGrid';
+import { Card, Group, Image, Stack, Text, SimpleGrid } from '@mantine/core';
 import { CONSTS } from '@/CONSTS';
 import { NumberField } from '@/components/StoreFields';
 import { CALC_KEY_PREFIX } from '@/calc/storeKeys';
@@ -76,7 +75,8 @@ export default function DiaryPanel({ values, tables }: TabPanelProps) {
           min={0}
         />
       </Group>
-      <AutoGrid minItemWidth={CONSTS.display.CARD_MIN_WIDTH.medium}>
+      {/* 슬롯 12개: 화면 폭과 상관없이 늘 4행 × 3열 */}
+      <SimpleGrid cols={CONSTS.display.DIARY_SLOT_COLUMNS} spacing="sm">
         {DIARY_SLOT_ICONS.map((icon, index) => {
           const slot = index + 1;
           const result = results.find((candidate) => candidate.slot === slot);
@@ -89,7 +89,7 @@ export default function DiaryPanel({ values, tables }: TabPanelProps) {
             />
           );
         })}
-      </AutoGrid>
+      </SimpleGrid>
     </Stack>
   );
 }

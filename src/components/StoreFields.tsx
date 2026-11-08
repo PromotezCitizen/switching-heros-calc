@@ -148,7 +148,9 @@ export interface SelectGroup {
   hint?: ReactNode;
 }
 
-interface GroupedSelectFieldProps extends FieldBase {
+interface GroupedSelectFieldProps extends Omit<FieldBase, 'label'> {
+  /** 칸 이름. 없으면 이름 줄 없이 (바깥 제목이 이름을 대신할 때) */
+  label?: string;
   groups: SelectGroup[];
   disabled?: boolean;
 }
@@ -158,7 +160,7 @@ export function GroupedSelectField({ storeKey, label, hint, groups, disabled }: 
   const [text, setText] = useStoreValue(storeKey);
   const selected = text ?? groups[0]?.options[0]?.value ?? '';
   return (
-    <Input.Wrapper label={labelWithHint(label, hint)}>
+    <Input.Wrapper label={label ? labelWithHint(label, hint) : undefined}>
       <Stack gap={4}>
         {groups.map((group) => (
           // 버튼이 여러 줄로 넘어가도 묶음 이름은 첫 줄 옆에 (이름 칸 높이 = 버튼 한 줄 높이)

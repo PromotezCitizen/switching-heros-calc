@@ -232,12 +232,8 @@ export default function OptimizerPage() {
       <Paper withBorder p="md">
         <Title order={3} mb="sm">{translate('optimizer.targetTitle')}</Title>
         <Stack gap="sm">
-          <GroupedSelectField
-            storeKey={TARGET_KEY}
-            label={translate('optimizer.target')}
-            groups={targetGroups}
-            disabled={locked}
-          />
+          {/* 칸 이름은 위 제목 ("최적화 대상") 이 대신한다 */}
+          <GroupedSelectField storeKey={TARGET_KEY} groups={targetGroups} disabled={locked} />
           <FlagField storeKey={AUTO_SWAP_KEY} label={translate('optimizer.autoSwap')} defaultChecked disabled={locked} />
           {locked && (
             <Text size="sm" c="dimmed">

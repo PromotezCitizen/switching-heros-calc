@@ -1,5 +1,5 @@
 /**
- * 스탯 모아 보기: 스탯 계열 (공격력, 체력 등) 을 고르면 그 계열을 주는 수치표 출처를 한 화면에 모은다.
+ * 스탯 정보: 스탯 계열 (공격력, 체력 등) 을 고르면 그 계열을 주는 수치표 출처를 한 화면에 모은다.
  * 데이터 = statMeta.json (출처 · 스탯 · 계열 · 뺀 스탯) + statViewerTables/<표>.json (원본 행 보기용, 출처 행 번호와 같은 표)
  */
 import { useLayoutEffect, useMemo, useRef, useState, type ReactNode, type Ref } from 'react';
@@ -23,7 +23,6 @@ import {
   Tabs,
   Text,
   TextInput,
-  Title,
   UnstyledButton,
 } from '@mantine/core';
 import { useMediaQuery, useMergedRef } from '@mantine/hooks';
@@ -469,8 +468,8 @@ export default function StatViewerPage() {
   );
 
   return (
+    // 제목은 자료 페이지의 하위 탭 이름 ("스탯 정보") 이 대신한다
     <Stack gap="md" mt="md">
-      <Title order={1}>{translate('page.viewer')}</Title>
       <Notice tables={tables} />
       {sideBySide ? (
         // 넓은 화면: 줄 높이를 화면 바닥까지 고정하고 목록 · 오른쪽 내용이 각자 안에서 스크롤 (페이지는 스크롤 안 됨)

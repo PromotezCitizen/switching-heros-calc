@@ -10,22 +10,25 @@ import ColorSchemeButton from '@/components/ColorSchemeButton';
 import { SLIDE_TAB_LIST_STYLE, SLIDE_TAB_STYLE } from '@/components/slideTabs';
 import OptimizerPage from '@/masteryOptimizer/OptimizerPage';
 import MasteryLevelPage from '@/masteryDebug/MasteryLevelPage';
-import StatViewerPage from '@/statViewer/StatViewerPage';
+import ReferencePage from '@/reference/ReferencePage';
 import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
 
-/** 페이지 순서: 추천 (첫 화면) · 사냥 · 계정 · 스탯 모아 보기 · 값 찾는 법 */
+/** 페이지 순서: 추천 (첫 화면) · 사냥 · 계정 · 자료 */
 const PAGES = [
   { path: '/', labelKey: 'page.optimizer' },
   { path: '/hunting', labelKey: 'page.hunting' },
   { path: '/values', labelKey: 'page.calc' },
-  { path: '/viewer', labelKey: 'page.viewer' },
-  { path: '/guide', labelKey: 'page.guide' },
+  { path: '/data', labelKey: 'page.reference' },
 ] as const;
 
 /** 내용을 만든 페이지 (나머지는 제목만 있는 자리) */
-const IMPLEMENTED_PATHS: readonly string[] = ['/', '/hunting', '/values', '/viewer'];
-/** 예전 주소 → 지금 주소 (추천이 첫 화면이 되기 전 주소) */
-const OLD_OPTIMIZER_PATH = '/optimizer';
+const IMPLEMENTED_PATHS: readonly string[] = ['/', '/hunting', '/values', '/data'];
+/** 예전 주소 → 지금 주소 (추천이 첫 화면이 되기 전 /optimizer, 자료 페이지로 옮기기 전 스탯 모아 보기 /viewer · 값 찾는 법 /guide) */
+const OLD_PATHS: readonly { from: string; to: string }[] = [
+  { from: '/optimizer', to: '/' },
+  { from: '/viewer', to: '/data' },
+  { from: '/guide', to: '/data' },
+];
 /** Mantine 기본 탭 밑줄 두께 (px) */
 const TAB_LINE_WIDTH = 2;
 const HEADER_ROW_STYLE: CSSProperties = { borderBottom: `${TAB_LINE_WIDTH}px solid var(--mantine-color-default-border)` };
@@ -76,8 +79,10 @@ export default function App() {
         <Route path="/" element={<OptimizerPage />} />
         <Route path="/hunting" element={<HuntingPage />} />
         <Route path="/values" element={<CalcPage />} />
-        <Route path={OLD_OPTIMIZER_PATH} element={<Navigate to="/" replace />} />
-        <Route path="/viewer" element={<StatViewerPage />} />
+        <Route path="/data" element={<ReferencePage />} />
+        {OLD_PATHS.map(({ from, to }) => (
+          <Route key={from} path={from} element={<Navigate to={to} replace />} />
+        ))}
         {/* 디버그 페이지: 개발 서버에서만, 탭 없이 주소로 (/mastery-level) */}
         {import.meta.env.DEV && <Route path="/mastery-level" element={<MasteryLevelPage />} />}
         {PAGES.filter((page) => !IMPLEMENTED_PATHS.includes(page.path)).map((page) => (

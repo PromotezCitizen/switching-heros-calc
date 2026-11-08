@@ -1,4 +1,4 @@
-/** 스탯 모아 보기: statMeta.json (출처 · 스탯 · 계열) 과 수치표를 화면용으로 묶고 글로 바꾼다 */
+/** 스탯 정보: statMeta.json (출처 · 스탯 · 계열) 과 수치표를 화면용으로 묶고 글로 바꾼다 */
 import { CONSTS } from '@/CONSTS';
 import { formatLog } from '@/calc/gameNumber';
 import type { RawTable } from '@/data/statTables';

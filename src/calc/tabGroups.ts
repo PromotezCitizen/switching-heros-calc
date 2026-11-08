@@ -22,7 +22,7 @@ export const CALC_TAB_GROUPS: { id: string; tabIds: string[] }[] = [
 /**
  * 화면에 칸을 그리지 않는 탭 (계산에는 그대로 들어감). 보이는 칸이 없는 묶음은 탭째 숨는다
  */
-export const HIDDEN_PANEL_TAB_IDS: readonly string[] = ['affinity', 'fairy', 'buff', 'profile'];
+export const HIDDEN_PANEL_TAB_IDS: readonly string[] = ['summary', 'affinity', 'fairy', 'buff', 'profile'];
 
 /** 화면에 그리는 탭 (묶음 안에서 HIDDEN_PANEL_TAB_IDS 를 뺀 것) */
 export function shownGroupTabs(tabIds: string[]): CalcTab[] {

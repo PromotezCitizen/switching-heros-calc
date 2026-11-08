@@ -1,4 +1,4 @@
-/** 스탯 모아 보기 페이지 상수 */
+/** 스탯 정보 페이지 상수 */
 export const STAT_VIEWER_CONSTS = {
   /** 계산 방식 칩 순서 (statMeta.json stats[].kind) */
   KIND_ORDER: ['percent', 'multiply', 'plain', 'down', 'base', 'pow'] as readonly string[],
@@ -30,7 +30,6 @@ export const STAT_VIEWER_CONSTS = {
     ['{0}', 'N'],
     ['{1}', 'M'],
   ] as readonly (readonly [string, string])[],
-  FAMILY_LIST_MAX_HEIGHT: '70vh',
   RAW_TABLE_MAX_HEIGHT: 320,
   ENTITY_MIN_WIDTH: '12rem',
   ENTITY_MAX_WIDTH: '28rem',

@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Accordion, Alert, Loader, Paper } from '@mantine/core';
+import { Accordion, Alert, Center, Loader, Paper } from '@mantine/core';
 import { useStatTables, type StatTables } from '@/data/statTables';
 import { useTrackedCalcValues } from '@/calc/useTrackedCalcValues';
 import type { CalcTab } from '@/calc/types';
@@ -51,7 +51,12 @@ function TabItem({ tab, descriptions, stacked = false, single = false }: TabItem
   const content = (
     <>
       {loaded.status === 'failed' && needsTables && <Alert color="red">{translate('calc.tableLoadFailed')}</Alert>}
-      {needsTables && loaded.status === 'loading' && <Loader size="sm" />}
+      {needsTables && loaded.status === 'loading' && (
+        // 불러오는 동안 칸 가운데에
+        <Center>
+          <Loader size="sm" />
+        </Center>
+      )}
       {tables && <tab.Panel values={values} setValue={setValue} tables={tables} descriptions={descriptions} />}
     </>
   );

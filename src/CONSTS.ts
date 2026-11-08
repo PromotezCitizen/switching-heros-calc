@@ -218,6 +218,13 @@ export const CONSTS = {
     TAB_MIN_WIDTH: { narrow: 450, wide: 720 },
     /** 화면 폭이 이보다 크면 TAB_STACKS 의 칸들을 한 칸 폭 안에 위아래로 쌓는다 */
     TAB_STACK_MIN_SCREEN_WIDTH: 1400,
+    /**
+     * 화면 폭이 이 이상이면 계정 페이지를 왼쪽 목록 + 오른쪽 칸 하나로 그린다 (좁으면 묶음 탭 + 접이식 칸).
+     * 600 = 안드로이드 화면 크기 구분에서 폰 (600 미만) 과 펼친 폴더블 · 태블릿 (600 이상) 의 경계
+     */
+    SIDE_NAV_MIN_SCREEN_WIDTH: 600,
+    /** 왼쪽 목록 폭 (px) */
+    SIDE_NAV_WIDTH: 220,
     /** 칸 안 카드 격자: 열 수를 정하지 않고 카드 최소 폭만 정한다 (화면에 들어가는 만큼 가로로) */
     CARD_MIN_WIDTH: { small: 120, medium: 180, large: 260 },
     /** 일기장 슬롯 12개는 화면 폭과 상관없이 늘 4행 × 3열 */

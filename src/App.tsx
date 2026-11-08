@@ -1,27 +1,45 @@
+import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Container, Group, Tabs, Title } from '@mantine/core';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import AccountDialog from '@/account/AccountDialog';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { CONSTS } from '@/CONSTS';
 import CalcPage from '@/calc/CalcPage';
 import HuntingPage from '@/hunting/HuntingPage';
 import LoadDialog from '@/load/LoadDialog';
+import ColorSchemeButton from '@/components/ColorSchemeButton';
+import { SLIDE_TAB_STYLE } from '@/components/slideTabs';
+import SlideTabsList from '@/components/SlideTabsList';
 import OptimizerPage from '@/masteryOptimizer/OptimizerPage';
 import MasteryLevelPage from '@/masteryDebug/MasteryLevelPage';
-import StatViewerPage from '@/statViewer/StatViewerPage';
+import ReferencePage from '@/reference/ReferencePage';
 import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
 
-/** 4개 페이지 (자리만 만듦, 내용은 기존 HTML 계산기에서 옮겨 올 예정) */
+/** 페이지 순서: 추천 (첫 화면) · 사냥 · 계정 · 자료 */
 const PAGES = [
-  { path: '/', labelKey: 'page.calc' },
+  { path: '/', labelKey: 'page.optimizer' },
   { path: '/hunting', labelKey: 'page.hunting' },
-  { path: '/optimizer', labelKey: 'page.optimizer' },
-  { path: '/viewer', labelKey: 'page.viewer' },
-  { path: '/guide', labelKey: 'page.guide' },
+  { path: '/values', labelKey: 'page.calc' },
+  { path: '/data', labelKey: 'page.reference' },
 ] as const;
 
 /** 내용을 만든 페이지 (나머지는 제목만 있는 자리) */
-const IMPLEMENTED_PATHS: readonly string[] = ['/', '/hunting', '/optimizer', '/viewer'];
+const IMPLEMENTED_PATHS: readonly string[] = ['/', '/hunting', '/values', '/data'];
+/** 예전 주소 → 지금 주소 (추천이 첫 화면이 되기 전 /optimizer, 자료 페이지로 옮기기 전 스탯 모아 보기 /viewer · 값 찾는 법 /guide) */
+const OLD_PATHS: readonly { from: string; to: string }[] = [
+  { from: '/optimizer', to: '/' },
+  { from: '/viewer', to: '/data' },
+  { from: '/guide', to: '/data' },
+];
+/** Mantine 기본 탭 밑줄 두께 (px) */
+const TAB_LINE_WIDTH = 2;
+const HEADER_ROW_STYLE: CSSProperties = { borderBottom: `${TAB_LINE_WIDTH}px solid var(--mantine-color-default-border)` };
+/** 탭 줄 자체의 밑줄은 지우고, 고른 탭 표시가 바깥 줄 위에 겹치게 아래로 붙인다 */
+const PAGE_TABS_STYLE = {
+  flex: 1,
+  minWidth: 0,
+  marginBottom: -TAB_LINE_WIDTH,
+  '--tab-border-color': 'transparent',
+} as CSSProperties;
 
 export default function App() {
   const { t: translate } = useTranslation();
@@ -39,26 +57,34 @@ export default function App() {
         bg="var(--mantine-color-body)"
         style={{ zIndex: CONSTS.display.STICKY_HEADER_Z_INDEX }}
       >
-        <Tabs value={pathname} onChange={(path) => path && navigate(path)}>
-          <Tabs.List>
-            {PAGES.map((page) => (
-              <Tabs.Tab key={page.path} value={page.path}>
-                {translate(page.labelKey)}
-              </Tabs.Tab>
-            ))}
-            {/* 버튼도 탭 줄 안에 두어 아래 줄이 끝까지 이어진다 */}
-            <Group ml="auto" pb="xs" gap="xs">
-              <LoadDialog />
-              <AccountDialog />
-            </Group>
-          </Tabs.List>
-        </Tabs>
+        {/* 페이지 탭은 한 줄 (넘치면 옆으로 밀기), 불러오기 버튼은 탭과 따로 늘 오른쪽 위 */}
+        {/* 탭 아래 회색 줄은 탭 줄이 아니라 이 줄 전체에 그린다 (탭을 밀어도 버튼 아래까지 끝까지 이어지게) */}
+        {/* page-header-row: 라이트 모드에서 아래 선 색 (global.css) */}
+        <Group wrap="nowrap" align="center" gap="xs" style={HEADER_ROW_STYLE} className="page-header-row">
+          {/* page-tabs: 고른 탭 · 마우스 올린 탭 모양 (global.css) */}
+          <Tabs value={pathname} onChange={(path) => path && navigate(path)} style={PAGE_TABS_STYLE} className="page-tabs">
+            <SlideTabsList>
+              {PAGES.map((page) => (
+                <Tabs.Tab key={page.path} value={page.path} style={SLIDE_TAB_STYLE}>
+                  {translate(page.labelKey)}
+                </Tabs.Tab>
+              ))}
+            </SlideTabsList>
+          </Tabs>
+          <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
+            <ColorSchemeButton />
+            <LoadDialog />
+          </Group>
+        </Group>
       </Box>
       <Routes>
-        <Route path="/" element={<CalcPage />} />
+        <Route path="/" element={<OptimizerPage />} />
         <Route path="/hunting" element={<HuntingPage />} />
-        <Route path="/optimizer" element={<OptimizerPage />} />
-        <Route path="/viewer" element={<StatViewerPage />} />
+        <Route path="/values" element={<CalcPage />} />
+        <Route path="/data" element={<ReferencePage />} />
+        {OLD_PATHS.map(({ from, to }) => (
+          <Route key={from} path={from} element={<Navigate to={to} replace />} />
+        ))}
         {/* 디버그 페이지: 개발 서버에서만, 탭 없이 주소로 (/mastery-level) */}
         {import.meta.env.DEV && <Route path="/mastery-level" element={<MasteryLevelPage />} />}
         {PAGES.filter((page) => !IMPLEMENTED_PATHS.includes(page.path)).map((page) => (

@@ -223,7 +223,7 @@ export function importSave(files: SaveFiles, tables: StatTables, withPresets = t
     ancientRelicValues(files.Dispatch as AncientRelicSave),
     soulForgeValues(files.Equip as SoulForgeSave, tables),
     coreMasteryValues(files.Reinforce as CoreMasterySave),
-    figureValues(files.Relic as FigureSave),
+    figureValues(files.Relic as FigureSave, tables),
     foodValues(files.Dispatch as FoodSave),
     skillRuneValues(files.Skill, files.Dispatch, presetKey, slot1HeroId, slot2HeroId),
     collectionValues(files.Progress, files.Alchemy, tables),

@@ -16,7 +16,7 @@ export const USB_CONSTS = {
   SAVE_TOOL_PATH: 'tools/collectionidle-save.bat',
   SAVE_TOOL_FILE_NAME: '컬렉션아이들-세이브받기.bat',
   /** 저장 데이터에 없어서 불러와도 안 채워지는 항목 (번역 usb.manualItems.<이름>). 저장 가져오기에 새로 넣으면 여기서 뺀다 */
-  MANUAL_INPUT_ITEMS: ['coreMasterySelect', 'cardSticker'] as readonly string[],
+  MANUAL_INPUT_ITEMS: ['coreMasterySelect', 'cardSticker', 'figureUnverified'] as readonly string[],
 
   /** 저장 데이터로 채우는 입력 글: 소수 자리 (표시용 2자리보다 많이 남겨 계산 오차를 줄임) */
   SAVE_TEXT_DECIMALS: 6,

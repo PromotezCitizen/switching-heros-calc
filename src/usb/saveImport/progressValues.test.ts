@@ -31,7 +31,18 @@ describe('저장 데이터 → 소울포지 · 코어 특성 · 피규어', () =
   it('코어 특성 레벨, 피규어 레벨 (번호 → 레벨, 없으면 빈 값)', () => {
     expect(coreMasteryValues({ coreMasteryLv: 7 }).values).toEqual({ coreMasteryLevel: '7' });
     expect(coreMasteryValues({}).values).toEqual({});
-    expect(figureValues({ figureDic: { k: [1, 5], v: [2, { lv: 3 }] } }).values).toEqual({ figureLevel_1: '2', figureLevel_5: '3' });
-    expect(figureValues({ figureDic: { k: [], v: [] } }).values).toEqual({});
+    // 저장에 있는 피규어만 레벨, 표의 다른 피규어 칸은 비운다 (전에 넣은 값이 남지 않게)
+    const owned = figureValues({ figureDic: { k: [1, 5], v: [2, { lv: 3 }] } }, tables);
+    expect(owned.values.figureLevel_1).toBe('2');
+    expect(owned.values.figureLevel_5).toBe('3');
+    expect(Object.entries(owned.values).filter(([, level]) => level !== '').length).toBe(2);
+    expect(Object.keys(owned.values).length).toBeGreaterThan(2);
+    expect(owned.notes).toEqual([]);
+    // 피규어가 하나도 없으면 모두 비우고 알린다
+    const none = figureValues({ figureDic: { k: [], v: [] } }, tables);
+    expect(Object.values(none.values).every((level) => level === '')).toBe(true);
+    expect(none.notes.length).toBe(1);
+    // figureDic 자체가 없는 옛 저장은 건드리지 않는다
+    expect(figureValues({}, tables)).toEqual({ values: {}, notes: [] });
   });
 });

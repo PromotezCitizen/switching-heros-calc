@@ -5,10 +5,12 @@
 import { CONSTS } from '@/CONSTS';
 import { tableRows, type StatTables } from '@/data/statTables';
 import { SOUL_FORGE_FIELD, soulForgeSlotField } from '@/calc/sources/heroWeaponCardPet/weapon';
+import { figures } from '@/calc/sources/providers/figure';
 import { readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
 
 const { LEVEL_FIELD: CORE_MASTERY_LEVEL_FIELD } = CONSTS.providers.coreMastery;
 const { LEVEL_FIELD_PREFIX: FIGURE_LEVEL_PREFIX } = CONSTS.providers.figure;
+const NO_FIGURES_NOTE = '저장 데이터에 피규어가 없어서 피규어 칸을 모두 비웠어요';
 
 export interface SoulForgeSave {
   soulForgeData?: { lv: number; slotDataDic: SaveDictionary<number, { isGet?: number }> };
@@ -44,16 +46,24 @@ export function coreMasteryValues(reinforce: CoreMasterySave): SaveImportResult 
   return { values, notes: [] };
 }
 
-/** 피규어 레벨 (figureDic: 피규어 번호 → 레벨) */
-export function figureValues(relic: FigureSave): SaveImportResult {
+/**
+ * 피규어 레벨 (figureDic: 피규어 번호 → 레벨). 표에 있는 피규어 중 저장에 없는 것은 칸을 비운다 (전에 넣은 값이 남지 않게).
+ * 저장에 피규어가 하나도 없으면 알린다
+ */
+export function figureValues(relic: FigureSave, tables: StatTables): SaveImportResult {
   const values: Record<string, string> = {};
   const notes: string[] = [];
   runSection(notes, '피규어', () => {
     if (!relic.figureDic) return;
+    for (const figure of figures(tables)) values[`${FIGURE_LEVEL_PREFIX}${figure.figureId}`] = '';
+    let ownedCount = 0;
     for (const [figureId, owned] of readDictionary(relic.figureDic)) {
       const level = typeof owned === 'number' ? owned : owned.lv;
-      if (level) values[`${FIGURE_LEVEL_PREFIX}${figureId}`] = String(level);
+      if (!level) continue;
+      values[`${FIGURE_LEVEL_PREFIX}${figureId}`] = String(level);
+      ownedCount += 1;
     }
+    if (ownedCount === 0) notes.push(NO_FIGURES_NOTE);
   });
   return { values, notes };
 }

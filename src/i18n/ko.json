@@ -4,12 +4,10 @@
     "hunting": "사냥 계산기",
     "optimizer": "추천",
     "viewer": "스탯 정보",
-    "reference": "자료"
+    "reference": "자료",
+    "wiki": "게임 용어"
   },
   "viewer": {
-    "noticeBody": "% 로 오르는 효과는 더하지 않고 하나씩 차례로 곱해요 (10% 증가 둘 = 21% 증가). 전투 중에만 잠깐 켜지는 효과 (적 처치 후 몇 초간 등) 에는 '전투 중 잠깐 켜짐' 표시가 붙어요.",
-    "valueHint": "설명의 N · M 은 게임 표에 적힌 수치예요.",
-    "unresolvedTitle": "뜻을 아직 못 푼 게임 표: {{label}}",
     "familiesLabel": "스탯 종류",
     "search": "스탯 종류 · 효과 검색",
     "noSearchResult": "검색 결과 없음",
@@ -51,6 +49,21 @@
     "raw": "게임 표 보기",
     "loading": "불러오는 중…",
     "loadFailed": "스탯 데이터를 불러오지 못했어요. 새로고침해 보세요."
+  },
+  "wiki": {
+    "label": "게임 용어 목록",
+    "search": "용어 검색",
+    "noSearchResult": "맞는 용어가 없어요.",
+    "meaning": "뜻",
+    "inGame": "게임에서 보는 곳",
+    "unlock": "해금 조건",
+    "opens": "해금 대상",
+    "inCalc": "넣는 곳",
+    "unknown": "아직 확인하지 못했어요.",
+    "notInCalc": "넣는 칸이 없어요.",
+    "openInCalc": "넣는 칸으로 가기",
+    "pending": "확인중",
+    "related": "같이 보기"
   },
   "common": {
     "help": "어디서 찾나요?",

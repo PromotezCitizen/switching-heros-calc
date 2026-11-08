@@ -4,6 +4,7 @@ import { Stack, Tabs } from '@mantine/core';
 import { useUiValue } from '@/store/useUiStore';
 import { SLIDE_TAB_LIST_STYLE, SLIDE_TAB_STYLE } from '@/components/slideTabs';
 import StatViewerPage from '@/statViewer/StatViewerPage';
+import WikiPage from '@/reference/WikiPage';
 
 const SECTION_UI_KEY = 'referenceSection';
 
@@ -13,8 +14,11 @@ interface ReferenceSection {
   render: () => ReactNode;
 }
 
-/** 자료 페이지 하위 탭 순서 (게임 용어는 만들 때 여기에 붙인다) */
-const SECTIONS: readonly ReferenceSection[] = [{ id: 'statViewer', labelKey: 'page.viewer', render: () => <StatViewerPage /> }];
+/** 자료 페이지 하위 탭 순서 */
+const SECTIONS: readonly ReferenceSection[] = [
+  { id: 'statViewer', labelKey: 'page.viewer', render: () => <StatViewerPage /> },
+  { id: 'wiki', labelKey: 'page.wiki', render: () => <WikiPage /> },
+];
 
 /** 자료: 계산에 넣는 값이 아니라 찾아보는 내용 (스탯 정보 등). 하위 탭 하나를 골라 보여 주고, 고른 탭은 이 기기에 기억 */
 export default function ReferencePage() {

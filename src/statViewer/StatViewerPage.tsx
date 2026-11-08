@@ -5,7 +5,6 @@
 import { useLayoutEffect, useMemo, useRef, useState, type ReactNode, type Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Accordion,
   Alert,
   Badge,
   Box,
@@ -88,30 +87,6 @@ function RawTable({ table, rowIndexes, columns, memberColumns }: { table: Viewer
         </Table.Tbody>
       </Table>
     </ScrollArea.Autosize>
-  );
-}
-
-/** 맨 위 안내: 값이 합쳐지는 방식 · N 뜻, 해석 미확인 표가 있으면 그 원본 (접힘) */
-function Notice({ tables }: { tables: ViewerTables }) {
-  const { t: translate } = useTranslation();
-  const unresolved = UNRESOLVED_TABLES.filter((name) => tables[name]?.unresolved);
-  return (
-    <Alert color="yellow" variant="light">
-      <Text size="sm">{translate('viewer.noticeBody')}</Text>
-      <Text size="sm">{translate('viewer.valueHint')}</Text>
-      {unresolved.length > 0 && (
-        <Accordion mt="xs" variant="separated" chevronPosition="left" keepMounted={false}>
-          {unresolved.map((name) => (
-            <Accordion.Item key={name} value={name}>
-              <Accordion.Control>{translate('viewer.unresolvedTitle', { label: tables[name].label })}</Accordion.Control>
-              <Accordion.Panel>
-                <RawTable table={tables[name]} />
-              </Accordion.Panel>
-            </Accordion.Item>
-          ))}
-        </Accordion>
-      )}
-    </Alert>
   );
 }
 
@@ -468,9 +443,8 @@ export default function StatViewerPage() {
   );
 
   return (
-    // 제목은 자료 페이지의 하위 탭 이름 ("스탯 정보") 이 대신한다
+    // 제목은 자료 페이지의 하위 탭 이름 ("스탯 정보") 이 대신하고, 값이 쌓이는 방법 · N 뜻은 게임 용어 탭에서 설명한다
     <Stack gap="md" mt="md">
-      <Notice tables={tables} />
       {sideBySide ? (
         // 넓은 화면: 줄 높이를 화면 바닥까지 고정하고 목록 · 오른쪽 내용이 각자 안에서 스크롤 (페이지는 스크롤 안 됨)
         <Group

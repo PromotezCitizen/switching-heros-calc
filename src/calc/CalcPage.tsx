@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Accordion, Alert, Box, Stack, Tabs, Text } from '@mantine/core';
+import { Accordion, Alert, Box, Stack, Tabs } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { CONSTS } from '@/CONSTS';
 import { useUiValue } from '@/store/useUiStore';
@@ -9,6 +9,7 @@ import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
 import { CALC_TAB_GROUPS, shownGroupTabs } from '@/calc/tabGroups';
 import { TAB_ITEM_STYLE, TAB_ROW_STYLE, TAB_STACK_STYLE, TAB_STACKS } from '@/calc/tabWidths';
 import TabItem from '@/calc/TabItem';
+import CalcSideNavLayout from '@/calc/CalcSideNavLayout';
 import AccountFields from '@/account/AccountFields';
 import { SLIDE_TAB_LIST_STYLE, SLIDE_TAB_STYLE } from '@/components/slideTabs';
 import CalcSettingsFields from '@/masteryOptimizer/CalcSettingsFields';
@@ -18,8 +19,13 @@ const EMPTY_DESCRIPTIONS: StatDescriptions = {};
 const GROUP_UI_KEY = 'calcGroup';
 /** 맨 앞 묶음: 여러 페이지가 같이 쓰는 계정 값 (계산 탭이 아니라 AccountFields 를 그린다) */
 const ACCOUNT_GROUP_ID = 'account';
-/** 맨 뒤 묶음: 추천 계산 설정 (유저 레벨 · 맞는 적 수 · 스테이지 층, CalcSettingsFields) */
+/** 맨 뒤 묶음: 추천 계산 설정 (맞는 적 수 · 스테이지 층, CalcSettingsFields) */
 const CALC_SETTINGS_GROUP_ID = 'calcSettings';
+/** 계산 칸이 아닌 묶음 → 그리는 칸 (넓은 화면 목록용) */
+const SPECIAL_GROUPS = {
+  [ACCOUNT_GROUP_ID]: () => <AccountFields />,
+  [CALC_SETTINGS_GROUP_ID]: () => <CalcSettingsFields />,
+};
 
 /** 계산식 확인기: 하위 탭(묶음) 안에 콘텐츠마다 접이식 칸 */
 export default function CalcPage() {
@@ -40,12 +46,25 @@ export default function CalcPage() {
   const shownDescriptions = descriptions.status === 'ready' ? descriptions.data : EMPTY_DESCRIPTIONS;
   // 화면이 넓으면 TAB_STACKS 의 칸들을 위아래로 쌓는다
   const stackScreen = useMediaQuery(`(min-width: ${CONSTS.display.TAB_STACK_MIN_SCREEN_WIDTH + 1}px)`);
+  // 넓은 화면은 왼쪽 목록 + 오른쪽 칸 하나, 좁은 화면 (폰) 은 아래의 묶음 탭 + 접이식 칸 그대로
+  const sideNavScreen = useMediaQuery(`(min-width: ${CONSTS.display.SIDE_NAV_MIN_SCREEN_WIDTH}px)`);
+
+  if (sideNavScreen) {
+    return (
+      <Stack mt="md" gap="xs">
+        {descriptions.status === 'failed' && <Alert color="red">{translate('calc.loadFailed')}</Alert>}
+        <CalcSideNavLayout
+          groupIds={groupIds}
+          specialGroups={SPECIAL_GROUPS}
+          tabIdsByGroup={Object.fromEntries(groups.map((group) => [group.id, group.tabIds]))}
+          descriptions={shownDescriptions}
+        />
+      </Stack>
+    );
+  }
 
   return (
     <Stack mt="md" gap="xs">
-      <Text size="sm" c="dimmed">
-        {translate('calc.intro')}
-      </Text>
       {descriptions.status === 'failed' && <Alert color="red">{translate('calc.loadFailed')}</Alert>}
       {/* 숨긴 하위 탭은 화면에서만 숨긴다: Mantine 기본 (React Activity) 은 다시 열 때 탭 안 전체를 다시 그려 히어로 탭이 0.8초 넘게 멈췄다 */}
       <Tabs value={activeGroup.id} onChange={(next) => next && changeGroup(next)} variant="pills" keepMountedMode="display-none">

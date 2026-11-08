@@ -11,7 +11,8 @@ import { theme } from '@/theme';
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <MantineProvider theme={theme} defaultColorScheme="auto">
-      <BrowserRouter>
+      {/* 주소 앞부분 (Pages 저장소 이름) 을 뺀 나머지로 페이지를 고른다 */}
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <App />
       </BrowserRouter>
     </MantineProvider>

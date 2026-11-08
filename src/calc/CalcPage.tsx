@@ -11,7 +11,8 @@ import { TAB_ITEM_STYLE, TAB_ROW_STYLE, TAB_STACK_STYLE, TAB_STACKS } from '@/ca
 import TabItem from '@/calc/TabItem';
 import CalcSideNavLayout from '@/calc/CalcSideNavLayout';
 import AccountFields from '@/account/AccountFields';
-import { SLIDE_TAB_LIST_STYLE, SLIDE_TAB_STYLE } from '@/components/slideTabs';
+import { SLIDE_TAB_STYLE } from '@/components/slideTabs';
+import SlideTabsList from '@/components/SlideTabsList';
 import CalcSettingsFields from '@/masteryOptimizer/CalcSettingsFields';
 import type { StatDescriptions } from '@/calc/statText';
 
@@ -76,13 +77,13 @@ export default function CalcPage() {
           bg="var(--mantine-color-body)"
           style={{ zIndex: CONSTS.display.STICKY_HEADER_Z_INDEX - 1 }}
         >
-          <Tabs.List style={SLIDE_TAB_LIST_STYLE}>
+          <SlideTabsList>
             {groupIds.map((groupId) => (
               <Tabs.Tab key={groupId} value={groupId} style={SLIDE_TAB_STYLE}>
                 {translate(`calc.groups.${groupId}`)}
               </Tabs.Tab>
             ))}
-          </Tabs.List>
+          </SlideTabsList>
         </Box>
         {renderedGroupIds.includes(ACCOUNT_GROUP_ID) && (
           <Tabs.Panel value={ACCOUNT_GROUP_ID} pt={CONSTS.display.CONTENT_TOP_GAP}>

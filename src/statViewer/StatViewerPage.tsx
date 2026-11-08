@@ -28,7 +28,8 @@ import { useMediaQuery, useMergedRef } from '@mantine/hooks';
 import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
 import { CONSTS } from '@/CONSTS';
 import { useJsonData, useJsonFiles } from '@/data/useJsonData';
-import { SLIDE_TAB_LIST_STYLE, SLIDE_TAB_STYLE } from '@/components/slideTabs';
+import { SLIDE_TAB_STYLE } from '@/components/slideTabs';
+import SlideTabsList from '@/components/SlideTabsList';
 import ScrollTopButton from '@/components/ScrollTopButton';
 import {
   defaultSortDirection,
@@ -485,13 +486,13 @@ export default function StatViewerPage() {
             {searchInput}
             {shownFamilies.length ? (
               <Tabs value={family} onChange={(key) => key && chooseFamily(key)} variant="pills" mt="xs">
-                <Tabs.List style={SLIDE_TAB_LIST_STYLE}>
+                <SlideTabsList>
                   {shownFamilies.map((key) => (
                     <Tabs.Tab key={key} value={key} style={SLIDE_TAB_STYLE}>
                       {meta.families[key].label}
                     </Tabs.Tab>
                   ))}
-                </Tabs.List>
+                </SlideTabsList>
               </Tabs>
             ) : (
               <Text size="sm" c="dimmed" mt="xs">

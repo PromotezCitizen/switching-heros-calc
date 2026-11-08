@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Tabs } from '@mantine/core';
 import { useUiValue } from '@/store/useUiStore';
-import { SLIDE_TAB_LIST_STYLE, SLIDE_TAB_STYLE } from '@/components/slideTabs';
+import { SLIDE_TAB_STYLE } from '@/components/slideTabs';
+import SlideTabsList from '@/components/SlideTabsList';
 import StatViewerPage from '@/statViewer/StatViewerPage';
 import WikiPage from '@/reference/WikiPage';
 
@@ -29,13 +30,13 @@ export default function ReferencePage() {
     <Stack gap={0} mt="md">
       {/* 계정 페이지 폰 화면의 묶음 탭과 같은 모양 (가로로 미는 칠한 탭) */}
       <Tabs value={active.id} onChange={(id) => id && setSavedSection(id)} variant="pills">
-        <Tabs.List style={SLIDE_TAB_LIST_STYLE}>
+        <SlideTabsList>
           {SECTIONS.map((section) => (
             <Tabs.Tab key={section.id} value={section.id} style={SLIDE_TAB_STYLE}>
               {translate(section.labelKey)}
             </Tabs.Tab>
           ))}
-        </Tabs.List>
+        </SlideTabsList>
       </Tabs>
       {active.render()}
     </Stack>

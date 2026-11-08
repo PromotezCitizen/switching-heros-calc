@@ -7,7 +7,8 @@ import CalcPage from '@/calc/CalcPage';
 import HuntingPage from '@/hunting/HuntingPage';
 import LoadDialog from '@/load/LoadDialog';
 import ColorSchemeButton from '@/components/ColorSchemeButton';
-import { SLIDE_TAB_LIST_STYLE, SLIDE_TAB_STYLE } from '@/components/slideTabs';
+import { SLIDE_TAB_STYLE } from '@/components/slideTabs';
+import SlideTabsList from '@/components/SlideTabsList';
 import OptimizerPage from '@/masteryOptimizer/OptimizerPage';
 import MasteryLevelPage from '@/masteryDebug/MasteryLevelPage';
 import ReferencePage from '@/reference/ReferencePage';
@@ -58,16 +59,17 @@ export default function App() {
       >
         {/* 페이지 탭은 한 줄 (넘치면 옆으로 밀기), 불러오기 버튼은 탭과 따로 늘 오른쪽 위 */}
         {/* 탭 아래 회색 줄은 탭 줄이 아니라 이 줄 전체에 그린다 (탭을 밀어도 버튼 아래까지 끝까지 이어지게) */}
-        <Group wrap="nowrap" align="center" gap="xs" style={HEADER_ROW_STYLE}>
+        {/* page-header-row: 라이트 모드에서 아래 선 색 (global.css) */}
+        <Group wrap="nowrap" align="center" gap="xs" style={HEADER_ROW_STYLE} className="page-header-row">
           {/* page-tabs: 고른 탭 · 마우스 올린 탭 모양 (global.css) */}
           <Tabs value={pathname} onChange={(path) => path && navigate(path)} style={PAGE_TABS_STYLE} className="page-tabs">
-            <Tabs.List style={SLIDE_TAB_LIST_STYLE}>
+            <SlideTabsList>
               {PAGES.map((page) => (
                 <Tabs.Tab key={page.path} value={page.path} style={SLIDE_TAB_STYLE}>
                   {translate(page.labelKey)}
                 </Tabs.Tab>
               ))}
-            </Tabs.List>
+            </SlideTabsList>
           </Tabs>
           <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
             <ColorSchemeButton />

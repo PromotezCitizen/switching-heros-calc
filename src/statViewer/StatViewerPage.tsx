@@ -386,7 +386,8 @@ export default function StatViewerPage() {
   }
   if (!meta || filesState.status !== 'ready') {
     return (
-      <Group mt="md" gap="xs">
+      // 불러오는 동안 칸 가운데에
+      <Group mt="md" gap="xs" justify="center">
         <Loader size="sm" />
         <Text size="sm">{translate('viewer.loading')}</Text>
       </Group>

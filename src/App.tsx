@@ -6,6 +6,7 @@ import { CONSTS } from '@/CONSTS';
 import CalcPage from '@/calc/CalcPage';
 import HuntingPage from '@/hunting/HuntingPage';
 import LoadDialog from '@/load/LoadDialog';
+import ColorSchemeButton from '@/components/ColorSchemeButton';
 import { SLIDE_TAB_LIST_STYLE, SLIDE_TAB_STYLE } from '@/components/slideTabs';
 import OptimizerPage from '@/masteryOptimizer/OptimizerPage';
 import MasteryLevelPage from '@/masteryDebug/MasteryLevelPage';
@@ -64,9 +65,10 @@ export default function App() {
               ))}
             </Tabs.List>
           </Tabs>
-          <Box style={{ flexShrink: 0 }}>
+          <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
+            <ColorSchemeButton />
             <LoadDialog />
-          </Box>
+          </Group>
         </Group>
       </Box>
       <Routes>

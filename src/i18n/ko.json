@@ -56,6 +56,12 @@
     "help": "어디서 찾나요?",
     "scrollTop": "↑ 맨 위로",
     "scrollBottom": "↓ 맨 밑으로",
+    "colorScheme": {
+      "dark": "다크",
+      "light": "라이트",
+      "auto": "기기 설정",
+      "hint": "화면 모드: {{current}} (누르면 {{next}})"
+    },
     "invalidGameNumber": "읽을 수 없는 값이에요. 게임에 나온 그대로 적으세요 (예: 5.14N%). 숫자 뒤 N 같은 알파벳은 게임이 쓰는 큰 수 단위예요. % 는 있어도 없어도 돼요."
   },
   "calc": {

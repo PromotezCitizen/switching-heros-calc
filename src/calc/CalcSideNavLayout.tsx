@@ -100,10 +100,13 @@ export default function CalcSideNavLayout({ groupIds, specialGroups, tabIdsByGro
       align="stretch"
       wrap="nowrap"
       gap="md"
-      // 줄 높이 = 화면 바닥까지. dvh = 지금 보이는 높이 (모바일 크롬의 vh 는 주소창이 숨은 높이라 화면보다 길다)
-      h={rowTop === null ? `calc(100dvh - var(${STICKY_HEADER_HEIGHT_VAR}))` : `calc(100dvh - ${rowTop}px)`}
-      // 페이지 아래 여백 자리까지 내려가 화면 바닥에 닿되, 페이지가 화면보다 길어지지 않게
-      mb={`calc(-1 * ${PAGE_BOTTOM_GAP})`}
+      // 줄 높이 = 화면 바닥 − 페이지 아래 여백. dvh = 지금 보이는 높이 (모바일 크롬의 vh 는 주소창이 숨은 높이라 화면보다 길다).
+      // 아래 여백을 남겨 칸이 화면 바닥에 붙지 않고, 페이지가 화면보다 길어지지 않게
+      h={
+        rowTop === null
+          ? `calc(100dvh - var(${STICKY_HEADER_HEIGHT_VAR}) - ${PAGE_BOTTOM_GAP})`
+          : `calc(100dvh - ${rowTop}px - ${PAGE_BOTTOM_GAP})`
+      }
     >
       {/* 목록은 움직이지 않고, 목록이 길면 이 안에서만 스크롤 */}
       <Box w={SIDE_NAV_WIDTH} style={{ flexShrink: 0 }}>

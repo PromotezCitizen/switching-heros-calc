@@ -30,7 +30,6 @@ export const STAT_VIEWER_CONSTS = {
     ['{0}', 'N'],
     ['{1}', 'M'],
   ] as readonly (readonly [string, string])[],
-  FAMILY_LIST_MAX_HEIGHT: '70vh',
   RAW_TABLE_MAX_HEIGHT: 320,
   ENTITY_MIN_WIDTH: '12rem',
   ENTITY_MAX_WIDTH: '28rem',

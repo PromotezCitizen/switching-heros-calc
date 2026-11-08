@@ -10,6 +10,8 @@ import { useDisclosure } from '@mantine/hooks';
 import { CONSTS } from '@/CONSTS';
 import SectionTitle from '@/components/SectionTitle';
 import { backupFileName, createBackup, downloadBackup, parseBackup } from '@/load/inputBackup';
+import { importRecordValues } from '@/load/importRecord';
+import ImportRecordLine from '@/load/ImportRecordLine';
 import { useCalcStore } from '@/store/useCalcStore';
 import ManualInputNote from '@/usb/ManualInputNote';
 import UsbImportSection from '@/usb/UsbImportSection';
@@ -42,7 +44,8 @@ export default function LoadDialog() {
     const { backup } = parsed;
     const { reset, setValues } = useCalcStore.getState();
     reset();
-    setValues(backup.values);
+    // 파일로 불러온 것도 상태 줄의 "마지막 불러오기" 로 남긴다 (파일 불러오기에는 알림이 없다)
+    setValues({ ...backup.values, ...importRecordValues([]) });
     const count = Object.keys(backup.values).length;
     setMessage(
       backup.version
@@ -63,9 +66,12 @@ export default function LoadDialog() {
       </Button>
       <Modal opened={opened} onClose={onClose} title={translate('load.title')}>
         <Stack gap="md">
-          <Text size="sm" c="dimmed">
-            {gameVersion ? translate('load.gameVersion', { version: gameVersion }) : translate('load.gameVersionUnknown')}
-          </Text>
+          <Stack gap={4}>
+            <Text size="sm" c="dimmed">
+              {gameVersion ? translate('load.gameVersion', { version: gameVersion }) : translate('load.gameVersionUnknown')}
+            </Text>
+            <ImportRecordLine />
+          </Stack>
 
           <Stack gap="xs">
             <SectionTitle>{translate('load.fileTitle')}</SectionTitle>

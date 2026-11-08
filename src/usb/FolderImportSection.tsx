@@ -11,6 +11,7 @@ import { useStatTables } from '@/data/statTables';
 import { useCalcStore } from '@/store/useCalcStore';
 import SaveImportNotes from '@/usb/SaveImportNotes';
 import { importSaveFiles, missingSaveKinds, saveFileNames } from '@/usb/saveImport/readSaveFiles';
+import { importRecordValues } from '@/load/importRecord';
 
 const { SAVE_IMPORT_TABLES, FOLDER_STEP_COUNT, SAVE_TOOL_PATH, SAVE_TOOL_FILE_NAME } = CONSTS.usb;
 /** 안내 단계 번호 (번역 usb.folder.steps.<번호>) */
@@ -40,8 +41,9 @@ export default function FolderImportSection() {
     setBusy(true);
     try {
       const outcome = await importSaveFiles(names, async (name) => new Uint8Array(await byName.get(name)!.arrayBuffer()), tables.data);
-      setValues(outcome.storeValues);
-      setNotes([...(outcome.missingKeys.length > 0 ? [translate('usb.missingKeys', { count: outcome.missingKeys.length })] : []), ...outcome.notes]);
+      const importNotes = [...(outcome.missingKeys.length > 0 ? [translate('usb.missingKeys', { count: outcome.missingKeys.length })] : []), ...outcome.notes];
+      setValues({ ...outcome.storeValues, ...importRecordValues(importNotes) });
+      setNotes(importNotes);
       setMessage(translate('usb.folder.importDone', { count: outcome.count }));
     } catch (error) {
       setMessage(translate('usb.folder.failed', { error: String(error) }));

@@ -13,6 +13,7 @@ import { useCalcStore } from '@/store/useCalcStore';
 import SaveImportNotes from '@/usb/SaveImportNotes';
 import { importSaveFiles, missingSaveKinds } from '@/usb/saveImport/readSaveFiles';
 import { connectUsbAdb, listSaveFiles, readSaveFile, saveImportAvailability, type SaveFileEntry } from '@/usb/usbAdb';
+import { importRecordValues } from '@/load/importRecord';
 
 const { SAVE_IMPORT_TABLES, STEP_COUNT } = CONSTS.usb;
 /** 안내 단계 번호 1 ~ STEP_COUNT (번역 usb.steps.<번호>) */
@@ -72,8 +73,9 @@ export default function UsbImportSection() {
         (name) => readSaveFile(adb, name),
         tables.data,
       );
-      setValues(outcome.storeValues);
-      setNotes([...(outcome.missingKeys.length > 0 ? [translate('usb.missingKeys', { count: outcome.missingKeys.length })] : []), ...outcome.notes]);
+      const importNotes = [...(outcome.missingKeys.length > 0 ? [translate('usb.missingKeys', { count: outcome.missingKeys.length })] : []), ...outcome.notes];
+      setValues({ ...outcome.storeValues, ...importRecordValues(importNotes) });
+      setNotes(importNotes);
       setStep('done');
       setMessage(translate('usb.importDone', { count: outcome.count }));
     } catch (error) {

@@ -10,6 +10,7 @@ import { CALC_TAB_GROUPS, shownGroupTabs } from '@/calc/tabGroups';
 import { TAB_ITEM_STYLE, TAB_ROW_STYLE, TAB_STACK_STYLE, TAB_STACKS } from '@/calc/tabWidths';
 import TabItem from '@/calc/TabItem';
 import AccountFields from '@/account/AccountFields';
+import { SLIDE_TAB_LIST_STYLE, SLIDE_TAB_STYLE } from '@/components/slideTabs';
 import CalcSettingsFields from '@/masteryOptimizer/CalcSettingsFields';
 import type { StatDescriptions } from '@/calc/statText';
 
@@ -56,9 +57,9 @@ export default function CalcPage() {
           bg="var(--mantine-color-body)"
           style={{ zIndex: CONSTS.display.STICKY_HEADER_Z_INDEX - 1 }}
         >
-          <Tabs.List>
+          <Tabs.List style={SLIDE_TAB_LIST_STYLE}>
             {groupIds.map((groupId) => (
-              <Tabs.Tab key={groupId} value={groupId}>
+              <Tabs.Tab key={groupId} value={groupId} style={SLIDE_TAB_STYLE}>
                 {translate(`calc.groups.${groupId}`)}
               </Tabs.Tab>
             ))}

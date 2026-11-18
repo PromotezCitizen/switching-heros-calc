@@ -107,7 +107,7 @@ export function startBatch({ storeValues, tables, monsterHp, parts = 'all', save
 
   // new Worker(new URL(...)) 를 한 식으로 써야 빌드가 작업자 파일을 js 로 묶는다 (URL 만 따로 만들면 .ts 그대로 복사됨)
   const masteryWorker = () => new Worker(new URL('./recommend.worker.ts', import.meta.url), { type: 'module' });
-  const cardWorker = () => new Worker(new URL('../cardOptimizer/cardRecommend.worker.ts', import.meta.url), { type: 'module' });
+  const cardWorker = () => new Worker(new URL('/src/cardOptimizer/cardRecommend.worker.ts', import.meta.url), { type: 'module' });
   const swap = optimizerInputsFor(storeValues, BATCH_MASTERY_TARGETS[0], monsterHp).damage.swap === true;
   const ownedText = storeValues[OWNED_CARDS_KEY] ?? '';
   const fixedCardIds = fixedCardIdsOf(storeValues[CARD_FIXED_KEY]);

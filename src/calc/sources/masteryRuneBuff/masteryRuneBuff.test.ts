@@ -175,10 +175,10 @@ function simplify(lines: Line[]): ExpectedLine[] {
 describe('탭 목록', () => {
   it('탭 id 와 쓰는 표', () => {
     expect(masteryRuneBuffTabs(() => []).map((tab) => [tab.id, tab.tableNames])).toEqual([
-      ['mastery', ['Mastery', 'Pet', 'Character', 'Skill', 'WeaponChar']],
+      ['mastery', ['Mastery', 'Pet', 'Character', 'Skill', 'WeaponChar', 'Card', 'CardStickerSet']],
       ['rune', ['AttributeRune', 'AttributeRuneLab']],
       ['awakenDetail', ['Awaken']],
-      ['buff', ['Mastery', 'Pet', 'Character', 'Skill', 'WeaponChar', 'AttributeRune', 'AttributeRuneLab', 'Awaken', 'SkillRune', 'Option']],
+      ['buff', ['Mastery', 'Pet', 'Character', 'Skill', 'WeaponChar', 'Card', 'CardStickerSet', 'AttributeRune', 'AttributeRuneLab', 'Awaken', 'SkillRune', 'Option']],
     ]);
   });
   it('버프 탭은 다른 탭들이 쓰는 표도 같이 부른다 (확률 계산에 다른 탭 줄이 필요)', () => {
@@ -189,12 +189,13 @@ describe('탭 목록', () => {
       'Character',
       'Skill',
       'WeaponChar',
+      'Card',
+      'CardStickerSet',
       'AttributeRune',
       'AttributeRuneLab',
       'Awaken',
       'SkillRune',
       'Option',
-      'Card',
       'Relic',
     ]);
   });
@@ -878,5 +879,39 @@ describe('전투 중 최대 상태 몫 (battleState.ts)', () => {
     const buffTabLines = tab.lines(values, tables);
     expect(buffTabLines.filter((line) => line.stat === 'attackSpeed').length).toBe(4);
     expect(buffTabLines.some((line) => line.source.startsWith('calc.buff.battle.overchargeSource') || line.source.startsWith('과충전 연타'))).toBe(true);
+  });
+});
+
+describe('얼티밋: 배지 모양 컬렉션 (2028~2033, 3028~3033)', () => {
+  const label = (key: string) => key;
+
+  it('12개 모두 계산할 수 있는 얼티밋이다', () => {
+    const names = masteryTraits(tables.Mastery).filter((trait) => /_EqStickerCnt\d+$/.test(trait.statName));
+    expect(names).toHaveLength(12);
+    expect(skippedUltimateNames(masteryValues(Object.fromEntries(names.map((trait) => [trait.rNo, 1]))), tables.Mastery, label)).toEqual([]);
+  });
+
+  it('블루 서클 (3028): 그 모양 배지 3개 → 보스 몬스터 데미지 × 2^3', () => {
+    const result = ultimateLines(masteryValues({ 3028: 1 }), tables.Mastery, tables.Pet, [], label, [], [], { stickerCounts: { '1': 3 } });
+    expect(result.lines).toHaveLength(1);
+    expect(result.lines[0]).toMatchObject({ source: 'calc.ultimate.stickerSource', stat: '_per_BossMonsterDamage' });
+    expect(result.lines[0].log).toBeCloseTo(Math.log10(8 - 1) + 2, 12);
+    expect(ultimateLines(masteryValues({ 3028: 1 }), tables.Mastery, tables.Pet, [], label, [], [], { stickerCounts: { '2': 3 } }).lines).toEqual([]);
+  });
+
+  it('스페이드 (2031) 는 불 속성 히어로 스킬 데미지, 기어 (2028) 는 직업 스킬 데미지', () => {
+    const result = ultimateLines(masteryValues({ 2031: 1, 2028: 1 }), tables.Mastery, tables.Pet, [], label, [], [], {
+      stickerCounts: { '4': 1, '10': 2 },
+    });
+    expect(result.lines.map((line) => line.stat).sort()).toEqual(['_per_FireHero_AllSkillDamage', '_per_buffAndActiveDmg']);
+  });
+
+  it('사각 (3031) 은 1슬롯 히어로 전투 특화가 일반일 때만', () => {
+    const values = masteryValues({ 3031: 1 });
+    const context = { stickerCounts: { '7': 2 } };
+    expect(ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], [], { ...context, targetUnit: 'Boss' }).lines).toEqual([]);
+    const lines = ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], [], { ...context, targetUnit: 'Normal' }).lines;
+    expect(lines).toHaveLength(1);
+    expect(lines[0].stat).toBe('_per_attackDamage');
   });
 });

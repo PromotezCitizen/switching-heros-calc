@@ -31,7 +31,7 @@
   "stickerTitle": "스티커 세트",
   "stickerExpand": "펼쳐 보기",
   "stickerName": "{{name}}",
-  "stickerCount": "{{name}} 마크 수",
+  "stickerCount": "{{name}} 장착 배지 수",
   "stickerLevel": "{{name}} 배지 점수",
   "stickerLevelHelp": "세트 효과는 모든 배지 점수를 더한 값으로 올라요 (세트마다 따로가 아니에요).",
   "setFormula": "{{base}} + {{perLevel}} × 세트 레벨 {{level}} = {{value}}",

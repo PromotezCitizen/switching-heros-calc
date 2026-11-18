@@ -12,7 +12,7 @@ import RunePanel from '@/calc/panels/RunePanel';
 import type { StatTables } from '@/data/statTables';
 import { combineLines, type Line } from '@/calc/combine';
 import type { CalcTab, CalcValues, TabPanelProps } from '@/calc/types';
-import { cardStackLines } from '@/calc/sources/heroWeaponCardPet/card';
+import { cardStackLines, stickerShapeCounts } from '@/calc/sources/heroWeaponCardPet/card';
 import { equippedSkillTypeCounts, skillOptionLines } from '@/calc/sources/skill/skill';
 import { awakenDetailLines } from '@/calc/sources/masteryRuneBuff/awakenDetail';
 import { battleDamageLines, chancesWithBattleState } from '@/calc/sources/masteryRuneBuff/battleState';
@@ -63,7 +63,7 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
     {
       id: 'mastery',
       // 얼티밋 특성 줄도 특성 탭에서 만든다 (얼티밋은 특성 나무에서 켜고 끔, 따로 칸 없음). 펫·히어로·스킬 표는 얼티밋 개수용
-      tableNames: ['Mastery', 'Pet', 'Character', CONSTS.skill.TABLE, 'WeaponChar'],
+      tableNames: ['Mastery', 'Pet', 'Character', CONSTS.skill.TABLE, 'WeaponChar', 'Card', 'CardStickerSet'],
       Panel: MasteryPanel,
       lines: (values, tables) => [
         ...(tables.Mastery
@@ -84,6 +84,7 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
                 weaponStarSum: equippedWeaponStarSum(values, tables),
                 alchemySameGradeCount: Number(values[CONSTS.masteryRuneBuff.ALCHEMY_SAME_GRADE_FIELD]) || 0,
                 swapUptimePercent: Number(values[CONSTS.masteryRuneBuff.SWAP_UPTIME_FIELD]) || 0,
+                stickerCounts: stickerShapeCounts(values, tables),
               },
             ).lines
           : []),

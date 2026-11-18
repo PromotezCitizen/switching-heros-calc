@@ -392,6 +392,27 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
    * - EqSSS_StickerCnt (3019 · 3020): 편성 카드 6장에 붙인 SSS 이상 배지 수 (최대 24). 저장에 예시가 없어 직접 입력
    */
   ULTIMATE_COUNT_FIELDS: { EquipSSSOptionCnt: 'weaponSssOptionCount', EqSSS_StickerCnt: 'sssStickerCount' } as Record<string, string>,
+  /**
+   * 얼티밋 "_pow_스탯_EqStickerCnt<n>" (특성 2028~2033, 3028~3033, 배지 모양 n 컬렉션): 지금 프리셋 카드 6장에 붙은 모양 n 배지 수 N
+   * (등급 무관, 두 히어로 공통) 으로 대상 스탯 × 값^N (게임 카드 수집기 m2688, claude-docs/react-port/mastery-wording-2026-11-18.md 5절).
+   * N 은 카드 탭 배지 세트의 "마크 수" 칸 (같은 모양 배지 수, 세트 효과와 같은 값). 7~9 는 1슬롯 히어로의 전투 특화가 맞을 때만.
+   * 대상 이름 4~6 은 게임 판정 (불, 물, 땅 속성 공격자의 스킬 공격 전부) 에 맞춘 계산기 속성 변형 이름
+   */
+  ULTIMATE_STICKER_COUNT_PATTERN: /^_pow_\w+_EqStickerCnt(\d+)$/,
+  ULTIMATE_STICKER_TARGETS: {
+    '1': { stat: '_per_BossMonsterDamage' },
+    '2': { stat: '_per_NormalMonsterDamage' },
+    '3': { stat: '_per_HeroMonsterDamage' },
+    '4': { stat: '_per_FireHero_AllSkillDamage' },
+    '5': { stat: '_per_WaterHero_AllSkillDamage' },
+    '6': { stat: '_per_EarthHero_AllSkillDamage' },
+    '7': { stat: '_per_attackDamage', targetUnit: 'Normal' },
+    '8': { stat: '_per_attackDamage', targetUnit: 'Boss' },
+    '9': { stat: '_per_attackDamage', targetUnit: 'Hero' },
+    '10': { stat: '_per_buffAndActiveDmg' },
+    '11': { stat: '_per_ChangeSkillDamage' },
+    '12': { stat: '_per_CharSkillDamage' },
+  } as Record<string, { stat: string; targetUnit?: string }>,
   /** 연성장비 장착 칸 수 (저장 equipItemDic 0~9) */
   ALCHEMY_SLOTS: 10,
   /**

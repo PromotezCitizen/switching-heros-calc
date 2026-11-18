@@ -13,6 +13,7 @@
   "weaponStarSource": "{{name}} (두 히어로 전용 무기 초월 합 {{count}})",
   "alchemySameGradeSource": "{{name}} (같은 등급 아티팩트 {{count}}개)",
   "countSource": "{{name}} ({{count}}개만큼)",
+  "stickerSource": "{{name}} ({{value}}배를 그 모양 배지 {{count}}개만큼 거듭 곱함)",
   "heroSwapSource": "{{name}} (교체해 나온 뒤 20초간, 전체 시간의 {{percent}}% 동안 켜짐)",
   "chanceSource": "{{name}} (확률 {{chance}}% 가 기준 {{threshold}}% 를 넘음)",
   "chanceCountSource": "{{name}} ({{value}}배를 확률이 {{threshold}}% 를 넘은 {{count}}종만큼 거듭 곱함)"

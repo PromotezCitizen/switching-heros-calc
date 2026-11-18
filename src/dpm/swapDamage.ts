@@ -8,7 +8,6 @@ import { CONSTS } from '@/CONSTS';
 import { SKILL_EQUIP_SLOT_NUMBERS, skillEquipField } from '@/calc/sources/skill/skill';
 import type { CalcValues } from '@/calc/types';
 import type { StatTables } from '@/data/statTables';
-import { aeikaCurrentHpBonus } from '@/dpm/currentHpDamage';
 import { swapCycle } from '@/dpm/swapCycle';
 import { fightSeconds, logSum, prepareTargetDamage, targetDamage, type DamageInputs, type DamagePart, type DamageTarget, type TargetDamage } from '@/dpm/targetDamage';
 
@@ -17,9 +16,6 @@ const { SWAP_UPTIME_FIELD } = CONSTS.masteryRuneBuff;
 const [HERO_FIELD, SECOND_HERO_FIELD] = SWAP.HERO_FIELDS;
 const [EQUIPPED_FIELD, SECOND_EQUIPPED_FIELD] = SWAP.EQUIPPED_FIELDS;
 const NO_HERO_CODE = 'noHero';
-/** 빠진 몫 · 안내 표시: 현재 체력 % 추가 피해를 넣었음 (`:횟수`) / 보스 체력 (층) 을 몰라 못 넣음 */
-const CURRENT_HP_INCLUDED_CODE = 'aeikaCurrentHpIncluded';
-const CURRENT_HP_NO_HP_CODE = 'aeikaCurrentHpNoFloor';
 
 /** 1슬롯과 2슬롯 히어로 (이름 · 장착 스킬 · 전용 무기 장착) 를 서로 바꾼 입력값. 2슬롯 히어로가 없으면 null */
 export function swappedHeroValues(values: CalcValues): CalcValues | null {
@@ -103,17 +99,8 @@ export function targetDamageWithSwap(values: CalcValues, tables: StatTables, tar
   const shareLog = Math.log10(SWAP.TIME_SHARE);
   const parts = [...sharedParts(first, values[HERO_FIELD], shareLog), ...sharedParts(second, values[SECOND_HERO_FIELD], shareLog)];
   const perMinuteLog = logSum(parts.map((part) => part.perMinuteLog));
-  let windowTotalLog =
+  const windowTotalLog =
     first.windowTotalLog === null || second.windowTotalLog === null ? null : logSum([first.windowTotalLog + shareLog, second.windowTotalLog + shareLog]);
   const missing = [...new Set([...first.missing, ...second.missing])];
-  // 에이카 전용 무기 ★1: 교체해 들어올 때 보스 현재 체력 × 15 % (체력이 유한한 보스 대상만)
-  const bonus = aeikaCurrentHpBonus(values, swapped, tables, target, inputs, perMinuteLog, windowTotalLog);
-  if (bonus) {
-    if (bonus.windowTotalLog === null) missing.push(CURRENT_HP_NO_HP_CODE);
-    else {
-      windowTotalLog = bonus.windowTotalLog;
-      missing.push(`${CURRENT_HP_INCLUDED_CODE}:${bonus.hits}`);
-    }
-  }
   return { target, perMinuteLog, windowSeconds: first.windowSeconds, windowTotalLog, parts, missing };
 }

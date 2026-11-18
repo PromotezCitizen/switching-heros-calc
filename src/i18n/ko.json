@@ -277,8 +277,6 @@
       "changeSkillHits": "교체 스킬 {{skill}}: 맞는 횟수 일부는 정확하지 않아요",
       "unsupportedSkill": "{{skill}}: 몇 번 맞는지 몰라서 계산에서 뺐어요",
       "unsupportedCharSkill": "전용 스킬: 몇 번 맞는지 몰라서 계산에서 뺐어요",
-      "aeikaCurrentHpIncluded": "에이카 전용 무기 ★1: 교체해 들어올 때 보스 현재 체력의 15% 추가 피해를 {{skill}}번 넣었어요 (보스 체력은 평균 대미지로 깎인다고 보고 계산했어요)",
-      "aeikaCurrentHpNoFloor": "에이카 전용 무기 ★1 의 현재 체력 15% 추가 피해는 스테이지 층을 넣지 않아서 뺐어요",
       "hpConditionNoFloor": "스테이지 층을 넣지 않아서, 적 체력에 따라 늘어나는 피해는 뺐어요",
       "attributeNormalKillCapIgnored": "속성 던전 일반 층은 80마리를 다 잡으면 일찍 끝나는데, 이것은 반영하지 않았어요 (분당 대미지로 60초를 다 싸운다고 계산)",
       "guildRaidLevelTimeIgnored": "길드 레벨의 레이드 시간 증가는 넣지 않았어요 (기본 40초)",

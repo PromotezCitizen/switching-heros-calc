@@ -125,7 +125,7 @@ describe('교체 계산 = 두 히어로 대미지의 평균 (필드에 서는 �
     expect(result.parts.filter((part) => part.kind === 'swap').length).toBe(2);
   });
 
-  it('스테이지 보스 (누적): 두 히어로 누적 대미지의 평균 (에이카 무기 ★1 현재 체력 피해는 빼고 본다: currentHpDamage.test.ts)', () => {
+  it('스테이지 보스 (누적): 두 히어로 누적 대미지의 평균 (에이카 무기 ★1 은 없는 값으로 본다)', () => {
     const noStar = { ...VALUES, exclusiveOwnedStar_1021: '0' };
     const noStarSwapped = swappedHeroValues(noStar)!;
     const uptimes = swapEffectUptimes(noStar, tables, 'stageBoss');

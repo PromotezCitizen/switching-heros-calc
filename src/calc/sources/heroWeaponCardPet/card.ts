@@ -260,6 +260,14 @@ export function stickerUnlocked(values: CalcValues, tables: StatTables): boolean
 }
 
 /** 스티커 세트 이름 (게임 이름, 예: 블루 서클 배지). 표에 없으면 번호 */
+/** 모양 (stickerId) → 지금 프리셋 카드에 붙은 그 모양 배지 수 ("마크 수" 칸). 배지가 안 열렸으면 빈 객체 */
+export function stickerShapeCounts(values: CalcValues, tables: StatTables): Record<string, number> {
+  if (!stickerUnlocked(values, tables)) return {};
+  return Object.fromEntries(
+    groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId').map((group) => [group.key, Math.max(Number(values[stickerCountField(group.key)]) || 0, 0)]),
+  );
+}
+
 export function stickerDisplayName(stickerId: string, label: (key: string, params?: Record<string, string | number>) => string): string {
   return label(`calc.card.stickerNames.${stickerId}`, { defaultValue: stickerId });
 }

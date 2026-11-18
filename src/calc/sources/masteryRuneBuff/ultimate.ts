@@ -33,6 +33,8 @@ const {
   ULTIMATE_WEAPON_STAR_SUM_THRESHOLDS,
   ULTIMATE_SAME_GRADE_ALCHEMY_THRESHOLDS,
   ULTIMATE_COUNT_FIELDS,
+  ULTIMATE_STICKER_COUNT_PATTERN,
+  ULTIMATE_STICKER_TARGETS,
   ULTIMATE_HERO_SWAP_KEY,
 } = CONSTS.masteryRuneBuff;
 const PET_SLOTS = CONSTS.heroWeaponCardPet.pet.SLOTS;
@@ -134,6 +136,8 @@ export interface UltimateContext {
   alchemySameGradeCount?: number;
   /** 교체 등장 후 지속 효과 (HeroSwap) 가 켜진 시간 비율 % (입력칸 swapUptimePercent). 없으면 0 = 적용 안 함 */
   swapUptimePercent?: number;
+  /** 모양 (stickerId) → 지금 프리셋 카드에 붙은 그 모양 배지 수 (stickerShapeCounts) */
+  stickerCounts?: Record<string, number>;
 }
 
 /**
@@ -143,6 +147,8 @@ export interface UltimateContext {
 export function ultimateComputable(statName: string): boolean {
   if (CHANCE_ULTIMATES[statName] || CHANCE_COUNT_ULTIMATES[statName] !== undefined) return true;
   if (GENDER_PAIR_PATTERN.test(statName) || ATTRIBUTE_PAIR_PATTERN.test(statName)) return true;
+  const stickerMatch = ULTIMATE_STICKER_COUNT_PATTERN.exec(statName);
+  if (stickerMatch) return ULTIMATE_STICKER_TARGETS[stickerMatch[1]] !== undefined;
   const match = ULTIMATE_STAT_PATTERN.exec(statName);
   if (!match) return false;
   const [, kind, , countKey] = match;
@@ -212,6 +218,20 @@ export function ultimateLines(
         (pairKey === SAME_ATTRIBUTE_KEY && attributePair.same) ||
         (pairKey === DIFFERENT_ATTRIBUTE_KEY && attributePair.different);
       if (applies) result.lines.push({ source: name, stat: `_per_${stat}`, value });
+      continue;
+    }
+    // 배지 모양 컬렉션: 그 모양 배지 수만큼 거듭 곱함 (전투 특화 대상은 1슬롯 히어로 특화가 맞을 때만)
+    const stickerMatch = ULTIMATE_STICKER_COUNT_PATTERN.exec(trait.statName);
+    if (stickerMatch) {
+      const target = ULTIMATE_STICKER_TARGETS[stickerMatch[1]];
+      const count = context.stickerCounts?.[stickerMatch[1]] ?? 0;
+      if (count && (!target.targetUnit || context.targetUnit === target.targetUnit)) {
+        result.lines.push({
+          source: sourceLabel('calc.ultimate.stickerSource', { name, value, count }),
+          stat: target.stat,
+          log: multiplierPercentLog(count * Math.log10(value)),
+        });
+      }
       continue;
     }
     const [, kind, target, countKey] = ULTIMATE_STAT_PATTERN.exec(trait.statName) as RegExpExecArray;

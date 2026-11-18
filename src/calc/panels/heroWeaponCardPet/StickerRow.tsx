@@ -1,13 +1,14 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Group, TextInput } from '@mantine/core';
-import LazySelect from '@/components/LazySelect';
 import { CONSTS } from '@/CONSTS';
 import { stickerCountField, stickerDisplayName, stickerLevelField } from '@/calc/sources/heroWeaponCardPet/card';
-import { unique, type RowGroup } from '@/calc/sources/heroWeaponCardPet/shared';
+import type { RowGroup } from '@/calc/sources/heroWeaponCardPet/shared';
 import type { TabPanelProps } from '@/calc/types';
 
 const { MIN_NUMBER } = CONSTS.heroWeaponCardPet;
+/** 프리셋 카드 6장 × 배지 칸 4 */
+const MAX_STICKER_COUNT = 24;
 
 export interface StickerRowProps {
   group: RowGroup;
@@ -23,16 +24,14 @@ export const StickerRow = memo(function StickerRow({ group, count, level, setVal
   const name = translate('calc.card.stickerName', { name: stickerDisplayName(group.key, translate) });
   return (
     <Group grow gap="xs" align="flex-end">
-      <LazySelect
+      <TextInput
+        type="number"
+        min={MIN_NUMBER}
+        max={MAX_STICKER_COUNT}
+        inputMode="numeric"
         label={translate('calc.card.stickerCount', { name })}
-        placeholder={translate('calc.card.none')}
-        clearable
-        data={unique(group.rows.map((row) => row.setCnt)).map((setCount) => ({
-          value: setCount,
-          label: translate('calc.card.countOption', { count: setCount }),
-        }))}
-        value={count || null}
-        onChange={(selected) => setValue(stickerCountField(group.key), selected ?? '')}
+        value={count ?? ''}
+        onChange={(event) => setValue(stickerCountField(group.key), event.currentTarget.value)}
       />
       <TextInput
         type="number"

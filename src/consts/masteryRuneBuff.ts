@@ -111,7 +111,7 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
   SUPER_CRITICAL_RATE_THRESHOLD: 100,
   SUPER_CRITICAL_RATE_STEP: 10,
   /**
-   * 확률 (프로필 확률 줄) = 기본 스탯 + 추가 스탯 합 (저장 데이터 검증 verify-2026-10-07-0206 2-1: 관통·스위칭·스킬 콤보·무자비·매직 가드 일치).
+   * 확률 (프로필 확률 줄) = 기본 스탯 + 추가 스탯 합 (저장 데이터 검증 verify-2026-10-07-all.md 1-1: 관통·스위칭·스킬 콤보·무자비·매직 가드 일치).
    * 연타·슈퍼 치명타는 초과 규칙이 더 붙어 chances.ts 에서 따로 계산
    */
   CHANCE_STATS: {

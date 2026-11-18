@@ -232,7 +232,7 @@ export function cardLines(values: CalcValues, tables: StatTables, label: SourceL
   }
   const stickerGroups = stickerUnlocked(values, tables) ? groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId') : [];
   // 세트 값의 레벨 = 편성 카드에 붙은 모든 배지 점수 (CardSticker point) 의 합 하나, 세트마다 따로가 아님
-  // (게임 m6809 · m15802 @0x3357c74, html-verify-B-2026-11-07.md E14 유력. 피규어의 stickerPoints 와 같은 값)
+  // (게임 m6809 · m15802 @0x3357c74, html-derived-rules-verified-2026-11-07.md E14 유력. 피규어의 stickerPoints 와 같은 값)
   const level = stickerGroups.reduce((sum, group) => sum + numberValue(values, stickerLevelField(group.key)), 0);
   for (const group of stickerGroups) {
     const count = Number(values[stickerCountField(group.key)]) || 0;
@@ -252,7 +252,7 @@ export function cardLines(values: CalcValues, tables: StatTables, label: SourceL
 
 /**
  * 카드 스티커 (배지) 가 열렸는가: 장착한 카드 중 배지 칸이 있는 카드 (Card 표 stickerSlotCnt > 0, URP 이상) 가 있을 때.
- * 게임 해금 ContentsUnlock 75행 Gear_Sticker = CardGrade 12 (URP, sticker-sss-howto-2026-11-01.md). 안 열렸으면 칸을 숨기고 계산도 안 한다
+ * 게임 해금 ContentsUnlock 75행 Gear_Sticker = CardGrade 12 (URP, sticker-card-badge-2026-11-01.md 5절). 안 열렸으면 칸을 숨기고 계산도 안 한다
  *
  */
 export function stickerUnlocked(values: CalcValues, tables: StatTables): boolean {

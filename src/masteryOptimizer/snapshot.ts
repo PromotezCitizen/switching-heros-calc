@@ -1,6 +1,6 @@
 /**
  * "최적 특성" 페이지가 보여 주는 지금 상태: 총 포인트 · 사용 · 남은 포인트, 규칙 검사, 지금 배분의 효율과 평가 시간.
- * 최적화 실행은 아직 연결 전 (계획 3~4단계). 계획: claude-docs/plans/2026-10-28-mastery-optimizer.md
+ * 최적화 실행은 아직 연결 전 (계획 3~4단계). 계획: claude-docs/mastery-optimizer-design.md 9절
  */
 import { masteryTraits } from '@/calc/sources/masteryRuneBuff/mastery';
 import type { CalcValues } from '@/calc/types';

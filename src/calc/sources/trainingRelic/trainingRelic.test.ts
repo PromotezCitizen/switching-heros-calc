@@ -293,7 +293,7 @@ describe('유물', () => {
       { source: "분노의 붉은 가면 Lv1", stat: "_per_Fighter_BossMonsterDamage", value: 121.1 },
       { source: "붉은 십자가 목걸이 Lv5 × 2", stat: "_per_attackDamage", value: 10.5 },
       { source: "루비 수정 목걸이 Lv5 × 2", stat: "_per_hp", value: 21 },
-      // 게임 m2690 은 유물 474 체력을 ★5 이상 전용 무기 수로 한 번 더 곱한다 (html-verify-A-2026-11-07.md D10). 여기선 ★10 · ★12 둘 다 ★5 이상
+      // 게임 m2690 은 유물 474 체력을 ★5 이상 전용 무기 수로 한 번 더 곱한다 (html-derived-rules-verified-2026-11-07.md D10). 여기선 ★10 · ★12 둘 다 ★5 이상
       { source: "루비 수정 목걸이 Lv5 × 2", stat: "_per_hp", value: 21 },
       { source: "유물의 축복", stat: "_per_attackDamage", value: 44281426111100080 },
       { source: "유물의 축복", stat: "_per_hp", value: 44281426111100080 },

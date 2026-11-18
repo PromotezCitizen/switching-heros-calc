@@ -76,7 +76,7 @@ export const CONSTS = {
       { unlock: 23, perLevel: 2 },
       { unlock: 32, perLevel: 4 },
       { unlock: 44, perLevel: 6 },
-      // 4번째 (스킬 order 8) 는 길드 Lv56 (서버 Option guild_lv_56 add_guild_skill_order 8, 예전 HTML 58 은 틀림 — html-verify-B-2026-11-07.md G07, 2026-11-07 확인)
+      // 4번째 (스킬 order 8) 는 길드 Lv56 (서버 Option guild_lv_56 add_guild_skill_order 8, 예전 HTML 58 은 틀림 — html-derived-rules-verified-2026-11-07.md G07, 2026-11-07 확인)
       { unlock: 56, perLevel: 8 },
       { unlock: 60, perLevel: 10 },
     ],

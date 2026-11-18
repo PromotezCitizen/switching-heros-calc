@@ -1,7 +1,7 @@
 /**
  * 총 특성 포인트 (예산) = 레벨업으로 받은 몫 (유저 레벨 − 1) + VIP 혜택 (표 mastery_point_up, 그 레벨 이하 행 누적).
  * 저장 데이터 `MasteryPoint` 와 같은 값 (확정, 2026-10-28: 레벨 91352 · VIP 13 → 91,351 + 50 + 100 = 91,501, 화면 `P 91,501`).
- * 프리셋마다 남는 포인트는 이 총량 − 프리셋 사용량. 계획: claude-docs/plans/2026-10-28-mastery-optimizer.md
+ * 프리셋마다 남는 포인트는 이 총량 − 프리셋 사용량. 계획: claude-docs/mastery-optimizer-design.md 9절
  */
 import { rowsOf } from '@/calc/sources/heroWeaponCardPet/shared';
 import type { StatTables } from '@/data/statTables';

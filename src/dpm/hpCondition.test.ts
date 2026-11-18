@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import monsterHp from '../../public/data/monsterHp.json';
+import monsterHp from '@public/data/monsterHp.json';
 import { attributeHeroHpLog, killFractions, stageMonsterHpLog, timelinePhases, type MonsterHpData } from '@/dpm/hpCondition';
 
 const DATA = monsterHp as MonsterHpData;

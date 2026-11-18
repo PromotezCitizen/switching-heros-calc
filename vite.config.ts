@@ -8,8 +8,8 @@ export default defineConfig(({ command, isPreview }) => ({
   base: command === 'build' || isPreview ? PAGES_BASE : '/',
   plugins: [react()],
   resolve: {
-    // '/src' = 프로젝트 루트 기준 src 폴더 (tsconfig paths 의 @/* 와 같은 곳)
-    alias: { '@': '/src' },
+    // '/src', '/public' = 프로젝트 루트 기준 폴더 (tsconfig paths 의 @/*, @public/* 와 같은 곳). @public 은 테스트가 표 JSON 을 읽을 때만 쓴다
+    alias: { '@public': '/public', '@': '/src' },
   },
   test: {
     environment: 'jsdom',

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import masteryTable from '../../public/data/tables/Mastery.json';
+import masteryTable from '@public/data/tables/Mastery.json';
 import { masteryTraits } from '@/calc/sources/masteryRuneBuff/mastery';
 import { readDictionary } from '@/usb/saveImport/saveDictionary';
 import type { ReinforceSave } from '@/usb/saveImport/reinforceValues';

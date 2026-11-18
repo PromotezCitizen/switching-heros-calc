@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import vipTable from '../../public/data/tables/Vip.json';
+import vipTable from '@public/data/tables/Vip.json';
 import { gameSpeedMultiplier } from '@/dpm/gameSpeed';
 
 describe('게임 속도 = 1 + VIP game_speed_up / 100 (T743 m4472 Time.timeScale)', () => {

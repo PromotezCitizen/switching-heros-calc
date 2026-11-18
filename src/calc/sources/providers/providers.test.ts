@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import '@/i18n';
-import AttributeRuneTable from '../../../../public/data/tables/AttributeRune.json';
-import AttributeRuneLabTable from '../../../../public/data/tables/AttributeRuneLab.json';
-import CharacterTable from '../../../../public/data/tables/Character.json';
-import CoreMasteryTable from '../../../../public/data/tables/CoreMastery.json';
-import FigureStatTable from '../../../../public/data/tables/FigureStat.json';
+import AttributeRuneTable from '@public/data/tables/AttributeRune.json';
+import AttributeRuneLabTable from '@public/data/tables/AttributeRuneLab.json';
+import CharacterTable from '@public/data/tables/Character.json';
+import CoreMasteryTable from '@public/data/tables/CoreMastery.json';
+import FigureStatTable from '@public/data/tables/FigureStat.json';
 import { tableRows, type StatTables } from '@/data/statTables';
 import { CONSTS } from '@/CONSTS';
 import type { CalcValues } from '@/calc/types';

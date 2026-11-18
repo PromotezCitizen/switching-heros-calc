@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import '@/i18n';
-import monsterHp from '../../public/data/monsterHp.json';
+import monsterHp from '@public/data/monsterHp.json';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import type { CalcValues } from '@/calc/types';
 import type { MonsterHpData } from '@/dpm/hpCondition';

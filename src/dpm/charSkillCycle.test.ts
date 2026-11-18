@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import awakenTable from '../../public/data/tables/CharacterAwaken.json';
-import charSkillTable from '../../public/data/tables/CharSkill.json';
+import awakenTable from '@public/data/tables/CharacterAwaken.json';
+import charSkillTable from '@public/data/tables/CharSkill.json';
 import { charSkillGameSeconds, charSkillRow } from '@/dpm/charSkillCycle';
 
 describe('전용 스킬: 각성 표 charSkillId → 전용 스킬 행, 일반 공격 buffPer 번마다', () => {

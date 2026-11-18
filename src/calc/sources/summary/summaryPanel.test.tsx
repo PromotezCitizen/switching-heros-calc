@@ -9,12 +9,12 @@ import { CALC_TABS } from '@/calc/tabs';
 import type { CalcValues } from '@/calc/types';
 import savedValues from '@/calc/sources/summary/testValues0213.json';
 
-const TABLE_FILES = import.meta.glob<string>('../../../../public/data/tables/*.json', { query: '?raw', import: 'default' });
+const TABLE_FILES = import.meta.glob<string>('/public/data/tables/*.json', { query: '?raw', import: 'default' });
 
 const tables: StatTables = {};
 beforeAll(async () => {
   for (const name of new Set(CALC_TABS.flatMap((tab) => [...tab.tableNames]))) {
-    const load = TABLE_FILES[`../../../../public/data/tables/${name}.json`];
+    const load = TABLE_FILES[`/public/data/tables/${name}.json`];
     if (load) tables[name] = JSON.parse(await load()) as RawTable;
   }
 });

@@ -81,6 +81,22 @@ export const PROVIDER_CONSTS = {
   },
 
   /**
+   * 코인 파워 (5.81 새 콘텐츠, 토벌 코인으로 강화). 제공자 rid 7766 은 콘텐츠를 가리지 않아 스테이지를 포함한 모든 전투에 들어간다
+   * (claude-docs/react-port/code-changes-5.81-2026-11-18.md 5-2). 코인 레벨의 CoinPower 행 (스탯, 값) 2쌍을 한 번씩 넣는다.
+   * 값이 1E+308 을 넘는 행이 있어 줄은 log 로 만든다
+   */
+  coinPower: {
+    TABLE: 'CoinPower',
+    LEVEL_FIELD: 'coinPowerLevel',
+    LEVEL_COLUMN: 'coinLevel',
+    STAT_PAIRS: [
+      ['statType1', 'statValue1'],
+      ['statType2', 'statValue2'],
+    ] as const,
+    LEVEL_INPUT_WIDTH: 96,
+  },
+
+  /**
    * 프로필 테두리 보유 효과 (5.70 에서 새로 생긴 합산기 T1282 의 31번째 제공자, 채움 함수 새 @30d69f0 — claude-docs/react-port/attack-formula-5.70.md,
    * 함수 구조 확정 · 이름이 테두리라는 것은 유력). 보유한 테두리 번호 (저장 Relic.frameIdList) 마다 표 Frame 의 (스탯, 값) 을 한 번씩 넣는다.
    * 장착한 테두리가 아니라 보유한 테두리 전부이고, `_per_` 스탯이라 한 줄마다 곱해진다. 표는 5.70 앱 내장 표 (서버 값과 같다는 것은 유력)

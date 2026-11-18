@@ -8,6 +8,8 @@ import { ancientRelicLines } from '@/calc/sources/providers/ancientRelic';
 import FramePanel from '@/calc/panels/FramePanel';
 import DungeonPanel from '@/calc/panels/DungeonPanel';
 import { frameLines } from '@/calc/sources/providers/frame';
+import CoinPowerPanel from '@/calc/panels/CoinPowerPanel';
+import { coinPowerLines } from '@/calc/sources/providers/coinPower';
 import type { CalcTab } from '@/calc/types';
 import type { SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 import { coreMasteryLines } from '@/calc/sources/providers/coreMastery';
@@ -48,5 +50,11 @@ export const providerTabs: CalcTab[] = [
     tableNames: [CONSTS.providers.frame.TABLE],
     Panel: FramePanel,
     lines: (values, tables) => frameLines(values, tables, sourceLabel),
+  },
+  {
+    id: 'coinPower',
+    tableNames: [CONSTS.providers.coinPower.TABLE],
+    Panel: CoinPowerPanel,
+    lines: (values, tables) => coinPowerLines(values, tables, sourceLabel),
   },
 ];

@@ -20,6 +20,7 @@ import diaryStatTable from '../../public/data/tables/DiaryStat.json';
 import diceOptionTable from '../../public/data/tables/DiceOption.json';
 import figureStatTable from '../../public/data/tables/FigureStat.json';
 import frameTable from '../../public/data/tables/Frame.json';
+import coinPowerTable from '../../public/data/tables/CoinPower.json';
 import iconTable from '../../public/data/tables/Icon.json';
 import libraryTable from '../../public/data/tables/Library.json';
 import masteryTable from '../../public/data/tables/Mastery.json';
@@ -68,6 +69,7 @@ export function loadTestTables(): StatTables {
     DiceOption: diceOptionTable,
     FigureStat: figureStatTable,
     Frame: frameTable,
+    CoinPower: coinPowerTable,
     Icon: iconTable,
     Library: libraryTable,
     Mastery: masteryTable,

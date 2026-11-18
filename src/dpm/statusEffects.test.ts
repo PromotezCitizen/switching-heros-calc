@@ -45,7 +45,7 @@ describe('티르 전용 무기 (1030) 의 출혈 · 빈혈', () => {
   /** 두 히어로를 보유로 두고 (이름 칸이 유지되게), 무기 장착 · ★ 를 정한다 */
   const base: CalcValues = { [rosterGradeField(tyr.charId)]: 'SSS', [rosterGradeField(eika.charId)]: 'SSS', exclusiveOwnedStar_1030: '7' };
 
-  it('교체가 없으면 1슬롯 티르는 늘 필드: ★1~6 출혈 늘, ★7 은 연장 출혈 16초 늘 + 빈혈 8 / 16 (status-effect-rules-2026-11-05.md 6.6)', () => {
+  it('교체가 없으면 1슬롯 티르는 늘 필드: ★1~6 출혈 늘, ★7 은 연장 출혈 16초 늘 + 빈혈 8 / 16 (status-effect-rules-2026-11-05.md 2절 티르 1030)', () => {
     const values = { ...base, charName: '티르', exclusiveEquipped: 'true' };
     expect(weaponStatus({ ...values, exclusiveOwnedStar_1030: '0' }, tables, null)).toEqual({ sources: [], alwaysKinds: [], fractions: {} });
     expect(weaponStatus({ ...values, exclusiveOwnedStar_1030: '1' }, tables, null).alwaysKinds).toEqual(['bleed']);

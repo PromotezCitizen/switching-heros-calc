@@ -5,7 +5,7 @@
       claude-docs/server_tables/Localized276296.txt (5.81 앱 표) (스킬 이름 skill_name_<skillId> 의 kr)
 출력: stat-calc/public/data/tables/Skill.json  { label, columns, rows }  (값은 전부 문자열, 원본 그대로)
   - 직업 스킬 (BuffSkill · ActiveSkill, 레벨이 있는 40개) 만. 히어로 스킬 (ChangeSkill · CharSkill) 은 레벨이 없어 뺀다
-  - 데미지 % = damage + damageUp × (레벨 − 1)  (claude-docs/react-port/skill-table-plan.md, 화면 대조 확인)
+  - 데미지 % = damage + damageUp × (레벨 − 1)  (claude-docs/react-port/skill-tab-research.md 4절, 화면 대조 확인)
   - all_ss_stats_value = SS 세트효과 규칙 원문 (예: 3_10_30_100, 뜻은 아직 확인 못 함)
 입력: claude-docs/server_tables/SkillRune210536.txt (스킬 옵션 표), Localized 의 skill_rune_desc_<type> (옵션 문구 kr)
 출력: stat-calc/public/data/tables/SkillRune.json  { label, columns, rows }

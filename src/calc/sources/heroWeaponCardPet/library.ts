@@ -24,7 +24,7 @@ export function inheritValueField(index: number): string {
 
 /**
  * 폰 불러오기가 채우는 기록 보관소 레벨 칸 (저장 _libraryData.mainLv). 게임은 보관소 레벨을 계산하지 않고 이 저장값을 쓴다
- * (조건을 채운 뒤 버튼으로 올림, html-verify-E-2026-11-07.md E20). 책 레벨을 손으로 고치면 비운다 (LibraryPanel)
+ * (조건을 채운 뒤 버튼으로 올림, html-derived-rules-verified-2026-11-07.md E20). 책 레벨을 손으로 고치면 비운다 (LibraryPanel)
  */
 export const ARCHIVE_LEVEL_FIELD = 'libraryArchiveLevel';
 
@@ -82,7 +82,7 @@ export function libraryLines(values: CalcValues, tables: StatTables, label: Sour
     }
   }
   // 전승된 능력: 열린 칸만. 같은 스탯 칸은 값을 먼저 더해 스탯마다 한 줄 (게임 T1283 m6880 부분 C 가 보조 사전에 누적한 뒤 스탯마다 AddPct 한 번,
-  // stat-provider-formulas.md 291줄 · html-verify-A-2026-11-07.md. 예전 HTML 은 칸마다 곱함)
+  // stat-provider-formulas.md 291줄 · html-derived-rules-verified-2026-11-07.md E22. 예전 HTML 은 칸마다 곱함)
   const openSlots = openInheritSlots(archiveLevel);
   const inheritSums = new Map<string, { log: number; slots: number[] }>();
   for (let index = 1; index <= Math.min(openSlots, INHERIT_ROWS); index++) {

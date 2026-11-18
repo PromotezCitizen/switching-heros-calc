@@ -57,7 +57,7 @@ export function multiplierPercentLog(multiplierLog: number): number {
 /**
  * 광폭화 중첩 = 광폭화 특성 (특성 7 berserk, "일반 공격시 5% 확률로 … 최대 중첩 5회") 을 찍었으면 늘 최대 5중첩, 안 찍었으면 0.
  * 게임은 특성 7 이 있으면 일반 공격으로 발동하고, 특성 10 berserkSkillUse 는 스킬로도 발동하게 하는 경로를 더할 뿐이다
- * (claude-docs/react-port/html-verify-D-2026-11-07.md C08. 예전 HTML 은 특성 10 을 조건으로 써서 틀림).
+ * (claude-docs/react-port/html-derived-rules-verified-2026-11-07.md C08. 예전 HTML 은 특성 10 을 조건으로 써서 틀림).
  * 늘 5중첩으로 본다 (입력 칸 없음)
  */
 export function berserkStacks(masteryTable: RawTable, values: CalcValues): number {
@@ -209,7 +209,7 @@ export function selectedNormalMonsterFood(values: CalcValues): NormalMonsterFood
 
 /**
  * 음식 효과 줄: 고른 음식의 일반 몬스터 피해 % (Item 표 double1).
- * 프로필 "일반 몬스터" 줄이 계산보다 ×7 큰 원인이 딸기 타르트 600% 라는 것은 추정 (gap-critdmg-normal.md 2-2:
+ * 프로필 "일반 몬스터" 줄이 계산보다 ×7 큰 원인이 딸기 타르트 600% 라는 것은 추정 (gap-atk-increase-provider.md 부록 B-2:
  * 사용 기록 시각과 02:06 의 ×7.01 이 맞음). 다른 탭 줄을 모을 때는 버프 탭이라 빠진다
  */
 export function normalMonsterFoodLines(values: CalcValues, sourceLabel: SourceLabel): Line[] {

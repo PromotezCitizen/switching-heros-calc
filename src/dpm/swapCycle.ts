@@ -2,7 +2,7 @@
  * 스위칭 사이클: 교체 게이지 (최대 hero_swap_cool, 시작 hero_swap_init_cool %) 가 차서 교체되는 시간 (게임 시간, 배속은 곱하지 않음).
  * 게이지는 dt × (1 + 충전 속도 / 100) 로 찬다 (damage-pipeline.md 3절).
  * 시작값 (hero_swap_init_cool) 은 전투 시작 때만 쓰인다: 첫 교체는 시작값에서 출발한다 (필요 게이지 = 최대 − 시작).
- * 교체할 때마다 교체 게이지가 0 으로 돌아가므로 (T309 m2275, damage-pipeline.md · sprite-animation.md 102 확정) 이후 교체는 처음부터 가득 채운다
+ * 교체할 때마다 교체 게이지가 0 으로 돌아가므로 (T309 m2275, damage-pipeline.md · sprite-animation.md 4-1절 coolTime 3 경로 확정) 이후 교체는 처음부터 가득 채운다
  * (필요 게이지 = 최대). 옛 "시작값에서 다시 시작" 가정은 버렸다
  */
 import { CONSTS } from '@/CONSTS';

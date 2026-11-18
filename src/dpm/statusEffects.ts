@@ -87,7 +87,7 @@ export function weaponFreezeSource(values: CalcValues, tables: StatTables, charS
 /**
  * 리더 펫의 상태이상 효과 (Pet 표 leaderStatType): 평타 N회마다 (attack) 또는 스킬 N회 시전마다 (skill) 주위 적에게 D 초 상태이상.
  * 간격 = 평타 N회 × 평타 간격, 또는 스킬 N회 ÷ (장착 스킬 시전 횟수 합 / 초). 확정으로 건다. 리더가 상태이상 효과가 아니거나 슬롯이 없으면 null.
- * 카운터는 히어로마다 따로이고 등장할 때마다 0 (m2310 @33d00fc, status-effect-rules-2026-11-05.md 6.5): 자동 교체면 필드에 서는 S 초 안에
+ * 카운터는 히어로마다 따로이고 등장할 때마다 0 (m2310 @33d00fc, status-effect-rules-2026-11-05.md 2절 펫 리더): 자동 교체면 필드에 서는 S 초 안에
  * floor(S / 간격) 번만 걸리므로 평균 간격 = S / 그 수 (0 번이면 null)
  */
 export function petLeaderStatusSource(
@@ -182,7 +182,7 @@ function tyrSevenFractions(swapSeconds: number | null, ext: number, after: numbe
 
 /**
  * 티르 전용 무기 (1030) 가 거는 상태이상. 별 = 1슬롯 장착 별과 (자동 교체를 켰으면) 2슬롯 티르 별 중 큰 값.
- * - ★7 이상 (status-effect-rules-2026-11-05.md 6.6, 앞 모델 "출혈 · 빈혈 늘" 정정): 출혈을 지우고 연장 출혈 (출혈 + 10초) 로 바꾸며,
+ * - ★7 이상 (status-effect-rules-2026-11-05.md 2절 티르 1030, 앞 모델 "출혈 · 빈혈 늘" 정정): 출혈을 지우고 연장 출혈 (출혈 + 10초) 로 바꾸며,
  *   연장 출혈이 있는 동안은 다시 걸리지 않는다. 빈혈은 건 시각 + 10초부터 8초. 출혈 (0x4e27) 자체는 바뀌는 순간뿐이라 세지 않는다.
  *   셀 수 있는 종류 = 연장 출혈 · 빈혈 (+ ★4 흉터), 걸려 있는 비율은 tyrSevenFractions.
  * - ★4 이상: 흉터 10초를 교체 스킬 (발할라 게이트) 을 쓸 때 건다 → 교체할 때마다 (2S 주기) 10초. 교체를 안 쓰면 없다

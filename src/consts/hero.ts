@@ -32,7 +32,7 @@ export const HERO_CONSTS = {
     STAR10_WEAPON_STAR: 10,
     /**
      * 유물 474 체력 (`_per_hp_Star10WeaponCharCnt`) 을 한 번 더 곱하는 ★ 기준: 게임 m2690 이 같은 체력 스탯을 ★5 이상 수 (@33f0050~33f014c)
-     * 와 ★10 이상 수 (@33f0280~33f037c) 로 두 번 곱한다 (claude-docs/react-port/html-verify-A-2026-11-07.md D10, 구조 확정 · 이름 유력)
+     * 와 ★10 이상 수 (@33f0280~33f037c) 로 두 번 곱한다 (claude-docs/react-port/html-derived-rules-verified-2026-11-07.md D10, 구조 확정 · 이름 유력)
      */
     STAR5_WEAPON_STAR: 5,
     /** 표 칸 폭 (px): 그림 · 등급·성 드롭다운 · 숫자 칸 */
@@ -55,13 +55,13 @@ export const HERO_CONSTS = {
   ATTACK_SPEED_STAT: 'attackSpeed',
   /**
    * 기본 치명타 확률 %: 표·저장 데이터에는 없고 게임 코드에 상수로 들어 있다 (합산기 T1282 m6859 의 스탯 0x13 기본 1.0, combat0113.py 50줄 · 기계어 확인).
-   * 02:06·02:13·02:48 프로필이 줄 합보다 늘 1.0 컸던 몫이 이것 (gap-atk-critrate.md 3절), 2026-10-12 01:54 화면 611.1895 와 소수 넷째 자리까지 일치
+   * 02:06·02:13·02:48 프로필이 줄 합보다 늘 1.0 컸던 몫이 이것 (gap-atk-increase-provider.md 부록 A-4), 2026-10-12 01:54 화면 611.1895 와 소수 넷째 자리까지 일치
    */
   BASE_CRITICAL_RATE: 1,
   CRITICAL_RATE_STAT: 'criticalRate',
   /**
    * 기본 치명타 데미지 합 계열: 표에 없고 게임 코드에 상수로 들어 있다 (합산기 T1282 m6859 의 기본 120, crit_check.py 33줄 · crit-dmg-atkspeed-gamecode.md 기계어 확인).
-   * 02:48 프로필 105.81B% 의 합 계열 차 (gap-critdmg-normal.md 1-2) 가 이 120 이고, 2026-10-12 01:54 화면 2.19C% 와 일치
+   * 02:48 프로필 105.81B% 의 합 계열 차 (gap-atk-increase-provider.md 부록 B-1) 가 이 120 이고, 2026-10-12 01:54 화면 2.19C% 와 일치
    */
   BASE_CRITICAL_DAMAGE: 120,
   CRITICAL_DAMAGE_SUM_STAT: 'criticalDmg',

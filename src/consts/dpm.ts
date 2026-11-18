@@ -131,7 +131,7 @@ export const DPM_CONSTS = {
     PERK_DAMAGE_PER_SS_OPTION: 'SsRuneAndSkillDmg',
   },
   /**
-   * 궁수 스킬 적중 구조 (스킬 · 옵션 · 문양 문구 기준, 유력. damage-pipeline.md 부록, catalog-skill-option.md 3절).
+   * 궁수 스킬 적중 구조 (스킬 · 옵션 · 문양 문구 기준, 유력. 스킬 문구와 값은 Skill 표 + Localized skill_desc_<번호> (damage-pipeline.md 부록이 위치 안내), 옵션 문구는 catalog-skill-option.md 3절이 가리키는 Localized skill_rune_desc_<type>).
    * 옵션 종류 = SkillRune type, 문양 = SkillPerk perkType. 값은 최고 등급 / 문양 val1~3
    */
   ARCHER_SKILLS: {
@@ -323,7 +323,7 @@ export const DPM_CONSTS = {
     ATTRIBUTE_BOSS_KIND: 2,
   },
   /**
-   * 대상 넷 (claude-docs/plans/2026-10-19-hit-damage.md 목표 표): 대미지 식의 대상 종류 (종합 탭 대상 칸) 와 시간.
+   * 대상 넷 (claude-docs/mastery-optimizer-design.md 8절 표): 대미지 식의 대상 종류 (종합 탭 대상 칸) 와 시간.
    * 스테이지 = DPM, 나머지 = 정해진 시간 동안 누적 (보스 = Option stage_clear_boss_timer + VIP bossTimeUp 합, 각성 = DungeonAwaken_Time, 속성 = 코드 상수 60)
    */
   TARGETS: {
@@ -418,7 +418,7 @@ export const DPM_CONSTS = {
     SCAR_STAT_TYPE: '39002',
     /**
      * 표 값이 없을 때 쓰는 값. ★7 (39003): val1 = 연장 초 (연장 출혈 = 출혈 지속 + val1), val2 = 빈혈 시작 (건 시각 + 초), val3 = 빈혈 지속 (게임 코드 8초, 문구 6초).
-     * 근거: status-effect-rules-2026-11-05.md 6.6 (★7 은 출혈을 지우고 연장 출혈로 바꿈, 연장 출혈이 있는 동안 다시 안 걸림)
+     * 근거: status-effect-rules-2026-11-05.md 2절 티르 1030 (★7 은 출혈을 지우고 연장 출혈로 바꿈, 연장 출혈이 있는 동안 다시 안 걸림)
      */
     DEFAULT_BLEED_SECONDS: 6,
     DEFAULT_EXTEND_SECONDS: 10,
@@ -472,7 +472,7 @@ export const DPM_CONSTS = {
   /**
    * 리더 펫의 상태이상 효과 (Pet 표 leaderStatType `pet_hero_attack_<종류>` · `pet_hero_skill_<종류>`, 문구 "히어로가 일반공격 (스킬 시전) 을 {0}회 할 때마다
    * 주위의 적을 {1}초간 <상태이상>", leaderStatValue1 = 횟수, leaderStatValue2 = 지속 초): 횟수마다 확정으로 건다. 종류 이름 → 상태이상 종류.
-   * 누비 (펫 105, SSS) = 평타 30회마다 5초 감전 (claude-docs/react-port/status-effects-2026-11-01.md 4절)
+   * 누비 (펫 105, SSS) = 평타 30회마다 5초 감전 (claude-docs/react-port/status-effect-rules-2026-11-05.md 2절 펫 리더)
    */
   PET_LEADER_STATUS: {
     PATTERN: /^pet_hero_(attack|skill)_(.+)$/,

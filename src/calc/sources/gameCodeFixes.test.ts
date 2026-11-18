@@ -7,7 +7,7 @@ import { gradeStarValue } from '@/calc/sources/heroWeaponCardPet/shared';
 import { loadTestTables } from '@/test/loadTestTables';
 import { diceValue } from '@/usb/saveImport/equipValues';
 
-/** 예전 HTML 규칙을 게임 코드로 확인해 고친 것 (claude-docs/react-port/html-verify-A · B-2026-11-07.md) */
+/** 예전 HTML 규칙을 게임 코드로 확인해 고친 것 (claude-docs/react-port/html-derived-rules-verified-2026-11-07.md) */
 const tables = loadTestTables();
 const label = (key: string, params?: Record<string, unknown>) => `${key}${params ? JSON.stringify(params) : ''}`;
 

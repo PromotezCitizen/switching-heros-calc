@@ -1,6 +1,6 @@
 /**
  * 종합 탭 계산: 모든 탭의 줄을 합쳐 프로필 창 줄마다 계산 값을 만들고, 화면 값과 비교한다.
- * 근거 문서: claude-docs/react-port/verify-2026-10-07-0206.md (확률 규칙·최종 체력·최종 공격력),
+ * 근거 문서: claude-docs/react-port/verify-2026-10-07-all.md (확률 규칙 1-1, 최종 공격력 1-4, 최종 체력 1-5),
  * barrier-and-atk-gap.md 3절 (공격력 증가 = 공격력 % × 직업·속성 공격력 % × 대상 몬스터 대미지 % 와 그 직업·속성 변형).
  * 대상 (일반 / 보스 / 히어로 몬스터) 은 종합 탭 대상 칸으로 고르고, 처음 값은 일반 (프로필 창이 일반 기준으로 맞음).
  * 화면·React 와 무관한 순수 함수
@@ -190,7 +190,7 @@ export function summaryRows(lines: Line[], values: CalcValues, tables: StatTable
   // 대상 몬스터 공격시 줄 (공격속도·치명타 확률·치명타 데미지) 은 전투 밖 프로필에 안 들어간다 (버프 탭 줄이 일반 스탯으로 넣음)
   const attackSpeed = attackSpeedPercent(combined, hero, !hasEquippedActiveSkill(values, tables));
   const criticalRate = criticalRateStats(hero).reduce((sum, stat) => sum + read.sum(stat), 0);
-  // 치명타 데미지 (앱 프로필 표시 식, gap-critdmg-normal.md 1-1): 합 계열 criticalDmg 합 × 곱 계열 배율 ÷ 100.
+  // 치명타 데미지 (앱 프로필 표시 식, gap-atk-increase-provider.md 부록 B-1): 합 계열 criticalDmg 합 × 곱 계열 배율 ÷ 100.
   // 곱 계열 = _per_criticalDmg · 직업·속성 치명타 데미지 % · 체력 70% 이상 카드
   const criticalDamageMultiplierLog = criticalDamageMultiplierStats(hero).reduce((sum, stat) => sum + read.log(stat), 0);
   const criticalDamageLog =

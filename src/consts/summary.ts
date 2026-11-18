@@ -10,7 +10,7 @@ export const SUMMARY_CONSTS = {
   TARGET_KINDS: ['normal', 'boss', 'hero'],
   /**
    * 대상 칸 처음 값 = 일반 몬스터. 게임 프로필 창의 공격력 증가는 일반 몬스터 기준으로 맞았다
-   * (verify-2026-10-07-0248.md 3-1: 일반 −0.09, 보스 +0.98, 히어로 +1.09) → 화면 값 비교는 일반일 때 의미 있다
+   * (verify-2026-10-07-all.md 2-3: 일반 −0.15, 보스 +0.98, 히어로 +1.09) → 화면 값 비교는 일반일 때 의미 있다
    */
   DEFAULT_TARGET: 'normal',
   /** 화면 값 소수 자리의 반 단위 (예: 1.6 → 0.05). 계산 값이 이 반올림 범위 안이면 같음 */
@@ -24,7 +24,7 @@ export const SUMMARY_CONSTS = {
   /** 슈퍼 치명타 초과분: 넘은 치명타 확률 이 % 마다 특성 값만큼 증가 */
   SUPER_CRITICAL_RATE_STEP: 10,
   /**
-   * 치명타 데미지 화면 % = 합 계열 합 × 곱 계열 배율 ÷ 100 (앱 프로필 표시 식, gap-critdmg-normal.md 1-1).
+   * 치명타 데미지 화면 % = 합 계열 합 × 곱 계열 배율 ÷ 100 (앱 프로필 표시 식, gap-atk-increase-provider.md 부록 B-1).
    * ÷ 100 의 log10. 어디서 나누는지는 확인 못 함 (02:48 화면 105.81B% 와 숫자로 맞춘 값)
    */
   CRITICAL_DAMAGE_DIVISOR_LOG: 2,
@@ -53,7 +53,7 @@ export const SUMMARY_CONSTS = {
     FINAL_ATTACK_MULTIPLY: '_multiply_AttackDamage',
     /** 치명타 데미지 합 계열 (훈련·유물 등 더하는 줄, 기본값 줄 포함) */
     CRITICAL_DAMAGE_SUM: 'criticalDmg',
-    /** 내 체력 70% 이상일 때 치명타 데미지 % (카드). 프로필은 체력 가득이라 늘 곱한다 (추정, gap-critdmg-normal.md 1-2) */
+    /** 내 체력 70% 이상일 때 치명타 데미지 % (카드). 프로필은 체력 가득이라 늘 곱한다 (추정, gap-atk-increase-provider.md 부록 B-1) */
     CRITICAL_DAMAGE_MY_HP_70: '_per_criticalDmg_MyHp70Long',
     CRITICAL_RATE: 'criticalRate',
     SUPER_CRITICAL: 'superCritical',

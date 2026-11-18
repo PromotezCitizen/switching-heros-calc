@@ -2,7 +2,7 @@
  * 대상 넷 (스테이지 · 스테이지 보스 · 각성 던전 · 속성 던전 히어로 층) 의 대미지 합계와 내역.
  * 스테이지 = 분당 대미지 (DPM), 나머지 = 정해진 시간 동안 시간 순서로 들어간 시전의 누적 대미지 (첫 시전은 전투 시작 직후).
  * 한 적중 = 대상 기준 최종 공격력 × 공격 종류 추가 곱 × (스킬이면 한 발 계수 × 적중 수) × 치명 · 관통 · 무자비 기대 배수 × 체력 조건 배수.
- * 계획: claude-docs/plans/2026-10-19-hit-damage.md 9절. 큰 수라 대미지는 모두 log10
+ * 계획: claude-docs/mastery-optimizer-design.md 8절. 큰 수라 대미지는 모두 log10
  */
 import { CONSTS } from '@/CONSTS';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';

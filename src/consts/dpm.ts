@@ -461,12 +461,9 @@ export const DPM_CONSTS = {
     FREEZE_STAR: 4,
     STAT_TYPE: '30004',
     /**
-     * ★1 (statType 30001, val1 = 15 %): 교체 스킬 빙결 화살이 보스에 맞을 때 대상 현재 체력 × val1 % 추가 피해 (claude-docs/react-port/current-hp-damage-2026-11-01.md).
-     * 화살형은 마지막 화살, 각성형 (11216 · 11217) 은 첫 틱 (교체 + 1틱 간격) 에 한 번. 치명타 · 데미지 증가 같은 공통 곱은 안 붙는다.
-     * 각성 · 길드 레이드 · 글로벌 · 악몽 보스는 게임이 이 피해를 빼므로 (m891) 체력이 유한한 보스 대상만
+     * ★1 받는 피해 % 를 넣는 대상: 체력이 유한한 보스 (스테이지 보스, 속성 던전 보스).
+     * 같은 ★1 의 현재 체력 15% 추가 피해는 보스 체력 비례라 누적 대미지를 덮어 최적화를 망가뜨려 계산에서 뺐다
      */
-    CURRENT_HP_STAR: 1,
-    CURRENT_HP_STAT_TYPE: '30001',
     CURRENT_HP_TARGETS: ['stageBoss', 'attributeBoss'] as readonly string[],
   },
   /**

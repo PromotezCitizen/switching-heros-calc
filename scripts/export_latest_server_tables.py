@@ -6,7 +6,8 @@
   - 열은 기존 JSON 의 columns 그대로. 서버 표에 없는 열 (예: 특성 desc 처럼 문구 표에서 붙인 열) 은
     기존 JSON 에서 첫 열 값이 같은 행의 값을 가져오고, 없거나 비었으면 서버 번역 표 (LOCALIZED_COLUMNS) 에서,
     그래도 없으면 빈 글
-  - 전용 스크립트로 만드는 표 (Skill = 직업 스킬만 + 이름 열) 는 건너뛴다
+  - 전용 스크립트 (export_skill.py) 로 만드는 표 (Skill = 직업 스킬만 + 이름 열, SkillRune · SkillPerk = 번역 문구 열) 는 건너뛴다
+    (SkillPerk 는 첫 열 skillId 가 행마다 같지 않아 기존 값 이어 붙이기가 맞지 않음)
   - 새로 생긴 행은 번호를 출력하고, 화면에 쓰는 이름 (src/i18n/calc/*.ko.json names) · 아이콘이 없는 행은 경고한다
     (이름은 fill_missing_names.py 로 채움, 아이콘은 htmls/icons 에서 가져옴)
 """
@@ -19,7 +20,7 @@ SERVER_DIR = PROJECT_ROOT / 'claude-docs' / 'server_tables'
 TABLE_DIR = PROJECT_ROOT / 'stat-calc' / 'public' / 'data' / 'tables'
 I18N_DIR = PROJECT_ROOT / 'stat-calc' / 'src' / 'i18n' / 'calc'
 ICON_DIR = PROJECT_ROOT / 'stat-calc' / 'public' / 'icons'
-SKIP_TABLES = {'Skill'}
+SKIP_TABLES = {'Skill', 'SkillRune', 'SkillPerk'}
 # 서버 표에 없는 열을 채울 번역 표 키: {표: {열: 키 앞부분}} (키 = 앞부분 + 첫 열 값)
 LOCALIZED_COLUMNS = {'Mastery': {'desc': 'mastery_desc_'}}
 # 화면에 쓰는 이름 번역 파일 (names) 과 아이콘 경로 후보 ({id} = 첫 열 값)

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import awakenTable from '../../../../public/data/tables/Awaken.json';
-import characterTable from '../../../../public/data/tables/Character.json';
+import awakenTable from '@public/data/tables/Awaken.json';
+import characterTable from '@public/data/tables/Character.json';
 import type { RawTable, StatTables } from '@/data/statTables';
 import { formatLog } from '@/calc/gameNumber';
 import type { CalcValues } from '@/calc/types';

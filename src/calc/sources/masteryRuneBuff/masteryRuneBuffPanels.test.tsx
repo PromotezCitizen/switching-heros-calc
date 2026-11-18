@@ -1,10 +1,10 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import attributeRuneText from '../../../../public/data/tables/AttributeRune.json?raw';
-import awakenText from '../../../../public/data/tables/Awaken.json?raw';
-import characterText from '../../../../public/data/tables/Character.json?raw';
-import masteryText from '../../../../public/data/tables/Mastery.json?raw';
-import petText from '../../../../public/data/tables/Pet.json?raw';
+import attributeRuneText from '@public/data/tables/AttributeRune.json?raw';
+import awakenText from '@public/data/tables/Awaken.json?raw';
+import characterText from '@public/data/tables/Character.json?raw';
+import masteryText from '@public/data/tables/Mastery.json?raw';
+import petText from '@public/data/tables/Pet.json?raw';
 import type { RawTable, StatTables } from '@/data/statTables';
 import { useCalcStore } from '@/store/useCalcStore';
 import { renderWithProviders } from '@/test/renderWithProviders';

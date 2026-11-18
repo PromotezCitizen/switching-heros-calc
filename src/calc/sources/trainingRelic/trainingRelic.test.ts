@@ -5,11 +5,11 @@
 import { describe, expect, it } from 'vitest';
 import { combineLines, type CombinedStat, type Line } from '@/calc/combine';
 import { tableRows, type RawTable, type StatTables } from '@/data/statTables';
-import relicTable from '../../../../public/data/tables/Relic.json';
-import trainingTable from '../../../../public/data/tables/Training.json';
-import weaponJobTable from '../../../../public/data/tables/WeaponJob.json';
-import characterTable from '../../../../public/data/tables/Character.json';
-import weaponCharTable from '../../../../public/data/tables/WeaponChar.json';
+import relicTable from '@public/data/tables/Relic.json';
+import trainingTable from '@public/data/tables/Training.json';
+import weaponJobTable from '@public/data/tables/WeaponJob.json';
+import characterTable from '@public/data/tables/Character.json';
+import weaponCharTable from '@public/data/tables/WeaponChar.json';
 import relicText from '@/i18n/calc/relic.ko.json';
 import {
   lowerGradeRelicFill,

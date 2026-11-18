@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import adsBuffTable from '../../../../public/data/tables/AdsBuff.json';
-import characterTable from '../../../../public/data/tables/Character.json';
-import characterAffinityTable from '../../../../public/data/tables/CharacterAffinity.json';
-import characterAwakenTable from '../../../../public/data/tables/CharacterAwaken.json';
+import adsBuffTable from '@public/data/tables/AdsBuff.json';
+import characterTable from '@public/data/tables/Character.json';
+import characterAffinityTable from '@public/data/tables/CharacterAffinity.json';
+import characterAwakenTable from '@public/data/tables/CharacterAwaken.json';
 import diaryStatTable from '@/test/legacyTables/DiaryStat.json';
 import type { RawTable, StatTables } from '@/data/statTables';
 import { combineLines, type Line } from '@/calc/combine';

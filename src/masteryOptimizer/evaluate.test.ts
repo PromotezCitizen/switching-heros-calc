@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import '@/i18n';
-import monsterHp from '../../public/data/monsterHp.json';
+import monsterHp from '@public/data/monsterHp.json';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import { masteryLevelKey, masteryTraits } from '@/calc/sources/masteryRuneBuff/mastery';
 import { DAMAGE_TARGETS, targetDamage, type DamageInputs } from '@/dpm/targetDamage';

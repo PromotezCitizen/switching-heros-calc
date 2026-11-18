@@ -1,12 +1,12 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import '@/i18n';
-import coreMasteryText from '../../../../public/data/tables/CoreMastery.json?raw';
-import figureStatText from '../../../../public/data/tables/FigureStat.json?raw';
-import attributeRuneText from '../../../../public/data/tables/AttributeRune.json?raw';
-import attributeRuneLabText from '../../../../public/data/tables/AttributeRuneLab.json?raw';
-import characterText from '../../../../public/data/tables/Character.json?raw';
-import skillText from '../../../../public/data/tables/Skill.json?raw';
+import coreMasteryText from '@public/data/tables/CoreMastery.json?raw';
+import figureStatText from '@public/data/tables/FigureStat.json?raw';
+import attributeRuneText from '@public/data/tables/AttributeRune.json?raw';
+import attributeRuneLabText from '@public/data/tables/AttributeRuneLab.json?raw';
+import characterText from '@public/data/tables/Character.json?raw';
+import skillText from '@public/data/tables/Skill.json?raw';
 import type { RawTable, StatTables } from '@/data/statTables';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { CONSTS } from '@/CONSTS';

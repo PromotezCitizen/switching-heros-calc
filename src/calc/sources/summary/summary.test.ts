@@ -26,13 +26,13 @@ import {
 import { combineLines } from '@/calc/combine';
 
 /** 표 파일은 필요한 것만 글로 읽는다 (모든 탭이 쓰는 표) */
-const TABLE_FILES = import.meta.glob<string>('../../../../public/data/tables/*.json', { query: '?raw', import: 'default' });
+const TABLE_FILES = import.meta.glob<string>('/public/data/tables/*.json', { query: '?raw', import: 'default' });
 
 async function loadTables(): Promise<StatTables> {
   const names = [...new Set(CALC_TABS.flatMap((tab) => [...tab.tableNames]))];
   const tables: StatTables = {};
   for (const name of names) {
-    const load = TABLE_FILES[`../../../../public/data/tables/${name}.json`];
+    const load = TABLE_FILES[`/public/data/tables/${name}.json`];
     if (load) tables[name] = JSON.parse(await load()) as RawTable;
   }
   return { ...tables, ...LEGACY_TABLES };

@@ -15,13 +15,13 @@ import savedValues from '@/calc/sources/summary/testValues0154.json';
  * 게임 식 쪽 값 (공격력 증가 로그 293.08149, 최종 공격력 로그 356.25334) 은 scratchpad verify0113 의 combat0113.py 결과와도 같다.
  * 입력은 전투 중 최대 상태 켜짐 칸 (적 수 5 이상 · 광폭화 5중첩 · 학살자 · 공격력 이벤트 버프) 까지 저장 데이터에서 읽은 값이다.
  */
-const TABLE_FILES = import.meta.glob<string>('../../../../public/data/tables/*.json', { query: '?raw', import: 'default' });
+const TABLE_FILES = import.meta.glob<string>('/public/data/tables/*.json', { query: '?raw', import: 'default' });
 
 async function loadTables(): Promise<StatTables> {
   const names = [...new Set(CALC_TABS.flatMap((tab) => [...tab.tableNames]))];
   const tables: StatTables = {};
   for (const name of names) {
-    const load = TABLE_FILES[`../../../../public/data/tables/${name}.json`];
+    const load = TABLE_FILES[`/public/data/tables/${name}.json`];
     if (load) tables[name] = JSON.parse(await load()) as RawTable;
   }
   return { ...tables, ...LEGACY_TABLES };

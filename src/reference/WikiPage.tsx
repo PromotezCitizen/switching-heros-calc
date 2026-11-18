@@ -41,6 +41,8 @@ const PAGE_BOTTOM_GAP = 'var(--mantine-spacing-md)';
 /** 페이지 줄 사이 간격 (맨 바깥 Stack gap="md") */
 const PAGE_STACK_GAP = 'var(--mantine-spacing-md)';
 const TERM_IMAGE_SIZE = 48;
+/** 게임 화면 그림을 보여 주는 최대 폭 (px). 파일은 원본의 80% 크기 WebP */
+const SHOT_MAX_WIDTH = 300;
 /** 해금이 없는 개념 설명 묶음 (스탯 읽는 법) */
 const CONCEPT_GROUP = 'reading';
 
@@ -58,6 +60,12 @@ interface WikiPart {
   unlock: string | null;
   opens?: string | null;
   tables?: WikiTable[];
+  shots?: WikiShot[];
+}
+/** 게임 화면 그림 (public/wiki/<file>.webp) 과 그 아래 설명 */
+interface WikiShot {
+  file: string;
+  caption: string;
 }
 /** 한 항목에 묶은 다른 주제 (예: 길드 › 길드 스킬) */
 interface WikiSection extends WikiPart {
@@ -81,6 +89,8 @@ interface WikiTerm {
   image: string | null;
   /** 항목 안 표 (재료 개수 · 등급별 목록 등, 서버 표에서 뽑은 값) */
   tables?: WikiTable[];
+  /** 게임 화면 그림 */
+  shots?: WikiShot[];
 }
 interface WikiTable {
   title: string;
@@ -183,10 +193,10 @@ const WikiNav = createContext<WikiNavValue | null>(null);
 const UNLINKED_NAMES: readonly string[] = ['히어로', '등급', '성', '스킬', '무기'];
 /** 용어 이름을 품은 다른 낱말: 먼저 통째로 맞춰서 링크하지 않는다 (룬스톤 ≠ 룬) */
 const NOT_TERM_WORDS: readonly string[] = ['룬스톤'];
-/** 링크할 이름 → 용어 id (합친 항목은 " · " 로 나눈 이름 각각, 소절 이름은 그 항목으로) */
+/** 링크할 이름 → 용어 id (합친 항목은 ", " 로 나눈 이름 각각, 소절 이름은 그 항목으로) */
 const LINK_TARGETS = new Map<string, string>();
 for (const term of TERMS) {
-  const names = [term.term, ...term.term.split(' · '), ...(term.sections ?? []).map((section) => section.title)];
+  const names = [term.term, ...term.term.split(', '), ...(term.sections ?? []).map((section) => section.title)];
   for (const name of names) if (!UNLINKED_NAMES.includes(name) && !LINK_TARGETS.has(name)) LINK_TARGETS.set(name, term.id);
 }
 /** 긴 이름부터 맞춘다 ("코어 특성" 이 "특성" 보다 먼저) */
@@ -268,7 +278,7 @@ function TermTable({ table }: { table: WikiTable }) {
             {table.rows.map((row, rowIndex) => (
               <Table.Tr key={row.join('|')}>
                 {row.map((cell, index) => (
-                  <Table.Td key={table.columns[index]} ta={table.center ? 'center' : undefined}>
+                  <Table.Td key={table.columns[index]} ta={table.center ? 'center' : undefined} style={{ whiteSpace: 'pre-line' }}>
                     {index === table.heroColumn && table.heroIds ? (
                       <HeroCell ids={table.heroIds[rowIndex]} names={cell.split(', ')} />
                     ) : table.cellImages?.[rowIndex]?.[index] ? (
@@ -295,6 +305,25 @@ function TermTable({ table }: { table: WikiTable }) {
         </Table>
       </Table.ScrollContainer>
     </Stack>
+  );
+}
+
+/** 게임 화면 그림들: 필요한 부분만 자른 그림. 항목을 열 때만 불러온다 */
+function TermShots({ shots }: { shots: WikiShot[] }) {
+  return (
+    <Group gap="md" align="flex-start">
+      {shots.map((shot) => {
+        const url = `${import.meta.env.BASE_URL}wiki/${shot.file}.webp`;
+        return (
+          <Stack key={shot.file} gap={4} maw={SHOT_MAX_WIDTH}>
+            <Image src={url} alt={shot.caption} loading="lazy" radius="sm" bd="1px solid var(--mantine-color-default-border)" />
+            <Text size="xs" c="dimmed">
+              {shot.caption}
+            </Text>
+          </Stack>
+        );
+      })}
+    </Group>
   );
 }
 
@@ -364,6 +393,7 @@ function TermBody({ part, concept }: { part: WikiPart; concept: boolean }) {
         <TermTable key={table.title} table={table} />
       ))}
       <Field label={translate('wiki.inGame')} text={part.inGame} empty={unknown} />
+      {part.shots && part.shots.length > 0 && <TermShots shots={part.shots} />}
       {/* 개념 설명 (스탯 읽는 법) 은 해금이 없는 항목이라 칸을 숨긴다 */}
       {!concept && <Field label={translate('wiki.unlock')} text={part.unlock} empty={unknown} link={false} />}
       {part.opens && <Field label={translate('wiki.opens')} text={part.opens} empty={unknown} link={false} />}

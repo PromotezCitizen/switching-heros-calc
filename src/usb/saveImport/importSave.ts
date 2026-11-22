@@ -6,6 +6,7 @@ import { CONSTS } from '@/CONSTS';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import { HUNTING_KEYS } from '@/hunting/huntingKeys';
 import type { StatTables } from '@/data/statTables';
+import { formatLog } from '@/calc/gameNumber';
 import { charValues, type CharSave } from '@/usb/saveImport/charValues';
 import { CONTENT_PRESETS_FIELD, CONTENT_PRESET_KEYS, PRESET_OVERRIDES_FIELD, presetDiff } from '@/usb/saveImport/contentPresets';
 import { collectionValues, type AlchemySave, type CollectionProgress } from '@/usb/saveImport/collectionValues';
@@ -29,6 +30,7 @@ import { skillRuneValues, type RuneSave, type SkillSave } from '@/usb/saveImport
 
 const { ADS_REMOVE_ITEM, ATTACK_BUFF_ITEM } = CONSTS.usb;
 const { GAME_VERSION_KEY, GAME_VERSION_DECIMALS } = CONSTS.load;
+const DIMENSION_STONE = CONSTS.dimensionStone;
 /** 없는 값을 글로 바꾼 흔적 */
 const UNREADABLE_TEXT = /undefined|NaN/;
 
@@ -77,6 +79,8 @@ export interface DefaultPicked {
   heroMineData?: CharSave['heroMineData'];
   trDatas?: ReinforceSave['trDatas'];
   dispatchLevel?: number;
+  /** 아티팩트 부위별 보유 차원의 파편 (log10, 부위 이름 → 값). 인벤토리에 없는 부위는 빠진다 */
+  fragmentLogs?: Record<string, number>;
 }
 
 /** 옛 형식에서만 있던 키는 없을 수 있다 (새 형식은 Default 로 옮김) */
@@ -185,6 +189,15 @@ export function pickDefault(raw: DefaultRaw): DefaultPicked {
     heroMineData: raw.heroMineData,
     trDatas: raw.trDatas,
     dispatchLevel: attempt(() => raw.dispatchProgress?.lv),
+    fragmentLogs: attempt(() => {
+      const inventory = readDictionary(raw._newNotInvenDic);
+      const entries: [string, number][] = [];
+      for (const part of DIMENSION_STONE.PARTS) {
+        const item = inventory.get(DIMENSION_STONE.FRAGMENT_ITEM_PREFIX + part);
+        if (item) entries.push([part, item.value > 0 ? Math.log10(item.value) + item.exponent : -Infinity]);
+      }
+      return Object.fromEntries(entries);
+    }),
   };
 }
 
@@ -262,6 +275,13 @@ export function importSave(files: SaveFiles, tables: StatTables, withPresets = t
   putDefined(accountValues, HUNTING_KEYS.offlineFloor, files.Default.maxStage);
   // 데이터를 읽어 온 게임 버전 (불러오기 창 표시 · 파일로 저장할 때 버전)
   if (files.Default.gameVersion) accountValues[GAME_VERSION_KEY] = files.Default.gameVersion;
+  // 자료 › 차원의 돌: 아티팩트 칸 레벨 (slotLvDic 칸 번호 1~10) 과 보유 파편. 저장에 없는 칸은 비운다
+  const slotLevels = attempt(() => readDictionary(files.Alchemy.slotData.slotLvDic));
+  DIMENSION_STONE.PARTS.forEach((part, index) => {
+    accountValues[DIMENSION_STONE.LEVEL_KEY_PREFIX + part] = String(slotLevels?.get(index + DIMENSION_STONE.SAVE_FIRST_PART_INDEX) ?? '');
+    const heldLog = files.Default.fragmentLogs?.[part];
+    accountValues[DIMENSION_STONE.HELD_KEY_PREFIX + part] = heldLog === undefined ? '' : heldLog === -Infinity ? '0' : formatLog(heldLog);
+  });
   // 보유 카드 (최적 카드 추천의 후보)
   accountValues[OWNED_CARDS_KEY] = attempt(() => ownedCardsText(files.Card)) ?? '';
   return { values, accountValues, notes };

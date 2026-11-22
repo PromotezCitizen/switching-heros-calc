@@ -11,6 +11,7 @@ import { USB_CONSTS } from '@/consts/usb';
 import { LOAD_CONSTS } from '@/consts/load';
 import { DPM_CONSTS } from '@/consts/dpm';
 import { STAT_VIEWER_CONSTS } from '@/consts/statViewer';
+import { DIMENSION_STONE_CONSTS } from '@/consts/dimensionStone';
 
 export const CONSTS = {
   /** 탭 묶음별 상수 (파일은 src/consts/) */
@@ -26,6 +27,7 @@ export const CONSTS = {
   load: LOAD_CONSTS,
   dpm: DPM_CONSTS,
   statViewer: STAT_VIEWER_CONSTS,
+  dimensionStone: DIMENSION_STONE_CONSTS,
 
   common: {
     PERCENT_DIVISOR: 100,

@@ -5,8 +5,59 @@
     "optimizer": "추천",
     "viewer": "스탯 정보",
     "reference": "자료",
-    "wiki": "게임 용어"
+    "wiki": "게임 용어",
+    "dimensionStone": "차원의 돌"
   },
+  "dimStone": {
+    "title": "차원의 돌",
+    "help": "돌 N 등급 = 파편 8^(N − 1) 개, 10칸에 무작위로 나뉨 (칸당 평균 1/10). 계산은 평균 기준.",
+    "loadFailed": "슬롯 표를 불러오지 못했어요.",
+    "partTitle": "칸 레벨, 보유 파편",
+    "partHelp": "불러오기로 채워짐. 파편은 게임 표기 (예: 1.23AB).",
+    "partColumn": "칸",
+    "levelColumn": "레벨 (T)",
+    "heldColumn": "보유 파편",
+    "stoneGradeWithLevel": "{{level}}(T{{grade}})",
+    "alreadyEnough": "보유 파편으로 가능",
+    "noStone": "불가",
+    "beyondMax": "최대",
+    "badLevel": "0 ~ 1800",
+    "badHeld": "예: 1.23AB",
+    "setTitle": "세트",
+    "setNow": "현재 세트 {{set}} (T{{min}})",
+    "setTarget": "세트",
+    "setStep": "{{set}} (T{{level}})",
+    "setStone": "최소 연성 레벨",
+    "alchemyTitle": "연성 돌",
+    "alchemyLevel": "연성 레벨",
+    "buff": "버프 (확률 +100%)",
+    "alchemyTooLow": "연성 레벨 {{level}} 부터 나옴.",
+    "alchemyStone": "T{{grade}}",
+    "alchemyAmount": "파편 {{total}} (칸당 {{part}})",
+    "alchemyChance": "{{chance}}%, 평균 {{count}}회에 1개",
+    "parts": {
+      "Hat": "투구",
+      "Armor": "갑옷",
+      "Glove": "장갑",
+      "Belt": "벨트",
+      "Pants": "바지",
+      "Boots": "신발",
+      "Necklace": "목걸이",
+      "Ring": "반지",
+      "Earring": "귀걸이",
+      "Cape": "망토"
+    },
+    "setNeedsInput": "칸 레벨을 넣거나 불러오기.",
+    "setPartial": "빈 칸은 가장 낮은 칸과 같게 계산.",
+    "setGain": "효과",
+    "gain": "{{stat}} +{{percent}}%",
+    "stats": {
+      "_per_attackDamage": "공격력",
+      "_per_hp": "체력"
+    }
+  },
+
+
   "viewer": {
     "familiesLabel": "스탯 종류",
     "search": "스탯 종류 · 효과 검색",

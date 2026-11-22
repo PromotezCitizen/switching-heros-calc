@@ -6,6 +6,7 @@ import { SLIDE_TAB_STYLE } from '@/components/slideTabs';
 import SlideTabsList from '@/components/SlideTabsList';
 import StatViewerPage from '@/statViewer/StatViewerPage';
 import WikiPage from '@/reference/WikiPage';
+import DimensionStonePage from '@/reference/DimensionStonePage';
 
 const SECTION_UI_KEY = 'referenceSection';
 
@@ -19,6 +20,7 @@ interface ReferenceSection {
 const SECTIONS: readonly ReferenceSection[] = [
   { id: 'statViewer', labelKey: 'page.viewer', render: () => <StatViewerPage /> },
   { id: 'wiki', labelKey: 'page.wiki', render: () => <WikiPage /> },
+  { id: 'dimensionStone', labelKey: 'page.dimensionStone', render: () => <DimensionStonePage /> },
 ];
 
 /** 자료: 계산에 넣는 값이 아니라 찾아보는 내용 (스탯 정보 등). 하위 탭 하나를 골라 보여 주고, 고른 탭은 이 기기에 기억 */

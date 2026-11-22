@@ -18,6 +18,7 @@ import trainingTable from '@public/data/tables/Training.json';
 import weaponCharTable from '@public/data/tables/WeaponChar.json';
 import weaponJobTable from '@public/data/tables/WeaponJob.json';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
+import { CONSTS } from '@/CONSTS';
 import { parseGameNumber } from '@/calc/gameNumber';
 import savedValues from '@/calc/sources/summary/testValues0154.json';
 import type { StatTables } from '@/data/statTables';
@@ -79,6 +80,12 @@ const VIP_LEVEL_0154 = '11';
 const FAIRY_LEVEL_0154 = '648';
 
 describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
+  const DIMENSION_STONE_EXPECTED = Object.fromEntries(
+    CONSTS.dimensionStone.PARTS.flatMap((part) => [
+      [CONSTS.dimensionStone.LEVEL_KEY_PREFIX + part, '54'],
+      [CONSTS.dimensionStone.HELD_KEY_PREFIX + part, ''],
+    ]),
+  );
   const raw = saveSubset as unknown as Omit<SaveFiles, 'Default'> & { Default: Parameters<typeof pickDefault>[0] };
   const result = importSave({ ...raw, Default: pickDefault(raw.Default) }, tables);
 
@@ -190,7 +197,27 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
       [ACCOUNT_KEYS.adRemoved]: 'true',
       'meta.gameVersion': '5.50',
       [OWNED_CARDS_KEY]: expect.stringMatching(/^\d+:\d+:/),
+      ...DIMENSION_STONE_EXPECTED,
     });
+  });
+
+  it('자료 › 차원의 돌: 칸 레벨 = Alchemy slotLvDic (칸 번호 1~10), 보유 파편 = Default 인벤토리 Fragment<부위> (없으면 비움)', () => {
+    const { PARTS, LEVEL_KEY_PREFIX, HELD_KEY_PREFIX } = CONSTS.dimensionStone;
+    expect(PARTS.map((part) => result.accountValues[LEVEL_KEY_PREFIX + part])).toEqual(Array(10).fill('54'));
+    const withFragments = importSave(
+      {
+        ...raw,
+        Default: pickDefault({
+          ...raw.Default,
+          _newNotInvenDic: { k: ['FragmentHat', 'FragmentCape'], v: [{ value: 7.2484378956376, exponent: 28 }, { value: 0, exponent: 0 }] },
+        }),
+      },
+      tables,
+      false,
+    );
+    expect(parseGameNumber(withFragments.accountValues[HELD_KEY_PREFIX + 'Hat'])!.log).toBeCloseTo(Math.log10(7.2484378956376) + 28, 2);
+    expect(withFragments.accountValues[HELD_KEY_PREFIX + 'Cape']).toBe('0');
+    expect(withFragments.accountValues[HELD_KEY_PREFIX + 'Ring']).toBe('');
   });
 
   it('사냥 계산기 오프라인 층은 최대층 (Default.maxStageNo), 없으면 칸을 건드리지 않는다', () => {

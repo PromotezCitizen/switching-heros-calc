@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import '@/i18n';
-import monsterHp from '@public/data/monsterHp.json';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import type { CalcValues } from '@/calc/types';
-import type { MonsterHpData } from '@/dpm/hpCondition';
 import { CONSTS } from '@/CONSTS';
 import { swappedHeroValues, targetDamageWithSwap } from '@/dpm/swapDamage';
 import { logSum, targetDamage, type DamageInputs } from '@/dpm/targetDamage';
@@ -24,9 +22,6 @@ const INPUTS: DamageInputs = {
   targetsPerSkill: 3,
   orbShardHits: {},
   targetStatusCount: {},
-  stageFloor: 9827,
-  attributeDungeonFloor: null,
-  monsterHp: monsterHp as MonsterHpData,
   swap: true,
 };
 

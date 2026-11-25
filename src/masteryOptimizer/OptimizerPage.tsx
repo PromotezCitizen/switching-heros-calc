@@ -18,7 +18,6 @@ import { OWNED_CARDS_KEY } from '@/usb/saveImport/ownedCards';
 import { bundleTarget, masteryBundleTarget } from '@/masteryOptimizer/targetBundles';
 import { useJsonData } from '@/data/useJsonData';
 import { DAMAGE_TARGETS, type DamageTarget } from '@/dpm/targetDamage';
-import type { MonsterHpData } from '@/dpm/hpCondition';
 import { valuesWithAllocation } from '@/masteryOptimizer/evaluate';
 import { OPTIMIZER_TABLES } from '@/masteryOptimizer/optimizerTables';
 import { usedPoints } from '@/masteryOptimizer/rules';
@@ -39,7 +38,6 @@ const TARGET_KEY = OPTIMIZER_KEYS.target;
 /** 묶인 대상 버튼 이름을 잇는 글 */
 const TARGET_LABEL_JOINER = ' · ';
 const TARGETS_PER_SKILL_KEY = OPTIMIZER_KEYS.targetsPerSkill;
-const STAGE_FLOOR_KEY = OPTIMIZER_KEYS.stageFloor;
 const AUTO_SWAP_KEY = OPTIMIZER_KEYS.autoSwap;
 /** 계산 중 덮개: 보여 줄 결과가 없을 때도 스피너가 보이는 최소 높이 (px) */
 const LOADING_MIN_HEIGHT = 120;
@@ -63,7 +61,6 @@ export default function OptimizerPage() {
   const { t: translate } = useTranslation();
   const storeValues = useCalcStore((state) => state.values);
   const tables = useStatTables(OPTIMIZER_TABLES);
-  const monsterHp = useJsonData<MonsterHpData>('monsterHp.json');
   const descriptions = useJsonData<StatDescriptions>('statDescriptions.json');
   const recommendation = useRecommendation();
   const batch = useBatchRecommendation();
@@ -118,8 +115,6 @@ export default function OptimizerPage() {
   const vipLevel = readNumber(storeValues, ACCOUNT_KEYS.vipLevel);
 
   const inputs = useMemo((): OptimizerInputs | null => {
-    if (monsterHp.status === 'loading') return null;
-    const stageFloor = readNumber(storeValues, STAGE_FLOOR_KEY);
     return {
       userLevel,
       vipLevel,
@@ -128,13 +123,10 @@ export default function OptimizerPage() {
         targetsPerSkill: readNumber(storeValues, TARGETS_PER_SKILL_KEY, DEFAULT_TARGETS_PER_SKILL),
         orbShardHits: {},
         targetStatusCount: {},
-        stageFloor: stageFloor > 0 ? stageFloor : null,
-        attributeDungeonFloor: null,
-        monsterHp: monsterHp.status === 'ready' ? monsterHp.data : null,
         swap: autoSwap,
       },
     };
-  }, [storeValues, monsterHp, userLevel, vipLevel, target, autoSwap]);
+  }, [storeValues, userLevel, vipLevel, target, autoSwap]);
   const masteryInputs = useMemo(
     (): OptimizerInputs | null => (inputs ? { ...inputs, target: masteryTarget } : null),
     [inputs, masteryTarget],
@@ -264,15 +256,11 @@ export default function OptimizerPage() {
               {translate('optimizer.lockedWhileRunning')}
             </Text>
           )}
-          {/* 계산 설정 (유저 레벨 · 맞는 적 수 · 스테이지 층) 은 계정 › 계산 설정에서 넣고 여기는 요약만 */}
+          {/* 계산 설정 (유저 레벨 · 맞는 적 수) 은 계정 › 계산 설정에서 넣고 여기는 요약만 */}
           <Text size="sm" c="dimmed">
             {translate('optimizer.settingsSummary', {
               level: userLevel > 0 ? formatCount(userLevel) : '-',
               targets: readNumber(storeValues, TARGETS_PER_SKILL_KEY, DEFAULT_TARGETS_PER_SKILL),
-              floor:
-                readNumber(storeValues, STAGE_FLOOR_KEY) > 0
-                  ? formatCount(readNumber(storeValues, STAGE_FLOOR_KEY))
-                  : '-',
             })}
           </Text>
         </Stack>
@@ -293,20 +281,11 @@ export default function OptimizerPage() {
                   key={parts}
                   variant={runningThis ? 'default' : 'light'}
                   onClick={
-                    runningThis
-                      ? batch.stop
-                      : () =>
-                          tables.status === 'ready' &&
-                          batch.start(tables.data, monsterHp.status === 'ready' ? monsterHp.data : null, parts)
+                    runningThis ? batch.stop : () => tables.status === 'ready' && batch.start(tables.data, parts)
                   }
                   disabled={
                     !runningThis &&
-                    (batch.running ||
-                      tables.status !== 'ready' ||
-                      monsterHp.status === 'loading' ||
-                      userLevel <= 0 ||
-                      running ||
-                      cardRunning)
+                    (batch.running || tables.status !== 'ready' || userLevel <= 0 || running || cardRunning)
                   }
                 >
                   {translate(runningThis ? 'optimizer.batch.stop' : `optimizer.batch.start.${parts}`)}

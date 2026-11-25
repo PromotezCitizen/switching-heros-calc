@@ -24,7 +24,6 @@ import { changeSkillHits } from '@/dpm/changeSkillHits';
 import { changeSkillRow } from '@/dpm/charSkillCycle';
 import { rosterAwakenField } from '@/calc/sources/hero/rosterFields';
 import { chanceOf, expectedSmite, expectedSpear, expectedSuperCritical } from '@/dpm/hitMultipliers';
-import type { MonsterHpData } from '@/dpm/hpCondition';
 import { skillCoefficient } from '@/dpm/skillCoefficient';
 
 const {
@@ -81,12 +80,6 @@ export interface DamageInputs {
   orbShardHits: Partial<Record<DamageTarget, number>>;
   /** 대상별 대상 상태이상 수 (빈칸 = 0, 무자비) */
   targetStatusCount: Partial<Record<DamageTarget, number>>;
-  /** 스테이지 · 스테이지 보스 층 (빈칸이면 체력 조건 피해는 빠진 몫) */
-  stageFloor: number | null;
-  /** 속성 던전 층 (히어로 층만 체력이 나옴) */
-  attributeDungeonFloor: number | null;
-  /** public/data/monsterHp.json (없으면 체력 조건 피해는 빠진 몫) */
-  monsterHp: MonsterHpData | null;
   /** 자동 교체: 1슬롯 · 2슬롯 히어로가 번갈아 필드에 선다고 보고 두 히어로의 평균을 낸다 (`targetDamageWithSwap`, 비어 있으면 1슬롯만) */
   swap?: boolean;
 }
@@ -282,5 +275,3 @@ export function targetDamage(
   if (uncountedConditions.length) missing.push(`conditionStatsNotCounted:${uncountedConditions.join(',')}`);
   return { target, totalLog: logSum(parts.map((part) => part.damagePerCastLog)), parts, missing };
 }
-
-export type { MonsterHpData };

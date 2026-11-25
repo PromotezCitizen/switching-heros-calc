@@ -4,7 +4,6 @@
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import { calcValuesOf } from '@/calc/storeKeys';
 import type { CalcValues } from '@/calc/types';
-import type { MonsterHpData } from '@/dpm/hpCondition';
 import type { DamageTarget } from '@/dpm/targetDamage';
 import type { OptimizerInputs } from '@/masteryOptimizer/snapshot';
 import { readNumber } from '@/store/storedValues';
@@ -15,7 +14,6 @@ export const OPTIMIZER_KEYS = {
   USER_LEVEL: ACCOUNT_KEYS.userLevel,
   TARGET: `${KEY_PREFIX}target`,
   TARGETS_PER_SKILL: `${KEY_PREFIX}targetsPerSkill`,
-  STAGE_FLOOR: `${KEY_PREFIX}stageFloor`,
   /** 자동 교체 (저장된 값이 없으면 켜짐: 2026-10-28 결정) */
   AUTO_SWAP: `${KEY_PREFIX}autoSwap`,
 } as const;
@@ -35,12 +33,7 @@ export function optimizerValuesFor(storeValues: Record<string, string>, target: 
 }
 
 /** 대상 하나의 대미지 계산 조건 */
-export function optimizerInputsFor(
-  storeValues: Record<string, string>,
-  target: DamageTarget,
-  monsterHp: MonsterHpData | null,
-): OptimizerInputs {
-  const stageFloor = readNumber(storeValues, OPTIMIZER_KEYS.STAGE_FLOOR);
+export function optimizerInputsFor(storeValues: Record<string, string>, target: DamageTarget): OptimizerInputs {
   return {
     userLevel: readNumber(storeValues, OPTIMIZER_KEYS.USER_LEVEL),
     vipLevel: readNumber(storeValues, ACCOUNT_KEYS.vipLevel),
@@ -49,9 +42,6 @@ export function optimizerInputsFor(
       targetsPerSkill: readNumber(storeValues, OPTIMIZER_KEYS.TARGETS_PER_SKILL, DEFAULT_TARGETS_PER_SKILL),
       orbShardHits: {},
       targetStatusCount: {},
-      stageFloor: stageFloor > 0 ? stageFloor : null,
-      attributeDungeonFloor: null,
-      monsterHp,
       swap: autoSwapOn(storeValues),
     },
   };

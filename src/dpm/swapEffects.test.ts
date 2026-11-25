@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import '@/i18n';
-import monsterHp from '@public/data/monsterHp.json';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import { ultimateLines } from '@/calc/sources/masteryRuneBuff/ultimate';
 import { equippedWeaponStarSum } from '@/calc/sources/masteryRuneBuff/weaponStarSum';
 import type { CalcValues } from '@/calc/types';
-import type { MonsterHpData } from '@/dpm/hpCondition';
 import { targetDamageWithSwap } from '@/dpm/swapDamage';
 import type { DamageInputs } from '@/dpm/targetDamage';
 import { loadTestTables } from '@/test/loadTestTables';
@@ -20,9 +18,6 @@ const INPUTS: DamageInputs = {
   targetsPerSkill: 3,
   orbShardHits: {},
   targetStatusCount: {},
-  stageFloor: null,
-  attributeDungeonFloor: null,
-  monsterHp: monsterHp as MonsterHpData,
   swap: true,
 };
 const ON = '1';

@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import '@/i18n';
-import monsterHp from '@public/data/monsterHp.json';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
-import type { MonsterHpData } from '@/dpm/hpCondition';
 import { DAMAGE_TARGETS, type DamageInputs } from '@/dpm/targetDamage';
 import { OPTIMIZER_TABLES } from '@/masteryOptimizer/optimizerTables';
 import { optimizerSnapshot, type OptimizerInputs } from '@/masteryOptimizer/snapshot';
@@ -20,9 +18,6 @@ const DAMAGE: DamageInputs = {
   targetsPerSkill: 3,
   orbShardHits: {},
   targetStatusCount: {},
-  stageFloor: 9827,
-  attributeDungeonFloor: null,
-  monsterHp: monsterHp as MonsterHpData,
 };
 const INPUTS: OptimizerInputs = {
   userLevel: USER_LEVEL_1018,

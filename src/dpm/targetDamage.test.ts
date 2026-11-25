@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import '@/i18n';
-import monsterHp from '@public/data/monsterHp.json';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import { CONSTS } from '@/CONSTS';
 import type { CalcValues } from '@/calc/types';
-import type { MonsterHpData } from '@/dpm/hpCondition';
 import { DAMAGE_TARGETS, logSum, targetDamage, type DamageInputs, type DamageTarget } from '@/dpm/targetDamage';
 import { loadTestTables } from '@/test/loadTestTables';
 import { importSave, pickDefault, type SaveFiles } from '@/usb/saveImport/importSave';
@@ -18,9 +16,6 @@ const INPUTS: DamageInputs = {
   targetsPerSkill: 3,
   orbShardHits: { stage: 2, stageBoss: 5, awaken: 5, attributeHero: 5 },
   targetStatusCount: {},
-  stageFloor: 9827,
-  attributeDungeonFloor: null,
-  monsterHp: monsterHp as MonsterHpData,
 };
 const damageOf = (values: CalcValues, target: DamageTarget, inputs: DamageInputs = INPUTS) =>
   targetDamage(values, tables, target, inputs);

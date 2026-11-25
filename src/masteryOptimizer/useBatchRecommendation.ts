@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { StatTables } from '@/data/statTables';
-import type { MonsterHpData } from '@/dpm/hpCondition';
 import { startBatch, type BatchHandle, type BatchParts, type BatchProgress } from '@/masteryOptimizer/batchRecommend';
 import { useCalcStore } from '@/store/useCalcStore';
 
@@ -10,12 +9,11 @@ export function useBatchRecommendation() {
   const handleRef = useRef<BatchHandle | null>(null);
   const running = progress !== null && progress.phase !== 'done' && handleRef.current !== null;
 
-  const start = useCallback((tables: StatTables, monsterHp: MonsterHpData | null, parts: BatchParts = 'all') => {
+  const start = useCallback((tables: StatTables, parts: BatchParts = 'all') => {
     handleRef.current?.stop();
     const handle = startBatch({
       storeValues: useCalcStore.getState().values,
       tables,
-      monsterHp,
       parts,
       save: (key, value) => useCalcStore.getState().setValue(key, value),
       onProgress: setProgress,

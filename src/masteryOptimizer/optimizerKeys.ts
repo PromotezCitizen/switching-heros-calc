@@ -10,8 +10,6 @@ export const OPTIMIZER_KEYS = {
   target: `${KEY_PREFIX}target`,
   /** 스킬 한 번에 맞는 적 수 (일반 대상) */
   targetsPerSkill: `${KEY_PREFIX}targetsPerSkill`,
-  /** 스테이지 층 (적 체력 조건 피해용) */
-  stageFloor: `${KEY_PREFIX}stageFloor`,
   /** 자동 교체 (저장된 값이 없으면 켜짐: 2026-10-28 결정) */
   autoSwap: `${KEY_PREFIX}autoSwap`,
 } as const;

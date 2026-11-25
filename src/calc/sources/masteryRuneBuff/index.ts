@@ -13,7 +13,7 @@ import type { StatTables } from '@/data/statTables';
 import { combineLines, type Line } from '@/calc/combine';
 import type { CalcTab, CalcValues, TabPanelProps } from '@/calc/types';
 import { cardStackLines, stickerShapeCounts } from '@/calc/sources/heroWeaponCardPet/card';
-import { equippedSkillTypeCounts, hasEquippedActiveSkill, skillOptionLines } from '@/calc/sources/skill/skill';
+import { equippedSkillPerkCount, equippedSkillTypeCounts, hasEquippedActiveSkill, skillOptionLines } from '@/calc/sources/skill/skill';
 import { awakenDetailLines } from '@/calc/sources/masteryRuneBuff/awakenDetail';
 import { battleDamageLines, chancesWithBattleState } from '@/calc/sources/masteryRuneBuff/battleState';
 import { summaryTarget } from '@/calc/sources/summary/summary';
@@ -85,6 +85,7 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
                 alchemySameGradeCount: Number(values[CONSTS.masteryRuneBuff.ALCHEMY_SAME_GRADE_FIELD]) || 0,
                 swapUptimePercent: Number(values[CONSTS.masteryRuneBuff.SWAP_UPTIME_FIELD]) || 0,
                 stickerCounts: stickerShapeCounts(values, tables),
+                skillPerkCount: equippedSkillPerkCount(values, tables),
               },
             ).lines
           : []),

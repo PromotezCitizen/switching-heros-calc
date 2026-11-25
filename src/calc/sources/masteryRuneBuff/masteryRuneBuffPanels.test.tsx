@@ -116,11 +116,11 @@ describe('특성·룬·버프 화면', () => {
     expect(screen.getByText('연타 0% · 스킬 콤보 0%')).toBeTruthy();
   });
 
-  it('특성: 켠 얼티밋 중 계산하지 못하는 것을 보여 준다 (문양 집중), 계산하는 것 (연격 해방) 은 빠진다', () => {
-    useCalcStore.getState().setValue('calc.mastery_2012', '1');
+  it('특성: 켠 얼티밋 중 계산하지 못하는 것을 보여 준다 (결정의 일격), 계산하는 것 (연격 해방) 은 빠진다', () => {
+    useCalcStore.getState().setValue('calc.mastery_3016', '1');
     useCalcStore.getState().setValue('calc.mastery_3015', '1');
     renderTab('mastery');
-    expect(screen.getByText('계산에 넣지 못한 얼티밋 특성: 문양 집중')).toBeTruthy();
+    expect(screen.getByText('계산에 넣지 못한 얼티밋 특성: 결정의 일격')).toBeTruthy();
   });
 
   it('특성: 앞 단계 조건을 못 채운 특성은 올라가지 않는다', () => {

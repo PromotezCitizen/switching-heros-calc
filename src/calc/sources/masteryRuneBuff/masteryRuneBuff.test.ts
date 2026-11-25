@@ -418,6 +418,15 @@ describe('얼티밋: 단순 스탯·편성 히어로 속성', () => {
   // 에이카·린 모두 물 속성
   const waterPair = ['Water', 'Water'];
 
+  it('스킬 문양 개수 얼티밋 (2012 · 2013 · 2014): 장착 스킬에 켜 둔 문양 수 × 값 % 를 직업 · 전용 · 교체 스킬 데미지에', () => {
+    const result = ultimateLines(masteryValues({ 2012: 1, 2013: 1, 2014: 1 }), tables.Mastery, tables.Pet, [], label, [], [], { skillPerkCount: 3 });
+    const byStat = Object.fromEntries(result.lines.map((line) => [line.stat, line.value]));
+    expect(byStat._per_buffAndActiveDmg).toBe(800 * 3);
+    expect(byStat._per_CharSkillDamage).toBe(800 * 3);
+    expect(byStat._per_ChangeSkillDamage).toBe(800 * 3);
+    expect(result.skipped).toEqual([]);
+    expect(ultimateLines(masteryValues({ 2013: 1 }), tables.Mastery, tables.Pet, [], label).lines).toEqual([]);
+  });
   it('개수 조건 없는 _per_ 스탯은 그 스탯 줄 (2001 전용 스킬 데미지 6000%)', () => {
     const result = ultimateLines(masteryValues({ 2001: 1 }), tables.Mastery, tables.Pet, [], label);
     expect(result.lines).toEqual([{ source: 'calc.mastery.names.2001', stat: '_per_CharSkillDamage', value: 6000 }]);
@@ -442,12 +451,12 @@ describe('얼티밋: 단순 스탯·편성 히어로 속성', () => {
     expect(ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], ['Water']).lines).toEqual([]);
   });
 
-  it('개수·조건을 모르는 얼티밋은 버리지 않고 이름을 남긴다 (스킬 문양 개수 2012). 연타 150% 초과 3015 는 버프 탭이 계산', () => {
-    const values = masteryValues({ 2012: 1, 3015: 1, 3016: 1 });
+  it('개수·조건을 모르는 얼티밋은 버리지 않고 이름을 남긴다 (슈퍼 치명타 150% 초과 3016). 연타 150% 초과 3015 는 버프 탭이 계산', () => {
+    const values = masteryValues({ 3015: 1, 3016: 1 });
     const result = ultimateLines(values, tables.Mastery, tables.Pet, [], label);
     expect(result.lines).toEqual([]);
     // 3016 (슈퍼 치명타 150% 초과 → 치명타 데미지) 은 붙는 스탯을 몰라 남긴다
-    expect(result.skipped).toEqual(['calc.mastery.names.2012', 'calc.mastery.names.3016']);
+    expect(result.skipped).toEqual(['calc.mastery.names.3016']);
     expect(skippedUltimateNames(values, tables.Mastery, label)).toEqual(result.skipped);
   });
 

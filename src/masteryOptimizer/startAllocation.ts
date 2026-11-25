@@ -105,7 +105,7 @@ export function buildStartAllocation(traits: MasteryTrait[], options: StartOptio
   // 2) 얼티밋을 모두 켠다 (유저 레벨이 되고 그 묶음 18단계 특성 하나가 최대 레벨인 것만)
   if (!stopped) {
     for (const trait of traits) {
-      if (trait.ultimate && isUnlocked(traits, trait, allocation, userLevel)) allocation = withLevel(allocation, trait.rNo, trait.maxLevel);
+      if (trait.ultimate && !policy?.ignored.has(trait.rNo) && isUnlocked(traits, trait, allocation, userLevel)) allocation = withLevel(allocation, trait.rNo, trait.maxLevel);
     }
     efficiency = measure(allocation);
     report('ultimates');

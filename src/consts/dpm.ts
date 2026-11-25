@@ -33,16 +33,37 @@ export const DPM_CONSTS = {
   /** 일괄 계산 (batchRecommend.ts): 특성 추천은 2개씩, 카드 추천은 3개씩 동시에 */
   BATCH: { MASTERY_LANES: 2, CARD_LANES: 3 },
   /**
-   * 특성 추천 규칙 (쿨타임 · 시간은 빼고 최대 상태의 평타 한 번 대미지로만 비교):
+   * 특성 추천 규칙 (쿨타임 · 시간은 빼고 공격마다 한 번씩 대미지 합으로 비교, evaluate.ts oneCastEachLog):
    * - FIXED: 늘 최대 레벨로 찍는 특성 (광폭화 7, 이성 유지 8, 마나 체인 23)
    * - IGNORED: 추천이 찍지 않는 특성 (레벨 0)
    * - DEFENSE: 대상 종류마다 찍어도 되는 방어 특성. 다른 종류의 방어 특성은 찍지 않는다
    * - RUSH_MIN_CHANCE: 확률 100% 초과분 10% 마다 붙는 특성 (103 · 108 · 203 · 207 · 213 · 308) 은 확률이 이 값을 넘어야 센다
-   * - STATUS_COUNT: 대상 상태이상 수 (최대 상태)
+   * - STATUS_COUNT: 대상 상태이상 수 (무자비 판정에 쓰임), STATUS_COUNT_BY_TARGET 에 있는 대상은 그 값 (PvP 0)
    */
   OPTIMIZER_RULES: {
     FIXED: ['7', '8', '23'] as readonly string[],
-    IGNORED: ['2', '4', '24', '37', '40', '41', '42', '46', '62', '64', '214'] as readonly string[],
+    IGNORED: ['2', '4', '9', '10', '24', '26', '37', '40', '41', '42', '46', '62', '64', '214'] as readonly string[],
+    /** 대상 종류마다 더 찍지 않는 특성: 보스 · 히어로는 전장의 열기 53 · 사냥꾼의 본능 54 (학살자는 일반 몬스터에서만 켜짐) */
+    IGNORED_BY_UNIT: { boss: ['53', '54'], hero: ['53', '54'] } as Record<string, readonly string[]>,
+    /** PvP 가 아닌 대상에서 찍지 않는 특성: 연환 타격 20 (상대 공격력 감소) */
+    IGNORED_OUTSIDE_PVP: ['20'] as readonly string[],
+    /**
+     * 1 · 2슬롯 두 히어로의 속성 / 성별이 같을 때 (same) · 다를 때 (different) 만 붙는 특성. 편성에 맞지 않는 쪽은 찍지 않고,
+     * 히어로가 한 명이면 둘 다 찍지 않는다 (속성 공명 208 · 극복된 속성 209, 원소의 결속 2006 · 원소의 공명 2007, 결속의 힘 2008 · 이성의 조율 2009)
+     */
+    FORMATION_PAIRS: {
+      attribute: { same: ['208', '2006'], different: ['209', '2007'] },
+      gender: { same: ['2008'], different: ['2009'] },
+    } as Record<string, { same: readonly string[]; different: readonly string[] }>,
+    /** 대상 종류 피해 얼티밋: 대상 종류에 맞는 것만 찍는다 (사냥의 기술 · 제왕 학살 · 숙적 처단과 그 2) */
+    UNIT_DAMAGE: { normal: ['3003', '3034'], boss: ['3004', '3035'], hero: ['3005', '3036'] } as Record<string, readonly string[]>,
+    /**
+     * 전투 특화 히어로 공격력 얼티밋 (Character 표 targetUnit 별): 두 히어로의 특화가 같으면 그 특화 것만 찍고, 다르면 모두 후보
+     * (심판의 일격 1015 · 1033 보스, 전장의 맹공 1016 · 1034 일반, 영웅 사냥꾼 1017 · 1035 히어로)
+     */
+    TARGET_UNIT_ATTACK: { Boss: ['1015', '1033'], Normal: ['1016', '1034'], Hero: ['1017', '1035'] } as Record<string, readonly string[]>,
+    /** 펫 속성 지배자 (공격력): 장착한 펫 중 가장 많은 속성 것만 찍는다 (같은 수면 그 속성들 모두, 펫이 없으면 모두 뺌) */
+    PET_MASTERS: { Fire: ['1005', '1030'], Water: ['1006', '1031'], Earth: ['1007', '1032'] } as Record<string, readonly string[]>,
     DEFENSE: {
       normal: ['48', '302'],
       boss: ['49', '303'],
@@ -50,7 +71,13 @@ export const DPM_CONSTS = {
     } as Record<string, readonly string[]>,
     RUSH_MIN_CHANCE: 120,
     RUSH_MIN_CHANCE_FIELD: 'optimizer.rushMinChance',
-    STATUS_COUNT: 3,
+    STATUS_COUNT: 4,
+    STATUS_COUNT_BY_TARGET: { pvp: 0 } as Record<string, number>,
+    /**
+     * 대상 체력이 늘 100% 인 대상: 체력 무한 (INFINITE_HP_TARGETS) 과 PvP (맞아도 체력이 줄지 않음, 피격 m2042 콘텐츠 12 분기,
+     * claude-docs/react-port/pvp-hp-condition-2026-11-25.md). 체력 70% 이상 배수를 늘 곱한다
+     */
+    FULL_HP_EXTRA_TARGETS: ['pvp'] as readonly string[],
   },
   /** 버프 스킬 발동 판정 (m5433): 0 ~ 999 난수 (1000가지), 확률 c 는 천분율, 옵션 % 는 × 10 */
   BUFF_PROC: { ROLL_RANGE: 1000, ROLL_MAX: 999, OPTION_PERCENT_TO_PERMILLE: 10 },

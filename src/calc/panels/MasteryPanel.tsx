@@ -10,7 +10,7 @@ import {
   Stack,
   Table,
   Text,
-  Tooltip,
+  HoverCard,
   UnstyledButton,
 } from '@mantine/core';
 import SectionTitle from '@/components/SectionTitle';
@@ -71,6 +71,8 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
   // 일반 특성은 지금 레벨의 효과, 얼티밋은 켬/끔뿐이라 켰을 때 효과 (값이 하나)
   const effectText = traitEffectText(trait, trait.ultimate ? ULTIMATE_ON_LEVEL : level);
   const note = translate(`calc.mastery.notes.${trait.rNo}`, { defaultValue: '' });
+  // 추천 계산에서 뺀 이유는 넣는 법 안내와 따로 보인다
+  const excludedReason = translate(`calc.mastery.excludedReasons.${trait.rNo}`, { defaultValue: '' });
   const lockedText = locked ? translate(trait.ultimate ? 'calc.mastery.lockedUltimate' : 'calc.mastery.lockedPrevious') : '';
   // 조건을 못 채웠으면 올리기는 막고 내리기만 받는다
   const changeLevel = (next: number) => onChangeLevel(trait, locked ? Math.min(next, level) : next);
@@ -85,29 +87,31 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
   );
   return (
     <Stack gap={2} align="center" w={PANEL.NODE_WIDTH}>
-      <Tooltip
-        multiline
-        maw={PANEL.TOOLTIP_MAX_WIDTH}
-        label={
-          <>
-            <Text size="xs" fw={600}>
+      {/* 마우스를 설명 위로 옮겨도 닫히지 않아 글을 골라 복사할 수 있다 */}
+      <HoverCard width={PANEL.TOOLTIP_MAX_WIDTH} shadow="md" position="top" withinPortal>
+        <HoverCard.Dropdown p="xs">
+            <Text size="xs" fw={700}>
               {name}
             </Text>
             <Text size="xs">{effectText}</Text>
             {/* 특성별 안내 (예: 같은 등급 연성장비 조건에서 GR · GR+ 는 다른 등급) */}
             {note && (
-              <Text size="xs" fw={700} mt={4}>
+              <Text size="xs" mt={4}>
                 {note}
               </Text>
             )}
+            {excludedReason && (
+              <Text size="xs" mt={4}>
+                {excludedReason}
+              </Text>
+            )}
             {lockedText && (
-              <Text size="xs" fw={700} mt={4}>
+              <Text size="xs" mt={4}>
                 {lockedText}
               </Text>
             )}
-          </>
-        }
-      >
+        </HoverCard.Dropdown>
+        <HoverCard.Target>
         {readOnly ? (
           <Box>{icon}</Box>
         ) : trait.ultimate ? (
@@ -127,7 +131,8 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
             {icon}
           </UnstyledButton>
         )}
-      </Tooltip>
+        </HoverCard.Target>
+      </HoverCard>
       <Text size={PANEL.NODE_NAME_TEXT_SIZE} ta="center" lineClamp={PANEL.NODE_NAME_MAX_LINES} w="100%" title={name}>
         {name}
       </Text>

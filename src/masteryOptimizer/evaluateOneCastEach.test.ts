@@ -5,7 +5,7 @@ import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import { masteryTraits } from '@/calc/sources/masteryRuneBuff/mastery';
 import type { MonsterHpData } from '@/dpm/hpCondition';
 import type { DamageInputs } from '@/dpm/targetDamage';
-import { allocationFromValues, evaluateMaxHit } from '@/masteryOptimizer/evaluate';
+import { allocationFromValues, evaluateOneCastEach } from '@/masteryOptimizer/evaluate';
 import { loadTestTables } from '@/test/loadTestTables';
 import { importSave, pickDefault, type SaveFiles } from '@/usb/saveImport/importSave';
 import saveSubset1018 from '@/usb/saveImport/saveSubset1018.json';
@@ -25,14 +25,14 @@ const INPUTS: DamageInputs = {
   monsterHp: monsterHp as MonsterHpData,
 };
 
-describe('특성 추천 비교 값 (최대 상태 평타 한 번)', () => {
+describe('특성 추천 비교 값 (공격마다 한 번씩 대미지 합)', () => {
   const current = allocationFromValues(VALUES, traits);
 
   it('지금 배분이 빈 배분보다 크고, 계산이 된다', () => {
     for (const target of ['stage', 'awaken'] as const) {
-      const now = evaluateMaxHit(VALUES, traits, tables, current, target, INPUTS);
+      const now = evaluateOneCastEach(VALUES, traits, tables, current, target, INPUTS);
       expect(Number.isFinite(now), target).toBe(true);
-      expect(evaluateMaxHit(VALUES, traits, tables, {}, target, INPUTS), target).toBeLessThan(now);
+      expect(evaluateOneCastEach(VALUES, traits, tables, {}, target, INPUTS), target).toBeLessThan(now);
     }
   });
 });

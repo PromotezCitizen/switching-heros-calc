@@ -3,9 +3,15 @@
  * 5.70 이전 저장에는 없어 그럴 땐 칸을 비운다 (전에 가져온 값이 남지 않게)
  */
 import { CONSTS } from '@/CONSTS';
-import { readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
+import {
+  readDictionary,
+  runSection,
+  type SaveDictionary,
+  type SaveImportResult,
+} from '@/usb/saveImport/saveDictionary';
 
-const { MASTERED_FIELD, CURRENT_CONST_FIELD, CURRENT_STEP_FIELD, STEP_LEVEL_FIELD_PREFIX, PROGRESS_FIELD } = CONSTS.providers.ancientRelic;
+const { MASTERED_FIELD, CURRENT_CONST_FIELD, CURRENT_STEP_FIELD, STEP_LEVEL_FIELD_PREFIX, PROGRESS_FIELD } =
+  CONSTS.providers.ancientRelic;
 
 interface SaveStep {
   id: number;
@@ -21,7 +27,12 @@ export interface AncientRelicSave {
 }
 
 export function ancientRelicValues(dispatch: AncientRelicSave): SaveImportResult {
-  const values: Record<string, string> = { [MASTERED_FIELD]: '', [CURRENT_CONST_FIELD]: '', [CURRENT_STEP_FIELD]: '', [PROGRESS_FIELD]: '' };
+  const values: Record<string, string> = {
+    [MASTERED_FIELD]: '',
+    [CURRENT_CONST_FIELD]: '',
+    [CURRENT_STEP_FIELD]: '',
+    [PROGRESS_FIELD]: '',
+  };
   const notes: string[] = [];
   const data = dispatch.ancientRelicData;
   if (!data) return { values, notes };
@@ -35,7 +46,8 @@ export function ancientRelicValues(dispatch: AncientRelicSave): SaveImportResult
     if (!current) return;
     values[CURRENT_CONST_FIELD] = String(constellation.id);
     values[CURRENT_STEP_FIELD] = String(current[0]);
-    for (const [idx, node] of readDictionary(current[1].lvDic)) values[`${STEP_LEVEL_FIELD_PREFIX}${idx}`] = String(node.lv);
+    for (const [idx, node] of readDictionary(current[1].lvDic))
+      values[`${STEP_LEVEL_FIELD_PREFIX}${idx}`] = String(node.lv);
   });
   return { values, notes };
 }

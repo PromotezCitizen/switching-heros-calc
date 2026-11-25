@@ -122,7 +122,11 @@ export function criticalRateStats(hero: TableRow | undefined): string[] {
 
 /** 치명타 데미지 곱 계열 (D): _per_criticalDmg · 체력 70% 이상 카드 · 직업·속성 치명타 데미지 % */
 export function criticalDamageMultiplierStats(hero: TableRow | undefined): string[] {
-  return [STATS.CRITICAL_DAMAGE, STATS.CRITICAL_DAMAGE_MY_HP_70, ...variantStats(hero, VARIANT_SUFFIXES.CRITICAL_DAMAGE, PER_PREFIX)];
+  return [
+    STATS.CRITICAL_DAMAGE,
+    STATS.CRITICAL_DAMAGE_MY_HP_70,
+    ...variantStats(hero, VARIANT_SUFFIXES.CRITICAL_DAMAGE, PER_PREFIX),
+  ];
 }
 
 /**
@@ -143,7 +147,11 @@ export function attackIncreaseStats(hero: TableRow | undefined, target: SummaryT
 }
 
 /** 줄 → 공격력 증가·체력 증가 배율 (log10). 대상을 안 넘기면 처음 값 (일반) */
-export function increaseLogs(lines: Line[], hero: TableRow | undefined, target: SummaryTarget = DEFAULT_TARGET): IncreaseLogs {
+export function increaseLogs(
+  lines: Line[],
+  hero: TableRow | undefined,
+  target: SummaryTarget = DEFAULT_TARGET,
+): IncreaseLogs {
   const read = statReader(combineLines(lines));
   return {
     attack: attackIncreaseStats(hero, target).reduce((sum, stat) => sum + read.log(stat), 0),
@@ -157,7 +165,9 @@ export function groupSubtotals(
   hero: TableRow | undefined,
   target: SummaryTarget = DEFAULT_TARGET,
 ): (IncreaseLogs & { id: string })[] {
-  return groups.filter((group) => group.lines.length > 0).map((group) => ({ id: group.id, ...increaseLogs(group.lines, hero, target) }));
+  return groups
+    .filter((group) => group.lines.length > 0)
+    .map((group) => ({ id: group.id, ...increaseLogs(group.lines, hero, target) }));
 }
 
 /** 묶음별 탭 → 묶음별 줄 (합산 직전 모양) */
@@ -192,7 +202,10 @@ export function summaryRows(lines: Line[], values: CalcValues, tables: StatTable
   const criticalRate = criticalRateStats(hero).reduce((sum, stat) => sum + read.sum(stat), 0);
   // 치명타 데미지 (앱 프로필 표시 식, gap-atk-increase-provider.md 부록 B-1): 합 계열 criticalDmg 합 × 곱 계열 배율 ÷ 100.
   // 곱 계열 = _per_criticalDmg · 직업·속성 치명타 데미지 % · 체력 70% 이상 카드
-  const criticalDamageMultiplierLog = criticalDamageMultiplierStats(hero).reduce((sum, stat) => sum + read.log(stat), 0);
+  const criticalDamageMultiplierLog = criticalDamageMultiplierStats(hero).reduce(
+    (sum, stat) => sum + read.log(stat),
+    0,
+  );
   const criticalDamageLog =
     sumLog(read.sum(STATS.CRITICAL_DAMAGE_SUM)) + criticalDamageMultiplierLog - CRITICAL_DAMAGE_DIVISOR_LOG;
   const superCriticalSteps = Math.max(
@@ -223,7 +236,8 @@ export function summaryRows(lines: Line[], values: CalcValues, tables: StatTable
     heroMonster: multiplierPercentLog(read.log(TARGET_STATS.hero.MONSTER_DAMAGE)),
     doubleAttack: sumLog(doubleAttackPercent(combined, attackSpeed)),
     superCritical: sumLog(
-      pairSum(STATS.SUPER_CRITICAL, STATS.SUPER_CRITICAL_ADD) + superCriticalSteps * read.sum(STATS.SUPER_CRITICAL_OVER),
+      pairSum(STATS.SUPER_CRITICAL, STATS.SUPER_CRITICAL_ADD) +
+        superCriticalSteps * read.sum(STATS.SUPER_CRITICAL_OVER),
     ),
     spearAttack: sumLog(pairSum(STATS.SPEAR_ATTACK, STATS.SPEAR_ATTACK_ADD)),
     switchingBoost: sumLog(pairSum(STATS.SWITCHING_BOOST, STATS.SWITCHING_BOOST_ADD)),
@@ -265,7 +279,10 @@ export function screenRoundingLog(text: string): number {
 }
 
 /** 계산 값 대 화면 값. 화면 값이 비었거나 읽을 수 없으면 null */
-export function compareWithScreen(calculatedLog: number | null, screenText: string | undefined): ScreenComparison | null {
+export function compareWithScreen(
+  calculatedLog: number | null,
+  screenText: string | undefined,
+): ScreenComparison | null {
   const parsed = parseGameNumber(screenText);
   if (!parsed || calculatedLog === null || !isFinite(calculatedLog)) return null;
   const differenceLog = calculatedLog - parsed.log;

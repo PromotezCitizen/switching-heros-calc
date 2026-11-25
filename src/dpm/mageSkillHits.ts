@@ -18,7 +18,13 @@ const { MAGE_SKILLS: MAGE, PIERCE_EXTRA_TARGETS } = CONSTS.dpm;
 const UNSUPPORTED: SkillHits = { supported: false, hits: 0, coefficientFactor: 1 };
 
 /** statusCount = 대상에 걸린 상태이상 수 (0 보다 크면 "상태이상인 적" 조건 문양이 켜진다) */
-export function mageSkillHits(values: CalcValues, tables: StatTables, skillId: string, targets: number, statusCount = 0): SkillHits {
+export function mageSkillHits(
+  values: CalcValues,
+  tables: StatTables,
+  skillId: string,
+  targets: number,
+  statusCount = 0,
+): SkillHits {
   const row = skillRows(tables).find((candidate) => candidate.skillId === skillId);
   if (!row) return UNSUPPORTED;
   const value1 = Number(row.value1) || 0;
@@ -27,7 +33,12 @@ export function mageSkillHits(values: CalcValues, tables: StatTables, skillId: s
   const options = chosenSkillOptions(values, tables, skillId);
   const perks = chosenSkillPerks(values, tables, skillId);
   const has = (type: string) => optionValue(options, type) !== undefined;
-  const found = (hits: number, coefficientFactor = 1, estimates: string[] = []): SkillHits => ({ supported: true, hits, coefficientFactor, estimates });
+  const found = (hits: number, coefficientFactor = 1, estimates: string[] = []): SkillHits => ({
+    supported: true,
+    hits,
+    coefficientFactor,
+    estimates,
+  });
   const perkFactor = (perkType: string, column: 'val1' | 'val2' | 'val3') => {
     const perk = perkOf(perks, perkType);
     return perk ? percentFactor(perkNumber(perk, column)) : 1;
@@ -68,23 +79,35 @@ export function mageSkillHits(values: CalcValues, tables: StatTables, skillId: s
     case MAGE.LIGHTNING_SPEAR: {
       // 첫 판정 0.02초, 간격 I, 지속 D. 문양 (번개 폭풍) 은 같은 판정에 데미지 val1 배
       const half = has(MAGE.LIGHTNING_SPEAR_HALF_OPTION);
-      const duration = (value1 + (optionValue(options, MAGE.LIGHTNING_SPEAR_DURATION_OPTION) ?? 0)) * (half ? MAGE.HALF_FACTOR : 1);
+      const duration =
+        (value1 + (optionValue(options, MAGE.LIGHTNING_SPEAR_DURATION_OPTION) ?? 0)) * (half ? MAGE.HALF_FACTOR : 1);
       const interval = value2 / percentFactor(optionValue(options, MAGE.LIGHTNING_SPEAR_HALF_OPTION) ?? 0);
       const perk = perkOf(perks, MAGE.LIGHTNING_SPEAR_PERK);
-      return found(repeatedTicks(duration, MAGE.TICK_FIRST_SECONDS, interval) * targets, perk ? perkNumber(perk, 'val1') : 1);
+      return found(
+        repeatedTicks(duration, MAGE.TICK_FIRST_SECONDS, interval) * targets,
+        perk ? perkNumber(perk, 'val1') : 1,
+      );
     }
     case MAGE.BLIZZARD: {
       // 첫 판정 0.02초, 간격 I, 지속 D
       const duration = value1 + (optionValue(options, MAGE.BLIZZARD_DURATION_OPTION) ?? 0);
       const interval = value2 / percentFactor(optionValue(options, MAGE.BLIZZARD_INTERVAL_OPTION) ?? 0);
-      return found(repeatedTicks(duration, MAGE.TICK_FIRST_SECONDS, interval) * targets, perkFactor(MAGE.BLIZZARD_PERK, 'val2'));
+      return found(
+        repeatedTicks(duration, MAGE.TICK_FIRST_SECONDS, interval) * targets,
+        perkFactor(MAGE.BLIZZARD_PERK, 'val2'),
+      );
     }
     case MAGE.ICE_SPEAR: {
       // 큰 창 판정 1번 (옵션 4002 이면 없음) + 작은 유도 창 n 개 × value2 배 × 관통 (value3 + 옵션 4002)
       const noBig = optionValue(options, MAGE.ICE_SPEAR_NO_BIG_OPTION);
-      const small = Math.floor(value1) + MAGE.ICE_SPEAR_EXTRA_COUNT * chanceOf(optionValue(options, MAGE.ICE_SPEAR_EXTRA_OPTION) ?? 0);
+      const small =
+        Math.floor(value1) +
+        MAGE.ICE_SPEAR_EXTRA_COUNT * chanceOf(optionValue(options, MAGE.ICE_SPEAR_EXTRA_OPTION) ?? 0);
       const big = noBig === undefined ? targets : 0;
-      return found(big + small * value2 * pierceTargets(Math.floor(value3) + Math.floor(noBig ?? 0)), perkFactor(MAGE.ICE_SPEAR_PERK, 'val2'));
+      return found(
+        big + small * value2 * pierceTargets(Math.floor(value3) + Math.floor(noBig ?? 0)),
+        perkFactor(MAGE.ICE_SPEAR_PERK, 'val2'),
+      );
     }
     default:
       return UNSUPPORTED;

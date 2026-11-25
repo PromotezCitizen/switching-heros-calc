@@ -39,7 +39,9 @@ export default function CalcPage() {
   const activeGroup = { id: groupIds.includes(savedGroup ?? '') ? (savedGroup as string) : ACCOUNT_GROUP_ID };
   /* 한 번 연 하위 탭은 다른 탭으로 가도 지우지 않고 숨겨 둔다 (다시 열 때 처음부터 그리지 않음). 열지 않은 탭은 그리지 않는다 */
   const [openedGroupIds, setOpenedGroupIds] = useState<string[]>([]);
-  const renderedGroupIds = openedGroupIds.includes(activeGroup.id) ? openedGroupIds : [...openedGroupIds, activeGroup.id];
+  const renderedGroupIds = openedGroupIds.includes(activeGroup.id)
+    ? openedGroupIds
+    : [...openedGroupIds, activeGroup.id];
   const changeGroup = (groupId: string) => {
     setOpenedGroupIds((previous) => (previous.includes(groupId) ? previous : [...renderedGroupIds, groupId]));
     setSavedGroup(groupId);
@@ -68,7 +70,12 @@ export default function CalcPage() {
     <Stack mt="md" gap="xs">
       {descriptions.status === 'failed' && <Alert color="red">{translate('calc.loadFailed')}</Alert>}
       {/* 숨긴 하위 탭은 화면에서만 숨긴다: Mantine 기본 (React Activity) 은 다시 열 때 탭 안 전체를 다시 그려 히어로 탭이 0.8초 넘게 멈췄다 */}
-      <Tabs value={activeGroup.id} onChange={(next) => next && changeGroup(next)} variant="pills" keepMountedMode="display-none">
+      <Tabs
+        value={activeGroup.id}
+        onChange={(next) => next && changeGroup(next)}
+        variant="pills"
+        keepMountedMode="display-none"
+      >
         <Box
           ref={subTabBarRef}
           pos="sticky"

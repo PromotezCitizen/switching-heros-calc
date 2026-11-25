@@ -10,8 +10,19 @@ import { combineLines, type CombinedStat, type Line } from '@/calc/combine';
 import type { CalcValues } from '@/calc/types';
 import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
 import { hasEquippedActiveSkill } from '@/calc/sources/skill/skill';
-import { attackSpeedPercent, combinedSum, doubleAttackPercent, multiplierPercentLog } from '@/calc/sources/masteryRuneBuff/buff';
-import { masteryLevel, masteryTraits, plainNumber, traitName, traitValue } from '@/calc/sources/masteryRuneBuff/mastery';
+import {
+  attackSpeedPercent,
+  combinedSum,
+  doubleAttackPercent,
+  multiplierPercentLog,
+} from '@/calc/sources/masteryRuneBuff/buff';
+import {
+  masteryLevel,
+  masteryTraits,
+  plainNumber,
+  traitName,
+  traitValue,
+} from '@/calc/sources/masteryRuneBuff/mastery';
 import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 import { formationHeroAttributes, formationPair } from '@/calc/sources/masteryRuneBuff/ultimate';
 
@@ -60,7 +71,10 @@ export function chancesFromLines(lines: Line[], values: CalcValues, tables: Stat
   const combined = combineLines(lines);
   const hero = heroFirstRow(tables, slotHeroName(values, tables));
   const chances: Chances = {
-    doubleAttack: doubleAttackPercent(combined, attackSpeedPercent(combined, hero, !hasEquippedActiveSkill(values, tables))),
+    doubleAttack: doubleAttackPercent(
+      combined,
+      attackSpeedPercent(combined, hero, !hasEquippedActiveSkill(values, tables)),
+    ),
     superCritical: superCriticalPercent(combined, criticalRatePercent(combined, hero)),
   };
   for (const [chance, stats] of Object.entries(CHANCE_STATS)) {
@@ -95,7 +109,12 @@ export function chanceUltimateLines(
       const count = CHANCE_COUNT_NAMES.filter((name) => (chances[name] ?? 0) > countThreshold).length;
       if (count > 0 && value > 0) {
         lines.push({
-          source: sourceLabel('calc.ultimate.chanceCountSource', { name: traitName(trait, sourceLabel), value, count, threshold: countThreshold }),
+          source: sourceLabel('calc.ultimate.chanceCountSource', {
+            name: traitName(trait, sourceLabel),
+            value,
+            count,
+            threshold: countThreshold,
+          }),
           stat: STATS.ATTACK_PERCENT,
           log: multiplierPercentLog(count * Math.log10(value)),
         });

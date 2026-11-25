@@ -13,7 +13,12 @@ import type { StatTables } from '@/data/statTables';
 import { combineLines, type Line } from '@/calc/combine';
 import type { CalcTab, CalcValues, TabPanelProps } from '@/calc/types';
 import { cardStackLines, stickerShapeCounts } from '@/calc/sources/heroWeaponCardPet/card';
-import { equippedSkillPerkCount, equippedSkillTypeCounts, hasEquippedActiveSkill, skillOptionLines } from '@/calc/sources/skill/skill';
+import {
+  equippedSkillPerkCount,
+  equippedSkillTypeCounts,
+  hasEquippedActiveSkill,
+  skillOptionLines,
+} from '@/calc/sources/skill/skill';
 import { awakenDetailLines } from '@/calc/sources/masteryRuneBuff/awakenDetail';
 import { battleDamageLines, chancesWithBattleState } from '@/calc/sources/masteryRuneBuff/battleState';
 import { summaryTarget } from '@/calc/sources/summary/summary';
@@ -28,7 +33,12 @@ import {
   stackLines,
   superCriticalStrikeLines,
 } from '@/calc/sources/masteryRuneBuff/buff';
-import { exclusiveBattleLines, figureBattleLines, magicGuardLines, switchingBoostLines } from '@/calc/sources/masteryRuneBuff/battleEffects';
+import {
+  exclusiveBattleLines,
+  figureBattleLines,
+  magicGuardLines,
+  switchingBoostLines,
+} from '@/calc/sources/masteryRuneBuff/battleEffects';
 import { chanceUltimateLines } from '@/calc/sources/masteryRuneBuff/chances';
 import { masteryLines } from '@/calc/sources/masteryRuneBuff/mastery';
 import { runeLabLines, runeLines } from '@/calc/sources/masteryRuneBuff/rune';
@@ -58,7 +68,10 @@ function buffPanelWith(otherTabLines: OtherTabLines): ComponentType<TabPanelProp
  * 버프 탭 줄은 다른 탭 줄 (연타·공격속도·확률 합) 이 필요해서, 탭 목록 (tabs.ts) 이 그 줄을 모으는 함수와
  * 다른 탭들이 쓰는 표 이름 (otherTableNames) 을 넘긴다. 버프 탭은 그 표 전부 + 이 묶음 탭들의 표를 불러야 줄이 맞다
  */
-export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableNames: readonly string[] = []): CalcTab[] => {
+export const masteryRuneBuffTabs = (
+  otherTabLines: OtherTabLines,
+  otherTableNames: readonly string[] = [],
+): CalcTab[] => {
   const ownTabs: CalcTab[] = [
     {
       id: 'mastery',
@@ -67,7 +80,12 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
       Panel: MasteryPanel,
       lines: (values, tables) => [
         ...(tables.Mastery
-          ? masteryLines(values, tables.Mastery, translateSource, Number(values[CONSTS.masteryRuneBuff.SWAP_UPTIME_FIELD]) || 0)
+          ? masteryLines(
+              values,
+              tables.Mastery,
+              translateSource,
+              Number(values[CONSTS.masteryRuneBuff.SWAP_UPTIME_FIELD]) || 0,
+            )
           : []),
         ...(tables.Mastery && tables.Pet
           ? ultimateLines(
@@ -125,7 +143,10 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
       Panel: buffPanelWith(otherTabLines),
       lines: (values, tables) => {
         // 음식 효과·공격력 이벤트 버프·최종 공격력 ×5 는 특성 표 없이도 줄이 된다
-        const foodLines = [...normalMonsterFoodLines(values, translateSource), ...attackEventBuffLines(values, translateSource)];
+        const foodLines = [
+          ...normalMonsterFoodLines(values, translateSource),
+          ...attackEventBuffLines(values, translateSource),
+        ];
         const multiplierLines = [
           ...exclusiveStackBuffLines(values, translateSource, tables),
           ...finalAttackMultiplierLines(values, translateSource, tables),
@@ -135,14 +156,27 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
         if (!tables.Mastery) return [...foodLines, ...multiplierLines, ...optionLines];
         const otherLines = otherTabLines(values, tables);
         // 전투 중 최대 상태 공격속도·치명타 확률·치명타 데미지 줄이 연타·슈퍼 치명타 단계 계산에 먼저 들어간다
-        const { chances, battleLines } = chancesWithBattleState(otherLines, values, tables, tables.Mastery, translateSource);
+        const { chances, battleLines } = chancesWithBattleState(
+          otherLines,
+          values,
+          tables,
+          tables.Mastery,
+          translateSource,
+        );
         // 매직 가드 기본 항 (0x105) 이 0 이면 게임은 보호막을 만들지 않고 매직 가드 효과를 모두 건너뛴다 (consts MAGIC_GUARD)
         const magicGuardOn = combinedSum(combineLines(otherLines), CONSTS.masteryRuneBuff.MAGIC_GUARD.BASE_STAT) !== 0;
         return [
           ...battleLines,
           ...buffLines(values, tables.Mastery, translateSource, chances.doubleAttack),
           ...stackLines(values, tables.Mastery, translateSource, chances.doubleAttack, chances.skillCombo),
-          ...battleDamageLines(values, tables.Mastery, translateSource, chances, magicGuardOn, hasEquippedActiveSkill(values, tables)),
+          ...battleDamageLines(
+            values,
+            tables.Mastery,
+            translateSource,
+            chances,
+            magicGuardOn,
+            hasEquippedActiveSkill(values, tables),
+          ),
           // 카드 2번·3번 전투 중 중첩 (최대 5중첩): 다른 탭 줄에 남아 있는 카드 줄에서 읽는다. 처치 중첩은 일반 몬스터 대상에서만 쌓인다
           ...cardStackLines(otherLines, translateSource, summaryTarget(values)),
           ...chanceUltimateLines(values, tables.Mastery, chances, translateSource, magicGuardOn),

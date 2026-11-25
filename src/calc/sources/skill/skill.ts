@@ -108,7 +108,9 @@ export function equippedSkillPerkCount(values: CalcValues, tables: StatTables): 
 
 /** 스킬 아이콘 경로 (icons/ 아래, 확장자 없음) */
 export function skillIconPath(skillId: string): string {
-  return ((LOWER_CASE_ICON_IDS as readonly string[]).includes(skillId) ? LOWER_CASE_ICON_PREFIX : ICON_PREFIX) + skillId;
+  return (
+    ((LOWER_CASE_ICON_IDS as readonly string[]).includes(skillId) ? LOWER_CASE_ICON_PREFIX : ICON_PREFIX) + skillId
+  );
 }
 
 /** 스킬 옵션 칸 (스킬마다 1 ~ 열린 칸 수) 에 고른 옵션의 rNo (비었으면 고르지 않음) */
@@ -134,7 +136,9 @@ export function skillRuneText(row: TableRow): string {
 /** 스킬 레벨로 열리는 옵션 칸 수 (Option 표 skill_rune_slot_condition_<n>: 레벨 조건 이상인 행의 칸 수 중 최댓값, 표가 없으면 0) */
 export function skillOptionSlotCount(tables: StatTables, level: number): number {
   return rowsOf(tables, SLOT_CONDITION_TABLE)
-    .filter((row) => row.key?.startsWith(SLOT_CONDITION_KEY_PREFIX) && level >= Number(row[SLOT_CONDITION_LEVEL_COLUMN]))
+    .filter(
+      (row) => row.key?.startsWith(SLOT_CONDITION_KEY_PREFIX) && level >= Number(row[SLOT_CONDITION_LEVEL_COLUMN]),
+    )
     .reduce((count, row) => Math.max(count, Number(row[SLOT_CONDITION_COUNT_COLUMN]) || 0), 0);
 }
 
@@ -171,7 +175,11 @@ export function skillPerkField(skillId: string, targetLevel: string): string {
 
 /** 그 스킬의 문양 해금 레벨 목록 (작은 것부터, SkillPerk 표 targetLv) */
 export function skillPerkLevels(tables: StatTables, skillId: string): string[] {
-  const levels = new Set(rowsOf(tables, PERK_TABLE).filter((row) => row.skillId === skillId).map((row) => row[PERK_LEVEL_COLUMN]));
+  const levels = new Set(
+    rowsOf(tables, PERK_TABLE)
+      .filter((row) => row.skillId === skillId)
+      .map((row) => row[PERK_LEVEL_COLUMN]),
+  );
   return [...levels].sort((left, right) => Number(left) - Number(right));
 }
 
@@ -186,7 +194,9 @@ export function chosenSkillPerks(values: CalcValues, tables: StatTables, skillId
   return skillPerkLevels(tables, skillId)
     .filter((targetLevel) => level >= Number(targetLevel))
     .flatMap((targetLevel) =>
-      skillPerkChoices(tables, skillId, targetLevel).filter((row) => row.perkType === values[skillPerkField(skillId, targetLevel)]),
+      skillPerkChoices(tables, skillId, targetLevel).filter(
+        (row) => row.perkType === values[skillPerkField(skillId, targetLevel)],
+      ),
     );
 }
 

@@ -50,7 +50,8 @@ describe('효율 (10-18 계정, 대상 12개)', () => {
   const current = allocationFromValues(VALUES, traits);
 
   it('지금 배분의 효율이 대상마다 나온다', () => {
-    for (const target of DAMAGE_TARGETS) expect(isFinite(evaluateOneCastEach(VALUES, traits, tables, current, target, INPUTS)), target).toBe(true);
+    for (const target of DAMAGE_TARGETS)
+      expect(isFinite(evaluateOneCastEach(VALUES, traits, tables, current, target, INPUTS)), target).toBe(true);
   });
 
   it('공격력 % 특성을 빼면 대상 넷 모두 효율이 내려간다', () => {

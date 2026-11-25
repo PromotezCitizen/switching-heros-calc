@@ -13,7 +13,13 @@ const ARCHER_WATER = { job: 'Archer', attribute: 'Water' };
 
 /** 줄 몇 개로 만든 가짜 AttackStats (궁수 · 물 속성 히어로) */
 function statsOf(lines: Line[]): AttackStats {
-  return { target: 'normal', lines, read: statReader(combineLines(lines)), hero: ARCHER_WATER, targetFinalAttackLog: 0 };
+  return {
+    target: 'normal',
+    lines,
+    read: statReader(combineLines(lines)),
+    hero: ARCHER_WATER,
+    targetFinalAttackLog: 0,
+  };
 }
 
 describe('공격 종류별 추가 곱 · 치명 C · D', () => {

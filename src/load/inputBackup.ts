@@ -18,7 +18,12 @@ export interface InputBackup {
 }
 
 export function createBackup(values: Record<string, string>, now: Date = new Date()): InputBackup {
-  return { kind: FILE_KIND, version: values[GAME_VERSION_KEY] ?? '', exportedAt: now.toISOString(), values: { ...values } };
+  return {
+    kind: FILE_KIND,
+    version: values[GAME_VERSION_KEY] ?? '',
+    exportedAt: now.toISOString(),
+    values: { ...values },
+  };
 }
 
 /** 내려받을 파일 이름: <앞부분>-YYYYMMDD-HHmm.json (내 기기 시각) */
@@ -40,11 +45,21 @@ export function parseBackup(text: string): ParsedBackup {
   }
   if (!parsed || typeof parsed !== 'object') return { ok: false, reason: 'notBackup' };
   const candidate = parsed as Partial<InputBackup>;
-  if (candidate.kind !== FILE_KIND || typeof candidate.version !== 'string' || !candidate.values || typeof candidate.values !== 'object') {
+  if (
+    candidate.kind !== FILE_KIND ||
+    typeof candidate.version !== 'string' ||
+    !candidate.values ||
+    typeof candidate.values !== 'object'
+  ) {
     return { ok: false, reason: 'notBackup' };
   }
-  const values = Object.fromEntries(Object.entries(candidate.values).filter(([, value]) => typeof value === 'string')) as Record<string, string>;
-  return { ok: true, backup: { kind: FILE_KIND, version: candidate.version, exportedAt: String(candidate.exportedAt ?? ''), values } };
+  const values = Object.fromEntries(
+    Object.entries(candidate.values).filter(([, value]) => typeof value === 'string'),
+  ) as Record<string, string>;
+  return {
+    ok: true,
+    backup: { kind: FILE_KIND, version: candidate.version, exportedAt: String(candidate.exportedAt ?? ''), values },
+  };
 }
 
 /** 브라우저에서 파일로 내려받게 한다 */

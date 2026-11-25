@@ -5,7 +5,8 @@ describe('특성 추천 고정 · 무시 규칙', () => {
   it('광폭화 7 · 이성 유지 8 · 마나 체인 23 은 고정, 무시 목록은 찍지 않음', () => {
     const policy = traitPolicyFor('stage');
     expect([...policy.fixed]).toEqual(['7', '8', '23']);
-    for (const rNo of ['2', '4', '24', '26', '37', '40', '41', '42', '46', '62', '64', '214']) expect(policy.ignored.has(rNo)).toBe(true);
+    for (const rNo of ['2', '4', '24', '26', '37', '40', '41', '42', '46', '62', '64', '214'])
+      expect(policy.ignored.has(rNo)).toBe(true);
   });
 
   it('방어 특성은 대상 종류에 맞는 것만 남긴다 (일반 곡예, 보스 방탄, 히어로 위기회피, 2 포함)', () => {
@@ -23,8 +24,29 @@ describe('체력은 전부 빼고 계산: 체력을 올리는 얼티밋은 무�
     const { masteryTraits } = await import('@/calc/sources/masteryRuneBuff/mastery');
     const traits = masteryTraits(loadTestTables().Mastery);
     const policy = traitPolicyFor('stage', traits);
-    const hpUltimates = traits.filter((trait) => trait.ultimate && policy.ignored.has(trait.rNo) && /(^|_)hp(_|$)/i.test(trait.statName)).map((trait) => trait.rNo);
-    expect([...hpUltimates].sort()).toEqual(['1000', '1001', '1002', '1004', '1009', '1011', '1012', '1013', '1014', '1019', '1021', '1023', '1024', '1025', '1026', '3020'].sort());
+    const hpUltimates = traits
+      .filter((trait) => trait.ultimate && policy.ignored.has(trait.rNo) && /(^|_)hp(_|$)/i.test(trait.statName))
+      .map((trait) => trait.rNo);
+    expect([...hpUltimates].sort()).toEqual(
+      [
+        '1000',
+        '1001',
+        '1002',
+        '1004',
+        '1009',
+        '1011',
+        '1012',
+        '1013',
+        '1014',
+        '1019',
+        '1021',
+        '1023',
+        '1024',
+        '1025',
+        '1026',
+        '3020',
+      ].sort(),
+    );
   });
 });
 
@@ -73,7 +95,11 @@ describe('전투 특화 히어로 공격력 얼티밋', () => {
 
 describe('펫 속성 지배자', () => {
   it('장착 펫이 가장 많은 속성 것만 남기고, 같은 수면 모두, 펫이 없으면 모두 뺀다', () => {
-    const water = traitPolicyFor('stage', [], { attributes: [], genders: [], petCounts: { Water: 3, Fire: 2, Earth: 1 } });
+    const water = traitPolicyFor('stage', [], {
+      attributes: [],
+      genders: [],
+      petCounts: { Water: 3, Fire: 2, Earth: 1 },
+    });
     for (const rNo of ['1005', '1007', '1030', '1032']) expect(water.ignored.has(rNo), rNo).toBe(true);
     for (const rNo of ['1006', '1031']) expect(water.ignored.has(rNo), rNo).toBe(false);
     const tie = traitPolicyFor('stage', [], { attributes: [], genders: [], petCounts: { Water: 2, Fire: 2 } });

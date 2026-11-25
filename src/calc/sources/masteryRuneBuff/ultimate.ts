@@ -168,9 +168,9 @@ export function ultimateComputable(statName: string): boolean {
   if (kind === 'pow') {
     return Boolean(
       ULTIMATE_HERO_ATTRIBUTE_COUNT_KEYS[countKey] ||
-        ULTIMATE_GENDER_COUNT_KEYS[countKey] ||
-        ULTIMATE_PET_COUNT_KEYS[countKey] ||
-        ULTIMATE_SKILL_COUNT_KEYS[countKey],
+      ULTIMATE_GENDER_COUNT_KEYS[countKey] ||
+      ULTIMATE_PET_COUNT_KEYS[countKey] ||
+      ULTIMATE_SKILL_COUNT_KEYS[countKey],
     );
   }
   return (
@@ -305,25 +305,41 @@ export function ultimateLines(
       // 두 히어로가 장착한 전용 무기 초월 ★ 합이 문턱 이상일 때만
       const starSum = context.weaponStarSum ?? 0;
       if (starSum >= ULTIMATE_WEAPON_STAR_SUM_THRESHOLDS[countKey]) {
-        result.lines.push({ source: sourceLabel('calc.ultimate.weaponStarSource', { name, count: starSum }), stat, value });
+        result.lines.push({
+          source: sourceLabel('calc.ultimate.weaponStarSource', { name, count: starSum }),
+          stat,
+          value,
+        });
       }
     } else if (ULTIMATE_SAME_GRADE_ALCHEMY_THRESHOLDS[countKey] !== undefined) {
       // 같은 등급 연성장비가 문턱 개수 이상일 때만
       const sameGrade = context.alchemySameGradeCount ?? 0;
       if (sameGrade >= ULTIMATE_SAME_GRADE_ALCHEMY_THRESHOLDS[countKey]) {
-        result.lines.push({ source: sourceLabel('calc.ultimate.alchemySameGradeSource', { name, count: sameGrade }), stat, value });
+        result.lines.push({
+          source: sourceLabel('calc.ultimate.alchemySameGradeSource', { name, count: sameGrade }),
+          stat,
+          value,
+        });
       }
     } else if (ULTIMATE_COUNT_FIELDS[countKey] !== undefined) {
       // 개수 × 값 %: 전용 무기 SSS 옵션 수 · SSS 배지 수 (입력칸)
       const count = Math.max(Number(values[ULTIMATE_COUNT_FIELDS[countKey]]) || 0, 0);
       if (count) {
-        result.lines.push({ source: sourceLabel('calc.ultimate.countSource', { name, count }), stat, value: value * count });
+        result.lines.push({
+          source: sourceLabel('calc.ultimate.countSource', { name, count }),
+          stat,
+          value: value * count,
+        });
       }
     } else if (countKey === ULTIMATE_HERO_SWAP_KEY) {
       // 교체 등장 후 20초간: 켜진 시간 비율만큼의 평균 (줄 하나 = × (1 + 값 × 비율 / 100))
       const uptime = context.swapUptimePercent ?? 0;
       if (uptime > 0) {
-        result.lines.push({ source: sourceLabel('calc.ultimate.heroSwapSource', { name, percent: uptime }), stat, value: (value * uptime) / 100 });
+        result.lines.push({
+          source: sourceLabel('calc.ultimate.heroSwapSource', { name, percent: uptime }),
+          stat,
+          value: (value * uptime) / 100,
+        });
       }
     } else if (context.targetUnit === ULTIMATE_TARGET_UNIT_KEYS[countKey]) {
       // 전투 특화 히어로 스탯: 계산하는 히어로 (1슬롯) 의 전투 특화가 같을 때만

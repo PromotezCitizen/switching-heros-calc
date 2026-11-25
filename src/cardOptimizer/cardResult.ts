@@ -31,6 +31,16 @@ export function fixedCardIdsOf(text: string | undefined): string[] {
 }
 
 /** 마크까지 끝난 편성 → 저장 결과 */
-export function storedCardResult(loadout: Loadout, before: number, after: number, lockedGroups?: LockedMarkGroup[]): StoredCardResult {
-  return { cards: loadout.map((entry) => ({ cardId: entry.card.cardId, picks: entry.picks })), before, after, lockedGroups };
+export function storedCardResult(
+  loadout: Loadout,
+  before: number,
+  after: number,
+  lockedGroups?: LockedMarkGroup[],
+): StoredCardResult {
+  return {
+    cards: loadout.map((entry) => ({ cardId: entry.card.cardId, picks: entry.picks })),
+    before,
+    after,
+    lockedGroups,
+  };
 }

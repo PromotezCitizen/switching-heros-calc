@@ -44,7 +44,12 @@ describe('조건부 스킬 데미지 얼티밋이 스킬 대미지에 들어간�
     const withTrait = parts({ ...BASE, mastery_2004: ON });
     const gains = withTrait
       .filter((part) => part.kind !== 'normal')
-      .map((part) => part.damagePerCastLog - baseParts.find((candidate) => candidate.kind === part.kind && candidate.skillId === part.skillId)!.damagePerCastLog);
+      .map(
+        (part) =>
+          part.damagePerCastLog -
+          baseParts.find((candidate) => candidate.kind === part.kind && candidate.skillId === part.skillId)!
+            .damagePerCastLog,
+      );
     expect(gains.length).toBeGreaterThan(0);
     for (const gain of gains) expect(gain).toBeCloseTo(gains[0], 8);
   });
@@ -54,7 +59,11 @@ describe('조건부 스킬 데미지 얼티밋이 스킬 대미지에 들어간�
     const bothWater = attributes.has(BASE.charName) && attributes.has(BASE.charName2);
     const withSameAttribute = parts({ ...BASE, mastery_2006: ON });
     const gained = withSameAttribute.some(
-      (part) => part.kind !== 'normal' && part.damagePerCastLog > baseParts.find((candidate) => candidate.kind === part.kind && candidate.skillId === part.skillId)!.damagePerCastLog,
+      (part) =>
+        part.kind !== 'normal' &&
+        part.damagePerCastLog >
+          baseParts.find((candidate) => candidate.kind === part.kind && candidate.skillId === part.skillId)!
+            .damagePerCastLog,
     );
     // 에이카 · 린은 둘 다 물속성이므로 켜면 올라간다. 편성이 다르면 (조건 불만족) 오르지 않는다
     expect(gained).toBe(bothWater);

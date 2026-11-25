@@ -36,7 +36,8 @@ const HEX_HEIGHT = 2 * HEX_RADIUS_Y + RUNE_CARD_HEIGHT;
 
 /** 룬 아이콘: 속성 룬 슬롯 0~5 = ICON_rune1~6, 코어 = ICON_center_rune */
 function runeIconPath(rune: AttributeRune): string {
-  const name = rune.key === CORE_RUNE_KEY ? CORE_RUNE_ICON : RUNE_ICON_PREFIX + (Number(rune.key) + RUNE_ICON_SLOT_OFFSET);
+  const name =
+    rune.key === CORE_RUNE_KEY ? CORE_RUNE_ICON : RUNE_ICON_PREFIX + (Number(rune.key) + RUNE_ICON_SLOT_OFFSET);
   return `${import.meta.env.BASE_URL}icons/Atlas_AttributeRune/${name}.png`;
 }
 
@@ -84,7 +85,9 @@ function RuneCard({ rune, values, setValue, descriptions }: RuneCardProps) {
         </Text>
       </Group>
       <Text size="xs" mt="xs">
-        {value ? translate('calc.rune.effect', { value: formatLog(Math.log10(value)) }) : translate('calc.rune.notLearned')}
+        {value
+          ? translate('calc.rune.effect', { value: formatLog(Math.log10(value)) })
+          : translate('calc.rune.notLearned')}
       </Text>
     </Card>
   );
@@ -104,7 +107,9 @@ export default function RunePanel({ values, setValue, tables, descriptions }: Ta
   const core = runes.find((rune) => rune.key === CORE_RUNE_KEY);
   const around = runes.filter((rune) => rune.key !== CORE_RUNE_KEY);
   const hexagon = width >= HEX_WIDTH;
-  const card = (rune: AttributeRune) => <RuneCard key={rune.key} rune={rune} values={values} setValue={setValue} descriptions={descriptions} />;
+  const card = (rune: AttributeRune) => (
+    <RuneCard key={rune.key} rune={rune} values={values} setValue={setValue} descriptions={descriptions} />
+  );
 
   return (
     <Stack gap="xs">
@@ -112,11 +117,13 @@ export default function RunePanel({ values, setValue, tables, descriptions }: Ta
       <Box ref={ref}>
         {hexagon ? (
           <Box pos="relative" w={HEX_WIDTH} h={HEX_HEIGHT} mx="auto">
-            {[...(core ? [{ rune: core, x: 0, y: 0 }] : []),
+            {[
+              ...(core ? [{ rune: core, x: 0, y: 0 }] : []),
               ...around.map((rune, index) => {
                 const angle = (HEX_START_DEGREES + HEX_STEP_DEGREES * index) * DEGREES_TO_RADIANS;
                 return { rune, x: RUNE_HEX_RADIUS * Math.cos(angle), y: HEX_RADIUS_Y * Math.sin(angle) };
-              })].map(({ rune, x, y }) => (
+              }),
+            ].map(({ rune, x, y }) => (
               <Box
                 key={rune.key}
                 pos="absolute"
@@ -156,7 +163,9 @@ export default function RunePanel({ values, setValue, tables, descriptions }: Ta
                 min={MIN_LEVEL}
                 allowNegative={false}
                 allowDecimal={false}
-                label={translate('calc.rune.labLevelInput', { attribute: translate(`calc.rune.labAttributes.${attribute}`) })}
+                label={translate('calc.rune.labLevelInput', {
+                  attribute: translate(`calc.rune.labAttributes.${attribute}`),
+                })}
                 value={values[runeLabField(attribute)] ?? ''}
                 onChange={(next) => setValue(runeLabField(attribute), String(next))}
               />

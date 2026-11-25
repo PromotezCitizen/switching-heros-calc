@@ -59,7 +59,9 @@ function setupValues({ equip, options = {}, perks = {} }: Setup): CalcValues {
   }
   for (const [skillId, perkTypes] of Object.entries(perks)) {
     for (const perkType of perkTypes) {
-      const row = tableRows(tables.SkillPerk).find((candidate) => candidate.skillId === skillId && candidate.perkType === perkType);
+      const row = tableRows(tables.SkillPerk).find(
+        (candidate) => candidate.skillId === skillId && candidate.perkType === perkType,
+      );
       if (!row) throw new Error(`스킬 ${skillId} 문양 ${perkType} 가 표에 없어요`);
       values[skillPerkField(skillId, row.targetLv)] = perkType;
     }
@@ -67,7 +69,8 @@ function setupValues({ equip, options = {}, perks = {} }: Setup): CalcValues {
   return values;
 }
 
-const hitsOf = (skillId: string, setup: Setup, targets = TARGETS) => swordsmanSkillHits(setupValues(setup), tables, skillId, targets);
+const hitsOf = (skillId: string, setup: Setup, targets = TARGETS) =>
+  swordsmanSkillHits(setupValues(setup), tables, skillId, targets);
 
 describe('검사 스킬 적중 수 (옵션 · 문양 없음, 맞는 적 3마리)', () => {
   it('기습 · 십자 베기: 판정 1번 × 적 수', () => {
@@ -89,7 +92,10 @@ describe('검사 스킬 적중 수 (옵션 · 문양 없음, 맞는 적 3마리)
     // 세로 베기가 장착되어 있지 않으면 옵션이 있어도 늘지 않는다
     expect(hitsOf('3', { equip: ['3'], options: { '3': ['301'] } }).hits).toBe(TARGETS);
     const verticalChance = runeValue('4', '401') >= 100 ? 1 : 0;
-    expect(hitsOf('4', { equip: ['3', '4'], options: { '4': ['401'] } }).hits).toBeCloseTo(TARGETS * (1 + verticalChance), 10);
+    expect(hitsOf('4', { equip: ['3', '4'], options: { '4': ['401'] } }).hits).toBeCloseTo(
+      TARGETS * (1 + verticalChance),
+      10,
+    );
   });
 
   it('가로 · 세로 베기 문양 TakeDownSlash1: 두 스킬 동시 장착일 때만 계수 배수', () => {
@@ -112,7 +118,10 @@ describe('검사 스킬 적중 수 (옵션 · 문양 없음, 맞는 적 3마리)
     const { value1 } = skillRow('51');
     expect(hitsOf('51', { equip: ['51'] }).hits).toBe(value1 * TARGETS);
     const chance = Math.min(runeValue('51', '600'), 100) / 100;
-    expect(hitsOf('51', { equip: ['51'], options: { '51': ['600'] } }).hits).toBeCloseTo((value1 + 4 * chance) * TARGETS, 10);
+    expect(hitsOf('51', { equip: ['51'], options: { '51': ['600'] } }).hits).toBeCloseTo(
+      (value1 + 4 * chance) * TARGETS,
+      10,
+    );
   });
 
   it('회전 베기: 지속 value1, 간격 value2 → floor((지속 − 0.02) / 간격) + 1 번 × 적 수', () => {
@@ -128,7 +137,9 @@ describe('검사 스킬 적중 수 (옵션 · 문양 없음, 맞는 적 3마리)
   it('필살 난무: 판정 value1 번 × 적 수, 옵션 1000 은 횟수 추가', () => {
     const { value1 } = skillRow('55');
     expect(hitsOf('55', { equip: ['55'] }).hits).toBe(value1 * TARGETS);
-    expect(hitsOf('55', { equip: ['55'], options: { '55': ['1000'] } }).hits).toBe((value1 + Math.floor(runeValue('55', '1000'))) * TARGETS);
+    expect(hitsOf('55', { equip: ['55'], options: { '55': ['1000'] } }).hits).toBe(
+      (value1 + Math.floor(runeValue('55', '1000'))) * TARGETS,
+    );
   });
 
   it('검사가 아닌 스킬은 지원하지 않는다 (격투가 101)', () => {
@@ -141,7 +152,8 @@ describe('직업 스킬 분배: 궁수 → 검사 → 격투가 → 마법사', 
     const values = setupValues({ equip: ['201', '1', '101', '301'] });
     const jobSkillIds = skillRows(tables).map((row) => row.skillId);
     expect(jobSkillIds).toHaveLength(40);
-    for (const skillId of jobSkillIds) expect(jobSkillHits(values, tables, skillId, TARGETS).supported, skillId).toBe(true);
+    for (const skillId of jobSkillIds)
+      expect(jobSkillHits(values, tables, skillId, TARGETS).supported, skillId).toBe(true);
     expect(jobSkillHits(values, tables, '999999', TARGETS).supported).toBe(false);
   });
 });

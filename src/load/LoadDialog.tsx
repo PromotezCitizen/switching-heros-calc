@@ -68,7 +68,9 @@ export default function LoadDialog() {
         <Stack gap="md">
           <Stack gap={4}>
             <Text size="sm" c="dimmed">
-              {gameVersion ? translate('load.gameVersion', { version: gameVersion }) : translate('load.gameVersionUnknown')}
+              {gameVersion
+                ? translate('load.gameVersion', { version: gameVersion })
+                : translate('load.gameVersionUnknown')}
             </Text>
             <ImportRecordLine />
           </Stack>
@@ -83,7 +85,13 @@ export default function LoadDialog() {
               <Button variant="light" onClick={() => fileInput.current?.click()}>
                 {translate('load.import')}
               </Button>
-              <input ref={fileInput} type="file" accept={FILE_ACCEPT} hidden onChange={(event) => void onImportFile(event)} />
+              <input
+                ref={fileInput}
+                type="file"
+                accept={FILE_ACCEPT}
+                hidden
+                onChange={(event) => void onImportFile(event)}
+              />
             </Group>
             <Text size="xs" c="dimmed">
               {translate('load.importWarning')}

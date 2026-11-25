@@ -3,7 +3,18 @@
  */
 export const DIMENSION_STONE_CONSTS = {
   /** 아티팩트 슬롯 10부위 (AlchemySlot parts, 게임 칸 순서). 강화 비용은 10부위가 같다 */
-  PARTS: ['Hat', 'Armor', 'Glove', 'Belt', 'Pants', 'Boots', 'Necklace', 'Ring', 'Earring', 'Cape'] as readonly string[],
+  PARTS: [
+    'Hat',
+    'Armor',
+    'Glove',
+    'Belt',
+    'Pants',
+    'Boots',
+    'Necklace',
+    'Ring',
+    'Earring',
+    'Cape',
+  ] as readonly string[],
   /** 비용을 읽는 부위 (10부위 비용이 같아서 하나만 읽는다) */
   COST_PART: 'Hat',
   /** 세트 행의 parts 값. 세트 k 단계 = 10칸의 가장 낮은 레벨이 그 행 enhCostVal (5k) 이상, 재료 없음 */

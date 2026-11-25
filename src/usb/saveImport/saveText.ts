@@ -2,7 +2,8 @@
 import { CONSTS } from '@/CONSTS';
 import { unitSuffix } from '@/calc/gameNumber';
 
-const { SAVE_TEXT_DECIMALS, SAVE_TEXT_UNIT_FROM_LOG, LOG_PER_UNIT, PERCENT_LOG_SHIFT, MULTIPLIER_LOG_DIRECT_FROM } = CONSTS.usb;
+const { SAVE_TEXT_DECIMALS, SAVE_TEXT_UNIT_FROM_LOG, LOG_PER_UNIT, PERCENT_LOG_SHIFT, MULTIPLIER_LOG_DIRECT_FROM } =
+  CONSTS.usb;
 
 /** log10(값) → 게임 표기 글 (예: 4.2 → "15.848932A") */
 export function gameTextFromLog(log: number): string {

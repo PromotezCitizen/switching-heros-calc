@@ -14,7 +14,8 @@ export type Allocation = Record<string, number>;
 /** 앞 단계 조건이 없는 첫 단계 */
 const FIRST_STEP = 1;
 
-export type RuleViolationKind = 'unknownTrait' | 'overMaxLevel' | 'userLevel' | 'previousStep' | 'ultimateGate' | 'overBudget';
+export type RuleViolationKind =
+  'unknownTrait' | 'overMaxLevel' | 'userLevel' | 'previousStep' | 'ultimateGate' | 'overBudget';
 
 export interface RuleViolation {
   kind: RuleViolationKind;
@@ -62,13 +63,24 @@ function lastStepOf(traits: MasteryTrait[], group: string): number {
 export function ultimateGateCleared(traits: MasteryTrait[], trait: MasteryTrait, allocation: Allocation): boolean {
   const lastStep = lastStepOf(traits, trait.group);
   return traits.some(
-    (other) => !other.ultimate && other.group === trait.group && other.step === lastStep && levelOf(allocation, other) >= other.maxLevel,
+    (other) =>
+      !other.ultimate &&
+      other.group === trait.group &&
+      other.step === lastStep &&
+      levelOf(allocation, other) >= other.maxLevel,
   );
 }
 
-export function isUnlocked(traits: MasteryTrait[], trait: MasteryTrait, allocation: Allocation, userLevel: number): boolean {
+export function isUnlocked(
+  traits: MasteryTrait[],
+  trait: MasteryTrait,
+  allocation: Allocation,
+  userLevel: number,
+): boolean {
   if (userLevel < trait.unlockLevel) return false;
-  return trait.ultimate ? ultimateGateCleared(traits, trait, allocation) : previousStepCleared(traits, trait, allocation);
+  return trait.ultimate
+    ? ultimateGateCleared(traits, trait, allocation)
+    : previousStepCleared(traits, trait, allocation);
 }
 
 /** 배분이 규칙을 어기는 곳 전부. 비어 있으면 올바른 배분. 레벨 0 인 특성은 해금 여부와 상관없다 */
@@ -88,8 +100,10 @@ export function validateAllocation(
     if (level <= 0) continue;
     if (level > trait.maxLevel) violations.push({ kind: 'overMaxLevel', rNo: trait.rNo });
     if (userLevel < trait.unlockLevel) violations.push({ kind: 'userLevel', rNo: trait.rNo });
-    if (!trait.ultimate && !previousStepCleared(traits, trait, allocation)) violations.push({ kind: 'previousStep', rNo: trait.rNo });
-    if (trait.ultimate && !ultimateGateCleared(traits, trait, allocation)) violations.push({ kind: 'ultimateGate', rNo: trait.rNo });
+    if (!trait.ultimate && !previousStepCleared(traits, trait, allocation))
+      violations.push({ kind: 'previousStep', rNo: trait.rNo });
+    if (trait.ultimate && !ultimateGateCleared(traits, trait, allocation))
+      violations.push({ kind: 'ultimateGate', rNo: trait.rNo });
   }
   if (usedPoints(traits, allocation) > budget) violations.push({ kind: 'overBudget', rNo: null });
   return violations;

@@ -4,15 +4,8 @@ import { ActionIcon, Box, Button, Group, Image, Modal, SimpleGrid, Stack, Text, 
 import { CONSTS } from '@/CONSTS';
 import type { TableRow } from '@/data/statTables';
 
-const {
-  ATTRIBUTES,
-  JOBS,
-  ATTRIBUTE_ICONS,
-  JOB_ICONS,
-  HERO_ICON_PREFIX,
-  HERO_ICON_COSTUME_PART,
-  HERO_DEFAULT_COSTUME,
-} = CONSTS.hero;
+const { ATTRIBUTES, JOBS, ATTRIBUTE_ICONS, JOB_ICONS, HERO_ICON_PREFIX, HERO_ICON_COSTUME_PART, HERO_DEFAULT_COSTUME } =
+  CONSTS.hero;
 const {
   PICKER_BUTTON_IMAGE_SIZE,
   PICKER_OPTION_IMAGE_SIZE,
@@ -38,7 +31,11 @@ export function HeroImage({ hero, size }: { hero: TableRow | undefined; size: nu
       <Box
         w={size}
         h={size}
-        style={{ border: '1px dashed var(--mantine-color-dimmed)', borderRadius: 'var(--mantine-radius-sm)', flexShrink: 0 }}
+        style={{
+          border: '1px dashed var(--mantine-color-dimmed)',
+          borderRadius: 'var(--mantine-radius-sm)',
+          flexShrink: 0,
+        }}
         aria-hidden
       />
     );
@@ -53,7 +50,13 @@ export function HeroTypeIcons({ hero }: { hero: TableRow }) {
   const jobName = translate(`calc.hero.jobs.${hero.job}`, { defaultValue: hero.job });
   return (
     <Group gap={2} wrap="nowrap" component="span">
-      <Image src={iconUrl(ATTRIBUTE_ICONS[hero.attribute])} w={TYPE_ICON_SIZE} h={TYPE_ICON_SIZE} alt={attributeName} title={attributeName} />
+      <Image
+        src={iconUrl(ATTRIBUTE_ICONS[hero.attribute])}
+        w={TYPE_ICON_SIZE}
+        h={TYPE_ICON_SIZE}
+        alt={attributeName}
+        title={attributeName}
+      />
       <Image src={iconUrl(JOB_ICONS[hero.job])} w={TYPE_ICON_SIZE} h={TYPE_ICON_SIZE} alt={jobName} title={jobName} />
     </Group>
   );
@@ -139,12 +142,18 @@ export default function HeroPicker({ fieldId, value, picked, listHeroes, onPick 
         <Group gap="xs" wrap="nowrap">
           <HeroImage hero={picked} size={PICKER_BUTTON_IMAGE_SIZE} />
           <Stack gap={0}>
-            <Text size="xs" c="dimmed">{slotName}</Text>
-            <Text size="sm" fw={600}>{picked ? picked.name : translate('calc.hero.pickEmpty')}</Text>
+            <Text size="xs" c="dimmed">
+              {slotName}
+            </Text>
+            <Text size="sm" fw={600}>
+              {picked ? picked.name : translate('calc.hero.pickEmpty')}
+            </Text>
             {picked && (
               <Group gap={4} wrap="nowrap">
                 <HeroTypeIcons hero={picked} />
-                <Text size="xs" c="dimmed">{translate('calc.hero.gender', { gender: picked.gender })}</Text>
+                <Text size="xs" c="dimmed">
+                  {translate('calc.hero.gender', { gender: picked.gender })}
+                </Text>
               </Group>
             )}
           </Stack>
@@ -174,7 +183,13 @@ export default function HeroPicker({ fieldId, value, picked, listHeroes, onPick 
               value={attributeFilter}
               onChange={setAttributeFilter}
             />
-            <FilterButtons keys={JOBS} icons={JOB_ICONS} namePrefix="calc.hero.jobs" value={jobFilter} onChange={setJobFilter} />
+            <FilterButtons
+              keys={JOBS}
+              icons={JOB_ICONS}
+              namePrefix="calc.hero.jobs"
+              value={jobFilter}
+              onChange={setJobFilter}
+            />
           </Group>
           <SimpleGrid cols={PICKER_GRID_COLUMNS} spacing={4}>
             <UnstyledButton
@@ -200,14 +215,18 @@ export default function HeroPicker({ fieldId, value, picked, listHeroes, onPick 
               >
                 <Stack gap={0} align="center">
                   <HeroImage hero={hero} size={PICKER_OPTION_IMAGE_SIZE} />
-                  <Text size="xs" ta="center">{hero.name}</Text>
+                  <Text size="xs" ta="center">
+                    {hero.name}
+                  </Text>
                   <HeroTypeIcons hero={hero} />
                 </Stack>
               </UnstyledButton>
             ))}
           </SimpleGrid>
           {!shown.length && (
-            <Text size="sm" c="dimmed">{translate('calc.hero.filter.noMatch')}</Text>
+            <Text size="sm" c="dimmed">
+              {translate('calc.hero.filter.noMatch')}
+            </Text>
           )}
         </Stack>
       </Modal>

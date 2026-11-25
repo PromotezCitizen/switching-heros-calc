@@ -117,9 +117,10 @@ export function offlineEfficiency(inputs: HuntingInputs, alwaysAd = false): numb
   const packageOn = inputs.offlinePackageOn;
   const kills = offline.BASE_KILLS + (packageOn ? offline.PACKAGE.kills : 0);
   const timeSeconds = vip.timeSeconds - (packageOn ? offline.PACKAGE.timeSeconds : 0);
-  const adMultiplier = inputs.adOn || alwaysAd
-    ? 1 + (offline.AD_BASE_PERCENT + vip.adPercent + (packageOn ? offline.PACKAGE.adPercent : 0)) / PERCENT_DIVISOR
-    : 1;
+  const adMultiplier =
+    inputs.adOn || alwaysAd
+      ? 1 + (offline.AD_BASE_PERCENT + vip.adPercent + (packageOn ? offline.PACKAGE.adPercent : 0)) / PERCENT_DIVISOR
+      : 1;
   return (kills / timeSeconds) * adMultiplier;
 }
 
@@ -157,8 +158,16 @@ export interface FloorScanRow {
   required: Record<Resource, number>;
 }
 
-const { WALL_STEP, CUT_KILLS, MAX_ROWS, LUNCHBOX_MINUTES, MAX_SHOWN_DAYS, MAX_SHOWN_LUNCHBOXES, MINUTES_PER_HOUR, HOURS_PER_DAY } =
-  CONSTS.hunting;
+const {
+  WALL_STEP,
+  CUT_KILLS,
+  MAX_ROWS,
+  LUNCHBOX_MINUTES,
+  MAX_SHOWN_DAYS,
+  MAX_SHOWN_LUNCHBOXES,
+  MINUTES_PER_HOUR,
+  HOURS_PER_DAY,
+} = CONSTS.hunting;
 
 /**
  * 오프라인 층부터 아래로: 현재 층 (25n+1 이 아니면), 그리고 25층 구간마다 벽 직후 · 벽 · 벽 직전 (floor-calc 와 같은 목록)
@@ -177,7 +186,11 @@ export function wallFloors(offlineFloor: number): { floor: number; kind: FloorKi
 /**
  * 벽 목록 층마다 필요 분당 처치 수. 경험치 필요 수가 max(내 처치 수, CUT_KILLS) 를 넘는 층까지 넣고 끊는다 (그 아래는 오프라인이 낫다)
  */
-export function floorRows(inputs: HuntingInputs, rewards: StageRewards, myKills: number): { rows: FloorScanRow[]; cut: boolean } {
+export function floorRows(
+  inputs: HuntingInputs,
+  rewards: StageRewards,
+  myKills: number,
+): { rows: FloorScanRow[]; cut: boolean } {
   const rows: FloorScanRow[] = [];
   for (const { floor, kind } of wallFloors(inputs.offlineFloor)) {
     if (rows.length >= MAX_ROWS) break;
@@ -196,7 +209,9 @@ export function expPerMinuteLog(inputs: HuntingInputs, rewards: StageRewards, fl
   return {
     online: Math.log10(myKills) + reward + Math.log10(1 + onlineBonusPercent(inputs, 'exp') / PERCENT_DIVISOR),
     offline:
-      Math.log10(offlineEfficiency(inputs) * SECONDS_PER_MINUTE) + reward + Math.log10(1 + offlineBonusPercent(inputs, 'exp') / PERCENT_DIVISOR),
+      Math.log10(offlineEfficiency(inputs) * SECONDS_PER_MINUTE) +
+      reward +
+      Math.log10(1 + offlineBonusPercent(inputs, 'exp') / PERCENT_DIVISOR),
   };
 }
 
@@ -213,7 +228,11 @@ export function lunchboxExpPerMinuteLog(inputs: HuntingInputs, rewards: StageRew
 }
 
 /** 목표까지 도시락 개수 (중급 1시간). 상한을 넘으면 over */
-export function lunchboxCount(targetLog: number, inputs: HuntingInputs, rewards: StageRewards): { count: number; over: boolean } {
+export function lunchboxCount(
+  targetLog: number,
+  inputs: HuntingInputs,
+  rewards: StageRewards,
+): { count: number; over: boolean } {
   const count = Math.ceil(Math.pow(10, targetLog - lunchboxExpPerMinuteLog(inputs, rewards)) / LUNCHBOX_MINUTES);
   return count > MAX_SHOWN_LUNCHBOXES ? { count: MAX_SHOWN_LUNCHBOXES, over: true } : { count, over: false };
 }

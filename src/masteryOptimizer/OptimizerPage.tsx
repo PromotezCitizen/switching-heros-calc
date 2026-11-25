@@ -69,7 +69,8 @@ export default function OptimizerPage() {
   const batch = useBatchRecommendation();
 
   // 계산에는 계산식 확인기 칸 (접두사 뗀 것) 과 VIP 레벨을 넘긴다 (src/dpm 이 읽는 형태)
-  const chosenTarget: DamageTarget = DAMAGE_TARGETS.find((candidate) => candidate === storeValues[TARGET_KEY]) ?? DAMAGE_TARGETS[0];
+  const chosenTarget: DamageTarget =
+    DAMAGE_TARGETS.find((candidate) => candidate === storeValues[TARGET_KEY]) ?? DAMAGE_TARGETS[0];
   // 게임 조건이 같은 대상끼리는 한 번만 계산한다 (묶음 앞 대상으로 계산 · 저장, targetBundles.ts)
   const target = bundleTarget(chosenTarget);
   // 특성 추천은 더 크게 묶어 계산 · 저장한다 (보스끼리 · 히어로끼리 하나, MASTERY_BUNDLES). 카드 추천은 target 그대로
@@ -84,23 +85,32 @@ export default function OptimizerPage() {
       }
       const options = [...merged].map(([value, labels]) => ({ value, label: labels.join(TARGET_LABEL_JOINER) }));
       // 특성 추천을 같이 쓰는 버튼이 여러 개인 줄 (보스 · 히어로, MASTERY_BUNDLES) 에 설명
-      const sharesMastery = options.length > 1 && new Set(options.map((option) => masteryBundleTarget(option.value))).size === 1;
+      const sharesMastery =
+        options.length > 1 && new Set(options.map((option) => masteryBundleTarget(option.value))).size === 1;
       return {
         label: translate(`optimizer.targetGroups.${unit}`),
         options,
-        hint: sharesMastery ? translate(`optimizer.sharedMasteryHint.${unit}`, { defaultValue: '' }) || undefined : undefined,
+        hint: sharesMastery
+          ? translate(`optimizer.sharedMasteryHint.${unit}`, { defaultValue: '' }) || undefined
+          : undefined,
       };
     });
   }, [translate]);
   // 최적화 대상의 콘텐츠 프리셋 칸으로 바꿔 계산한다 (저장 가져오기가 남긴 프리셋별 칸, contentPresets.ts. 정보가 없으면 지금 칸 그대로)
   const calcValues = useMemo(
     (): CalcValues =>
-      valuesForTarget({ ...calcValuesOf(storeValues), [ACCOUNT_KEYS.vipLevel]: storeValues[ACCOUNT_KEYS.vipLevel] ?? '' }, target),
+      valuesForTarget(
+        { ...calcValuesOf(storeValues), [ACCOUNT_KEYS.vipLevel]: storeValues[ACCOUNT_KEYS.vipLevel] ?? '' },
+        target,
+      ),
     [storeValues, target],
   );
   const masteryCalcValues = useMemo(
     (): CalcValues =>
-      valuesForTarget({ ...calcValuesOf(storeValues), [ACCOUNT_KEYS.vipLevel]: storeValues[ACCOUNT_KEYS.vipLevel] ?? '' }, masteryTarget),
+      valuesForTarget(
+        { ...calcValuesOf(storeValues), [ACCOUNT_KEYS.vipLevel]: storeValues[ACCOUNT_KEYS.vipLevel] ?? '' },
+        masteryTarget,
+      ),
     [storeValues, masteryTarget],
   );
   const autoSwap = storeValues[AUTO_SWAP_KEY] !== 'false';
@@ -125,10 +135,16 @@ export default function OptimizerPage() {
       },
     };
   }, [storeValues, monsterHp, userLevel, vipLevel, target, autoSwap]);
-  const masteryInputs = useMemo((): OptimizerInputs | null => (inputs ? { ...inputs, target: masteryTarget } : null), [inputs, masteryTarget]);
+  const masteryInputs = useMemo(
+    (): OptimizerInputs | null => (inputs ? { ...inputs, target: masteryTarget } : null),
+    [inputs, masteryTarget],
+  );
 
   const snapshot = useMemo(
-    () => (tables.status === 'ready' && masteryInputs ? optimizerSnapshot(masteryCalcValues, tables.data, masteryInputs) : null),
+    () =>
+      tables.status === 'ready' && masteryInputs
+        ? optimizerSnapshot(masteryCalcValues, tables.data, masteryInputs)
+        : null,
     [masteryCalcValues, tables, masteryInputs],
   );
   const traits = useMemo(() => (tables.status === 'ready' ? masteryTraits(tables.data.Mastery) : []), [tables]);
@@ -143,14 +159,21 @@ export default function OptimizerPage() {
       key === CONDITION_STATS_KEY
         ? skillId
             .split(',')
-            .map((stat) => (descriptions.status === 'ready' && statDescription(descriptions.data, stat) ? statLabel(descriptions.data, stat) : stat))
+            .map((stat) =>
+              descriptions.status === 'ready' && statDescription(descriptions.data, stat)
+                ? statLabel(descriptions.data, stat)
+                : stat,
+            )
             .join(', ')
         : (skillNames.get(skillId) ?? skillId);
     return translate(`optimizer.missing.${key}`, { skill, defaultValue: translate('optimizer.missing.unknown') });
   };
   /* 직업 스킬 번호 → 이름 (내역 표에 번호 대신 이름을 보여 준다. 전용 스킬은 히어로마다 하나라 이름을 붙이지 않음) */
   const skillNames = useMemo(
-    () => new Map<string, string>(tables.status === 'ready' ? skillRows(tables.data).map((row) => [row.skillId, row.name]) : []),
+    () =>
+      new Map<string, string>(
+        tables.status === 'ready' ? skillRows(tables.data).map((row) => [row.skillId, row.name]) : [],
+      ),
     [tables],
   );
   const { state: recommendState } = recommendation;
@@ -171,7 +194,11 @@ export default function OptimizerPage() {
   const runKeyRef = useRef(resultKey);
   useEffect(() => {
     if (!done) return;
-    const stored: StoredMasteryResult = { allocation: done.allocation, baseEfficiency: done.baseEfficiency, efficiency: done.efficiency };
+    const stored: StoredMasteryResult = {
+      allocation: done.allocation,
+      baseEfficiency: done.baseEfficiency,
+      efficiency: done.efficiency,
+    };
     useCalcStore.getState().setValue(runKeyRef.current, JSON.stringify(stored));
   }, [done]);
   // 보여 주는 결과: 지금 대상과 자동 교체 상태의 저장된 결과 (바꿔도 그 조합의 마지막 결과가 그대로 보인다)
@@ -220,11 +247,18 @@ export default function OptimizerPage() {
       </Paper>
 
       <Paper withBorder p="md">
-        <Title order={3} mb="sm">{translate('optimizer.targetTitle')}</Title>
+        <Title order={3} mb="sm">
+          {translate('optimizer.targetTitle')}
+        </Title>
         <Stack gap="sm">
           {/* 칸 이름은 위 제목 ("최적화 대상") 이 대신한다 */}
           <GroupedSelectField storeKey={TARGET_KEY} groups={targetGroups} disabled={locked} />
-          <FlagField storeKey={AUTO_SWAP_KEY} label={translate('optimizer.autoSwap')} defaultChecked disabled={locked} />
+          <FlagField
+            storeKey={AUTO_SWAP_KEY}
+            label={translate('optimizer.autoSwap')}
+            defaultChecked
+            disabled={locked}
+          />
           {locked && (
             <Text size="sm" c="dimmed">
               {translate('optimizer.lockedWhileRunning')}
@@ -235,7 +269,10 @@ export default function OptimizerPage() {
             {translate('optimizer.settingsSummary', {
               level: userLevel > 0 ? formatCount(userLevel) : '-',
               targets: readNumber(storeValues, TARGETS_PER_SKILL_KEY, DEFAULT_TARGETS_PER_SKILL),
-              floor: readNumber(storeValues, STAGE_FLOOR_KEY) > 0 ? formatCount(readNumber(storeValues, STAGE_FLOOR_KEY)) : '-',
+              floor:
+                readNumber(storeValues, STAGE_FLOOR_KEY) > 0
+                  ? formatCount(readNumber(storeValues, STAGE_FLOOR_KEY))
+                  : '-',
             })}
           </Text>
         </Stack>
@@ -243,7 +280,9 @@ export default function OptimizerPage() {
 
       {/* 일괄 계산: 몇 분 걸리는 계산을 시작하는 버튼이라 대상 고르기 바로 아래 */}
       <Paper withBorder p="md">
-        <Title order={3} mb="sm">{translate('optimizer.batch.title')}</Title>
+        <Title order={3} mb="sm">
+          {translate('optimizer.batch.title')}
+        </Title>
         <Stack gap="sm">
           {/* 일괄 계산: 특성 묶음 (2개씩) → 카드 묶음 (3개씩), 끝나는 대상마다 저장 (batchRecommend.ts). 특성만 · 카드만 버튼은 그 단계만 */}
           <Group>
@@ -253,8 +292,22 @@ export default function OptimizerPage() {
                 <Button
                   key={parts}
                   variant={runningThis ? 'default' : 'light'}
-                  onClick={runningThis ? batch.stop : () => tables.status === 'ready' && batch.start(tables.data, monsterHp.status === 'ready' ? monsterHp.data : null, parts)}
-                  disabled={!runningThis && (batch.running || tables.status !== 'ready' || monsterHp.status === 'loading' || userLevel <= 0 || running || cardRunning)}
+                  onClick={
+                    runningThis
+                      ? batch.stop
+                      : () =>
+                          tables.status === 'ready' &&
+                          batch.start(tables.data, monsterHp.status === 'ready' ? monsterHp.data : null, parts)
+                  }
+                  disabled={
+                    !runningThis &&
+                    (batch.running ||
+                      tables.status !== 'ready' ||
+                      monsterHp.status === 'loading' ||
+                      userLevel <= 0 ||
+                      running ||
+                      cardRunning)
+                  }
                 >
                   {translate(runningThis ? 'optimizer.batch.stop' : `optimizer.batch.start.${parts}`)}
                 </Button>
@@ -262,21 +315,37 @@ export default function OptimizerPage() {
             })}
           </Group>
           <Text size="sm" c="dimmed">
-            {translate('optimizer.batch.help', { mastery: BATCH_MASTERY_TARGETS.length, cards: BATCH_CARD_TARGETS.length })}
+            {translate('optimizer.batch.help', {
+              mastery: BATCH_MASTERY_TARGETS.length,
+              cards: BATCH_CARD_TARGETS.length,
+            })}
           </Text>
           {batch.progress && (
             <Text size="sm">
-              {translate(`optimizer.batch.${batch.progress.phase === 'done' ? 'done' : 'running'}.${batch.progress.parts}`, {
-                masteryDone: batch.progress.masteryDone,
-                mastery: BATCH_MASTERY_TARGETS.length,
-                cardsDone: batch.progress.cardsDone,
-                cards: BATCH_CARD_TARGETS.length,
-                targets: batch.progress.running.map((name) => translate(`optimizer.targetGroups.${TARGETS[name].UNIT}`) + ' ' + translate(`optimizer.targets.${name}`)).join(', ') || '-',
-              })}
+              {translate(
+                `optimizer.batch.${batch.progress.phase === 'done' ? 'done' : 'running'}.${batch.progress.parts}`,
+                {
+                  masteryDone: batch.progress.masteryDone,
+                  mastery: BATCH_MASTERY_TARGETS.length,
+                  cardsDone: batch.progress.cardsDone,
+                  cards: BATCH_CARD_TARGETS.length,
+                  targets:
+                    batch.progress.running
+                      .map(
+                        (name) =>
+                          translate(`optimizer.targetGroups.${TARGETS[name].UNIT}`) +
+                          ' ' +
+                          translate(`optimizer.targets.${name}`),
+                      )
+                      .join(', ') || '-',
+                },
+              )}
             </Text>
           )}
           {batch.progress && batch.progress.failed.length > 0 && (
-            <Alert color="red">{translate('optimizer.batch.failed', { list: batch.progress.failed.join(' / ') })}</Alert>
+            <Alert color="red">
+              {translate('optimizer.batch.failed', { list: batch.progress.failed.join(' / ') })}
+            </Alert>
           )}
         </Stack>
       </Paper>
@@ -286,7 +355,9 @@ export default function OptimizerPage() {
       {snapshot && (
         <>
           <Paper withBorder p="md">
-            <Title order={3} mb="sm">{translate('optimizer.recommendTitle')}</Title>
+            <Title order={3} mb="sm">
+              {translate('optimizer.recommendTitle')}
+            </Title>
             <Text size="sm" c="dimmed" mb="sm">
               {translate('optimizer.recommendHelp')}
             </Text>
@@ -318,12 +389,12 @@ export default function OptimizerPage() {
                       damage: formatLog(recommendState.progress.efficiency),
                     })
                   : recommendState.progress
-                  ? translate('optimizer.recommendRunning', {
-                      block: formatCount(recommendState.progress.block),
-                      evaluations: formatCount(recommendState.progress.evaluations),
-                      damage: formatLog(recommendState.progress.efficiency),
-                    })
-                  : translate('optimizer.recommendStarting')}
+                    ? translate('optimizer.recommendRunning', {
+                        block: formatCount(recommendState.progress.block),
+                        evaluations: formatCount(recommendState.progress.evaluations),
+                        damage: formatLog(recommendState.progress.efficiency),
+                      })
+                    : translate('optimizer.recommendStarting')}
               </Text>
             )}
             {recommendState.status === 'failed' && (
@@ -333,39 +404,41 @@ export default function OptimizerPage() {
             )}
             {/* 계산 중에는 결과 위를 회색으로 덮고 스피너 (멈추기 버튼 · 진행 문구는 덮개 밖) */}
             <Box pos="relative" mt="sm" mih={running ? LOADING_MIN_HEIGHT : undefined}>
-            {/* 특성 화면의 고정 열 제목 (스탯 · 스킬 · 히어로) 보다 위, 앱 상단 고정 줄보다 아래 */}
-            <LoadingOverlay visible={running} zIndex={CONSTS.masteryRuneBuff.PANEL.COLUMN_HEADER_Z_INDEX + 1} />
-            {shown && (
-              <Stack gap="xs">
-                <Text fw={600}>
-                  {translate('optimizer.recommendDone', {
-                    before: formatLog(shown.baseEfficiency ?? snapshot.efficiency),
-                    after: formatLog(shown.efficiency),
-                    gain: gainText(shown.efficiency - (shown.baseEfficiency ?? snapshot.efficiency)),
-                  })}
-                </Text>
-                <Text>
-                  {translate('optimizer.recommendPoints', {
-                    used: formatCount(usedPoints(traits, shown.allocation)),
-                    total: formatCount(snapshot.totalPoints),
-                    remaining: formatCount(snapshot.totalPoints - usedPoints(traits, shown.allocation)),
-                  })}
-                </Text>
-                <Title order={4} mt="md">{translate('optimizer.treeTitle')}</Title>
-                <Text size="sm" c="dimmed">
-                  {translate('optimizer.treeHelp')}
-                </Text>
-                {recommendedValues && tables.status === 'ready' && (
-                  <MasteryPanel
-                    values={recommendedValues}
-                    setValue={IGNORE_CHANGE}
-                    readOnly
-                    tables={tables.data}
-                    descriptions={descriptions.status === 'ready' ? descriptions.data : NO_DESCRIPTIONS}
-                  />
-                )}
-              </Stack>
-            )}
+              {/* 특성 화면의 고정 열 제목 (스탯 · 스킬 · 히어로) 보다 위, 앱 상단 고정 줄보다 아래 */}
+              <LoadingOverlay visible={running} zIndex={CONSTS.masteryRuneBuff.PANEL.COLUMN_HEADER_Z_INDEX + 1} />
+              {shown && (
+                <Stack gap="xs">
+                  <Text fw={600}>
+                    {translate('optimizer.recommendDone', {
+                      before: formatLog(shown.baseEfficiency ?? snapshot.efficiency),
+                      after: formatLog(shown.efficiency),
+                      gain: gainText(shown.efficiency - (shown.baseEfficiency ?? snapshot.efficiency)),
+                    })}
+                  </Text>
+                  <Text>
+                    {translate('optimizer.recommendPoints', {
+                      used: formatCount(usedPoints(traits, shown.allocation)),
+                      total: formatCount(snapshot.totalPoints),
+                      remaining: formatCount(snapshot.totalPoints - usedPoints(traits, shown.allocation)),
+                    })}
+                  </Text>
+                  <Title order={4} mt="md">
+                    {translate('optimizer.treeTitle')}
+                  </Title>
+                  <Text size="sm" c="dimmed">
+                    {translate('optimizer.treeHelp')}
+                  </Text>
+                  {recommendedValues && tables.status === 'ready' && (
+                    <MasteryPanel
+                      values={recommendedValues}
+                      setValue={IGNORE_CHANGE}
+                      readOnly
+                      tables={tables.data}
+                      descriptions={descriptions.status === 'ready' ? descriptions.data : NO_DESCRIPTIONS}
+                    />
+                  )}
+                </Stack>
+              )}
             </Box>
           </Paper>
 
@@ -382,7 +455,9 @@ export default function OptimizerPage() {
           )}
 
           <Paper withBorder p="md">
-            <Title order={3} mb="sm">{translate('optimizer.efficiencyTitle')}</Title>
+            <Title order={3} mb="sm">
+              {translate('optimizer.efficiencyTitle')}
+            </Title>
             <Text fw={600}>{efficiencyText}</Text>
             {snapshot.result.parts.length > 0 && (
               <Table.ScrollContainer minWidth={320} mt="sm">
@@ -399,7 +474,9 @@ export default function OptimizerPage() {
                         <Table.Td>
                           {part.hero ? `${part.hero} ` : ''}
                           {translate(`optimizer.kind.${part.kind}`)}
-                          {part.skillId && part.kind !== 'char' && part.kind !== 'swap' ? ` ${skillNames.get(part.skillId) ?? part.skillId}` : ''}
+                          {part.skillId && part.kind !== 'char' && part.kind !== 'swap'
+                            ? ` ${skillNames.get(part.skillId) ?? part.skillId}`
+                            : ''}
                         </Table.Td>
                         <Table.Td>{formatLog(part.damagePerCastLog)}</Table.Td>
                       </Table.Tr>
@@ -421,7 +498,6 @@ export default function OptimizerPage() {
               </Stack>
             )}
           </Paper>
-
         </>
       )}
     </Stack>

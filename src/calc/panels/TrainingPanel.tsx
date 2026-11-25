@@ -36,7 +36,9 @@ export default function TrainingPanel({ values, setValue, tables, descriptions }
           value={values[TRAINING_STAGE_FIELD] ?? ''}
           onChange={(event) => setValue(TRAINING_STAGE_FIELD, event.currentTarget.value)}
         />
-        <Text size="sm" c="dimmed">{translate('calc.training.stageHelp')}</Text>
+        <Text size="sm" c="dimmed">
+          {translate('calc.training.stageHelp')}
+        </Text>
       </Stack>
 
       <Stack gap="xs">
@@ -48,7 +50,10 @@ export default function TrainingPanel({ values, setValue, tables, descriptions }
             if (stageEntered && !row) return null;
             const label =
               stageEntered && row
-                ? translate('calc.training.levelForStat', { stat: statLabel(descriptions, row.stat), max: row.maxLevel })
+                ? translate('calc.training.levelForStat', {
+                    stat: statLabel(descriptions, row.stat),
+                    max: row.maxLevel,
+                  })
                 : translate('calc.training.levelDefault', { index: trainingItemNumber(index) });
             return (
               <TextInput
@@ -64,7 +69,9 @@ export default function TrainingPanel({ values, setValue, tables, descriptions }
             );
           })}
         </Stack>
-        <Text size="sm" c="dimmed">{translate('calc.training.levelsHelp')}</Text>
+        <Text size="sm" c="dimmed">
+          {translate('calc.training.levelsHelp')}
+        </Text>
       </Stack>
     </Stack>
   );

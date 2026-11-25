@@ -25,7 +25,14 @@ import {
   relicRows,
   relicValue,
 } from '@/calc/sources/trainingRelic/relic';
-import { heroByName, numberValue, rowsOf, screenLog, unique, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
+import {
+  heroByName,
+  numberValue,
+  rowsOf,
+  screenLog,
+  unique,
+  type SourceLabel,
+} from '@/calc/sources/heroWeaponCardPet/shared';
 
 const { JOBS } = CONSTS.heroWeaponCardPet;
 const {
@@ -152,7 +159,9 @@ export function usesExclusiveWeapon(values: CalcValues, tables: StatTables): boo
 
 /** 전용 무기 초월 ★ 선택지 (WeaponChar 표의 별, 작은 것부터) */
 export function exclusiveStarChoices(tables: StatTables): string[] {
-  return unique(rowsOf(tables, 'WeaponChar').map((row) => row.star)).sort((left, right) => Number(left) - Number(right));
+  return unique(rowsOf(tables, 'WeaponChar').map((row) => row.star)).sort(
+    (left, right) => Number(left) - Number(right),
+  );
 }
 
 export interface ExclusiveWeaponEffect {
@@ -219,8 +228,7 @@ export function equipWeaponRelicMultiplier(values: CalcValues, tables: StatTable
   return relicRows(tables)
     .filter(
       (row) =>
-        row.statType.toLowerCase() === relicStat &&
-        relicGradeAllowed(grades, row.grade, values[RELIC_MAX_GRADE_FIELD]),
+        row.statType.toLowerCase() === relicStat && relicGradeAllowed(grades, row.grade, values[RELIC_MAX_GRADE_FIELD]),
     )
     .reduce((multiplier, row) => {
       const level = Math.min(integerFieldValue(values, relicLevelFieldId(row.relicId)), Number(row.maxLv));
@@ -259,7 +267,9 @@ export function exclusiveWeaponLines(values: CalcValues, tables: StatTables, lab
 
 /** 웨폰 링크 초월 입력 최대 = 표 WeaponLink 초월 행 (None) 의 가장 큰 lv (저장 transcendLv 와 같은 뜻) */
 export function linkStarMax(tables: StatTables): number {
-  const levels = rowsOf(tables, 'WeaponLink').filter((row) => row.jobType === LINK_TRANSCEND_JOB).map((row) => Number(row.lv));
+  const levels = rowsOf(tables, 'WeaponLink')
+    .filter((row) => row.jobType === LINK_TRANSCEND_JOB)
+    .map((row) => Number(row.lv));
   return levels.length ? Math.max(...levels) : 0;
 }
 
@@ -302,10 +312,19 @@ export function weaponTabLines(values: CalcValues, tables: StatTables, label: So
   // 초월 행의 "공격력 N% 증가" (화면 문구). 직업 값과 따로 전체 공격력에 들어가는지는 확인 못 함 (전에는 화면 값 칸으로 넣던 줄)
   const transcendRow = linkTranscendRow(values, tables);
   if (transcendRow && Number(transcendRow.statVal2) > 0) {
-    lines.push({ source: label('calc.weapon.sources.linkStar'), stat: transcendRow.statType2, value: Number(transcendRow.statVal2) });
+    lines.push({
+      source: label('calc.weapon.sources.linkStar'),
+      stat: transcendRow.statType2,
+      value: Number(transcendRow.statVal2),
+    });
   }
   const totalAtk = weaponTotalAtk(values, tables);
-  if (totalAtk) lines.push({ source: label('calc.weapon.sources.total'), stat: TRANSCEND_MISSION.REWARD_STAT, log: totalAtk.percentLog });
+  if (totalAtk)
+    lines.push({
+      source: label('calc.weapon.sources.total'),
+      stat: TRANSCEND_MISSION.REWARD_STAT,
+      log: totalAtk.percentLog,
+    });
   const equipLog = screenLog(values, NORMAL_EQUIP_FIELD);
   if (equipLog !== null && !usesExclusiveWeapon(values, tables)) {
     lines.push({ source: label('calc.weapon.sources.normalEquip'), stat: '_per_attackDamage', log: equipLog });
@@ -364,11 +383,23 @@ export function exclusiveWeaponIdOfHero(values: CalcValues, tables: StatTables):
  * 1슬롯 히어로 무기 옵션을 읽을 칸 이름: 무기마다 저장한 칸 (히어로 · 전용 무기 탭) 을 쓰고,
  * 그 무기 칸이 하나도 안 채워졌으면 예전 칸 (weaponOptionStat<n> · weaponOptionValue<n>, 1슬롯 무기 하나만 저장) 을 쓴다
  */
-export function heroOptionFields(values: CalcValues, tables: StatTables): { stat: (index: number) => string; value: (index: number) => string } {
+export function heroOptionFields(
+  values: CalcValues,
+  tables: StatTables,
+): { stat: (index: number) => string; value: (index: number) => string } {
   const weaponId = exclusiveWeaponIdOfHero(values, tables);
   const indexes = Array.from({ length: OPTION_ROWS }, (_, offset) => offset + 1);
-  if (weaponId && indexes.some((index) => values[exclusiveOptionStatField(weaponId, index)] || values[exclusiveOptionValueField(weaponId, index)])) {
-    return { stat: (index) => exclusiveOptionStatField(weaponId, index), value: (index) => exclusiveOptionValueField(weaponId, index) };
+  if (
+    weaponId &&
+    indexes.some(
+      (index) =>
+        values[exclusiveOptionStatField(weaponId, index)] || values[exclusiveOptionValueField(weaponId, index)],
+    )
+  ) {
+    return {
+      stat: (index) => exclusiveOptionStatField(weaponId, index),
+      value: (index) => exclusiveOptionValueField(weaponId, index),
+    };
   }
   return { stat: optionStatField, value: optionValueField };
 }
@@ -405,7 +436,8 @@ export function soulForgeLines(values: CalcValues, tables: StatTables, label: So
     const lastBonus = Number(rows[rows.length - 1].bonusValue) || 0;
     for (const row of rows) {
       const value = isSoulForgeSlotRow(row) ? lastBonus * Number(row.statValue) : Number(row.statValue);
-      if (row.statType && value) lines.push({ source: label('calc.weapon.sources.soulForge', { level }), stat: row.statType, value });
+      if (row.statType && value)
+        lines.push({ source: label('calc.weapon.sources.soulForge', { level }), stat: row.statType, value });
     }
   }
   const currentRows = soulForgeLevelRows(tables, soulForgeLevel);
@@ -417,7 +449,11 @@ export function soulForgeLines(values: CalcValues, tables: StatTables, label: So
     for (const row of activeRows) {
       const value = Number(row.statValue) * multiplier;
       if (row.statType && value) {
-        lines.push({ source: label('calc.weapon.sources.soulForgeSlot', { level: soulForgeLevel, count: activeCount }), stat: row.statType, value });
+        lines.push({
+          source: label('calc.weapon.sources.soulForgeSlot', { level: soulForgeLevel, count: activeCount }),
+          stat: row.statType,
+          value,
+        });
       }
     }
   }

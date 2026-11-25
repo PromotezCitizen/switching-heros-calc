@@ -4,8 +4,13 @@ import { CONSTS } from '@/CONSTS';
 import { FlagField, SelectField } from '@/components/StoreFields';
 import { CALC_KEY_PREFIX } from '@/calc/storeKeys';
 
-const { KILLER_ACTIVE_FIELD, NORMAL_MONSTER_FOOD_FIELD, NORMAL_MONSTER_FOODS, ATTACK_EVENT_BUFF_FIELD, ATTACK_EVENT_BUFF } =
-  CONSTS.masteryRuneBuff;
+const {
+  KILLER_ACTIVE_FIELD,
+  NORMAL_MONSTER_FOOD_FIELD,
+  NORMAL_MONSTER_FOODS,
+  ATTACK_EVENT_BUFF_FIELD,
+  ATTACK_EVENT_BUFF,
+} = CONSTS.masteryRuneBuff;
 
 /**
  * 전투 버프 입력 (학살자 발동 · 음식 효과 · 공격력 이벤트 버프). 계산식 확인기 버프 탭에 있던 칸을 공통 입력으로 옮김
@@ -28,7 +33,10 @@ export default function BattleBuffFields() {
           { value: '', label: translate('calc.buff.foodNone') },
           ...NORMAL_MONSTER_FOODS.map((food) => ({
             value: food.id,
-            label: translate('calc.buff.foodOption', { food: translate(`calc.buff.foods.${food.id}`), percent: food.percent }),
+            label: translate('calc.buff.foodOption', {
+              food: translate(`calc.buff.foods.${food.id}`),
+              percent: food.percent,
+            }),
           })),
         ]}
       />

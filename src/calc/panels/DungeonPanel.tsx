@@ -44,7 +44,9 @@ export default function DungeonPanel({ values, setValue }: TabPanelProps) {
               type="number"
               inputMode="numeric"
               min={MIN_STAGE}
-              label={translate('calc.dungeon.petRescue', { attribute: translate(`calc.relic.attributes.${attribute}`) })}
+              label={translate('calc.dungeon.petRescue', {
+                attribute: translate(`calc.relic.attributes.${attribute}`),
+              })}
               value={values[fieldId] ?? ''}
               onChange={(event) => setValue(fieldId, event.currentTarget.value)}
             />

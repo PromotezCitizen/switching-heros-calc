@@ -41,7 +41,6 @@ export default function CardPanel({ values, setValue, tables, descriptions }: Ta
   const setStates = cardSetStates(values, tables);
 
   const markGroups = useMemo(() => {
-
     const slotOf = new Map(rowsOf(tables, 'CardSet').map((row) => [row.setId, Number(row.slot)]));
 
     const shown = setStates.filter((set) => set.markCount > 0);
@@ -50,8 +49,12 @@ export default function CardPanel({ values, setValue, tables, descriptions }: Ta
 
       .sort((left, right) => left - right)
 
-      .map((mark) => ({ mark, sets: shown.filter((set) => (slotOf.get(set.setId) ?? 0) === mark).sort((left, right) => right.markCount - left.markCount) }));
-
+      .map((mark) => ({
+        mark,
+        sets: shown
+          .filter((set) => (slotOf.get(set.setId) ?? 0) === mark)
+          .sort((left, right) => right.markCount - left.markCount),
+      }));
   }, [setStates, tables]);
   const hasMarks = setStates.some((set) => set.markCount > 0);
   const slotCardsText = joinFieldValues(values, CARD_SLOT_FIELDS);
@@ -89,12 +92,19 @@ export default function CardPanel({ values, setValue, tables, descriptions }: Ta
       {markGroups.map((group) => (
         <Stack key={group.mark} gap="xs">
           <Text fw={700}>
-            {translate('optimizer.cards.markGroupTitle', { mark: group.mark, parts: group.sets.map((set) => `${setName(set.setId)} ${set.markCount}`).join(' + ') })}
+            {translate('optimizer.cards.markGroupTitle', {
+              mark: group.mark,
+              parts: group.sets.map((set) => `${setName(set.setId)} ${set.markCount}`).join(' + '),
+            })}
           </Text>
           <CardSetCards setStates={group.sets} descriptions={descriptions} />
         </Stack>
       ))}
-      {!hasMarks && <Text size="sm" c="dimmed">{translate('calc.card.setNone')}</Text>}
+      {!hasMarks && (
+        <Text size="sm" c="dimmed">
+          {translate('calc.card.setNone')}
+        </Text>
+      )}
 
       {/* 스티커 (배지): 열렸을 때만 (장착 카드에 배지 칸이 있을 때) */}
       {stickerOpen && (
@@ -104,7 +114,9 @@ export default function CardPanel({ values, setValue, tables, descriptions }: Ta
             <Text c="blue">{translate('calc.card.stickerExpand')}</Text>
           </UnstyledButton>
           <Collapse expanded={stickersOpened}>
-            <Text size="xs" c="dimmed">{translate('calc.card.stickerLevelHelp')}</Text>
+            <Text size="xs" c="dimmed">
+              {translate('calc.card.stickerLevelHelp')}
+            </Text>
             <AutoGrid minItemWidth={CARD_MIN_WIDTH.large} gap="var(--mantine-spacing-sm)">
               {stickerGroups.map((group) => (
                 <StickerRow

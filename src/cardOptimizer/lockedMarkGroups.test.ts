@@ -26,7 +26,14 @@ describe('안 열린 마크 묶음의 0 · 2 · 4 · 6장 선택', () => {
   });
 
   it('멈추면 그때까지만', () => {
-    expect(scanLockedGroups([4, 5], () => ['A'], evaluate, () => true)).toEqual([]);
+    expect(
+      scanLockedGroups(
+        [4, 5],
+        () => ['A'],
+        evaluate,
+        () => true,
+      ),
+    ).toEqual([]);
   });
 });
 

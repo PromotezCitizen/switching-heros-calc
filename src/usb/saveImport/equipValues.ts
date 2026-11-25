@@ -4,7 +4,13 @@
  */
 import { CONSTS } from '@/CONSTS';
 import { tableRows, type StatTables, type TableRow } from '@/data/statTables';
-import { groupBy, readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
+import {
+  groupBy,
+  readDictionary,
+  runSection,
+  type SaveDictionary,
+  type SaveImportResult,
+} from '@/usb/saveImport/saveDictionary';
 import { multiplierLogFromPercent, percentTextFromMultiplierLog } from '@/usb/saveImport/saveText';
 import { exclusiveOptionStatField, exclusiveOptionValueField } from '@/calc/sources/hero/rosterFields';
 
@@ -50,7 +56,9 @@ export interface EquipContext {
 /** 주사위 표 값 = min(최소 + 단계 × 단위, 최대) (게임 m6053 과 같이 statMax 에서 자름, 표에 없으면 undefined) */
 export function diceValue(rows: TableRow[], diceId: string, option: DiceOption): number | undefined {
   const grade = DICE_GRADES[option.grade - 1];
-  const row = rows.find((candidate) => candidate.diceId === diceId && candidate.statType === option.statType && candidate.grade === grade);
+  const row = rows.find(
+    (candidate) => candidate.diceId === diceId && candidate.statType === option.statType && candidate.grade === grade,
+  );
   return row ? Math.min(Number(row.statMin) + Number(row.statUnit) * option.unitLv, Number(row.statMax)) : undefined;
 }
 
@@ -78,7 +86,9 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
     values.exclusiveEquipped = String(equippedWeapon !== undefined && equippedWeapon > EXCLUSIVE_WEAPON_ID_ABOVE);
     // 2슬롯 히어로도 같은 식 (교체했을 때의 DPM 계산용)
     secondEquippedWeapon = readDictionary(equip.eqWeaponDic).get(context.slot2HeroId ?? -1);
-    values.exclusiveEquipped2 = String(secondEquippedWeapon !== undefined && secondEquippedWeapon > EXCLUSIVE_WEAPON_ID_ABOVE);
+    values.exclusiveEquipped2 = String(
+      secondEquippedWeapon !== undefined && secondEquippedWeapon > EXCLUSIVE_WEAPON_ID_ABOVE,
+    );
   });
 
   // 받은 전용 무기 초월 미션: 무기마다 받은 가장 높은 ★, 받은 보상의 공격력 % 를 곱한 합
@@ -104,12 +114,14 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
     const weaponOptionDic = readDictionary(equip.psWeaponOptionDic);
     const optionsOf = (weaponId: number | undefined) => {
       const weaponOptions = weaponId === undefined ? undefined : weaponOptionDic.get(weaponId);
-      return weaponOptions ? [...readDictionary(weaponOptions).values()][0]?.diceOptions ?? [] : [];
+      return weaponOptions ? ([...readDictionary(weaponOptions).values()][0]?.diceOptions ?? []) : [];
     };
     const sssCount = (weaponId: number | undefined) => {
       // 얼티밋 1020 · 1021: 전용 무기 (번호 ≥ 1000) 옵션 중 등급 번호 > 6 (SSS 이상) 개수 (게임 코드 m2690, sss-grade-count-2026-11-01.md)
       const isExclusive = weaponId !== undefined && weaponId >= SSS_OPTION.EXCLUSIVE_WEAPON_MIN_ID;
-      return String(isExclusive ? optionsOf(weaponId).filter((option) => option.grade > SSS_OPTION.GRADE_ABOVE).length : 0);
+      return String(
+        isExclusive ? optionsOf(weaponId).filter((option) => option.grade > SSS_OPTION.GRADE_ABOVE).length : 0,
+      );
     };
     const [firstSssField, secondSssField] = CONSTS.dpm.SWAP.SSS_OPTION_COUNT_FIELDS;
     values[firstSssField] = sssCount(equippedWeapon);
@@ -167,7 +179,7 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
       values[`petSlot${slot}`] = String(entry.petId);
       if (entry.petId === petPreset.leaderId) values.petLeader = String(slot);
       const byOption = petOptions.get(entry.petId);
-      const options = byOption ? readDictionary(byOption).get(entry.optionId)?.diceOptions ?? [] : [];
+      const options = byOption ? (readDictionary(byOption).get(entry.optionId)?.diceOptions ?? []) : [];
       options.forEach((option, optionIndex) => {
         const number = optionIndex + 1;
         values[`petOption${slot}_${number}Stat`] = option.statType;

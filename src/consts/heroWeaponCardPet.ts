@@ -88,7 +88,24 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
     /** "SSS 카드 장착 수 × n%" 줄의 등급 */
     SSS_GRADE: 'SSS',
     /** 카드 등급 순서 (표 Card 의 등급 나온 순서, 낮은 등급 먼저). "SSS 이상" 은 SSS 부터 뒤쪽 전부 */
-    GRADE_ORDER: ['B', 'A', 'S', 'SS', 'SSS', 'R', 'SR', 'SSR', 'UR', 'URP', 'UUR', 'XR', 'XRP', 'LR', 'LRP', 'IR'] as readonly string[],
+    GRADE_ORDER: [
+      'B',
+      'A',
+      'S',
+      'SS',
+      'SSS',
+      'R',
+      'SR',
+      'SSR',
+      'UR',
+      'URP',
+      'UUR',
+      'XR',
+      'XRP',
+      'LR',
+      'LRP',
+      'IR',
+    ] as readonly string[],
     /** 스탯 꼬리말: SSS 카드 장착 수만큼 곱함 */
     SSS_CARD_COUNT_SUFFIX: '_SSSMonsterCardCnt',
     /**

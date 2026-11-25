@@ -135,7 +135,11 @@ describe('25층 벽 목록 (floor-calc 와 같은 층)', () => {
   });
   it('경험치 필요 처치 수가 max(내 처치 수, 1000) 을 넘는 층에서 끊는다', () => {
     // 층 f 보상 10^f: 60층 오프라인 (분당 200) 이면 60층은 200 으로 통과, 51층은 200 × 10^9 이라 1000 을 넘어 끊김
-    const rewards: StageRewards = { count: 60, gold: Array.from({ length: 60 }, (_, i) => i + 1), ess: Array.from({ length: 60 }, (_, i) => i) };
+    const rewards: StageRewards = {
+      count: 60,
+      gold: Array.from({ length: 60 }, (_, i) => i + 1),
+      ess: Array.from({ length: 60 }, (_, i) => i),
+    };
     const { rows, cut } = floorRows(withInputs({ offlineFloor: 60 }), rewards, 800);
     expect(rows.map((row) => row.floor)).toEqual([60, 51]);
     expect(cut).toBe(true);

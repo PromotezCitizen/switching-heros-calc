@@ -9,7 +9,15 @@ import {
   type SuperCriticalStats,
 } from '@/dpm/hitMultipliers';
 
-const NO_SUPER: SuperCriticalStats = { base: 0, add: 0, over: 0, damage: 0, supremeChance: 0, supremeDamage: 0, supremeOverToDamage: 0 };
+const NO_SUPER: SuperCriticalStats = {
+  base: 0,
+  add: 0,
+  over: 0,
+  damage: 0,
+  supremeChance: 0,
+  supremeDamage: 0,
+  supremeOverToDamage: 0,
+};
 
 describe('확률', () => {
   it('100 이상이면 늘 성공 (1), 100 미만이면 0 — 비율로 섞지 않는다', () => {
@@ -55,7 +63,12 @@ describe('슈퍼 치명타 (치명 성공 뒤)', () => {
     expect(expectedSuperCritical({ ...NO_SUPER, base: 100, supremeChance: 50 }, 100)).toBe(10);
   });
   it('2단계 확률 100 초과분은 T 에 더함: supreme 120, dmgUp 2, overToDmg 10 → T = 2 + 20 × 10 / 100 = 4 → 10 × 10 × 4', () => {
-    expect(expectedSuperCritical({ ...NO_SUPER, base: 100, supremeChance: 120, supremeDamage: 2, supremeOverToDamage: 10 }, 100)).toBeCloseTo(400, 10);
+    expect(
+      expectedSuperCritical(
+        { ...NO_SUPER, base: 100, supremeChance: 120, supremeDamage: 2, supremeOverToDamage: 10 },
+        100,
+      ),
+    ).toBeCloseTo(400, 10);
   });
 });
 

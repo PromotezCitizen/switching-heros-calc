@@ -7,7 +7,12 @@ import { CONSTS } from '@/CONSTS';
 import type { StatTables } from '@/data/statTables';
 import { readFlag } from '@/store/storedValues';
 import { withoutExcludedStats, type Line } from '@/calc/combine';
-import { cardCountsByGrade, cardSlotGradeStars, countExpandedLines, sssCardCount } from '@/calc/sources/heroWeaponCardPet';
+import {
+  cardCountsByGrade,
+  cardSlotGradeStars,
+  countExpandedLines,
+  sssCardCount,
+} from '@/calc/sources/heroWeaponCardPet';
 import type { CalcTab, CalcValues } from '@/calc/types';
 
 const { ENEMY_COUNT_FIELD } = CONSTS.summary;
@@ -19,7 +24,9 @@ export function expandedTabLines(tabs: readonly CalcTab[], values: CalcValues, t
   const slotGradeStars = cardSlotGradeStars(values, tables);
   // 카드 전투 조건 (주위 적 수 · 스테이지 보스전 …) 판정용 전투 상황: 대미지 계산만 값 칸에 넣는다 (없으면 조건 효과는 꺼짐)
   const damageTarget = values[DAMAGE_TARGET_FIELD];
-  const battle = damageTarget ? { damageTarget, targetsPerSkill: Number(values[TARGETS_PER_SKILL_FIELD]) || 1 } : undefined;
+  const battle = damageTarget
+    ? { damageTarget, targetsPerSkill: Number(values[TARGETS_PER_SKILL_FIELD]) || 1 }
+    : undefined;
   const expanded = countExpandedLines(
     lines,
     sssCardCount(slotGradeStars),

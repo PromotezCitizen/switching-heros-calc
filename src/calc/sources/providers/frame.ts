@@ -18,7 +18,9 @@ export function frameOwnedField(frameId: string): string {
 /** 효과가 있는 테두리 행 (표 순서) */
 export function frameRows(tables: StatTables): TableRow[] {
   const table = tables[TABLE];
-  return table ? tableRows(table).filter((row) => !EMPTY_STATS.includes(row[STAT_COLUMN]) && Number(row[VALUE_COLUMN]) > 0) : [];
+  return table
+    ? tableRows(table).filter((row) => !EMPTY_STATS.includes(row[STAT_COLUMN]) && Number(row[VALUE_COLUMN]) > 0)
+    : [];
 }
 
 export function frameLines(values: CalcValues, tables: StatTables, label: SourceLabel): Line[] {

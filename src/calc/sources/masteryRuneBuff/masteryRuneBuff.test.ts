@@ -34,7 +34,12 @@ import {
   stackLines,
   superCriticalStrikeLines,
 } from '@/calc/sources/masteryRuneBuff/buff';
-import { battleDamageLines, battleStatLines, chancesWithBattleState, compoundPercent } from '@/calc/sources/masteryRuneBuff/battleState';
+import {
+  battleDamageLines,
+  battleStatLines,
+  chancesWithBattleState,
+  compoundPercent,
+} from '@/calc/sources/masteryRuneBuff/battleState';
 import { magicGuardLines, switchingBoostLines } from '@/calc/sources/masteryRuneBuff/battleEffects';
 import { chancesFromLines, chanceUltimateLines } from '@/calc/sources/masteryRuneBuff/chances';
 import { masteryRuneBuffTabs } from '@/calc/sources/masteryRuneBuff/index';
@@ -72,20 +77,60 @@ function masteryValues(levels: Record<string, number>): CalcValues {
 
 const SCENARIOS: Record<string, CalcValues> = {
   full: {
-    rune_0: '2036', rune_1: '15', rune_2: '', rune_3: '12.7', rune_4: '0', rune_5: '5000', rune_core: '203',
-    awakenTotalFinalAtk: '3.56Q', awakenTotalFinalHp: '3.56Q', awakenTotalAtk: '57.79B%', awakenTotalHp: '57.79B%',
-    awakenTotalNormal: '47.28B%', awakenTotalBoss: 'abc', awakenTotalHero: '21.95B%',
-    killerActive: 'true', berserkStacks: '5', costumeCount: '50',
-    petSlot1: '101', petSlot2: '102', petSlot3: '103', petSlot4: '1', petSlot5: '2', petSlot6: '201',
-    ...masteryValues({ 0: 1, 1: 20, 2: 99, 3: 5, 10: 3, 51: 1, 53: 20, 102: 20, 103: 7, 1001: 1, 1005: 1, 1003: 1, 1004: 1, 1008: 1, 1012: 1 }),
+    rune_0: '2036',
+    rune_1: '15',
+    rune_2: '',
+    rune_3: '12.7',
+    rune_4: '0',
+    rune_5: '5000',
+    rune_core: '203',
+    awakenTotalFinalAtk: '3.56Q',
+    awakenTotalFinalHp: '3.56Q',
+    awakenTotalAtk: '57.79B%',
+    awakenTotalHp: '57.79B%',
+    awakenTotalNormal: '47.28B%',
+    awakenTotalBoss: 'abc',
+    awakenTotalHero: '21.95B%',
+    killerActive: 'true',
+    berserkStacks: '5',
+    costumeCount: '50',
+    petSlot1: '101',
+    petSlot2: '102',
+    petSlot3: '103',
+    petSlot4: '1',
+    petSlot5: '2',
+    petSlot6: '201',
+    ...masteryValues({
+      0: 1,
+      1: 20,
+      2: 99,
+      3: 5,
+      10: 3,
+      51: 1,
+      53: 20,
+      102: 20,
+      103: 7,
+      1001: 1,
+      1005: 1,
+      1003: 1,
+      1004: 1,
+      1008: 1,
+      1012: 1,
+    }),
   },
   empty: {
-    killerActive: 'false', costumeCount: '0',
+    killerActive: 'false',
+    costumeCount: '0',
     ...masteryValues({ 103: 20, 1001: 1, 1003: 1 }),
   },
   edge: {
-    killerActive: 'true', berserkStacks: '5', costumeCount: '-3', rune_core: '399', rune_2: '1',
-    petSlot1: '205', petSlot2: '206',
+    killerActive: 'true',
+    berserkStacks: '5',
+    costumeCount: '-3',
+    rune_core: '399',
+    rune_2: '1',
+    petSlot1: '205',
+    petSlot2: '206',
     ...masteryValues({ 103: 1, 10: 1, 102: 0, 1002: 1, 1007: 1, 1004: 1 }),
   },
 };
@@ -178,7 +223,23 @@ describe('탭 목록', () => {
       ['mastery', ['Mastery', 'Pet', 'Character', 'Skill', 'WeaponChar', 'Card', 'CardStickerSet']],
       ['rune', ['AttributeRune', 'AttributeRuneLab']],
       ['awakenDetail', ['Awaken']],
-      ['buff', ['Mastery', 'Pet', 'Character', 'Skill', 'WeaponChar', 'Card', 'CardStickerSet', 'AttributeRune', 'AttributeRuneLab', 'Awaken', 'SkillRune', 'Option']],
+      [
+        'buff',
+        [
+          'Mastery',
+          'Pet',
+          'Character',
+          'Skill',
+          'WeaponChar',
+          'Card',
+          'CardStickerSet',
+          'AttributeRune',
+          'AttributeRuneLab',
+          'Awaken',
+          'SkillRune',
+          'Option',
+        ],
+      ],
     ]);
   });
   it('버프 탭은 다른 탭들이 쓰는 표도 같이 부른다 (확률 계산에 다른 탭 줄이 필요)', () => {
@@ -308,8 +369,10 @@ describe('버프·얼티밋 안내', () => {
     const on: CalcValues = { killerActive: 'true' };
     expect(killerApplies(on)).toBe(true);
     expect(killerApplies({ ...on, summaryTarget: 'boss' })).toBe(false);
-    for (const target of ['stage', 'attributeNormal']) expect(killerApplies({ ...on, dpmTarget: target }), target).toBe(true);
-    for (const target of ['globalRaidNormal', 'stageBoss', 'guildRaid', 'attributeHero', 'pvp']) expect(killerApplies({ ...on, dpmTarget: target }), target).toBe(false);
+    for (const target of ['stage', 'attributeNormal'])
+      expect(killerApplies({ ...on, dpmTarget: target }), target).toBe(true);
+    for (const target of ['globalRaidNormal', 'stageBoss', 'guildRaid', 'attributeHero', 'pvp'])
+      expect(killerApplies({ ...on, dpmTarget: target }), target).toBe(false);
     expect(killerApplies({ killerActive: 'false', dpmTarget: 'stage' })).toBe(false);
   });
   it('광폭화 중첩 · 학살자 배율 (학살자: 기존 ×2.5 / ×2)', () => {
@@ -375,12 +438,18 @@ describe('연타 계산', () => {
   });
 
   it('특성 42 초월적 기량 (notActiveAttackSpeed 50): 장착 스킬에 액티브가 없을 때만 공격속도에 더함 (m2695 @33f4bdc, 15:28 화면 1,736 → 1,786)', () => {
-    const combined = combineLines([...eikaLines, { source: '초월적 기량 Lv20', stat: 'notActiveAttackSpeed', value: 50 }]);
+    const combined = combineLines([
+      ...eikaLines,
+      { source: '초월적 기량 Lv20', stat: 'notActiveAttackSpeed', value: 50 },
+    ]);
     const archerWater = { job: 'Archer', attribute: 'Water' };
     expect(attackSpeedPercent(combined, archerWater, true)).toBe(1786);
     expect(attackSpeedPercent(combined, archerWater, false)).toBe(1736);
     // 연타도 같은 공격속도로: 속도 과열 floor((1,786 − 350) / 10) = 143 (1,736 이면 138) → 5 늘어남
-    const speedUp = combineLines([...eikaLines, { source: '초월적 기량 Lv20', stat: 'notActiveAttackSpeed', value: 50 }]);
+    const speedUp = combineLines([
+      ...eikaLines,
+      { source: '초월적 기량 Lv20', stat: 'notActiveAttackSpeed', value: 50 },
+    ]);
     expect(doubleAttackPercent(speedUp, attackSpeedPercent(speedUp, archerWater, true))).toBe(193);
     expect(doubleAttackPercent(speedUp, attackSpeedPercent(speedUp, archerWater, false))).toBe(188);
   });
@@ -419,7 +488,16 @@ describe('얼티밋: 단순 스탯·편성 히어로 속성', () => {
   const waterPair = ['Water', 'Water'];
 
   it('스킬 문양 개수 얼티밋 (2012 · 2013 · 2014): 장착 스킬에 켜 둔 문양 수 × 값 % 를 직업 · 전용 · 교체 스킬 데미지에', () => {
-    const result = ultimateLines(masteryValues({ 2012: 1, 2013: 1, 2014: 1 }), tables.Mastery, tables.Pet, [], label, [], [], { skillPerkCount: 3 });
+    const result = ultimateLines(
+      masteryValues({ 2012: 1, 2013: 1, 2014: 1 }),
+      tables.Mastery,
+      tables.Pet,
+      [],
+      label,
+      [],
+      [],
+      { skillPerkCount: 3 },
+    );
     const byStat = Object.fromEntries(result.lines.map((line) => [line.stat, line.value]));
     expect(byStat._per_buffAndActiveDmg).toBe(800 * 3);
     expect(byStat._per_CharSkillDamage).toBe(800 * 3);
@@ -439,7 +517,9 @@ describe('얼티밋: 단순 스탯·편성 히어로 속성', () => {
     expect(result.lines[0]).toMatchObject({ source: 'calc.ultimate.heroSource', stat: '_per_skillDamage' });
     expect(result.lines[0].log).toBeCloseTo(Math.log10(144 - 1) + 2, 12);
     // 불 속성 수 (2003) 는 0명이라 줄 없음
-    expect(ultimateLines(masteryValues({ 2003: 1 }), tables.Mastery, tables.Pet, [], label, [], waterPair).lines).toEqual([]);
+    expect(
+      ultimateLines(masteryValues({ 2003: 1 }), tables.Mastery, tables.Pet, [], label, [], waterPair).lines,
+    ).toEqual([]);
   });
 
   it('같은 속성 히어로 장착 (2006): 두 명이 같은 속성일 때만', () => {
@@ -471,8 +551,14 @@ describe('얼티밋: 장착 스킬 수·던전 기록·전투 특화', () => {
 
   it('장착 5칸의 스킬 종류 수 (보유만, 같은 스킬은 한 번)', () => {
     const values: CalcValues = {
-      skillLevel_53: '1', skillLevel_51: '3', skillLevel_1: '2',
-      skillEquip_1: '53', skillEquip_2: '51', skillEquip_3: '1', skillEquip_4: '53', skillEquip_5: '3',
+      skillLevel_53: '1',
+      skillLevel_51: '3',
+      skillLevel_1: '2',
+      skillEquip_1: '53',
+      skillEquip_2: '51',
+      skillEquip_3: '1',
+      skillEquip_4: '53',
+      skillEquip_5: '3',
     };
     expect(equippedSkillTypeCounts(values, tables)).toEqual({ ActiveSkill: 2, BuffSkill: 1 });
   });
@@ -505,7 +591,9 @@ describe('얼티밋: 장착 스킬 수·던전 기록·전투 특화', () => {
       { source: 'calc.ultimate.targetUnitSource', stat: '_per_hp', value: 50000 },
       { source: 'calc.ultimate.targetUnitSource', stat: '_per_attackDamage', value: 20000 },
     ]);
-    expect(ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], [], { targetUnit: 'Hero' }).lines).toEqual([]);
+    expect(ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], [], { targetUnit: 'Hero' }).lines).toEqual(
+      [],
+    );
   });
 });
 
@@ -577,10 +665,21 @@ describe('확률 계산·확률 문턱 얼티밋·중첩', () => {
 
   it('확률 초과 개수 얼티밋 (3001 · 3007, artifact-unique-over-2026-11-05.md): 최종 확률 7종 중 문턱 초과 (같으면 안 셈) 종류 수 k → 공격력 증가 × 값^k', () => {
     // 120 초과: 연타 · 관통 · 무자비 (3종), 정확히 120 인 슈퍼 치명타는 안 셈. 80 초과: 그 3종 + 슈퍼 치명타 (120) · 스킬 콤보 · 매직 가드 (6종)
-    const chances = { doubleAttack: 300, superCritical: 120, spearAttack: 121, switchingBoost: 50, skillCombo: 100, smite: 500, barrier: 80.5 };
+    const chances = {
+      doubleAttack: 300,
+      superCritical: 120,
+      spearAttack: 121,
+      switchingBoost: 50,
+      skillCombo: 100,
+      smite: 500,
+      barrier: 80.5,
+    };
     const learned = masteryValues({ 3001: 1, 3007: 1 });
     const lines = chanceUltimateLines(learned, tables.Mastery, chances, (key) => key);
-    expect(lines.map((line) => line.source)).toEqual(['calc.ultimate.chanceCountSource', 'calc.ultimate.chanceCountSource']);
+    expect(lines.map((line) => line.source)).toEqual([
+      'calc.ultimate.chanceCountSource',
+      'calc.ultimate.chanceCountSource',
+    ]);
     expect(lines.every((line) => line.stat === '_per_attackDamage')).toBe(true);
     expect(lines[0].log).toBeCloseTo(multiplierPercentLog(6 * Math.log10(2.5)), 12);
     expect(lines[1].log).toBeCloseTo(multiplierPercentLog(3 * Math.log10(5)), 12);
@@ -598,7 +697,9 @@ describe('확률 계산·확률 문턱 얼티밋·중첩', () => {
     expect(lines).toHaveLength(2);
     expect(lines.every((line) => line.stat === '_per_attackDamage')).toBe(true);
     // 다른 확률 (연타) 은 교체와 상관없이 줄이 생긴다
-    expect(chanceUltimateLines(masteryValues({ 3015: 1 }), tables.Mastery, { doubleAttack: 217 }, (key) => key)).toHaveLength(1);
+    expect(
+      chanceUltimateLines(masteryValues({ 3015: 1 }), tables.Mastery, { doubleAttack: 217 }, (key) => key),
+    ).toHaveLength(1);
   });
 
   it('연타·스킬 콤보 중첩은 늘 최대: 가속 Lv20 60% × 10, 연타의 분노 Lv20 500%, 스킬 콤보 액티브 최종 × 8', () => {
@@ -642,26 +743,47 @@ describe('전투 버프 줄: 초월의 일격 · 최종 공격력 ×5', () => {
     WeaponChar: parseTable(weaponCharText),
     WeaponTranscend: parseTable(weaponTranscendText),
   };
-  const equipped = (star: string): CalcValues => ({ charName: '에이카', exclusiveEquipped: 'true', exclusiveOwnedStar_1021: star });
+  const equipped = (star: string): CalcValues => ({
+    charName: '에이카',
+    exclusiveEquipped: 'true',
+    exclusiveOwnedStar_1021: star,
+  });
 
   it('최종 공격력 ×5 (_multiply_AttackDamage): 1슬롯 히어로가 전용 무기 1021 을 장착하고 ★10 이상일 때만', () => {
     expect(finalAttackMultiplierLines({}, label, weaponTables)).toEqual([]);
     expect(finalAttackMultiplierLines(equipped('9'), label, weaponTables)).toEqual([]);
     // 무기 미보유 (★ 빈칸) / 다른 히어로 / 다른 무기 ★ 는 줄 없음 (보유한 전용 무기는 늘 낀 것으로 봄)
-    expect(finalAttackMultiplierLines({ ...equipped('13'), exclusiveOwnedStar_1021: '' }, label, weaponTables)).toEqual([]);
+    expect(finalAttackMultiplierLines({ ...equipped('13'), exclusiveOwnedStar_1021: '' }, label, weaponTables)).toEqual(
+      [],
+    );
     expect(finalAttackMultiplierLines({ ...equipped('13'), charName: '린' }, label, weaponTables)).toEqual([]);
-    expect(finalAttackMultiplierLines({ charName: '에이카', exclusiveEquipped: 'true', exclusiveOwnedStar_1022: '13' }, label, weaponTables)).toEqual([]);
+    expect(
+      finalAttackMultiplierLines(
+        { charName: '에이카', exclusiveEquipped: 'true', exclusiveOwnedStar_1022: '13' },
+        label,
+        weaponTables,
+      ),
+    ).toEqual([]);
     expect(finalAttackMultiplierLines(equipped('10'), label, weaponTables)).toEqual([
       { source: 'calc.buff.finalAttackMultiplierSource', stat: '_multiply_AttackDamage', value: 5 },
     ]);
   });
 
   it('★7 공격력 중첩 (statType 30002): 장착 + ★7 이상일 때 표 행 val2 (5) × val3 (10) = +50%, 늘 최대 중첩 (23:05 실측 ×1.5001)', () => {
-    const row = tableRows(weaponTables.WeaponTranscend).find((record) => record.weaponType === '1021' && record.statType === '30002')!;
+    const row = tableRows(weaponTables.WeaponTranscend).find(
+      (record) => record.weaponType === '1021' && record.statType === '30002',
+    )!;
     expect([row.star, row.val1, row.val2, row.val3]).toEqual(['7', '40', '5', '10']);
     expect(exclusiveStackBuffLines(equipped('6'), label, weaponTables)).toEqual([]);
-    expect(exclusiveStackBuffLines({ ...equipped('13'), exclusiveOwnedStar_1021: '' }, label, weaponTables)).toEqual([]);
-    expect(exclusiveStackBuffLines(equipped('13'), label, { ...weaponTables, WeaponTranscend: undefined as unknown as RawTable })).toEqual([]);
+    expect(exclusiveStackBuffLines({ ...equipped('13'), exclusiveOwnedStar_1021: '' }, label, weaponTables)).toEqual(
+      [],
+    );
+    expect(
+      exclusiveStackBuffLines(equipped('13'), label, {
+        ...weaponTables,
+        WeaponTranscend: undefined as unknown as RawTable,
+      }),
+    ).toEqual([]);
     const lines = exclusiveStackBuffLines(equipped('7'), label, weaponTables);
     expect(lines).toEqual([{ source: 'calc.buff.exclusiveStackSource', stat: '_per_attackDamage', value: 50 }]);
     // 합산하면 × (1 + 50/100) = ×1.5
@@ -722,7 +844,10 @@ describe('음식 효과 (일반 몬스터 피해 3종, 하나만) · 공격력 �
       expect(normalMonsterFoodLines({ normalMonsterFood: food.id }, label)).toHaveLength(1);
     }
     // 다른 음식 칸 이름을 써서 둘째 음식을 넣으려 해도 읽지 않는다
-    const lines = normalMonsterFoodLines({ normalMonsterFood: 'strawberryTart', normalMonsterFood2: 'strawberryJam' }, label);
+    const lines = normalMonsterFoodLines(
+      { normalMonsterFood: 'strawberryTart', normalMonsterFood2: 'strawberryJam' },
+      label,
+    );
     expect(lines.map((line) => line.value)).toEqual([600]);
     // 칸 값에 둘을 이어 붙여도 모르는 값이라 없음
     expect(normalMonsterFoodLines({ normalMonsterFood: 'strawberryTart,strawberryJam' }, label)).toEqual([]);
@@ -766,7 +891,8 @@ describe('음식 효과 (일반 몬스터 피해 3종, 하나만) · 공격력 �
 describe('전투 중 최대 상태 몫 (battleState.ts)', () => {
   const label = (key: string) => key;
   const level20 = (...rNos: number[]) => masteryValues(Object.fromEntries(rNos.map((rNo) => [rNo, 20])));
-  const sumOf = (lines: Line[], stat: string) => lines.filter((line) => line.stat === stat).reduce((sum, line) => sum + Number(line.value), 0);
+  const sumOf = (lines: Line[], stat: string) =>
+    lines.filter((line) => line.stat === stat).reduce((sum, line) => sum + Number(line.value), 0);
 
   it('복리 중첩 % = ((1 + 값/100)^10 − 1) x 100', () => {
     expect(compoundPercent(10)).toBeCloseTo(159.3742, 4);
@@ -801,7 +927,14 @@ describe('전투 중 최대 상태 몫 (battleState.ts)', () => {
 
   it('특성을 안 찍었으면 줄 없음 (기본값 0)', () => {
     expect(battleStatLines({}, tables.Mastery, label)).toEqual([]);
-    expect(battleDamageLines({}, tables.Mastery, label, { doubleAttack: 999, superCritical: 999, spearAttack: 999, smite: 999 })).toEqual([]);
+    expect(
+      battleDamageLines({}, tables.Mastery, label, {
+        doubleAttack: 999,
+        superCritical: 999,
+        spearAttack: 999,
+        smite: 999,
+      }),
+    ).toEqual([]);
   });
 
   it('63 흘러넘치는 체력 값 50 → 공격력 ×1.5 (확률과 상관없이 항상 켜짐)', () => {
@@ -835,7 +968,10 @@ describe('전투 중 최대 상태 몫 (battleState.ts)', () => {
     const values = { ...level20(203, 108), [field]: '120' };
     expect(battleDamageLines(values, tables.Mastery, label, { spearAttack: 115, superCritical: 120 })).toEqual([]);
     const over = battleDamageLines(values, tables.Mastery, label, { spearAttack: 135, superCritical: 135 });
-    expect(over.map((line) => line.source)).toEqual(['calc.buff.battle.superCriticalOverSource', 'calc.buff.battle.spearRushSource']);
+    expect(over.map((line) => line.source)).toEqual([
+      'calc.buff.battle.superCriticalOverSource',
+      'calc.buff.battle.spearRushSource',
+    ]);
   });
 
   it('207 스위칭 폭주: 스위칭 부스트 135 → 3단계 × 50 × 교체 켜짐 50% = 75', () => {
@@ -863,7 +999,9 @@ describe('전투 중 최대 상태 몫 (battleState.ts)', () => {
     expect(lines[1].value).toBeCloseTo(150, 9);
     expect(lines[2].value).toBeCloseTo((500 * 5) / 18, 9);
     // 전환율 100 이하면 312 · 313 없음, 교체가 없으면 314 없음, 기본 항 0 이면 모두 없음
-    expect(magicGuardLines(level20(312, 313, 314), fullTables, tables.Mastery, { barrier: 100 }, true, label)).toEqual([]);
+    expect(magicGuardLines(level20(312, 313, 314), fullTables, tables.Mastery, { barrier: 100 }, true, label)).toEqual(
+      [],
+    );
     expect(magicGuardLines(values, fullTables, tables.Mastery, { barrier: 135 }, false, label)).toEqual([]);
   });
 
@@ -886,7 +1024,9 @@ describe('전투 중 최대 상태 몫 (battleState.ts)', () => {
     expect(both.map((line) => line.value)).toEqual([400, 400]);
     expect(Math.pow(10, combineLines(both)._per_attackDamage.log)).toBeCloseTo(25, 9);
     expect(battleDamageLines(values, tables.Mastery, label, { spearAttack: 100, smite: 99 })).toEqual([]);
-    expect(battleDamageLines(values, tables.Mastery, label, { spearAttack: 103.01 }).map((line) => line.value)).toEqual([400]);
+    expect(battleDamageLines(values, tables.Mastery, label, { spearAttack: 103.01 }).map((line) => line.value)).toEqual(
+      [400],
+    );
   });
 
   it('108 한계 돌파: floor((슈퍼 치명타 − 100) / 10) 단계 x 값 (118.68 → 1단계 ×1.5, 130.91 → 3단계 ×2.5, 100.4 → 없음)', () => {
@@ -921,7 +1061,11 @@ describe('전투 중 최대 상태 몫 (battleState.ts)', () => {
     const tab = masteryRuneBuffTabs(() => other).find((item) => item.id === 'buff')!;
     const buffTabLines = tab.lines(values, tables);
     expect(buffTabLines.filter((line) => line.stat === 'attackSpeed').length).toBe(4);
-    expect(buffTabLines.some((line) => line.source.startsWith('calc.buff.battle.overchargeSource') || line.source.startsWith('과충전 연타'))).toBe(true);
+    expect(
+      buffTabLines.some(
+        (line) => line.source.startsWith('calc.buff.battle.overchargeSource') || line.source.startsWith('과충전 연타'),
+      ),
+    ).toBe(true);
   });
 });
 
@@ -931,29 +1075,49 @@ describe('얼티밋: 배지 모양 컬렉션 (2028~2033, 3028~3033)', () => {
   it('12개 모두 계산할 수 있는 얼티밋이다', () => {
     const names = masteryTraits(tables.Mastery).filter((trait) => /_EqStickerCnt\d+$/.test(trait.statName));
     expect(names).toHaveLength(12);
-    expect(skippedUltimateNames(masteryValues(Object.fromEntries(names.map((trait) => [trait.rNo, 1]))), tables.Mastery, label)).toEqual([]);
+    expect(
+      skippedUltimateNames(
+        masteryValues(Object.fromEntries(names.map((trait) => [trait.rNo, 1]))),
+        tables.Mastery,
+        label,
+      ),
+    ).toEqual([]);
   });
 
   it('블루 서클 (3028): 그 모양 배지 3개 → 보스 몬스터 데미지 × 2^3', () => {
-    const result = ultimateLines(masteryValues({ 3028: 1 }), tables.Mastery, tables.Pet, [], label, [], [], { stickerCounts: { '1': 3 } });
+    const result = ultimateLines(masteryValues({ 3028: 1 }), tables.Mastery, tables.Pet, [], label, [], [], {
+      stickerCounts: { '1': 3 },
+    });
     expect(result.lines).toHaveLength(1);
     expect(result.lines[0]).toMatchObject({ source: 'calc.ultimate.stickerSource', stat: '_per_BossMonsterDamage' });
     expect(result.lines[0].log).toBeCloseTo(Math.log10(8 - 1) + 2, 12);
-    expect(ultimateLines(masteryValues({ 3028: 1 }), tables.Mastery, tables.Pet, [], label, [], [], { stickerCounts: { '2': 3 } }).lines).toEqual([]);
+    expect(
+      ultimateLines(masteryValues({ 3028: 1 }), tables.Mastery, tables.Pet, [], label, [], [], {
+        stickerCounts: { '2': 3 },
+      }).lines,
+    ).toEqual([]);
   });
 
   it('스페이드 (2031) 는 불 속성 히어로 스킬 데미지, 기어 (2028) 는 직업 스킬 데미지', () => {
     const result = ultimateLines(masteryValues({ 2031: 1, 2028: 1 }), tables.Mastery, tables.Pet, [], label, [], [], {
       stickerCounts: { '4': 1, '10': 2 },
     });
-    expect(result.lines.map((line) => line.stat).sort()).toEqual(['_per_FireHero_AllSkillDamage', '_per_buffAndActiveDmg']);
+    expect(result.lines.map((line) => line.stat).sort()).toEqual([
+      '_per_FireHero_AllSkillDamage',
+      '_per_buffAndActiveDmg',
+    ]);
   });
 
   it('사각 (3031) 은 1슬롯 히어로 전투 특화가 일반일 때만', () => {
     const values = masteryValues({ 3031: 1 });
     const context = { stickerCounts: { '7': 2 } };
-    expect(ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], [], { ...context, targetUnit: 'Boss' }).lines).toEqual([]);
-    const lines = ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], [], { ...context, targetUnit: 'Normal' }).lines;
+    expect(
+      ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], [], { ...context, targetUnit: 'Boss' }).lines,
+    ).toEqual([]);
+    const lines = ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], [], {
+      ...context,
+      targetUnit: 'Normal',
+    }).lines;
     expect(lines).toHaveLength(1);
     expect(lines[0].stat).toBe('_per_attackDamage');
   });

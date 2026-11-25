@@ -9,12 +9,17 @@ const saved = (uses: { _itemType: number; _useDate: string }[], st = '2026-10-31
 
 describe('저장 데이터 → 일반 몬스터 피해 음식', () => {
   it('대미지와 상관없는 음식만 먹었으면 칸을 비운다', () => {
-    const uses = [16, 19, 22].map((itemId, index) => ({ _itemType: itemId, _useDate: `2026-10-31 18:12:0${6 + index}` }));
+    const uses = [16, 19, 22].map((itemId, index) => ({
+      _itemType: itemId,
+      _useDate: `2026-10-31 18:12:0${6 + index}`,
+    }));
     expect(foodValues(saved(uses)).values).toEqual({ normalMonsterFood: '' });
   });
 
   it('딸기 타르트 (27) 를 60분 안에 먹었으면 켠다, 60분이 지났으면 끈다', () => {
-    expect(foodValues(saved([{ _itemType: 27, _useDate: '2026-10-31 17:30:00' }])).values.normalMonsterFood).toBe('strawberryTart');
+    expect(foodValues(saved([{ _itemType: 27, _useDate: '2026-10-31 17:30:00' }])).values.normalMonsterFood).toBe(
+      'strawberryTart',
+    );
     expect(foodValues(saved([{ _itemType: 27, _useDate: '2026-10-31 17:14:48' }])).values.normalMonsterFood).toBe('');
   });
 

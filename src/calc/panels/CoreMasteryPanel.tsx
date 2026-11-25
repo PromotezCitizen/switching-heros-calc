@@ -34,7 +34,10 @@ export default function CoreMasteryPanel({ values, setValue, tables, description
   if (userLevel < unlockLevel) {
     return (
       <Text size="sm" c="dimmed">
-        {translate('calc.coreMastery.locked', { level: unlockLevel.toLocaleString('ko-KR'), current: userLevel.toLocaleString('ko-KR') })}
+        {translate('calc.coreMastery.locked', {
+          level: unlockLevel.toLocaleString('ko-KR'),
+          current: userLevel.toLocaleString('ko-KR'),
+        })}
       </Text>
     );
   }

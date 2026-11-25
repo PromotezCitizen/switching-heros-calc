@@ -25,7 +25,9 @@ export function tableNumberLog(text: string): number {
     return value > 0 ? Math.log10(value) + Number(exponent) : -Infinity;
   }
   const head = digits.slice(0, DS.TABLE_MANTISSA_DIGITS);
-  const mantissa = parseFloat(`${head[0]}.${head.slice(1)}${digits.length <= DS.TABLE_MANTISSA_DIGITS ? fraction : ''}`);
+  const mantissa = parseFloat(
+    `${head[0]}.${head.slice(1)}${digits.length <= DS.TABLE_MANTISSA_DIGITS ? fraction : ''}`,
+  );
   return Math.log10(mantissa) + (digits.length - 1) + Number(exponent);
 }
 
@@ -119,7 +121,10 @@ export function currentSetLevel(costs: SlotCosts, minLevel: number): number {
  * 10부위 모두: 다음 STEPS_AHEAD 세트 단계. 돌 1개는 10부위에 평균 1/10 씩 들어가므로
  * 가장 많이 필요한 부위가 돌 등급을 정한다
  */
-export function setSteps(costs: SlotCosts, parts: readonly PartInput[]): { setLevel: number; minLevel: number; steps: StepResult[] } {
+export function setSteps(
+  costs: SlotCosts,
+  parts: readonly PartInput[],
+): { setLevel: number; minLevel: number; steps: StepResult[] } {
   const minLevel = Math.min(...parts.map((part) => part.level));
   const setLevel = currentSetLevel(costs, minLevel);
   const steps = Array.from({ length: DS.STEPS_AHEAD }, (_, index) => {
@@ -127,11 +132,22 @@ export function setSteps(costs: SlotCosts, parts: readonly PartInput[]): { setLe
     const slotLevel = costs.setLevels[target - 1];
     const { stat, percent } = costs.setStats[target - 1] ?? {};
     if (slotLevel === undefined) return { target, slotLevel: NaN, neededLog: null, totalNeededLog: null, grade: null };
-    const needs = parts.map((part) => fragmentsNeededLog(costs, part.level, Math.max(part.level, slotLevel), part.heldLog));
-    if (needs.some((need) => need === null)) return { target, slotLevel, neededLog: null, totalNeededLog: null, grade: null, stat, percent };
+    const needs = parts.map((part) =>
+      fragmentsNeededLog(costs, part.level, Math.max(part.level, slotLevel), part.heldLog),
+    );
+    if (needs.some((need) => need === null))
+      return { target, slotLevel, neededLog: null, totalNeededLog: null, grade: null, stat, percent };
     const logs = needs as number[];
     const neededLog = Math.max(...logs);
-    return { target, slotLevel, neededLog, totalNeededLog: logSum(logs), grade: stoneGradeFor(neededLog), stat, percent };
+    return {
+      target,
+      slotLevel,
+      neededLog,
+      totalNeededLog: logSum(logs),
+      grade: stoneGradeFor(neededLog),
+      stat,
+      percent,
+    };
   });
   return { setLevel, minLevel, steps };
 }
@@ -150,7 +166,10 @@ export function alchemyStone(level: number, buffed: boolean): AlchemyStone | nul
   const clamped = Math.min(Math.floor(level), DS.ALCHEMY_MAX_LEVEL);
   const offset = clamped - DS.ALCHEMY_STONE_START_LEVEL;
   const grade = Math.floor(offset / DS.ALCHEMY_LEVELS_PER_GRADE) + 1;
-  const base = clamped === DS.ALCHEMY_MAX_LEVEL ? DS.ALCHEMY_LAST_LEVEL_PROB : DS.ALCHEMY_STONE_PROBS[offset % DS.ALCHEMY_LEVELS_PER_GRADE];
+  const base =
+    clamped === DS.ALCHEMY_MAX_LEVEL
+      ? DS.ALCHEMY_LAST_LEVEL_PROB
+      : DS.ALCHEMY_STONE_PROBS[offset % DS.ALCHEMY_LEVELS_PER_GRADE];
   const chancePercent = base * (buffed ? DS.BUFF_MULTIPLIER : 1);
   return { grade, chancePercent, alchemiesPerStone: DS.PERCENT_RANGE / chancePercent };
 }

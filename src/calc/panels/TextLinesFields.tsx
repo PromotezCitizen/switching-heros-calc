@@ -62,10 +62,7 @@ export function SwitchCheckbox({
       label={label}
       checked={isChecked(values[fieldId])}
       onChange={(event) =>
-        setValue(
-          fieldId,
-          event.currentTarget.checked ? CONSTS.textLines.CHECKED_TEXT : CONSTS.textLines.UNCHECKED_TEXT,
-        )
+        setValue(fieldId, event.currentTarget.checked ? CONSTS.textLines.CHECKED_TEXT : CONSTS.textLines.UNCHECKED_TEXT)
       }
     />
   );

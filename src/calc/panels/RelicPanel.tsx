@@ -77,7 +77,9 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
             ...grades.map((grade) => ({ value: grade, label: grade })),
           ]}
         />
-        <Text size="sm" c="dimmed">{translate('calc.relic.maxGradeHelp')}</Text>
+        <Text size="sm" c="dimmed">
+          {translate('calc.relic.maxGradeHelp')}
+        </Text>
         <Text fw={600}>{translate('calc.relic.countLine', { owned: ownedCount, max: states.length })}</Text>
       </Stack>
 
@@ -144,7 +146,9 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
                         event.currentTarget.style.visibility = 'hidden';
                       }}
                     />
-                    <Text size="sm" fw={600} ta="center">{name}</Text>
+                    <Text size="sm" fw={600} ta="center">
+                      {name}
+                    </Text>
                     <Group gap="xs" wrap="nowrap">
                       <TextInput
                         type="number"
@@ -155,41 +159,57 @@ export default function RelicPanel({ values, setValue, tables, descriptions }: T
                         value={values[fieldId] ?? ''}
                         onChange={(event) => setValue(fieldId, event.currentTarget.value)}
                       />
-                      <Text size="sm" c="dimmed">/ {row.maxLv}</Text>
+                      <Text size="sm" c="dimmed">
+                        / {row.maxLv}
+                      </Text>
                     </Group>
-                    <Text size="xs" ta="center">{effectText(state)}</Text>
+                    <Text size="xs" ta="center">
+                      {effectText(state)}
+                    </Text>
                   </Stack>
                 </Card>
               );
             })}
           </AutoGrid>
         ) : (
-          <Text size="sm" c="dimmed">{translate('calc.relic.pickGrade')}</Text>
+          <Text size="sm" c="dimmed">
+            {translate('calc.relic.pickGrade')}
+          </Text>
         )}
-        <Text size="sm" c="dimmed">{translate('calc.relic.levelsHelp')}</Text>
+        <Text size="sm" c="dimmed">
+          {translate('calc.relic.levelsHelp')}
+        </Text>
       </Stack>
 
       <Stack gap="xs">
         <SectionTitle>{translate('calc.relic.linksTitle')}</SectionTitle>
         {/* 라벨이 길어 (예: "SSR 등급 이상 몬스터 카드 수") 한 줄에 하나씩 위아래로 */}
         <Stack gap="xs">
-          {RELIC_TAB_LINK_FIELDS.filter((field) => usedLinks.has(field) && !DUNGEON_LINKS.includes(field)).map((field) => {
-            const fieldId = relicLinkFieldId(field);
-            return (
-              <TextInput
-                key={field}
-                type="number"
-                inputMode="numeric"
-                min={MIN_LEVEL}
-                label={translate(`calc.relic.links.${field}`)}
-                value={values[fieldId] ?? ''}
-                onChange={(event) => setValue(fieldId, event.currentTarget.value)}
-              />
-            );
-          })}
+          {RELIC_TAB_LINK_FIELDS.filter((field) => usedLinks.has(field) && !DUNGEON_LINKS.includes(field)).map(
+            (field) => {
+              const fieldId = relicLinkFieldId(field);
+              return (
+                <TextInput
+                  key={field}
+                  type="number"
+                  inputMode="numeric"
+                  min={MIN_LEVEL}
+                  label={translate(`calc.relic.links.${field}`)}
+                  value={values[fieldId] ?? ''}
+                  onChange={(event) => setValue(fieldId, event.currentTarget.value)}
+                />
+              );
+            },
+          )}
         </Stack>
-        {![...usedLinks].some((field) => !(DUNGEON_LINKS as readonly string[]).includes(field)) && <Text size="sm" c="dimmed">{translate('calc.relic.noLinks')}</Text>}
-        <Text size="sm" c="dimmed">{translate('calc.relic.linksHelp')}</Text>
+        {![...usedLinks].some((field) => !(DUNGEON_LINKS as readonly string[]).includes(field)) && (
+          <Text size="sm" c="dimmed">
+            {translate('calc.relic.noLinks')}
+          </Text>
+        )}
+        <Text size="sm" c="dimmed">
+          {translate('calc.relic.linksHelp')}
+        </Text>
       </Stack>
     </Stack>
   );

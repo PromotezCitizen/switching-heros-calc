@@ -18,7 +18,11 @@ export function ownedCardsText(card: OwnedCardSave): string {
   return [...readDictionary(card.cardDic)]
     .map(([cardId, owned]) => {
       const marks = [...readDictionary(owned.setIdDic ?? { k: [], v: [] })].sort(([left], [right]) => left - right);
-      return [cardId, owned.trsc, marks.map(([, sets]) => sets.setIdList.join(SET_SEPARATOR)).join(MARK_SEPARATOR)].join(FIELD_SEPARATOR);
+      return [
+        cardId,
+        owned.trsc,
+        marks.map(([, sets]) => sets.setIdList.join(SET_SEPARATOR)).join(MARK_SEPARATOR),
+      ].join(FIELD_SEPARATOR);
     })
     .join(CARD_SEPARATOR);
 }

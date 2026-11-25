@@ -4,7 +4,13 @@
  */
 import { CONSTS } from '@/CONSTS';
 import { tableRows, type StatTables } from '@/data/statTables';
-import { groupBy, readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
+import {
+  groupBy,
+  readDictionary,
+  runSection,
+  type SaveDictionary,
+  type SaveImportResult,
+} from '@/usb/saveImport/saveDictionary';
 
 const { RELIC_LINK_DUNGEONS, RELIC_LINK_ATTRIBUTE_DUNGEONS, CARD_GRADE_R, CARD_GRADE_SSR } = CONSTS.usb;
 const DECIMAL_BASE = 10;
@@ -14,7 +20,10 @@ export interface RelicSave {
 }
 
 export interface CardSave {
-  cardDic: SaveDictionary<number, { trsc: number; presetDic: SaveDictionary<number, { slotIdx: number; setEquipList: number[] }> }>;
+  cardDic: SaveDictionary<
+    number,
+    { trsc: number; presetDic: SaveDictionary<number, { slotIdx: number; setEquipList: number[] }> }
+  >;
 }
 
 /** 던전 최고 기록: 큰 수는 { value, exponent } */
@@ -29,7 +38,9 @@ export interface DungeonProgress {
 }
 
 function recordText(record: DungeonRecord): string {
-  return typeof record === 'number' ? String(record) : String(Math.round(record.value * Math.pow(DECIMAL_BASE, record.exponent)));
+  return typeof record === 'number'
+    ? String(record)
+    : String(Math.round(record.value * Math.pow(DECIMAL_BASE, record.exponent)));
 }
 
 export function relicCardValues(

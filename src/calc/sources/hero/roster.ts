@@ -40,7 +40,8 @@ export function heroCountAtLeast(values: CalcValues, tables: StatTables, minGrad
   const order = heroGradeOrder(tables);
   const minIndex = order.indexOf(minGrade);
   if (minIndex < 0) return 0;
-  return rosterHeroes(tables).filter((hero) => order.indexOf(values[rosterGradeField(hero.charId)] ?? '') >= minIndex).length;
+  return rosterHeroes(tables).filter((hero) => order.indexOf(values[rosterGradeField(hero.charId)] ?? '') >= minIndex)
+    .length;
 }
 
 export interface ExclusiveWeapon {
@@ -89,5 +90,6 @@ export function star5WeaponCount(values: CalcValues, tables: StatTables): number
 
 /** 초월 ★ 가 star 이상인 보유 전용 무기 수 (장착 여부와 상관없음) */
 function weaponCountAtLeastStar(values: CalcValues, tables: StatTables, star: number): number {
-  return exclusiveWeapons(tables).filter((weapon) => Number(values[exclusiveOwnedStarField(weapon.weaponId)]) >= star).length;
+  return exclusiveWeapons(tables).filter((weapon) => Number(values[exclusiveOwnedStarField(weapon.weaponId)]) >= star)
+    .length;
 }

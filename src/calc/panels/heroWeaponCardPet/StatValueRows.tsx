@@ -19,7 +19,13 @@ export interface StatChoice {
  * 무기 옵션 = diceId 1, 전승된 능력 = diceId 2 (폰 불러오기와 같은 번호)
  */
 export function diceStatChoices(tables: StatTables, diceId: string, descriptions: StatDescriptions): StatChoice[] {
-  const stats = [...new Set(tableRows(tables.DiceOption).filter((row) => row.diceId === diceId).map((row) => row.statType))];
+  const stats = [
+    ...new Set(
+      tableRows(tables.DiceOption)
+        .filter((row) => row.diceId === diceId)
+        .map((row) => row.statType),
+    ),
+  ];
   return stats
     .map((stat) => ({ value: stat, label: (descriptions[stat] || stat).replace(VALUE_PLACEHOLDER, SAMPLE_VALUE) }))
     .sort((left, right) => left.label.localeCompare(right.label, 'ko'));
@@ -48,8 +54,15 @@ export default function StatValueRows(props: StatValueRowsProps) {
       {rowNumbers.map((index) => {
         const usable = usableCount === undefined || index <= usableCount;
         return (
-          <Group key={index} gap="xs" wrap="nowrap" style={{ opacity: usable ? 1 : CONSTS.heroWeaponCardPet.ui.UNUSED_OPACITY }}>
-            <Text w="1.5em" ta="right">{index}</Text>
+          <Group
+            key={index}
+            gap="xs"
+            wrap="nowrap"
+            style={{ opacity: usable ? 1 : CONSTS.heroWeaponCardPet.ui.UNUSED_OPACITY }}
+          >
+            <Text w="1.5em" ta="right">
+              {index}
+            </Text>
             <LazySelect
               style={{ flex: STAT_ROW_SELECT_FLEX }}
               aria-label={props.statLabel(index)}

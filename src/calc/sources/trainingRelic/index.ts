@@ -11,8 +11,7 @@ export const trainingRelicTabs: CalcTab[] = [
     id: 'training',
     tableNames: [TRAINING_TABLE],
     Panel: TrainingPanel,
-    lines: (values, tables) =>
-      trainingLines(values, tables, (stage) => i18next.t('calc.training.source', { stage })),
+    lines: (values, tables) => trainingLines(values, tables, (stage) => i18next.t('calc.training.source', { stage })),
   },
   {
     id: 'relic',

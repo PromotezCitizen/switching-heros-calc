@@ -1,4 +1,12 @@
-import { createContext, useContext, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -29,7 +37,8 @@ import { iconUrl } from '@/calc/panels/heroWeaponCardPet/IconPicker';
 import { HeroImage } from '@/calc/sources/hero/HeroPicker';
 import wiki from '@/i18n/wiki.ko.json';
 
-const { SIDE_NAV_MIN_SCREEN_WIDTH, STICKY_HEADER_HEIGHT_VAR, STICKY_SUB_TAB_HEIGHT_VAR, STICKY_HEADER_Z_INDEX } = CONSTS.display;
+const { SIDE_NAV_MIN_SCREEN_WIDTH, STICKY_HEADER_HEIGHT_VAR, STICKY_SUB_TAB_HEIGHT_VAR, STICKY_HEADER_Z_INDEX } =
+  CONSTS.display;
 const TERM_UI_KEY = 'wikiTerm';
 /** 계정 페이지가 고른 칸 · 묶음을 기억하는 키 (CalcSideNavLayout · CalcPage 와 같은 키) */
 const CALC_PANEL_UI_KEY = 'calcPanel';
@@ -126,17 +135,22 @@ const GROUP_LABELS = wiki.groups as Record<string, string>;
 /** Mantine 기본 탭 밑줄 두께 (px) */
 const TAB_LINE_WIDTH = 2;
 /** 폰 용어 탭: 감싼 상자에 아래 선, 탭 줄 자체 선은 지우고 고른 탭 밑줄을 상자 선 위로 */
-const PHONE_TERM_LINE_STYLE: CSSProperties = { borderBottom: `${TAB_LINE_WIDTH}px solid var(--mantine-color-default-border)` };
+const PHONE_TERM_LINE_STYLE: CSSProperties = {
+  borderBottom: `${TAB_LINE_WIDTH}px solid var(--mantine-color-default-border)`,
+};
 const PHONE_TERM_TABS_STYLE = { marginBottom: -TAB_LINE_WIDTH, '--tab-border-color': 'transparent' } as CSSProperties;
 /** 용어가 있는 묶음 (폰 묶음 탭 순서) */
 const PHONE_GROUP_IDS = Object.keys(GROUP_LABELS).filter((groupId) => TERMS.some((term) => term.group === groupId));
 
 /** 아직 덜 된 항목: 뜻 · 게임에서 보는 곳 · 해금 조건 (개념 설명 제외) 중 비었거나 "확인하지 못함" 이 있는 칸이 있으면 */
 const partPending = (part: WikiPart, concept: boolean) =>
-  [part.meaning, part.inGame, ...(concept ? [] : [part.unlock])].some((text) => !text || /확인하지 못|확인 못/.test(text));
+  [part.meaning, part.inGame, ...(concept ? [] : [part.unlock])].some(
+    (text) => !text || /확인하지 못|확인 못/.test(text),
+  );
 /** 항목 또는 그 소절 중 하나라도 덜 됐으면 */
 const isPending = (term: WikiTerm) =>
-  partPending(term, term.group === CONCEPT_GROUP) || (term.sections ?? []).some((section) => partPending(section, false));
+  partPending(term, term.group === CONCEPT_GROUP) ||
+  (term.sections ?? []).some((section) => partPending(section, false));
 /** 덜 된 것 옆에 붙는 "(확인중)" */
 function PendingMark({ pending }: { pending: boolean }) {
   const { t: translate } = useTranslation();
@@ -168,7 +182,17 @@ const termMatches = (term: WikiTerm, search: string) =>
   ].some((text) => text?.toLowerCase().includes(search.toLowerCase()));
 
 /** 칸 하나: 이름 + 글 (없으면 비었다는 안내) */
-function Field({ label, text, empty, link = true }: { label: string; text: string | null; empty: string; link?: boolean }) {
+function Field({
+  label,
+  text,
+  empty,
+  link = true,
+}: {
+  label: string;
+  text: string | null;
+  empty: string;
+  link?: boolean;
+}) {
   return (
     <Stack gap={2}>
       <Text size="xs" c="dimmed" fw={700}>
@@ -197,7 +221,8 @@ const NOT_TERM_WORDS: readonly string[] = ['룬스톤'];
 const LINK_TARGETS = new Map<string, string>();
 for (const term of TERMS) {
   const names = [term.term, ...term.term.split(', '), ...(term.sections ?? []).map((section) => section.title)];
-  for (const name of names) if (!UNLINKED_NAMES.includes(name) && !LINK_TARGETS.has(name)) LINK_TARGETS.set(name, term.id);
+  for (const name of names)
+    if (!UNLINKED_NAMES.includes(name) && !LINK_TARGETS.has(name)) LINK_TARGETS.set(name, term.id);
 }
 /** 긴 이름부터 맞춘다 ("코어 특성" 이 "특성" 보다 먼저) */
 const LINK_PATTERN = new RegExp(
@@ -224,7 +249,8 @@ function LinkedText({ text }: { text: string }) {
   const pieces = text.split(LINK_PATTERN);
   return pieces.map((piece, index) => {
     const id = index % 2 === 1 ? LINK_TARGETS.get(piece) : undefined;
-    if (!id || id === nav.currentId || linked.has(id) || insideLatinWord(piece, pieces[index - 1], pieces[index + 1])) return piece;
+    if (!id || id === nav.currentId || linked.has(id) || insideLatinWord(piece, pieces[index - 1], pieces[index + 1]))
+      return piece;
     linked.add(id);
     return (
       <Anchor key={`${piece}-${index}`} component="button" type="button" fz="sm" onClick={() => nav.select(id)}>
@@ -238,7 +264,9 @@ function LinkedText({ text }: { text: string }) {
 function RelatedTerms({ names }: { names: string[] }) {
   const { t: translate } = useTranslation();
   const nav = useContext(WikiNav);
-  const targets = names.map((name) => TERMS.find((term) => term.term === name)).filter((term): term is WikiTerm => term !== undefined);
+  const targets = names
+    .map((name) => TERMS.find((term) => term.term === name))
+    .filter((term): term is WikiTerm => term !== undefined);
   if (!nav || targets.length === 0) return null;
   return (
     <Stack gap={4}>
@@ -278,7 +306,11 @@ function TermTable({ table }: { table: WikiTable }) {
             {table.rows.map((row, rowIndex) => (
               <Table.Tr key={row.join('|')}>
                 {row.map((cell, index) => (
-                  <Table.Td key={table.columns[index]} ta={table.center ? 'center' : undefined} style={{ whiteSpace: 'pre-line' }}>
+                  <Table.Td
+                    key={table.columns[index]}
+                    ta={table.center ? 'center' : undefined}
+                    style={{ whiteSpace: 'pre-line' }}
+                  >
                     {index === table.heroColumn && table.heroIds ? (
                       <HeroCell ids={table.heroIds[rowIndex]} names={cell.split(', ')} />
                     ) : table.cellImages?.[rowIndex]?.[index] ? (
@@ -316,7 +348,13 @@ function TermShots({ shots }: { shots: WikiShot[] }) {
         const url = `${import.meta.env.BASE_URL}wiki/${shot.file}.webp`;
         return (
           <Stack key={shot.file} gap={4} maw={SHOT_MAX_WIDTH}>
-            <Image src={url} alt={shot.caption} loading="lazy" radius="sm" bd="1px solid var(--mantine-color-default-border)" />
+            <Image
+              src={url}
+              alt={shot.caption}
+              loading="lazy"
+              radius="sm"
+              bd="1px solid var(--mantine-color-default-border)"
+            />
             <Text size="xs" c="dimmed">
               {shot.caption}
             </Text>
@@ -334,7 +372,9 @@ function TermDetail({ term, onSelect }: { term: WikiTerm; onSelect: (id: string)
     <WikiNav.Provider value={nav}>
       <Stack gap="md">
         <Group gap="sm" wrap="nowrap">
-          {term.image && <Image src={iconUrl(term.image)} w={TERM_IMAGE_SIZE} h={TERM_IMAGE_SIZE} fit="contain" alt="" />}
+          {term.image && (
+            <Image src={iconUrl(term.image)} w={TERM_IMAGE_SIZE} h={TERM_IMAGE_SIZE} fit="contain" alt="" />
+          )}
           <Stack gap={0}>
             <Title order={3}>
               <TermName term={term} />

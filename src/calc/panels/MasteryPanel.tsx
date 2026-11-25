@@ -73,7 +73,9 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
   const note = translate(`calc.mastery.notes.${trait.rNo}`, { defaultValue: '' });
   // 추천 계산에서 뺀 이유는 넣는 법 안내와 따로 보인다
   const excludedReason = translate(`calc.mastery.excludedReasons.${trait.rNo}`, { defaultValue: '' });
-  const lockedText = locked ? translate(trait.ultimate ? 'calc.mastery.lockedUltimate' : 'calc.mastery.lockedPrevious') : '';
+  const lockedText = locked
+    ? translate(trait.ultimate ? 'calc.mastery.lockedUltimate' : 'calc.mastery.lockedPrevious')
+    : '';
   // 조건을 못 채웠으면 올리기는 막고 내리기만 받는다
   const changeLevel = (next: number) => onChangeLevel(trait, locked ? Math.min(next, level) : next);
   const icon = (
@@ -90,47 +92,47 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
       {/* 마우스를 설명 위로 옮겨도 닫히지 않아 글을 골라 복사할 수 있다 */}
       <HoverCard width={PANEL.TOOLTIP_MAX_WIDTH} shadow="md" position="top" withinPortal>
         <HoverCard.Dropdown p="xs">
-            <Text size="xs" fw={700}>
-              {name}
+          <Text size="xs" fw={700}>
+            {name}
+          </Text>
+          <Text size="xs">{effectText}</Text>
+          {/* 특성별 안내 (예: 같은 등급 연성장비 조건에서 GR · GR+ 는 다른 등급) */}
+          {note && (
+            <Text size="xs" mt={4}>
+              {note}
             </Text>
-            <Text size="xs">{effectText}</Text>
-            {/* 특성별 안내 (예: 같은 등급 연성장비 조건에서 GR · GR+ 는 다른 등급) */}
-            {note && (
-              <Text size="xs" mt={4}>
-                {note}
-              </Text>
-            )}
-            {excludedReason && (
-              <Text size="xs" mt={4}>
-                {excludedReason}
-              </Text>
-            )}
-            {lockedText && (
-              <Text size="xs" mt={4}>
-                {lockedText}
-              </Text>
-            )}
+          )}
+          {excludedReason && (
+            <Text size="xs" mt={4}>
+              {excludedReason}
+            </Text>
+          )}
+          {lockedText && (
+            <Text size="xs" mt={4}>
+              {lockedText}
+            </Text>
+          )}
         </HoverCard.Dropdown>
         <HoverCard.Target>
-        {readOnly ? (
-          <Box>{icon}</Box>
-        ) : trait.ultimate ? (
-          <UnstyledButton
-            aria-label={name}
-            aria-pressed={active}
-            onClick={() => changeLevel(active ? MIN_LEVEL : ULTIMATE_ON_LEVEL)}
-          >
-            {icon}
-          </UnstyledButton>
-        ) : (
-          <UnstyledButton
-            aria-label={translate('calc.mastery.fillMax', { name })}
-            // 누르면 최대 레벨, 이미 최대면 0
-            onClick={() => changeLevel(level >= trait.maxLevel ? MIN_LEVEL : trait.maxLevel)}
-          >
-            {icon}
-          </UnstyledButton>
-        )}
+          {readOnly ? (
+            <Box>{icon}</Box>
+          ) : trait.ultimate ? (
+            <UnstyledButton
+              aria-label={name}
+              aria-pressed={active}
+              onClick={() => changeLevel(active ? MIN_LEVEL : ULTIMATE_ON_LEVEL)}
+            >
+              {icon}
+            </UnstyledButton>
+          ) : (
+            <UnstyledButton
+              aria-label={translate('calc.mastery.fillMax', { name })}
+              // 누르면 최대 레벨, 이미 최대면 0
+              onClick={() => changeLevel(level >= trait.maxLevel ? MIN_LEVEL : trait.maxLevel)}
+            >
+              {icon}
+            </UnstyledButton>
+          )}
         </HoverCard.Target>
       </HoverCard>
       <Text size={PANEL.NODE_NAME_TEXT_SIZE} ta="center" lineClamp={PANEL.NODE_NAME_MAX_LINES} w="100%" title={name}>
@@ -184,10 +186,17 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
  * 특성 탭: 게임 특성 화면처럼 단계마다 한 줄에 아이콘과 레벨 칸만 놓는다.
  * 이름·효과는 아이콘 위에 올렸을 때 말풍선으로. 레벨은 칸 mastery_<rNo> 에 저장
  */
-export default function MasteryPanel({ values, setValue, tables, descriptions, readOnly }: TabPanelProps & { readOnly?: boolean }) {
+export default function MasteryPanel({
+  values,
+  setValue,
+  tables,
+  descriptions,
+  readOnly,
+}: TabPanelProps & { readOnly?: boolean }) {
   const { t: translate } = useTranslation();
   const changeLevel = useCallback(
-    (trait: MasteryTrait, level: number) => setValue(masteryLevelKey(trait.rNo), String(clampedMasteryLevel(trait, level))),
+    (trait: MasteryTrait, level: number) =>
+      setValue(masteryLevelKey(trait.rNo), String(clampedMasteryLevel(trait, level))),
     [setValue],
   );
   const masteryTable = tables.Mastery;
@@ -199,7 +208,12 @@ export default function MasteryPanel({ values, setValue, tables, descriptions, r
   const allocation: Allocation = Object.fromEntries(traits.map((trait) => [trait.rNo, masteryLevel(values, trait)]));
   const lockedSet = new Set(
     traits
-      .filter((trait) => !(trait.ultimate ? ultimateGateCleared(traits, trait, allocation) : previousStepCleared(traits, trait, allocation)))
+      .filter(
+        (trait) =>
+          !(trait.ultimate
+            ? ultimateGateCleared(traits, trait, allocation)
+            : previousStepCleared(traits, trait, allocation)),
+      )
       .map((trait) => trait.rNo),
   );
   const violationNames = traits
@@ -278,7 +292,12 @@ export default function MasteryPanel({ values, setValue, tables, descriptions, r
                     align="flex-start"
                   >
                     {/* 단계 이름 아래에 열리는 레벨 (같은 레벨에 단계 두 개가 열리는 곳이 있어 옆 칸과 맞춰 보게) */}
-                    <Stack gap={0} w={PANEL.STAGE_LABEL_WIDTH} pt={PANEL.STAGE_LABEL_TOP_OFFSET} style={{ whiteSpace: 'nowrap' }}>
+                    <Stack
+                      gap={0}
+                      w={PANEL.STAGE_LABEL_WIDTH}
+                      pt={PANEL.STAGE_LABEL_TOP_OFFSET}
+                      style={{ whiteSpace: 'nowrap' }}
+                    >
                       <Text size="xs" c="dimmed">
                         {translate('calc.mastery.step', { step })}
                       </Text>
@@ -287,7 +306,13 @@ export default function MasteryPanel({ values, setValue, tables, descriptions, r
                       </Text>
                     </Stack>
                     {/* 특성 칸은 줄 가운데에 일정한 간격으로 */}
-                    <Group justify="center" gap={PANEL.TRAIT_ROW_GAP} wrap="nowrap" align="flex-start" style={{ flex: 1 }}>
+                    <Group
+                      justify="center"
+                      gap={PANEL.TRAIT_ROW_GAP}
+                      wrap="nowrap"
+                      align="flex-start"
+                      style={{ flex: 1 }}
+                    >
                       {stepTraits.map((trait) => (
                         <TraitNode
                           key={trait.rNo}

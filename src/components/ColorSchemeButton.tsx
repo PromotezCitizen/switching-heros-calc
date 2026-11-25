@@ -48,7 +48,13 @@ export default function ColorSchemeButton() {
     next: translate(`common.colorScheme.${next}`),
   });
   return (
-    <ActionIcon variant="default" size={BUTTON_HEIGHT} onClick={() => setColorScheme(next)} aria-label={hint} title={hint}>
+    <ActionIcon
+      variant="default"
+      size={BUTTON_HEIGHT}
+      onClick={() => setColorScheme(next)}
+      aria-label={hint}
+      title={hint}
+    >
       <SchemeIcon scheme={colorScheme} />
     </ActionIcon>
   );

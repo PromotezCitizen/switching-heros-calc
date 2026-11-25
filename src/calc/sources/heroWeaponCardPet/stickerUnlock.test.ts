@@ -13,10 +13,17 @@ describe('카드 스티커는 배지 칸이 있는 카드 (URP 이상) 를 장�
 
   it('장착 카드가 없거나 배지 칸 없는 카드뿐이면 닫힘', () => {
     expect(stickerUnlocked({}, tables)).toBe(false);
-    expect(stickerUnlocked({ [cardSlotField(1)]: withoutSlot.cardId, [cardGradeField(1)]: gradeStarValue(withoutSlot) }, tables)).toBe(false);
+    expect(
+      stickerUnlocked(
+        { [cardSlotField(1)]: withoutSlot.cardId, [cardGradeField(1)]: gradeStarValue(withoutSlot) },
+        tables,
+      ),
+    ).toBe(false);
   });
 
   it('배지 칸이 있는 카드를 하나라도 장착하면 열림', () => {
-    expect(stickerUnlocked({ [cardSlotField(2)]: withSlot.cardId, [cardGradeField(2)]: gradeStarValue(withSlot) }, tables)).toBe(true);
+    expect(
+      stickerUnlocked({ [cardSlotField(2)]: withSlot.cardId, [cardGradeField(2)]: gradeStarValue(withSlot) }, tables),
+    ).toBe(true);
   });
 });

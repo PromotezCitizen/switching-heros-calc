@@ -103,21 +103,37 @@ describe('피규어 (T1276, stat-provider-formulas.md 10-5절)', () => {
     const base: CalcValues = { [figureLevelField(cardSetPoint.figureId)]: '1' };
     expect(figureLines(base, tables, label).some((line) => line.stat === '_per_attackDamage')).toBe(false);
     const lines = figureLines({ ...base, relicLink_cardSetBonus: '460' }, tables, label);
-    expect(lines.map((line) => [line.stat, line.value])).toContainEqual(['_per_attackDamage', Number(row.statValue1) * 460]);
+    expect(lines.map((line) => [line.stat, line.value])).toContainEqual([
+      '_per_attackDamage',
+      Number(row.statValue1) * 460,
+    ]);
     expect(lines.some((line) => line.stat === '_per_attackDamage_CardSetPoint')).toBe(false);
   });
 
   it('개수형: 값 x N % 로 공격력 · 체력 증가에 (N = D·C 레벨 합 · 신화 수 · 각성 합, 게임 m2684)', () => {
     const value = (figureId: string) => Number(figureRow(tables, figureId, 1)!.statValue1);
     // 82번 (B) 고급·희귀 레벨 합 공격력: D 1번 Lv5 + C 32번 Lv3 = 8 (B 인 82번 자신은 안 셈)
-    const dc: CalcValues = { [figureLevelField('82')]: '1', [figureLevelField('1')]: '5', [figureLevelField('32')]: '3' };
-    expect(figureLines(dc, tables, label).map((line) => [line.stat, line.value])).toContainEqual(['_per_attackDamage', value('82') * 8]);
+    const dc: CalcValues = {
+      [figureLevelField('82')]: '1',
+      [figureLevelField('1')]: '5',
+      [figureLevelField('32')]: '3',
+    };
+    expect(figureLines(dc, tables, label).map((line) => [line.stat, line.value])).toContainEqual([
+      '_per_attackDamage',
+      value('82') * 8,
+    ]);
     // 99번 (S) 신화 피규어 수: 99 · 108 두 개
     const mythic: CalcValues = { [figureLevelField('99')]: '1', [figureLevelField('108')]: '1' };
-    expect(figureLines(mythic, tables, label).map((line) => [line.stat, line.value])).toContainEqual(['_per_attackDamage', value('99') * 2]);
+    expect(figureLines(mythic, tables, label).map((line) => [line.stat, line.value])).toContainEqual([
+      '_per_attackDamage',
+      value('99') * 2,
+    ]);
     // 107번 (S) 히어로 각성 레벨 합: 10 + 5
     const awaken: CalcValues = { [figureLevelField('107')]: '1', heroOwnedAwaken_0: '10', heroOwnedAwaken_205: '5' };
-    expect(figureLines(awaken, tables, label).map((line) => [line.stat, line.value])).toContainEqual(['_per_attackDamage', value('107') * 15]);
+    expect(figureLines(awaken, tables, label).map((line) => [line.stat, line.value])).toContainEqual([
+      '_per_attackDamage',
+      value('107') * 15,
+    ]);
     // N 이 0 이면 줄 없음, 원래 이름 (…FigureLvSumDC) 은 줄로 남기지 않는다
     const alone = figureLines({ [figureLevelField('107')]: '1' }, tables, label);
     expect(alone.some((line) => line.stat.includes('AwakenLvSum') || line.stat === '_per_attackDamage')).toBe(false);
@@ -142,7 +158,9 @@ describe('속성 룬 연구실 (T1262 (다), stat-provider-formulas.md 3-3절)',
 
   // 연구소는 속성 룬 6개가 모두 최대일 때만 열린다 (ContentsUnlock RuneMax)
   const maxedRunes: CalcValues = Object.fromEntries(
-    attributeRunes(tables.AttributeRune).filter((rune) => rune.key !== CONSTS.masteryRuneBuff.CORE_RUNE_KEY).map((rune) => [runeFieldKey(rune), String(rune.maxLevel)]),
+    attributeRunes(tables.AttributeRune)
+      .filter((rune) => rune.key !== CONSTS.masteryRuneBuff.CORE_RUNE_KEY)
+      .map((rune) => [runeFieldKey(rune), String(rune.maxLevel)]),
   );
 
   it('속성 룬이 최대가 아니면 (잠김) 연구소 레벨을 넣어도 줄 없음', () => {
@@ -150,7 +168,11 @@ describe('속성 룬 연구실 (T1262 (다), stat-provider-formulas.md 3-3절)',
   });
 
   it('속성마다 (속성, 레벨) 행 하나의 보상 스탯 · 값 (낮은 레벨 행을 더하지 않음)', () => {
-    const lines = runeLabLines({ ...maxedRunes, [runeLabField('Fire')]: '5', [runeLabField('Water')]: '2' }, tables, label);
+    const lines = runeLabLines(
+      { ...maxedRunes, [runeLabField('Fire')]: '5', [runeLabField('Water')]: '2' },
+      tables,
+      label,
+    );
     expect(lines.map((line) => [line.stat, line.value])).toEqual([
       ['_per_FireHero_AttackDamage', Number(labRow('Fire', 5).rwdValue)],
       ['_per_WaterHero_AttackDamage', Number(labRow('Water', 2).rwdValue)],

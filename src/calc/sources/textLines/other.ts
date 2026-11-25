@@ -9,14 +9,15 @@ import type { CalcValues } from '@/calc/types';
 import { slotHeroName } from '@/calc/sources/hero/character';
 import { rosterHeroes } from '@/calc/sources/hero/roster';
 import { rosterAffinityField, rosterAwakenField } from '@/calc/sources/hero/rosterFields';
-import { isChecked, screenFieldLines, wholeLevel, type ScreenField, type SourceLabel } from '@/calc/sources/textLines/screenFields';
+import {
+  isChecked,
+  screenFieldLines,
+  wholeLevel,
+  type ScreenField,
+  type SourceLabel,
+} from '@/calc/sources/textLines/screenFields';
 
-const {
-  TABLE_NAMES,
-  FAIRY_BLESSING_STATS,
-  HERO_AWAKEN_STAT_COLUMNS,
-  HERO_NAME_FIELD,
-} = CONSTS.textLines;
+const { TABLE_NAMES, FAIRY_BLESSING_STATS, HERO_AWAKEN_STAT_COLUMNS, HERO_NAME_FIELD } = CONSTS.textLines;
 
 /** 프로필 아이콘 "능력치 확인" 누적 값 */
 export const PROFILE_ICON_FIELDS: ScreenField[] = [
@@ -35,7 +36,6 @@ export const FAIRY_BLESSING_ON_FIELD = 'fairyBlessingOn';
 export const FAIRY_BOND_LEVEL_FIELD = 'fairyBondLevel';
 export const HERO_AWAKEN_LEVEL_FIELD = 'heroAwakenLevel';
 
-
 function rowsOf(tables: StatTables, name: string): TableRow[] {
   const table = tables[name];
   return table ? tableRows(table) : [];
@@ -51,9 +51,8 @@ export function heroAwakenRow(values: CalcValues, tables: StatTables): TableRow 
   const level = wholeLevel(values[rosterAwakenField(hero.charId)] || values[HERO_AWAKEN_LEVEL_FIELD]);
   if (!level) return null;
   return (
-    rowsOf(tables, TABLE_NAMES.HERO_AWAKEN).find(
-      (row) => row.charId === hero.charId && Number(row.lv) === level,
-    ) ?? null
+    rowsOf(tables, TABLE_NAMES.HERO_AWAKEN).find((row) => row.charId === hero.charId && Number(row.lv) === level) ??
+    null
   );
 }
 
@@ -79,7 +78,11 @@ export function affinityLines(values: CalcValues, tables: StatTables, sourceLabe
     for (const [typeColumn, valueColumn] of AFFINITY_STAT_COLUMNS) {
       const value = Number(row[valueColumn]);
       if (value > 0) {
-        lines.push({ source: sourceLabel('calc.other.sources.affinity', { hero: hero.name, level }), stat: row[typeColumn], value });
+        lines.push({
+          source: sourceLabel('calc.other.sources.affinity', { hero: hero.name, level }),
+          stat: row[typeColumn],
+          value,
+        });
       }
     }
   }
@@ -90,7 +93,10 @@ export function affinityLines(values: CalcValues, tables: StatTables, sourceLabe
 export function heroAwakenLines(values: CalcValues, tables: StatTables, sourceLabel: SourceLabel): Line[] {
   const heroAwaken = heroAwakenRow(values, tables);
   if (!heroAwaken) return [];
-  const source = sourceLabel('calc.other.sources.heroAwaken', { level: heroAwaken.lv, hero: slotHeroName(values, tables, HERO_NAME_FIELD) });
+  const source = sourceLabel('calc.other.sources.heroAwaken', {
+    level: heroAwaken.lv,
+    hero: slotHeroName(values, tables, HERO_NAME_FIELD),
+  });
   return HERO_AWAKEN_STAT_COLUMNS.flatMap(([typeColumn, valueColumn]) => {
     const stat = heroAwaken[typeColumn];
     const value = Number(heroAwaken[valueColumn]);

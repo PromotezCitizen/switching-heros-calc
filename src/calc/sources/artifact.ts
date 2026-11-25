@@ -34,10 +34,7 @@ export const ARTIFACT_TOTAL_FIELDS: ArtifactTotalField[] = [
 ];
 
 /** fieldTexts: 칸 이름 → 입력한 글. 읽을 수 없는 칸은 줄을 만들지 않는다 */
-export function artifactLines(
-  fieldTexts: Record<string, string>,
-  sourceLabel: (fieldId: string) => string,
-): Line[] {
+export function artifactLines(fieldTexts: Record<string, string>, sourceLabel: (fieldId: string) => string): Line[] {
   const lines: Line[] = [];
   for (const field of ARTIFACT_TOTAL_FIELDS) {
     const parsed = parseGameNumber(fieldTexts[field.id]);

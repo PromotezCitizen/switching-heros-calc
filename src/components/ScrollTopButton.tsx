@@ -25,7 +25,9 @@ export default function ScrollTopButton({ target }: ScrollTopButtonProps) {
     const element = target?.current ?? null;
     const read = () => {
       const scrolled = element ? element.scrollTop : window.scrollY;
-      const scrollable = element ? element.scrollHeight - element.clientHeight : document.documentElement.scrollHeight - window.innerHeight;
+      const scrollable = element
+        ? element.scrollHeight - element.clientHeight
+        : document.documentElement.scrollHeight - window.innerHeight;
       if (scrollable <= TOP_ZONE) setJump(null);
       else setJump(scrolled > TOP_ZONE ? 'top' : 'bottom');
     };

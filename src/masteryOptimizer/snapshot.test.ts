@@ -24,7 +24,12 @@ const DAMAGE: DamageInputs = {
   attributeDungeonFloor: null,
   monsterHp: monsterHp as MonsterHpData,
 };
-const INPUTS: OptimizerInputs = { userLevel: USER_LEVEL_1018, vipLevel: Number(VALUES[ACCOUNT_KEYS.vipLevel]), target: 'stage', damage: DAMAGE };
+const INPUTS: OptimizerInputs = {
+  userLevel: USER_LEVEL_1018,
+  vipLevel: Number(VALUES[ACCOUNT_KEYS.vipLevel]),
+  target: 'stage',
+  damage: DAMAGE,
+};
 
 describe('최적 특성 페이지가 불러오는 표만으로 계산해도 결과가 같다 (브라우저에서는 이 표만 받는다)', () => {
   const pageTables = Object.fromEntries(Object.entries(tables).filter(([name]) => OPTIMIZER_TABLES.includes(name)));

@@ -9,7 +9,13 @@ import TitlePanel from '@/calc/panels/TitlePanel';
 import type { CalcTab } from '@/calc/types';
 import { costumeLines, encyclopediaLines, titleLines } from '@/calc/sources/textLines/collection';
 import { diaryLines } from '@/calc/sources/textLines/diary';
-import { AFFINITY_TABLE_NAMES, FAIRY_TABLE_NAMES, affinityLines, fairyBlessingLines, profileIconLines } from '@/calc/sources/textLines/other';
+import {
+  AFFINITY_TABLE_NAMES,
+  FAIRY_TABLE_NAMES,
+  affinityLines,
+  fairyBlessingLines,
+  profileIconLines,
+} from '@/calc/sources/textLines/other';
 import type { SourceLabel } from '@/calc/sources/textLines/screenFields';
 
 /** 출처 글은 번역 파일에서 가져온다 (계산 함수는 번역을 직접 부르지 않고 이 함수를 받는다) */

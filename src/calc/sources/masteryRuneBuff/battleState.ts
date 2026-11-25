@@ -12,7 +12,12 @@ import type { RawTable, StatTables } from '@/data/statTables';
 import type { Line } from '@/calc/combine';
 import type { CalcValues } from '@/calc/types';
 import { chancesFromLines, type Chances } from '@/calc/sources/masteryRuneBuff/chances';
-import { learnedTraitValue, masteryTraits, plainNumber, rushChanceCounts } from '@/calc/sources/masteryRuneBuff/mastery';
+import {
+  learnedTraitValue,
+  masteryTraits,
+  plainNumber,
+  rushChanceCounts,
+} from '@/calc/sources/masteryRuneBuff/mastery';
 import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 import { cardKillSpeedLines } from '@/calc/sources/heroWeaponCardPet/card';
 import { summaryTarget } from '@/calc/sources/summary/summary';
@@ -50,8 +55,16 @@ export function battleStatLines(values: CalcValues, masteryTable: RawTable, sour
     learnedTraitValue(traits, values, STATS.DOUBLE_ATTACK_SPEED_UP) ? BATTLE.DOUBLE_ATTACK_SPEED_UP_PERCENT : 0,
     'calc.buff.battle.doubleAttackSpeedSource',
   );
-  add(STATS.ATTACK_SPEED, learnedTraitValue(traits, values, STATS.BERSERK_ADD_SPEED), 'calc.buff.battle.berserkSpeedSource');
-  add(STATS.ATTACK_SPEED, learnedTraitValue(traits, values, STATS.SMITE_ADD_SPEED), 'calc.buff.battle.smiteSpeedSource');
+  add(
+    STATS.ATTACK_SPEED,
+    learnedTraitValue(traits, values, STATS.BERSERK_ADD_SPEED),
+    'calc.buff.battle.berserkSpeedSource',
+  );
+  add(
+    STATS.ATTACK_SPEED,
+    learnedTraitValue(traits, values, STATS.SMITE_ADD_SPEED),
+    'calc.buff.battle.smiteSpeedSource',
+  );
   add(
     STATS.CRITICAL_RATE,
     compoundPercent(learnedTraitValue(traits, values, STATS.SMITE_CRITICAL_RATE_UP)),
@@ -80,7 +93,10 @@ export function chancesWithBattleState(
   sourceLabel: SourceLabel,
 ): { chances: Chances; battleLines: Line[] } {
   // 카드 처치 공격속도도 연타 확률에 들어가므로 여기서 같이 넣는다
-  const battleLines = [...battleStatLines(values, masteryTable, sourceLabel), ...cardKillSpeedLines(otherLines, sourceLabel, summaryTarget(values))];
+  const battleLines = [
+    ...battleStatLines(values, masteryTable, sourceLabel),
+    ...cardKillSpeedLines(otherLines, sourceLabel, summaryTarget(values)),
+  ];
   return { chances: chancesFromLines([...otherLines, ...battleLines], values, tables), battleLines };
 }
 
@@ -109,9 +125,11 @@ export function battleDamageLines(
   const addRush = (stat: string, chance: number, threshold: number, sourceKey: string) => {
     if (!rushChanceCounts(values, chance)) return;
     const steps = Math.floor((chance - threshold) / BATTLE.RUSH_STEP);
-    if (steps > 0) add(learnedTraitValue(traits, values, stat) * steps, sourceKey, { chance: plainNumber(chance), steps });
+    if (steps > 0)
+      add(learnedTraitValue(traits, values, stat) * steps, sourceKey, { chance: plainNumber(chance), steps });
   };
-  if (magicGuardOn) add(learnedTraitValue(traits, values, STATS.BARRIER_FULL_DAMAGE), 'calc.buff.battle.barrierFullSource');
+  if (magicGuardOn)
+    add(learnedTraitValue(traits, values, STATS.BARRIER_FULL_DAMAGE), 'calc.buff.battle.barrierFullSource');
   const doubleAttack = chances.doubleAttack ?? 0;
   if (doubleAttack > DOUBLE_ATTACK_THRESHOLD) {
     add(learnedTraitValue(traits, values, STATS.OVERCHARGE), 'calc.buff.battle.overchargeSource', {

@@ -7,9 +7,23 @@ import { CONSTS } from '@/CONSTS';
 import type { StatTables, TableRow } from '@/data/statTables';
 import type { Line } from '@/calc/combine';
 import type { CalcValues } from '@/calc/types';
-import { gradeStarValue, groupBy, rowsOf, screenLog, unique, type RowGroup, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
+import {
+  gradeStarValue,
+  groupBy,
+  rowsOf,
+  screenLog,
+  unique,
+  type RowGroup,
+  type SourceLabel,
+} from '@/calc/sources/heroWeaponCardPet/shared';
 
-const { SLOTS, OPTIONS, EXCLUDED_OPTION_STAT, AILMENT_LEADER_PREFIX, REGION: PET_REGION } = CONSTS.heroWeaponCardPet.pet;
+const {
+  SLOTS,
+  OPTIONS,
+  EXCLUDED_OPTION_STAT,
+  AILMENT_LEADER_PREFIX,
+  REGION: PET_REGION,
+} = CONSTS.heroWeaponCardPet.pet;
 const PERCENT_DIVISOR = CONSTS.common.PERCENT_DIVISOR;
 
 export const PET_LEADER_FIELD = 'petLeader';
@@ -105,13 +119,17 @@ export function petRegionUnlocked(values: CalcValues, tables: StatTables): boole
 function petRegionPlacementFactor(tables: StatTables, count: number): number {
   if (count <= 0) return 0;
   const key = `${PET_REGION.PLACEMENT_KEY_PREFIX}${Math.min(count, PET_REGION.PLACEMENT_MAX_COUNT)}`;
-  const row = rowsOf(tables, PET_REGION.PLACEMENT_TABLE).find((record) => record[PET_REGION.PLACEMENT_KEY_COLUMN] === key);
+  const row = rowsOf(tables, PET_REGION.PLACEMENT_TABLE).find(
+    (record) => record[PET_REGION.PLACEMENT_KEY_COLUMN] === key,
+  );
   return row ? Number(row[PET_REGION.PLACEMENT_VALUE_COLUMN]) / PERCENT_DIVISOR : 0;
 }
 
 /** 지역 레벨 → 표 PetRegion 의 행 (없으면 undefined) */
 export function petRegionRow(tables: StatTables, level: number): TableRow | undefined {
-  return level > 0 ? rowsOf(tables, PET_REGION.TABLE).find((row) => Number(row[PET_REGION.LEVEL_COLUMN]) === level) : undefined;
+  return level > 0
+    ? rowsOf(tables, PET_REGION.TABLE).find((row) => Number(row[PET_REGION.LEVEL_COLUMN]) === level)
+    : undefined;
 }
 
 /**
@@ -153,7 +171,11 @@ export function petLines(values: CalcValues, tables: StatTables, label: SourceLa
     if (!petId) continue;
     const row = ownedPetRow(values, tables, petId);
     if (String(slot) === leaderSlot && row && !isAilmentLeader(row.leaderStatType)) {
-      lines.push({ source: label('calc.pet.sources.leader', { pet: petName(petId) }), stat: row.leaderStatType, value: Number(row.leaderStatValue1) });
+      lines.push({
+        source: label('calc.pet.sources.leader', { pet: petName(petId) }),
+        stat: row.leaderStatType,
+        value: Number(row.leaderStatValue1),
+      });
     }
     const optionCount = row ? Number(row.optionCnt) : 0;
     const choices = petOptionStats(tables, petId);

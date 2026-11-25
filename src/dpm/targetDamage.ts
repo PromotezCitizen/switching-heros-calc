@@ -6,7 +6,14 @@
  * 스테이지 보스는 남은 시간 50% 이하 줄, 데빌윙크는 늘 걸림. 큰 수라 대미지는 모두 log10
  */
 import { CONSTS } from '@/CONSTS';
-import { SKILL_EQUIP_SLOT_NUMBERS, chosenSkillOptions, skillEquipField, skillLevel, skillRows, skillRuneValue } from '@/calc/sources/skill/skill';
+import {
+  SKILL_EQUIP_SLOT_NUMBERS,
+  chosenSkillOptions,
+  skillEquipField,
+  skillLevel,
+  skillRows,
+  skillRuneValue,
+} from '@/calc/sources/skill/skill';
 import type { CalcValues } from '@/calc/types';
 import type { StatTables, TableRow } from '@/data/statTables';
 import { jobSkillHits } from '@/dpm/jobSkillHits';
@@ -133,10 +140,24 @@ function kindHitLog(stats: AttackStats, kind: AttackKind, statusCount: number): 
     },
     modifiers.criticalRate,
   );
-  const critical = expectedLog(chanceOf(modifiers.criticalRate), modifiers.criticalMultiplierLog + Math.log10(superCritical));
+  const critical = expectedLog(
+    chanceOf(modifiers.criticalRate),
+    modifiers.criticalMultiplierLog + Math.log10(superCritical),
+  );
   const spear = expectedSpear(read.sum(SPEAR.STATS.BASE) + read.sum(SPEAR.STATS.ADD), read.sum(SPEAR.STATS.DAMAGE));
-  const smite = expectedSmite(read.sum(SMITE.STATS.BASE) + read.sum(SMITE.STATS.ADD), read.sum(SMITE.STATS.DAMAGE), read.sum(SMITE.STATS.CC), statusCount);
-  return (stats.targetFinalAttackLog ?? -Infinity) + modifiers.extraAttackLog + critical + Math.log10(spear) + Math.log10(smite);
+  const smite = expectedSmite(
+    read.sum(SMITE.STATS.BASE) + read.sum(SMITE.STATS.ADD),
+    read.sum(SMITE.STATS.DAMAGE),
+    read.sum(SMITE.STATS.CC),
+    statusCount,
+  );
+  return (
+    (stats.targetFinalAttackLog ?? -Infinity) +
+    modifiers.extraAttackLog +
+    critical +
+    Math.log10(spear) +
+    Math.log10(smite)
+  );
 }
 
 /** 체력 70% 이상 배수 (log10): 묶음 A _per_hp70UpDamage × 그 스킬의 옵션 종류 10 */
@@ -149,10 +170,17 @@ function hpHighLog(stats: AttackStats, options: TableRow[]): number {
 
 /** 대상 상태이상 수: 입력이 있으면 그 값, 없으면 OPTIMIZER_RULES (대상별 값이 있으면 그 값) */
 function statusCountOf(target: DamageTarget, inputs: DamageInputs): number {
-  return inputs.targetStatusCount[target] ?? OPTIMIZER_RULES.STATUS_COUNT_BY_TARGET[target] ?? OPTIMIZER_RULES.STATUS_COUNT;
+  return (
+    inputs.targetStatusCount[target] ?? OPTIMIZER_RULES.STATUS_COUNT_BY_TARGET[target] ?? OPTIMIZER_RULES.STATUS_COUNT
+  );
 }
 
-export function targetDamage(values: CalcValues, tables: StatTables, target: DamageTarget, inputs: DamageInputs): TargetDamage {
+export function targetDamage(
+  values: CalcValues,
+  tables: StatTables,
+  target: DamageTarget,
+  inputs: DamageInputs,
+): TargetDamage {
   const unit = TARGETS[target].UNIT;
   // 한 번에 맞는 적 수: 일반 묶음 대상 (스테이지 · 속성 일반 층 · 글로벌 일반 주) 은 입력 (글로벌은 5기라 최대 5), 보스 · 히어로는 1
   const maxTargets = CONSTS.dpm.MAX_TARGETS[target] ?? Infinity;
@@ -170,8 +198,11 @@ export function targetDamage(values: CalcValues, tables: StatTables, target: Dam
   const devilWinkLog = charHits.supported ? Math.log10(1 + stats.read.sum(DEVIL_WINK.STAT) / PERCENT_DIVISOR) : 0;
   // 스테이지 보스 남은 시간 50% 이하 줄: 최대 상태라 늘 붙는다
   const bossTimeLog = (isSkill: boolean) =>
-    target === 'stageBoss' ? stats.read.log(BOSS_TIME_SHORT.ATTACK_STAT) + (isSkill ? stats.read.log(BOSS_TIME_SHORT.SKILL_STAT) : 0) : 0;
-  const conditionLog = (isSkill: boolean, options: TableRow[]) => devilWinkLog + bossTimeLog(isSkill) + (fullHp ? hpHighLog(stats, options) : 0);
+    target === 'stageBoss'
+      ? stats.read.log(BOSS_TIME_SHORT.ATTACK_STAT) + (isSkill ? stats.read.log(BOSS_TIME_SHORT.SKILL_STAT) : 0)
+      : 0;
+  const conditionLog = (isSkill: boolean, options: TableRow[]) =>
+    devilWinkLog + bossTimeLog(isSkill) + (fullHp ? hpHighLog(stats, options) : 0);
   const parts: DamagePart[] = [];
 
   // 평타: 대상 1, 한 번 = 한 적중
@@ -185,15 +216,22 @@ export function targetDamage(values: CalcValues, tables: StatTables, target: Dam
     if (!row || skillLevel(values, skillId) <= 0) continue;
     const kind: AttackKind = row.skillType === BUFF_SKILL_TYPE ? 'buff' : 'active';
     const options = chosenSkillOptions(values, tables, skillId);
-    if (options.some((option) => (BURN_OPTION_TYPES as readonly string[]).includes(option.type))) missing.push(`burnOption:${skillId}`);
+    if (options.some((option) => (BURN_OPTION_TYPES as readonly string[]).includes(option.type)))
+      missing.push(`burnOption:${skillId}`);
     const hits = jobSkillHits(values, tables, skillId, targets, statusCount);
     if (!hits.supported) {
       missing.push(`unsupportedSkill:${skillId}`);
       continue;
     }
     missing.push(...(hits.estimates ?? []).map((estimate) => `${estimate}:${skillId}`));
-    const coefficient = skillCoefficient(values, tables, { skillId, target: unit, targets, heroAttribute: stats.hero?.attribute });
-    const hitLog = kindHitLog(stats, kind, statusCount) + coefficient.coefficientLog + Math.log10(hits.coefficientFactor);
+    const coefficient = skillCoefficient(values, tables, {
+      skillId,
+      target: unit,
+      targets,
+      heroAttribute: stats.hero?.attribute,
+    });
+    const hitLog =
+      kindHitLog(stats, kind, statusCount) + coefficient.coefficientLog + Math.log10(hits.coefficientFactor);
     parts.push({ kind, skillId, damagePerCastLog: hitLog + Math.log10(hits.hits) + conditionLog(true, options) });
   }
 
@@ -201,7 +239,11 @@ export function targetDamage(values: CalcValues, tables: StatTables, target: Dam
   if (charHits.supported) {
     missing.push(...(charHits.estimates ?? []).map((estimate) => `${estimate}:${charHits.skillId}`));
     const hitLog = kindHitLog(stats, 'char', statusCount) + charHits.coefficientLog;
-    parts.push({ kind: 'char', skillId: charHits.skillId ?? undefined, damagePerCastLog: hitLog + Math.log10(charHits.hits) + conditionLog(true, []) });
+    parts.push({
+      kind: 'char',
+      skillId: charHits.skillId ?? undefined,
+      damagePerCastLog: hitLog + Math.log10(charHits.hits) + conditionLog(true, []),
+    });
   } else if (charHits.skillId) {
     missing.push(`unsupportedCharSkill:${charHits.skillId}`);
   }
@@ -209,14 +251,26 @@ export function targetDamage(values: CalcValues, tables: StatTables, target: Dam
   // 교체 스킬 (공격 종류 3): 자동 교체를 켰을 때만
   if (inputs.swap === true && stats.hero) {
     const awakenLevel = Number(values[rosterAwakenField(stats.hero.charId)]) || 0;
-    const swapRow = changeSkillRow(tables.CharacterAwaken, tables.ChangeSkill, stats.hero.charId, awakenLevel, stats.hero.changeSkillId);
+    const swapRow = changeSkillRow(
+      tables.CharacterAwaken,
+      tables.ChangeSkill,
+      stats.hero.charId,
+      awakenLevel,
+      stats.hero.changeSkillId,
+    );
     const swapHits = changeSkillHits(swapRow, targets);
     if (swapRow && swapHits.supported && swapHits.hits > 0) {
       missing.push(...(swapHits.estimates ?? []).map((estimate) => `${estimate}:${swapRow.skillId}`));
       // 대미지 한 번 = 공격력 × damage / 100 × 영웅 옵션 곱 (전용 스킬과 같은 정보 만들기, damage-pipeline.md 3-4)
       const hitLog =
-        kindHitLog(stats, 'swap', statusCount) + Math.log10((Number(swapRow.damage) || 0) / PERCENT_DIVISOR) + Math.log10(heroOptionMultiplier(values, tables));
-      parts.push({ kind: 'swap', skillId: swapRow.skillId, damagePerCastLog: hitLog + Math.log10(swapHits.hits) + conditionLog(true, []) });
+        kindHitLog(stats, 'swap', statusCount) +
+        Math.log10((Number(swapRow.damage) || 0) / PERCENT_DIVISOR) +
+        Math.log10(heroOptionMultiplier(values, tables));
+      parts.push({
+        kind: 'swap',
+        skillId: swapRow.skillId,
+        damagePerCastLog: hitLog + Math.log10(swapHits.hits) + conditionLog(true, []),
+      });
     } else {
       missing.push(`${CHANGE_SKILL.UNSUPPORTED_CODE}:${swapRow?.skillId ?? stats.hero.changeSkillId ?? ''}`);
     }

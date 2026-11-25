@@ -21,7 +21,13 @@ function fakeEvaluate(worth: Record<string, number>) {
 }
 
 describe('카드 추천 편성', () => {
-  const owned = [card('a', [['1', '2']]), card('b', [['1', '2']]), card('c', [['1', '2']]), card('d', [['1']]), card('e', [['2']])];
+  const owned = [
+    card('a', [['1', '2']]),
+    card('b', [['1', '2']]),
+    card('c', [['1', '2']]),
+    card('d', [['1']]),
+    card('e', [['2']]),
+  ];
   const options = { markCount: () => 1, owned, slots: 3 };
 
   it('안 쓴 더 좋은 카드로 바꾸고 같은 세트로 모은다', () => {
@@ -40,7 +46,12 @@ describe('카드 추천 편성', () => {
   it('고정 카드 (fixedCount): 앞의 고정 칸은 더 좋은 카드가 있어도 바꾸지 않고 나머지 칸만 채운다', () => {
     const worth = { a: 0, b: 0, c: 0, d: 5, e: 5 };
     const fixed: Loadout = [{ card: owned[0], picks: [] }];
-    const result = recommendCards(fixed, { ...options, withMarks: false, evaluate: fakeEvaluate(worth), fixedCount: 1 });
+    const result = recommendCards(fixed, {
+      ...options,
+      withMarks: false,
+      evaluate: fakeEvaluate(worth),
+      fixedCount: 1,
+    });
     expect(result.loadout[0].card.cardId).toBe('a');
     expect(result.loadout.map((entry) => entry.card.cardId).sort()).toEqual(['a', 'd', 'e']);
   });
@@ -57,7 +68,11 @@ describe('카드 추천 편성', () => {
   });
 
   it('이미 최선이면 효율이 그대로다', () => {
-    const start: Loadout = [{ card: owned[0], picks: ['1'] }, { card: owned[1], picks: ['1'] }, { card: owned[2], picks: ['1'] }];
+    const start: Loadout = [
+      { card: owned[0], picks: ['1'] },
+      { card: owned[1], picks: ['1'] },
+      { card: owned[2], picks: ['1'] },
+    ];
     const evaluate = fakeEvaluate({});
     const first = recommendCards(start, { ...options, evaluate });
     const again = recommendCards(first.loadout, { ...options, evaluate });

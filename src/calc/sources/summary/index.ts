@@ -18,7 +18,14 @@ export {
   summaryRows,
   summaryTarget,
 } from '@/calc/sources/summary/summary';
-export type { GroupLines, IncreaseLogs, ScreenComparison, SummaryRow, SummaryRowId, SummaryTarget } from '@/calc/sources/summary/summary';
+export type {
+  GroupLines,
+  IncreaseLogs,
+  ScreenComparison,
+  SummaryRow,
+  SummaryRowId,
+  SummaryTarget,
+} from '@/calc/sources/summary/summary';
 
 export const SUMMARY_TAB_ID = CONSTS.summary.TAB_ID;
 

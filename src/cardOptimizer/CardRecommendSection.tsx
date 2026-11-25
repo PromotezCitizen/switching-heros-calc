@@ -8,7 +8,13 @@ import CardSetCards from '@/calc/panels/heroWeaponCardPet/CardSetCards';
 import { CardSlotCard, cardPickerOptions } from '@/calc/panels/heroWeaponCardPet/CardSlotCard';
 import IconPicker, { PickerImage } from '@/calc/panels/heroWeaponCardPet/IconPicker';
 import { CARD_SLOT_FIELDS, cardMarkFields, useCardNames } from '@/calc/panels/heroWeaponCardPet/cardPanelParts';
-import { CARD_EXTRA_MARKS_FIELD, CARD_MARK_NUMBERS, CARD_SLOT_NUMBERS, cardGradeField, cardSetStates } from '@/calc/sources/heroWeaponCardPet/card';
+import {
+  CARD_EXTRA_MARKS_FIELD,
+  CARD_MARK_NUMBERS,
+  CARD_SLOT_NUMBERS,
+  cardGradeField,
+  cardSetStates,
+} from '@/calc/sources/heroWeaponCardPet/card';
 import { rowsOf } from '@/calc/sources/heroWeaponCardPet/shared';
 import { joinFieldValues } from '@/calc/useTrackedCalcValues';
 import type { StatDescriptions } from '@/calc/statText';
@@ -21,7 +27,13 @@ import { useCardRecommendation, type CardRecommendationState } from '@/cardOptim
 import type { OptimizerInputs } from '@/masteryOptimizer/snapshot';
 import { resultSlot } from '@/masteryOptimizer/storedResult';
 import { useCalcStore } from '@/store/useCalcStore';
-import { CARD_FIXED_KEY, MAX_FIXED_CARDS, cardResultKey, fixedCardIdsOf, type StoredCardResult } from '@/cardOptimizer/cardResult';
+import {
+  CARD_FIXED_KEY,
+  MAX_FIXED_CARDS,
+  cardResultKey,
+  fixedCardIdsOf,
+  type StoredCardResult,
+} from '@/cardOptimizer/cardResult';
 
 /** 계산 중 덮개: 보여 줄 결과가 없을 때도 스피너가 보이는 최소 높이 (px) */
 const LOADING_MIN_HEIGHT = 120;
@@ -48,7 +60,6 @@ interface Props {
   externalLocked?: boolean;
 }
 
-
 function cardKey(loadout: Loadout): string {
   return loadout
     .map((entry) => entry.card.cardId)
@@ -60,7 +71,15 @@ function cardKey(loadout: Loadout): string {
  * 카드 추천: 카드 6장을 먼저 고르고 (마크는 안 봄), 그 카드의 세트 마크를 이어서 고른다. 두 단계는 따로 계산하고 버튼은 하나다.
  * 둘 다 빈 상태에서 시작하고 지금 편성은 비교에만 쓴다. 결과는 몬스터 카드 탭의 부품 (편성 칸 · 세트 칸) 으로 읽기 전용으로 보여 준다
  */
-export default function CardRecommendSection({ calcValues, tables, descriptions, inputs, ownedText, onRunningChange, externalLocked = false }: Props) {
+export default function CardRecommendSection({
+  calcValues,
+  tables,
+  descriptions,
+  inputs,
+  ownedText,
+  onRunningChange,
+  externalLocked = false,
+}: Props) {
   const { t: translate } = useTranslation();
   const cardsRun = useCardRecommendation();
   const marksRun = useCardRecommendation();
@@ -84,7 +103,12 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
   const runSlotRef = useRef(slot);
   // 지난번 결과 (저장해 둔 것): 새로고침해도 다시 계산하지 않고 바로 보인다
   const storedText = useCalcStore((state) => state.values[cardResultKey(slot)]);
-  const restored = useMemo((): { loadout: Loadout; before: number; after: number; lockedGroups?: LockedMarkGroup[] } | null => {
+  const restored = useMemo((): {
+    loadout: Loadout;
+    before: number;
+    after: number;
+    lockedGroups?: LockedMarkGroup[];
+  } | null => {
     if (!storedText) return null;
     try {
       const stored = JSON.parse(storedText) as StoredCardResult;
@@ -92,7 +116,9 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
         const card = owned.find((candidate) => candidate.cardId === entry.cardId);
         return card ? [{ card, picks: entry.picks }] : [];
       });
-      return loadout.length === stored.cards.length ? { loadout, before: stored.before, after: stored.after, lockedGroups: stored.lockedGroups } : null;
+      return loadout.length === stored.cards.length
+        ? { loadout, before: stored.before, after: stored.after, lockedGroups: stored.lockedGroups }
+        : null;
     } catch {
       return null;
     }
@@ -138,13 +164,21 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
       const index = fixedIds.indexOf(entry.card.cardId);
       return index === -1 ? fixedIds.length : index;
     };
-    return valuesWithLoadout(calcValues, tables, [...shown].sort((left, right) => rank(left) - rank(right)));
+    return valuesWithLoadout(
+      calcValues,
+      tables,
+      [...shown].sort((left, right) => rank(left) - rank(right)),
+    );
   }, [shown, fixedIds, calcValues, tables]);
   // 세트가 속한 마크 묶음 (카드 세트 표의 slot 열 = 마크 번호). 묶음 순서로 늘어놓고 칸마다 묶음 번호를 적는다
-  const markGroupOf = useMemo(() => new Map(rowsOf(tables, 'CardSet').map((row) => [row.setId, Number(row.slot)])), [tables]);
+  const markGroupOf = useMemo(
+    () => new Map(rowsOf(tables, 'CardSet').map((row) => [row.setId, Number(row.slot)])),
+    [tables],
+  );
   // 묶음 안에서는 마크가 많은 세트부터
   const setStates = useMemo(
-    () => (shownValues ? cardSetStates(shownValues, tables).sort((left, right) => right.markCount - left.markCount) : []),
+    () =>
+      shownValues ? cardSetStates(shownValues, tables).sort((left, right) => right.markCount - left.markCount) : [],
     [shownValues, tables],
   );
   const { setName, cardName } = useCardNames();
@@ -153,7 +187,11 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
   const fixedOptions = cardPickerOptions(tables, descriptions, translate, cardName, ownedIds);
   const shownFixed = fixedIds.filter((cardId) => ownedIds.includes(cardId));
   const toggleFixed = (cardId: string) => {
-    const next = shownFixed.includes(cardId) ? shownFixed.filter((id) => id !== cardId) : shownFixed.length < MAX_FIXED ? [...shownFixed, cardId] : shownFixed;
+    const next = shownFixed.includes(cardId)
+      ? shownFixed.filter((id) => id !== cardId)
+      : shownFixed.length < MAX_FIXED
+        ? [...shownFixed, cardId]
+        : shownFixed;
     useCalcStore.getState().setValue(CARD_FIXED_KEY, next.join(','));
   };
   /** 마크 번호 (1 · 2 · 3번 묶음) 마다 세트별 개수: 어느 묶음의 세트인지 한눈에 보이게 한다 */
@@ -166,7 +204,10 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
         const pick = entry.picks[mark];
         if (pick) counts.set(pick, (counts.get(pick) ?? 0) + 1);
       }
-      groups.push({ mark: mark + 1, parts: [...counts].map(([setId, count]) => ({ setId, count })).sort((left, right) => right.count - left.count) });
+      groups.push({
+        mark: mark + 1,
+        parts: [...counts].map(([setId, count]) => ({ setId, count })).sort((left, right) => right.count - left.count),
+      });
     }
     return groups;
   }, [shown]);
@@ -212,7 +253,10 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
       return (
         <Text mt="sm">
           {state.progress
-            ? translate(runningKey, { evaluations: state.progress.evaluations.toLocaleString('ko-KR'), damage: formatLog(state.progress.efficiency) })
+            ? translate(runningKey, {
+                evaluations: state.progress.evaluations.toLocaleString('ko-KR'),
+                damage: formatLog(state.progress.efficiency),
+              })
             : translate('optimizer.cards.starting')}
         </Text>
       );
@@ -229,7 +273,9 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
 
   return (
     <Paper withBorder p="md">
-      <Title order={3} mb="sm">{translate('optimizer.cards.title')}</Title>
+      <Title order={3} mb="sm">
+        {translate('optimizer.cards.title')}
+      </Title>
       <Text size="sm" c="dimmed" mb="sm">
         {translate('optimizer.cards.help')}
       </Text>
@@ -258,7 +304,9 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
                     <PickerImage key={cardId} path={CARD_ICON_PREFIX + cardId} size={FIXED_ICON_SIZE} />
                   ))}
                   <Text size="sm" c="dimmed">
-                    {shownFixed.length > 0 ? translate('optimizer.cards.fixedCount', { count: shownFixed.length }) : translate('optimizer.cards.fixedNone')}
+                    {shownFixed.length > 0
+                      ? translate('optimizer.cards.fixedCount', { count: shownFixed.length })
+                      : translate('optimizer.cards.fixedNone')}
                   </Text>
                 </Group>
               }
@@ -268,7 +316,11 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
             </Text>
           </Stack>
           {/* 버튼 하나: 계산 중에는 멈추기로 바뀐다 */}
-          <Button variant={running ? 'default' : 'filled'} onClick={running ? stop : start} disabled={!running && (!inputs || externalLocked)}>
+          <Button
+            variant={running ? 'default' : 'filled'}
+            onClick={running ? stop : start}
+            disabled={!running && (!inputs || externalLocked)}
+          >
             {translate(running ? 'optimizer.recommendStop' : 'optimizer.recommendStart')}
           </Button>
         </Group>
@@ -286,77 +338,82 @@ export default function CardRecommendSection({ calcValues, tables, descriptions,
       )}
       {/* 계산 중에는 결과 위를 회색으로 덮고 스피너 (멈추기 버튼 · 진행 문구는 덮개 밖) */}
       <Box pos="relative" mt="md" mih={running ? LOADING_MIN_HEIGHT : undefined}>
-      <LoadingOverlay visible={running} zIndex={CONSTS.masteryRuneBuff.PANEL.COLUMN_HEADER_Z_INDEX + 1} />
-      {shownValues && (
-        <Stack gap="xs">
-          <Title order={4}>{translate('optimizer.cards.shownTitle')}</Title>
-          <Text size="sm" c="dimmed">
-            {translate('optimizer.cards.shownHelp')}
-          </Text>
-          <HorizontalScrollRow itemWidth={CARD_SLOT_WIDTH}>
-            {CARD_SLOT_NUMBERS.map((slot) => (
-              <Box key={slot} pos="relative">
-                <CardSlotCard
-                  slot={slot}
-                  slotCardsText={joinFieldValues(shownValues, CARD_SLOT_FIELDS)}
-                  gradeChoice={shownValues[cardGradeField(slot)] ?? ''}
-                  marksText={joinFieldValues(shownValues, cardMarkFields(slot))}
-                  tables={tables}
-                  descriptions={descriptions}
-                  setValue={IGNORE_CHANGE}
-                  showMarks={false}
-                />
-                {/* 지금 고정 목록에 있는 카드 (결과에 저장하지 않음) */}
-                {shownFixed.includes(shownValues[CARD_SLOT_FIELDS[slot - 1]] ?? '') && (
-                  <Badge size="sm" variant="light" pos="absolute" top={FIXED_BADGE_OFFSET} right={FIXED_BADGE_OFFSET}>
-                    {translate('optimizer.cards.fixedBadge')}
-                  </Badge>
-                )}
-              </Box>
-            ))}
-          </HorizontalScrollRow>
-          {/* 세트 레벨 = 추천 카드 6장의 세트 점수 합: 모든 세트 효과 (말풍선 계산식) 에 같은 값이라 한 번만 */}
-          {setStates[0] && setStates[0].tiers[0] && (
+        <LoadingOverlay visible={running} zIndex={CONSTS.masteryRuneBuff.PANEL.COLUMN_HEADER_Z_INDEX + 1} />
+        {shownValues && (
+          <Stack gap="xs">
+            <Title order={4}>{translate('optimizer.cards.shownTitle')}</Title>
             <Text size="sm" c="dimmed">
-              {translate('calc.card.setLevelFormula', {
-                level: setStates[0].tiers[0].level.toLocaleString('ko-KR'),
-                parts: setStates[0].levelParts.length ? setStates[0].levelParts.map((part) => part.toLocaleString('ko-KR')).join(' + ') : '-',
-              })}
+              {translate('optimizer.cards.shownHelp')}
             </Text>
-          )}
-          {/* 마크 묶음 (1 · 2 · 3번) 마다 제목 (개수 요약) 과 그 묶음의 세트 칸 */}
-          {markGroups.map((group) => (
-            <Stack key={group.mark} gap="xs">
-              <Text fw={700}>
-                {translate('optimizer.cards.markGroupTitle', { mark: group.mark, parts: group.parts.map((part) => `${setName(part.setId)} ${part.count}`).join(' + ') })}
+            <HorizontalScrollRow itemWidth={CARD_SLOT_WIDTH}>
+              {CARD_SLOT_NUMBERS.map((slot) => (
+                <Box key={slot} pos="relative">
+                  <CardSlotCard
+                    slot={slot}
+                    slotCardsText={joinFieldValues(shownValues, CARD_SLOT_FIELDS)}
+                    gradeChoice={shownValues[cardGradeField(slot)] ?? ''}
+                    marksText={joinFieldValues(shownValues, cardMarkFields(slot))}
+                    tables={tables}
+                    descriptions={descriptions}
+                    setValue={IGNORE_CHANGE}
+                    showMarks={false}
+                  />
+                  {/* 지금 고정 목록에 있는 카드 (결과에 저장하지 않음) */}
+                  {shownFixed.includes(shownValues[CARD_SLOT_FIELDS[slot - 1]] ?? '') && (
+                    <Badge size="sm" variant="light" pos="absolute" top={FIXED_BADGE_OFFSET} right={FIXED_BADGE_OFFSET}>
+                      {translate('optimizer.cards.fixedBadge')}
+                    </Badge>
+                  )}
+                </Box>
+              ))}
+            </HorizontalScrollRow>
+            {/* 세트 레벨 = 추천 카드 6장의 세트 점수 합: 모든 세트 효과 (말풍선 계산식) 에 같은 값이라 한 번만 */}
+            {setStates[0] && setStates[0].tiers[0] && (
+              <Text size="sm" c="dimmed">
+                {translate('calc.card.setLevelFormula', {
+                  level: setStates[0].tiers[0].level.toLocaleString('ko-KR'),
+                  parts: setStates[0].levelParts.length
+                    ? setStates[0].levelParts.map((part) => part.toLocaleString('ko-KR')).join(' + ')
+                    : '-',
+                })}
               </Text>
-              <CardSetCards
-                setStates={setStates.filter((set) => markGroupOf.get(set.setId) === group.mark)}
-                descriptions={descriptions}
-              />
-            </Stack>
-          ))}
-          {lockedGroups.map((group) => (
-            <Stack key={group.mark} gap={2}>
-              <Text fw={700} c="dimmed">
-                {translate('optimizer.cards.markGroupLocked', { mark: group.mark, grade: group.grade })}
-              </Text>
-              {/* 열렸다면: 0 · 2 · 4 · 6장 버튼으로 골라, 그 장수의 최선 세트를 세트 카드 (효과 줄) 로 본다 */}
-              {group.options.length > 0 && shownValues && (
-                <LockedGroupPicker
-                  mark={group.mark}
-                  options={group.options}
-                  shownValues={shownValues}
-                  tables={tables}
+            )}
+            {/* 마크 묶음 (1 · 2 · 3번) 마다 제목 (개수 요약) 과 그 묶음의 세트 칸 */}
+            {markGroups.map((group) => (
+              <Stack key={group.mark} gap="xs">
+                <Text fw={700}>
+                  {translate('optimizer.cards.markGroupTitle', {
+                    mark: group.mark,
+                    parts: group.parts.map((part) => `${setName(part.setId)} ${part.count}`).join(' + '),
+                  })}
+                </Text>
+                <CardSetCards
+                  setStates={setStates.filter((set) => markGroupOf.get(set.setId) === group.mark)}
                   descriptions={descriptions}
-                  markGroupOf={markGroupOf}
-                  gainText={gainText}
                 />
-              )}
-            </Stack>
-          ))}
-        </Stack>
-      )}
+              </Stack>
+            ))}
+            {lockedGroups.map((group) => (
+              <Stack key={group.mark} gap={2}>
+                <Text fw={700} c="dimmed">
+                  {translate('optimizer.cards.markGroupLocked', { mark: group.mark, grade: group.grade })}
+                </Text>
+                {/* 열렸다면: 0 · 2 · 4 · 6장 버튼으로 골라, 그 장수의 최선 세트를 세트 카드 (효과 줄) 로 본다 */}
+                {group.options.length > 0 && shownValues && (
+                  <LockedGroupPicker
+                    mark={group.mark}
+                    options={group.options}
+                    shownValues={shownValues}
+                    tables={tables}
+                    descriptions={descriptions}
+                    markGroupOf={markGroupOf}
+                    gainText={gainText}
+                  />
+                )}
+              </Stack>
+            ))}
+          </Stack>
+        )}
       </Box>
     </Paper>
   );
@@ -376,7 +433,15 @@ interface LockedGroupPickerProps {
  * 안 열린 마크 묶음 하나: 0 · 2 · 4 · 6장 버튼. 고른 장수의 최선 세트를
  * 열린 묶음과 같은 세트 카드 (CardSetCards) 로 보여 준다 — 추천 편성에 계산 전용 칸으로 그 세트 개수를 더한 상태의 세트 효과
  */
-function LockedGroupPicker({ mark, options, shownValues, tables, descriptions, markGroupOf, gainText }: LockedGroupPickerProps) {
+function LockedGroupPicker({
+  mark,
+  options,
+  shownValues,
+  tables,
+  descriptions,
+  markGroupOf,
+  gainText,
+}: LockedGroupPickerProps) {
   const { t: translate } = useTranslation();
   const [selected, setSelected] = useState(String(options[0]?.count ?? 0));
   const option = options.find((candidate) => String(candidate.count) === selected) ?? options[0];
@@ -400,7 +465,10 @@ function LockedGroupPicker({ mark, options, shownValues, tables, descriptions, m
       />
       <Text size="sm" c="dimmed">
         {option && option.count > 0
-          ? translate('optimizer.cards.lockedGain', { count: option.count, gain: gainText(option.efficiency - baseEfficiency) })
+          ? translate('optimizer.cards.lockedGain', {
+              count: option.count,
+              gain: gainText(option.efficiency - baseEfficiency),
+            })
           : translate('optimizer.cards.lockedOptionNone')}
       </Text>
       {setStates.length > 0 && <CardSetCards setStates={setStates} descriptions={descriptions} />}

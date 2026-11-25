@@ -1,0 +1,4 @@
+# 게임 표 · 그림 · 빌드 결과는 서식을 바꾸지 않는다
+public
+dist
+package-lock.json

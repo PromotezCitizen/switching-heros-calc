@@ -38,7 +38,12 @@ interface CalcSideNavLayoutProps {
  * 넓은 화면의 계정 페이지: 왼쪽에 묶음 · 칸 목록, 오른쪽에 고른 칸 하나.
  * 한 번 연 칸은 다른 칸으로 가도 지우지 않고 숨겨 둔다 (히어로 탭처럼 다시 그리는 데 오래 걸리는 칸이 있어서)
  */
-export default function CalcSideNavLayout({ groupIds, specialGroups, tabIdsByGroup, descriptions }: CalcSideNavLayoutProps) {
+export default function CalcSideNavLayout({
+  groupIds,
+  specialGroups,
+  tabIdsByGroup,
+  descriptions,
+}: CalcSideNavLayoutProps) {
   const { t: translate } = useTranslation();
   const sections: NavSection[] = groupIds.map((groupId) => {
     const special = specialGroups[groupId];
@@ -61,7 +66,8 @@ export default function CalcSideNavLayout({ groupIds, specialGroups, tabIdsByGro
   const activeId = items.some((item) => item.id === savedPanel) ? (savedPanel as string) : items[0]?.id;
   const [openedIds, setOpenedIds] = useState<string[]>([]);
   /** 칸이 든 묶음 */
-  const sectionOf = (itemId: string | undefined) => sections.find((section) => section.items.some((item) => item.id === itemId))?.id;
+  const sectionOf = (itemId: string | undefined) =>
+    sections.find((section) => section.items.some((item) => item.id === itemId))?.id;
   /** 펼쳐 둔 묶음: 처음에는 지금 보는 칸의 묶음, 그 뒤로는 누른 대로 (보는 칸의 묶음도 접을 수 있다) */
   const [openedSections, setOpenedSections] = useState<string[]>(() => {
     const first = sectionOf(activeId);
@@ -92,7 +98,9 @@ export default function CalcSideNavLayout({ groupIds, specialGroups, tabIdsByGro
 
   const isOpen = (sectionId: string) => openedSections.includes(sectionId);
   const toggleSection = (sectionId: string) =>
-    setOpenedSections((previous) => (previous.includes(sectionId) ? previous.filter((id) => id !== sectionId) : [...previous, sectionId]));
+    setOpenedSections((previous) =>
+      previous.includes(sectionId) ? previous.filter((id) => id !== sectionId) : [...previous, sectionId],
+    );
 
   return (
     <Group
@@ -129,7 +137,12 @@ export default function CalcSideNavLayout({ groupIds, specialGroups, tabIdsByGro
                 childrenOffset="md"
               >
                 {section.items.map((item) => (
-                  <NavLink key={item.id} label={item.label} active={item.id === activeId} onClick={() => choose(item.id)} />
+                  <NavLink
+                    key={item.id}
+                    label={item.label}
+                    active={item.id === activeId}
+                    onClick={() => choose(item.id)}
+                  />
                 ))}
               </NavLink>
             ),

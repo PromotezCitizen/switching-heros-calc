@@ -68,7 +68,8 @@ function formatKills(killsPerMinute: number): string {
 function pickPageValues(values: Record<string, string>): Record<string, string> {
   const picked: Record<string, string> = {};
   for (const key in values) {
-    if (key.startsWith(KEY_PREFIX) || key.startsWith(ACCOUNT_KEY_PREFIX) || key === ACCOUNT_KEYS.userLevel) picked[key] = values[key];
+    if (key.startsWith(KEY_PREFIX) || key.startsWith(ACCOUNT_KEY_PREFIX) || key === ACCOUNT_KEYS.userLevel)
+      picked[key] = values[key];
   }
   return picked;
 }
@@ -121,12 +122,16 @@ export default function HuntingPage() {
   const userLevel = Math.floor(readNumber(values, ACCOUNT_KEYS.userLevel));
   const expPercent = readNumber(values, KEYS.currentExpPercent);
   const targetLevel = Math.floor(readNumber(values, KEYS.targetLevel));
-  const targetLog = useMemo(() => expToTargetLog(userLevel, expPercent, targetLevel), [userLevel, expPercent, targetLevel]);
+  const targetLog = useMemo(
+    () => expToTargetLog(userLevel, expPercent, targetLevel),
+    [userLevel, expPercent, targetLevel],
+  );
 
   const result = useMemo(() => {
     if (stage.status !== 'ready') return null;
     const rewards = stage.rewards;
-    if (inputs.offlineFloor < 1 || inputs.offlineFloor > rewards.count) return { kind: 'badFloor', max: rewards.count } as const;
+    if (inputs.offlineFloor < 1 || inputs.offlineFloor > rewards.count)
+      return { kind: 'badFloor', max: rewards.count } as const;
     const { rows, cut } = floorRows(inputs, rewards, myKills);
     const views: FloorView[] = rows.map((row) => {
       const perMinute = expPerMinuteLog(inputs, rewards, row.floor, myKills);
@@ -135,11 +140,17 @@ export default function HuntingPage() {
         row,
         goldLog: base.gold,
         expLog: base.exp,
-        ratio: Object.fromEntries(RESOURCES.map((resource) => [resource, myKills / row.required[resource]])) as Record<Resource, number>,
+        ratio: Object.fromEntries(RESOURCES.map((resource) => [resource, myKills / row.required[resource]])) as Record<
+          Resource,
+          number
+        >,
         targetMinutes:
           targetLog === null
             ? null
-            : { online: Math.pow(10, targetLog - perMinute.online), offline: Math.pow(10, targetLog - perMinute.offline) },
+            : {
+                online: Math.pow(10, targetLog - perMinute.online),
+                offline: Math.pow(10, targetLog - perMinute.offline),
+              },
       };
     });
     const lunchbox = targetLog === null ? null : lunchboxCount(targetLog, inputs, rewards);
@@ -154,7 +165,10 @@ export default function HuntingPage() {
     if (parts.kind === 'unknown') return '-';
     if (parts.kind === 'minutes') return translate('hunting.duration.minutes', { minutes: parts.minutes });
     if (parts.kind === 'days')
-      return translate('hunting.duration.days', { hours: parts.hours.toLocaleString('ko-KR'), days: parts.days.toFixed(DAY_DECIMALS) });
+      return translate('hunting.duration.days', {
+        hours: parts.hours.toLocaleString('ko-KR'),
+        days: parts.days.toFixed(DAY_DECIMALS),
+      });
     return parts.minutes === 0
       ? translate('hunting.duration.hours', { hours: parts.hours })
       : translate('hunting.duration.hoursMinutes', { hours: parts.hours, minutes: parts.minutes });
@@ -178,10 +192,17 @@ export default function HuntingPage() {
       </Text>
 
       <Paper withBorder p="md">
-        <Title order={3} mb="sm">{translate('hunting.floorTitle')}</Title>
+        <Title order={3} mb="sm">
+          {translate('hunting.floorTitle')}
+        </Title>
         <SimpleGrid cols={{ base: 1, sm: 2 }}>
           {numberField('offlineFloor', translate('hunting.offlineFloor'), 1)}
-          <NumberField storeKey={KEYS.myKills} label={translate('hunting.myKills')} min={0} fallback={DEFAULTS.myKills} />
+          <NumberField
+            storeKey={KEYS.myKills}
+            label={translate('hunting.myKills')}
+            min={0}
+            fallback={DEFAULTS.myKills}
+          />
         </SimpleGrid>
         <Group mt="sm">
           {flagField('adOn', translate('hunting.adOn'))}
@@ -193,7 +214,9 @@ export default function HuntingPage() {
       </Paper>
 
       <Paper withBorder p="md">
-        <Title order={3} mb="sm">{translate('hunting.levelTitle')}</Title>
+        <Title order={3} mb="sm">
+          {translate('hunting.levelTitle')}
+        </Title>
         <SimpleGrid cols={{ base: 1, sm: 3 }}>
           <NumberField storeKey={ACCOUNT_KEYS.userLevel} label={translate('hunting.currentLevel')} min={0} />
           {numberField('currentExpPercent', translate('hunting.currentExpPercent'), 0, 100)}
@@ -205,7 +228,9 @@ export default function HuntingPage() {
       </Paper>
 
       <Paper withBorder p="md">
-        <Title order={3} mb="sm">{translate('hunting.onlineTitle')}</Title>
+        <Title order={3} mb="sm">
+          {translate('hunting.onlineTitle')}
+        </Title>
         <SimpleGrid cols={{ base: 1, md: 3 }}>
           {RESOURCES.map((resource) => (
             <Stack key={resource} gap="xs">
@@ -215,7 +240,10 @@ export default function HuntingPage() {
                 label={translate('hunting.food')}
                 options={[
                   { value: String(CONSTS.emptyInput.PERCENT), label: translate('hunting.foodNone') },
-                  ...CONSTS.onlineBonus.FOOD_PERCENTS.map((percent) => ({ value: String(percent), label: `+${percent}%` })),
+                  ...CONSTS.onlineBonus.FOOD_PERCENTS.map((percent) => ({
+                    value: String(percent),
+                    label: `+${percent}%`,
+                  })),
                 ]}
               />
               {flagField(`event.${resource}`, translate('hunting.eventOn'))}
@@ -234,7 +262,9 @@ export default function HuntingPage() {
       </Text>
       {stage.status === 'loading' && <Text>{translate('hunting.loading')}</Text>}
       {stage.status === 'failed' && <Alert color="red">{translate('hunting.loadFailed')}</Alert>}
-      {result?.kind === 'badFloor' && <Alert color="yellow">{translate('hunting.badFloor', { max: result.max })}</Alert>}
+      {result?.kind === 'badFloor' && (
+        <Alert color="yellow">{translate('hunting.badFloor', { max: result.max })}</Alert>
+      )}
       {result?.kind === 'ok' && (
         <Stack gap="sm">
           {/* 요약: 항목마다 숫자 카드 (오프라인 → 온라인) (표가 작아 안 보임 → 숫자 카드) */}
@@ -310,7 +340,9 @@ export default function HuntingPage() {
             {result.views.map((view) => (
               <Paper key={view.row.floor} withBorder p="sm">
                 <Group gap={6} wrap="wrap">
-                  <Text fw={700}>{translate('hunting.floorLabel', { floor: view.row.floor.toLocaleString('ko-KR') })}</Text>
+                  <Text fw={700}>
+                    {translate('hunting.floorLabel', { floor: view.row.floor.toLocaleString('ko-KR') })}
+                  </Text>
                   <Text size="sm" c="dimmed">
                     {kindText(view.row)}
                   </Text>

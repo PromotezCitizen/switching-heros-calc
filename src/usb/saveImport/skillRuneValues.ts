@@ -3,7 +3,12 @@
  * 스킬 옵션은 고른 옵션 번호 (rNo) 만 읽는다. 값은 등급과 상관없이 최고 등급으로 계산한다
  */
 import { CONSTS } from '@/CONSTS';
-import { readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
+import {
+  readDictionary,
+  runSection,
+  type SaveDictionary,
+  type SaveImportResult,
+} from '@/usb/saveImport/saveDictionary';
 
 const { RUNE_CORE_MULTIPLIER, FIRST_SKILL_OPTION_SET, SKILL_PERK_TYPES, SKILL_PERK_TARGET_LEVELS } = CONSTS.usb;
 
@@ -25,7 +30,13 @@ export interface RuneSave {
   attributeData: { coreLv: number; runeLv: number[] };
 }
 
-export function skillRuneValues(skill: SkillSave, rune: RuneSave, presetKey: number, slot1HeroId: number, slot2HeroId = -1): SaveImportResult {
+export function skillRuneValues(
+  skill: SkillSave,
+  rune: RuneSave,
+  presetKey: number,
+  slot1HeroId: number,
+  slot2HeroId = -1,
+): SaveImportResult {
   const values: Record<string, string> = {};
   const notes: string[] = [];
 
@@ -54,7 +65,8 @@ export function skillRuneValues(skill: SkillSave, rune: RuneSave, presetKey: num
     const presetSets = presetSetNode ? readDictionary(presetSetNode) : new Map<number, number>();
     for (const [skillId, sets] of readDictionary(skill.psSkillOptionDic)) {
       const setDictionary = readDictionary(sets);
-      const options = setDictionary.get(presetSets.get(skillId) ?? FIRST_SKILL_OPTION_SET) ?? [...setDictionary.values()][0];
+      const options =
+        setDictionary.get(presetSets.get(skillId) ?? FIRST_SKILL_OPTION_SET) ?? [...setDictionary.values()][0];
       options?.diceOptions.forEach((option, index) => {
         values[`skillOption_${skillId}_${index + 1}`] = String(option.rNo);
       });
@@ -69,11 +81,12 @@ export function skillRuneValues(skill: SkillSave, rune: RuneSave, presetKey: num
     const presetSets = presetNode ? readDictionary(presetNode) : new Map<number, number>();
     for (const [skillId, sets] of readDictionary(skill.equipPerkOptionDic)) {
       const setId = presetSets.get(skillId);
-      const typeSlots = setId === undefined ? [] : readDictionary(sets).get(setId)?.typeSlots ?? [];
+      const typeSlots = setId === undefined ? [] : (readDictionary(sets).get(setId)?.typeSlots ?? []);
       SKILL_PERK_TARGET_LEVELS.forEach((targetLevel, index) => {
         const number = typeSlots[index] ?? 0;
         const perkType = number > 0 ? SKILL_PERK_TYPES[number - 1] : '';
-        if (number > 0 && !perkType) notes.push(`계산기에 아직 없는 스킬 문양이 있어서 그 칸은 비워 뒀어요 (${targetLevel}레벨 칸)`);
+        if (number > 0 && !perkType)
+          notes.push(`계산기에 아직 없는 스킬 문양이 있어서 그 칸은 비워 뒀어요 (${targetLevel}레벨 칸)`);
         values[`skillPerk_${skillId}_${targetLevel}`] = perkType ?? '';
       });
     }

@@ -18,14 +18,19 @@ describe('피규어 조건형 효과 (figure-special-effects-2026-11-07.md)', ()
   });
 
   it('같은 효과 피규어가 둘이면 곱 ((1.5 × 1.2 − 1) × 100 = 80)', () => {
-    const lines = [figureLine(FIGURE_BATTLE.OVER_STATS.doubleAttack, 50), figureLine(FIGURE_BATTLE.OVER_STATS.doubleAttack, 20)];
+    const lines = [
+      figureLine(FIGURE_BATTLE.OVER_STATS.doubleAttack, 50),
+      figureLine(FIGURE_BATTLE.OVER_STATS.doubleAttack, 20),
+    ];
     expect(figureBattleLines(lines, {}, tables, { doubleAttack: 300 }, false, label)[0].value).toBeCloseTo(80, 10);
   });
 
   it('스위칭 부스트는 교체가 있어야, 매직 가드는 보호막이 있어야', () => {
     const swapLines = [figureLine(FIGURE_BATTLE.OVER_STATS.switchingBoost, 100)];
     expect(figureBattleLines(swapLines, {}, tables, { switchingBoost: 250 }, false, label)).toEqual([]);
-    expect(figureBattleLines(swapLines, { [SWAP_UPTIME_FIELD]: '50' }, tables, { switchingBoost: 250 }, false, label)).toHaveLength(1);
+    expect(
+      figureBattleLines(swapLines, { [SWAP_UPTIME_FIELD]: '50' }, tables, { switchingBoost: 250 }, false, label),
+    ).toHaveLength(1);
     const barrierLines = [figureLine(FIGURE_BATTLE.OVER_STATS.barrier, 100)];
     expect(figureBattleLines(barrierLines, {}, tables, { barrier: 250 }, false, label)).toEqual([]);
     expect(figureBattleLines(barrierLines, {}, tables, { barrier: 250 }, true, label)).toHaveLength(1);
@@ -41,8 +46,12 @@ describe('피규어 조건형 효과 (figure-special-effects-2026-11-07.md)', ()
   });
 
   it('기본 공격 (체력 100%) 은 상시 그 값, 사망 방어는 줄 없음 (죽을 일이 없으므로)', () => {
-    const lines = [figureLine(FIGURE_BATTLE.NORMAL_ATTACK_UP_STAT, 5803.77), figureLine(FIGURE_BATTLE.DEATH_GUARD_STAT, 999)];
-    expect(figureBattleLines(lines, {}, tables, {}, false, label).map((line) => [line.stat, line.value])).toEqual([['_per_attackDamage', 5803.77]]);
+    const lines = [
+      figureLine(FIGURE_BATTLE.NORMAL_ATTACK_UP_STAT, 5803.77),
+      figureLine(FIGURE_BATTLE.DEATH_GUARD_STAT, 999),
+    ];
+    expect(figureBattleLines(lines, {}, tables, {}, false, label).map((line) => [line.stat, line.value])).toEqual([
+      ['_per_attackDamage', 5803.77],
+    ]);
   });
 });
-

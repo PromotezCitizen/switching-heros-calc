@@ -11,12 +11,18 @@ import type { RawTable, StatTables } from '@/data/statTables';
 import { equippedExclusiveStar } from '@/calc/sources/heroWeaponCardPet/weapon';
 import { rowsOf } from '@/calc/sources/heroWeaponCardPet/shared';
 import type { Chances } from '@/calc/sources/masteryRuneBuff/chances';
-import { learnedTraitValue, masteryTraits, plainNumber, rushChanceCounts } from '@/calc/sources/masteryRuneBuff/mastery';
+import {
+  learnedTraitValue,
+  masteryTraits,
+  plainNumber,
+  rushChanceCounts,
+} from '@/calc/sources/masteryRuneBuff/mastery';
 import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 import { summaryTarget } from '@/calc/sources/summary/summary';
 import { swapCycle } from '@/dpm/swapCycle';
 
-const { STATS, SWAP_UPTIME_FIELD, SWITCHING_BOOST, EXCLUSIVE_BATTLE, MAGIC_GUARD, FIGURE_BATTLE } = CONSTS.masteryRuneBuff;
+const { STATS, SWAP_UPTIME_FIELD, SWITCHING_BOOST, EXCLUSIVE_BATTLE, MAGIC_GUARD, FIGURE_BATTLE } =
+  CONSTS.masteryRuneBuff;
 const { PROBABILITY_MAX, DAMAGE_TARGET_FIELD, AEIKA_WEAPON } = CONSTS.dpm;
 const PERCENT = 100;
 const BOSS_TARGET = 'boss';
@@ -56,7 +62,15 @@ export function figureBattleLines(
   magicGuardOn: boolean,
   sourceLabel: SourceLabel,
 ): Line[] {
-  const { OVER_THRESHOLD, OVER_STATS, SWAP_ONLY, BARRIER, CHANGE_SKILL_CAST_STAT, CHANGE_SKILL_CAST_SECONDS, NORMAL_ATTACK_UP_STAT } = FIGURE_BATTLE;
+  const {
+    OVER_THRESHOLD,
+    OVER_STATS,
+    SWAP_ONLY,
+    BARRIER,
+    CHANGE_SKILL_CAST_STAT,
+    CHANGE_SKILL_CAST_SECONDS,
+    NORMAL_ATTACK_UP_STAT,
+  } = FIGURE_BATTLE;
   const lines: Line[] = [];
   const uptime = swapUptime(values);
   for (const [chanceName, stat] of Object.entries(OVER_STATS)) {
@@ -67,7 +81,10 @@ export function figureBattleLines(
     if (chanceName === SWAP_ONLY && !(uptime > 0)) continue;
     if (chanceName === BARRIER && !magicGuardOn) continue;
     lines.push({
-      source: sourceLabel('calc.buff.battle.figureOverSource', { chance: plainNumber(chance), name: sourceLabel(`calc.buff.battle.chanceNames.${chanceName}`) }),
+      source: sourceLabel('calc.buff.battle.figureOverSource', {
+        chance: plainNumber(chance),
+        name: sourceLabel(`calc.buff.battle.chanceNames.${chanceName}`),
+      }),
       stat: STATS.ATTACK_PERCENT,
       value: percent,
     });
@@ -76,14 +93,21 @@ export function figureBattleLines(
   if (castPercent > 0 && uptime > 0) {
     const share = uptime * stintShare(tables, CHANGE_SKILL_CAST_SECONDS);
     lines.push({
-      source: sourceLabel('calc.buff.battle.figureSwapSource', { seconds: CHANGE_SKILL_CAST_SECONDS, percent: plainNumber(share * PERCENT) }),
+      source: sourceLabel('calc.buff.battle.figureSwapSource', {
+        seconds: CHANGE_SKILL_CAST_SECONDS,
+        percent: plainNumber(share * PERCENT),
+      }),
       stat: STATS.ATTACK_PERCENT,
       value: castPercent * share,
     });
   }
   const normalAttackUp = linesOf(otherLines, NORMAL_ATTACK_UP_STAT).reduce((sum, line) => sum + Number(line.value), 0);
   if (normalAttackUp > 0) {
-    lines.push({ source: sourceLabel('calc.buff.battle.figureNormalAttackSource'), stat: STATS.ATTACK_PERCENT, value: normalAttackUp });
+    lines.push({
+      source: sourceLabel('calc.buff.battle.figureNormalAttackSource'),
+      stat: STATS.ATTACK_PERCENT,
+      value: normalAttackUp,
+    });
   }
   return lines;
 }
@@ -107,14 +131,21 @@ export function switchingBoostLines(
   const seconds = SWITCHING_BOOST.BASE_SECONDS + learnedTraitValue(traits, values, SWITCHING_BOOST.ADD_DURATION_STAT);
   const share = uptime * stintShare(tables, seconds);
   lines.push({
-    source: sourceLabel('calc.buff.battle.switchingBoostSource', { chance: plainNumber(chance), seconds, percent: plainNumber(share * PERCENT) }),
+    source: sourceLabel('calc.buff.battle.switchingBoostSource', {
+      chance: plainNumber(chance),
+      seconds,
+      percent: plainNumber(share * PERCENT),
+    }),
     stat: STATS.ATTACK_PERCENT,
     value: SWITCHING_BOOST.BUFF_PERCENT * power * share,
   });
   const over = learnedTraitValue(traits, values, SWITCHING_BOOST.OVER_STAT);
   if (over > 0 && chance > PROBABILITY_MAX) {
     lines.push({
-      source: sourceLabel('calc.buff.battle.switchingOverSource', { chance: plainNumber(chance), percent: plainNumber(uptime * PERCENT) }),
+      source: sourceLabel('calc.buff.battle.switchingOverSource', {
+        chance: plainNumber(chance),
+        percent: plainNumber(uptime * PERCENT),
+      }),
       stat: STATS.ATTACK_PERCENT,
       value: over * uptime,
     });
@@ -123,7 +154,11 @@ export function switchingBoostLines(
   const rush = learnedTraitValue(traits, values, SWITCHING_BOOST.RUSH_STAT);
   if (rush > 0 && rushSteps > 0 && rushChanceCounts(values, chance)) {
     lines.push({
-      source: sourceLabel('calc.buff.battle.switchingRushSource', { chance: plainNumber(chance), steps: rushSteps, percent: plainNumber(uptime * PERCENT) }),
+      source: sourceLabel('calc.buff.battle.switchingRushSource', {
+        chance: plainNumber(chance),
+        steps: rushSteps,
+        percent: plainNumber(uptime * PERCENT),
+      }),
       stat: STATS.ATTACK_PERCENT,
       value: rush * rushSteps * uptime,
     });
@@ -151,7 +186,10 @@ export function magicGuardLines(
     const over = learnedTraitValue(traits, values, MAGIC_GUARD.OVER_DAMAGE_STAT);
     if (over > 0) {
       lines.push({
-        source: sourceLabel('calc.buff.battle.magicGuardOverSource', { chance: plainNumber(rate), threshold: MAGIC_GUARD.OVER_THRESHOLD }),
+        source: sourceLabel('calc.buff.battle.magicGuardOverSource', {
+          chance: plainNumber(rate),
+          threshold: MAGIC_GUARD.OVER_THRESHOLD,
+        }),
         stat: STATS.ATTACK_PERCENT,
         value: over,
       });
@@ -171,7 +209,10 @@ export function magicGuardLines(
   const share = swapUptime(values) * stintShare(tables, MAGIC_GUARD.BURST_SECONDS);
   if (burst > 0 && share > 0) {
     lines.push({
-      source: sourceLabel('calc.buff.battle.magicGuardBurstSource', { seconds: MAGIC_GUARD.BURST_SECONDS, percent: plainNumber(share * PERCENT) }),
+      source: sourceLabel('calc.buff.battle.magicGuardBurstSource', {
+        seconds: MAGIC_GUARD.BURST_SECONDS,
+        percent: plainNumber(share * PERCENT),
+      }),
       stat: STATS.ATTACK_PERCENT,
       value: burst * share,
     });
@@ -180,7 +221,9 @@ export function magicGuardLines(
 }
 
 function transcendRow(tables: StatTables, statType: string) {
-  return rowsOf(tables, 'WeaponTranscend').find((row) => row.weaponType === EXCLUSIVE_BATTLE.WEAPON_ID && row.statType === statType);
+  return rowsOf(tables, 'WeaponTranscend').find(
+    (row) => row.weaponType === EXCLUSIVE_BATTLE.WEAPON_ID && row.statType === statType,
+  );
 }
 
 /** 에이카 전용 무기 ★12 · ★1 전투 줄 (1슬롯 = 필드 히어로가 에이카 무기를 꼈을 때) */
@@ -200,10 +243,17 @@ export function exclusiveBattleLines(values: CalcValues, tables: StatTables, sou
   }
   // ★1: 받는 피해 % (val3) 를 val2 초 — 체력이 유한한 보스 대상 (스테이지 보스 · 속성 던전 보스) 만
   const taken = transcendRow(tables, EXCLUSIVE_BATTLE.TAKEN_DAMAGE_STAT_TYPE);
-  if (star >= EXCLUSIVE_BATTLE.TAKEN_DAMAGE_STAR && taken && AEIKA_WEAPON.CURRENT_HP_TARGETS.includes(values[DAMAGE_TARGET_FIELD] ?? '')) {
+  if (
+    star >= EXCLUSIVE_BATTLE.TAKEN_DAMAGE_STAR &&
+    taken &&
+    AEIKA_WEAPON.CURRENT_HP_TARGETS.includes(values[DAMAGE_TARGET_FIELD] ?? '')
+  ) {
     const share = uptime * stintShare(tables, Number(taken.val2) || 0);
     lines.push({
-      source: sourceLabel('calc.buff.battle.exclusiveTakenSource', { star: EXCLUSIVE_BATTLE.TAKEN_DAMAGE_STAR, percent: plainNumber(share * PERCENT) }),
+      source: sourceLabel('calc.buff.battle.exclusiveTakenSource', {
+        star: EXCLUSIVE_BATTLE.TAKEN_DAMAGE_STAR,
+        percent: plainNumber(share * PERCENT),
+      }),
       stat: EXCLUSIVE_BATTLE.BOSS_DAMAGE_STAT,
       value: (Number(taken.val3) || 0) * share,
     });

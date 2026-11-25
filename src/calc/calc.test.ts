@@ -25,7 +25,15 @@ describe('큰 수 읽기', () => {
 
 describe('단위 글자 (게임 m850: 엑셀 열 이름 방식, 최대 8글자)', () => {
   it.each([
-    ['A', 1], ['Z', 26], ['AA', 27], ['AZ', 52], ['BA', 53], ['DG', 111], ['ZZ', 702], ['AAA', 703], ['AAB', 704],
+    ['A', 1],
+    ['Z', 26],
+    ['AA', 27],
+    ['AZ', 52],
+    ['BA', 53],
+    ['DG', 111],
+    ['ZZ', 702],
+    ['AAA', 703],
+    ['AAB', 704],
   ])('%s = %i', (letters, index) => {
     expect(letterIndex(letters)).toBe(index);
     expect(letterIndex(letters.toLowerCase())).toBe(index);

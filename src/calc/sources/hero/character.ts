@@ -107,12 +107,7 @@ export function selectedHero(values: CalcValues, tables: StatTables): HeroSelect
 }
 
 /** 이름·등급·성 → 기본 공격력·체력 (log10). 표에 없으면 null (기존 characterBase) */
-export function characterBase(
-  tables: StatTables,
-  name: string,
-  grade: string,
-  star: string | number,
-): HeroBase | null {
+export function characterBase(tables: StatTables, name: string, grade: string, star: string | number): HeroBase | null {
   const row = characterRows(tables).find(
     (record) => record.name === name && record.grade === grade && record.star === String(star),
   );
@@ -134,7 +129,11 @@ export function heroBaseAttackSpeedLines(
   const attackSpeed = row ? Number(row[BASE_ATTACK_SPEED_COLUMN]) : 0;
   if (!attackSpeed) return [];
   return [
-    { source: sourceLabel('calc.hero.sources.baseAttackSpeed', { hero: hero.name }), stat: ATTACK_SPEED_STAT, value: attackSpeed },
+    {
+      source: sourceLabel('calc.hero.sources.baseAttackSpeed', { hero: hero.name }),
+      stat: ATTACK_SPEED_STAT,
+      value: attackSpeed,
+    },
   ];
 }
 
@@ -150,7 +149,11 @@ export function heroBaseCriticalLines(
   const hero = selectedHero(values, tables);
   if (heroRows(tables, hero.name).length === 0) return [];
   return [
-    { source: sourceLabel('calc.hero.sources.baseCriticalRate', { hero: hero.name }), stat: CRITICAL_RATE_STAT, value: BASE_CRITICAL_RATE },
+    {
+      source: sourceLabel('calc.hero.sources.baseCriticalRate', { hero: hero.name }),
+      stat: CRITICAL_RATE_STAT,
+      value: BASE_CRITICAL_RATE,
+    },
     {
       source: sourceLabel('calc.hero.sources.baseCriticalDamage', { hero: hero.name }),
       stat: CRITICAL_DAMAGE_SUM_STAT,

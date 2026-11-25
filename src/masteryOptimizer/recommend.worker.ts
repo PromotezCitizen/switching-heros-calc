@@ -32,7 +32,8 @@ scope.onmessage = (event) => {
     // 몬스터 카드는 비운 상태로 계산한다 (카드와 특성은 따로 추천한다. 지금 끼고 있는 카드는 반영하지 않는다)
     const noCardValues = valuesWithLoadout(values, tables, []);
     // 비교 값은 공격마다 한 번씩 대미지 합 (쿨타임 · 시간은 보지 않음), 고정 · 무시 규칙은 대상 종류를 따른다
-    const evaluate = (allocation: Record<string, number>) => evaluateOneCastEach(noCardValues, traits, tables, allocation, inputs.target, inputs.damage);
+    const evaluate = (allocation: Record<string, number>) =>
+      evaluateOneCastEach(noCardValues, traits, tables, allocation, inputs.target, inputs.damage);
     const policy = traitPolicyFor(inputs.target, traits, {
       attributes: formationHeroAttributes(noCardValues, tables),
       genders: formationHeroGenders(noCardValues, tables),

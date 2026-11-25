@@ -31,7 +31,9 @@ export default function FolderImportSection() {
     if (picked.length === 0 || tables.status !== 'ready') return;
     setNotes([]);
     // 폴더 안 (하위 폴더 제외) 의 저장 파일만
-    const byName = new Map(picked.filter((file) => file.webkitRelativePath.split('/').length <= 2).map((file) => [file.name, file]));
+    const byName = new Map(
+      picked.filter((file) => file.webkitRelativePath.split('/').length <= 2).map((file) => [file.name, file]),
+    );
     const names = saveFileNames([...byName.keys()]);
     const missing = missingSaveKinds(names);
     if (missing.length > 0) {
@@ -40,8 +42,17 @@ export default function FolderImportSection() {
     }
     setBusy(true);
     try {
-      const outcome = await importSaveFiles(names, async (name) => new Uint8Array(await byName.get(name)!.arrayBuffer()), tables.data);
-      const importNotes = [...(outcome.missingKeys.length > 0 ? [translate('usb.missingKeys', { count: outcome.missingKeys.length })] : []), ...outcome.notes];
+      const outcome = await importSaveFiles(
+        names,
+        async (name) => new Uint8Array(await byName.get(name)!.arrayBuffer()),
+        tables.data,
+      );
+      const importNotes = [
+        ...(outcome.missingKeys.length > 0
+          ? [translate('usb.missingKeys', { count: outcome.missingKeys.length })]
+          : []),
+        ...outcome.notes,
+      ];
       setValues({ ...outcome.storeValues, ...importRecordValues(importNotes) });
       setNotes(importNotes);
       setMessage(translate('usb.folder.importDone', { count: outcome.count }));
@@ -60,7 +71,12 @@ export default function FolderImportSection() {
         ))}
       </List>
       <Group>
-        <Button component="a" variant="light" href={`${import.meta.env.BASE_URL}${SAVE_TOOL_PATH}`} download={SAVE_TOOL_FILE_NAME}>
+        <Button
+          component="a"
+          variant="light"
+          href={`${import.meta.env.BASE_URL}${SAVE_TOOL_PATH}`}
+          download={SAVE_TOOL_FILE_NAME}
+        >
           {translate('usb.folder.download')}
         </Button>
         <Button component="label" loading={busy} disabled={tables.status !== 'ready'}>

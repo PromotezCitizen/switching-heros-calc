@@ -49,18 +49,22 @@ describe('특성·룬·버프 화면', () => {
     useCalcStore.getState().reset();
   });
 
-  it('특성: 레벨 칸 입력은 칸 mastery_<번호> 에 저장하고, 최대를 넘지 않는다', () => {
-    // 완력 강화 (2단계) 는 1단계 특성 0 이 최대여야 올릴 수 있다
-    useCalcStore.getState().setValue('calc.mastery_0', '1');
-    renderTab('mastery');
-    fireEvent.change(screen.getByLabelText('완력 강화 레벨'), { target: { value: '5' } });
-    expect(useCalcStore.getState().values['calc.mastery_1']).toBe('5');
-    fireEvent.change(screen.getByLabelText('완력 강화 레벨'), { target: { value: '99' } });
-    expect(useCalcStore.getState().values['calc.mastery_1']).toBe('20');
-    // 열마다 (스탯·스킬·히어로) 초기화 버튼이 있고, 첫 열 = 스탯
-    fireEvent.click(screen.getAllByText('이 종류 초기화')[0]);
-    expect(useCalcStore.getState().values['calc.mastery_1']).toBe('');
-  }, MASTERY_FIRST_RENDER_TIMEOUT_MS);
+  it(
+    '특성: 레벨 칸 입력은 칸 mastery_<번호> 에 저장하고, 최대를 넘지 않는다',
+    () => {
+      // 완력 강화 (2단계) 는 1단계 특성 0 이 최대여야 올릴 수 있다
+      useCalcStore.getState().setValue('calc.mastery_0', '1');
+      renderTab('mastery');
+      fireEvent.change(screen.getByLabelText('완력 강화 레벨'), { target: { value: '5' } });
+      expect(useCalcStore.getState().values['calc.mastery_1']).toBe('5');
+      fireEvent.change(screen.getByLabelText('완력 강화 레벨'), { target: { value: '99' } });
+      expect(useCalcStore.getState().values['calc.mastery_1']).toBe('20');
+      // 열마다 (스탯·스킬·히어로) 초기화 버튼이 있고, 첫 열 = 스탯
+      fireEvent.click(screen.getAllByText('이 종류 초기화')[0]);
+      expect(useCalcStore.getState().values['calc.mastery_1']).toBe('');
+    },
+    MASTERY_FIRST_RENDER_TIMEOUT_MS,
+  );
 
   it('특성: 얼티밋은 켜면 레벨 1', () => {
     // 스탯 얼티밋은 스탯 18단계 특성 하나가 최대 (5000) 여야 켤 수 있다

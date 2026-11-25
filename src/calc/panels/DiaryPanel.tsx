@@ -5,12 +5,7 @@ import { Card, Group, Image, Stack, Text, SimpleGrid } from '@mantine/core';
 import { CONSTS } from '@/CONSTS';
 import { NumberField } from '@/components/StoreFields';
 import { CALC_KEY_PREFIX } from '@/calc/storeKeys';
-import {
-  DIARY_BOOK_FIELD,
-  DIARY_SLOT_ICONS,
-  diarySlotField,
-  diarySlotResults,
-} from '@/calc/sources/textLines/diary';
+import { DIARY_BOOK_FIELD, DIARY_SLOT_ICONS, diarySlotField, diarySlotResults } from '@/calc/sources/textLines/diary';
 import { formatPercentText } from '@/calc/statText';
 import type { TabPanelProps } from '@/calc/types';
 

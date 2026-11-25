@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { skillEquipField, skillLevelField, skillOptionField, skillPerkField, skillRows, skillRuneChoices, skillRuneValue } from '@/calc/sources/skill/skill';
+import {
+  skillEquipField,
+  skillLevelField,
+  skillOptionField,
+  skillPerkField,
+  skillRows,
+  skillRuneChoices,
+  skillRuneValue,
+} from '@/calc/sources/skill/skill';
 import type { CalcValues } from '@/calc/types';
 import { tableRows } from '@/data/statTables';
 import { mageSkillHits } from '@/dpm/mageSkillHits';
@@ -23,7 +31,9 @@ function runeValue(skillId: string, type: string): number {
 }
 
 function perkValue(skillId: string, perkType: string, column: 'val1' | 'val2' | 'val3'): number {
-  const row = tableRows(tables.SkillPerk).find((candidate) => candidate.skillId === skillId && candidate.perkType === perkType);
+  const row = tableRows(tables.SkillPerk).find(
+    (candidate) => candidate.skillId === skillId && candidate.perkType === perkType,
+  );
   if (!row) throw new Error(`스킬 ${skillId} 문양 ${perkType} 가 표에 없어요`);
   return Number(row[column]);
 }
@@ -41,14 +51,17 @@ function setupValues(skillId: string, { options = [], perks = [] }: Setup): Calc
     values[skillOptionField(skillId, index + 1)] = row.rNo;
   });
   for (const perkType of perks) {
-    const row = tableRows(tables.SkillPerk).find((candidate) => candidate.skillId === skillId && candidate.perkType === perkType);
+    const row = tableRows(tables.SkillPerk).find(
+      (candidate) => candidate.skillId === skillId && candidate.perkType === perkType,
+    );
     if (!row) throw new Error(`스킬 ${skillId} 문양 ${perkType} 가 표에 없어요`);
     values[skillPerkField(skillId, row.targetLv)] = perkType;
   }
   return values;
 }
 
-const hitsOf = (skillId: string, setup: Setup = {}, targets = TARGETS, statusCount = 0) => mageSkillHits(setupValues(skillId, setup), tables, skillId, targets, statusCount);
+const hitsOf = (skillId: string, setup: Setup = {}, targets = TARGETS, statusCount = 0) =>
+  mageSkillHits(setupValues(skillId, setup), tables, skillId, targets, statusCount);
 const chance = (percent: number) => (percent >= 100 ? 1 : 0);
 const ticks = (duration: number, first: number, interval: number) => Math.floor((duration - first) / interval) + 1;
 
@@ -56,12 +69,18 @@ describe('마법사 스킬 적중 수 (맞는 적 3마리, catalog-skill-hits.md
   it('화염구 301: 폭발 1번 × 적 수, 옵션 3100 은 확률로 2회, 문양 FireBall1 은 계수 val1 %', () => {
     expect(hitsOf('301').hits).toBe(TARGETS);
     expect(hitsOf('301', { options: ['3100'] }).hits).toBe(TARGETS * (1 + chance(runeValue('301', '3100'))));
-    expect(hitsOf('301', { perks: ['FireBall1'] }).coefficientFactor).toBeCloseTo(1 + perkValue('301', 'FireBall1', 'val1') / 100, 10);
+    expect(hitsOf('301', { perks: ['FireBall1'] }).coefficientFactor).toBeCloseTo(
+      1 + perkValue('301', 'FireBall1', 'val1') / 100,
+      10,
+    );
   });
 
   it('서릿발 302: 판정 1번 × 적 수, 문양 FrostStrike1 은 상태이상인 적에게만', () => {
     expect(hitsOf('302').hits).toBe(TARGETS);
-    expect(hitsOf('302', { perks: ['FrostStrike1'] }, TARGETS, 2).coefficientFactor).toBeCloseTo(1 + perkValue('302', 'FrostStrike1', 'val1') / 100, 10);
+    expect(hitsOf('302', { perks: ['FrostStrike1'] }, TARGETS, 2).coefficientFactor).toBeCloseTo(
+      1 + perkValue('302', 'FrostStrike1', 'val1') / 100,
+      10,
+    );
     expect(hitsOf('302', { perks: ['FrostStrike1'] }, TARGETS, 0).coefficientFactor).toBe(1);
   });
 
@@ -87,29 +106,46 @@ describe('마법사 스킬 적중 수 (맞는 적 3마리, catalog-skill-hits.md
 
   it('중력장 351: 폭발 1번 × 적 수, 문양 Gravity1 은 한 번 더', () => {
     expect(hitsOf('351').hits).toBe(TARGETS);
-    expect(hitsOf('351', { perks: ['Gravity1'] }).hits).toBe(TARGETS * (1 + chance(perkValue('351', 'Gravity1', 'val1'))));
+    expect(hitsOf('351', { perks: ['Gravity1'] }).hits).toBe(
+      TARGETS * (1 + chance(perkValue('351', 'Gravity1', 'val1'))),
+    );
   });
 
   it('불기둥 352: 판정 int(value2) 번 × 적 수, 옵션 3700 은 확률로 통째 2회', () => {
     const { value2 } = skillRow('352');
     expect(hitsOf('352').hits).toBe(Math.floor(value2) * TARGETS);
-    expect(hitsOf('352', { options: ['3700'] }).hits).toBe((1 + chance(runeValue('352', '3700'))) * Math.floor(value2) * TARGETS);
+    expect(hitsOf('352', { options: ['3700'] }).hits).toBe(
+      (1 + chance(runeValue('352', '3700'))) * Math.floor(value2) * TARGETS,
+    );
   });
 
   it('번개창 353: 첫 판정 0.02초, 간격 value2, 지속 value1 (+ 옵션 3801), 문양 LightningBolt1 은 데미지 val1 배', () => {
     const { value1, value2 } = skillRow('353');
     expect(hitsOf('353').hits).toBe(ticks(value1, 0.02, value2) * TARGETS);
-    expect(hitsOf('353', { options: ['3801'] }).hits).toBe(ticks(value1 + runeValue('353', '3801'), 0.02, value2) * TARGETS);
-    expect(hitsOf('353', { options: ['3802'] }).hits).toBe(ticks(value1 * 0.5, 0.02, value2 / (1 + runeValue('353', '3802') / 100)) * TARGETS);
-    expect(hitsOf('353', { perks: ['LightningBolt1'] }).coefficientFactor).toBe(perkValue('353', 'LightningBolt1', 'val1'));
+    expect(hitsOf('353', { options: ['3801'] }).hits).toBe(
+      ticks(value1 + runeValue('353', '3801'), 0.02, value2) * TARGETS,
+    );
+    expect(hitsOf('353', { options: ['3802'] }).hits).toBe(
+      ticks(value1 * 0.5, 0.02, value2 / (1 + runeValue('353', '3802') / 100)) * TARGETS,
+    );
+    expect(hitsOf('353', { perks: ['LightningBolt1'] }).coefficientFactor).toBe(
+      perkValue('353', 'LightningBolt1', 'val1'),
+    );
   });
 
   it('눈보라 354: 첫 판정 0.02초, 간격 value2, 지속 value1 (+ 옵션 3901), 옵션 3902 는 간격 감소', () => {
     const { value1, value2 } = skillRow('354');
     expect(hitsOf('354').hits).toBe(ticks(value1, 0.02, value2) * TARGETS);
-    expect(hitsOf('354', { options: ['3901'] }).hits).toBe(ticks(value1 + runeValue('354', '3901'), 0.02, value2) * TARGETS);
-    expect(hitsOf('354', { options: ['3902'] }).hits).toBe(ticks(value1, 0.02, value2 / (1 + runeValue('354', '3902') / 100)) * TARGETS);
-    expect(hitsOf('354', { perks: ['Blizzard1'] }).coefficientFactor).toBeCloseTo(1 + perkValue('354', 'Blizzard1', 'val2') / 100, 10);
+    expect(hitsOf('354', { options: ['3901'] }).hits).toBe(
+      ticks(value1 + runeValue('354', '3901'), 0.02, value2) * TARGETS,
+    );
+    expect(hitsOf('354', { options: ['3902'] }).hits).toBe(
+      ticks(value1, 0.02, value2 / (1 + runeValue('354', '3902') / 100)) * TARGETS,
+    );
+    expect(hitsOf('354', { perks: ['Blizzard1'] }).coefficientFactor).toBeCloseTo(
+      1 + perkValue('354', 'Blizzard1', 'val2') / 100,
+      10,
+    );
   });
 
   it('얼음창 355: 큰 창 적 수 + 작은 창 value1 개 × value2 배 × min(적 수, value3), 옵션 4002 면 큰 창 없이 관통 증가', () => {

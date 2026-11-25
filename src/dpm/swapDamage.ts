@@ -7,7 +7,14 @@ import { CONSTS } from '@/CONSTS';
 import { SKILL_EQUIP_SLOT_NUMBERS, skillEquipField } from '@/calc/sources/skill/skill';
 import type { CalcValues } from '@/calc/types';
 import type { StatTables } from '@/data/statTables';
-import { logSum, targetDamage, type DamageInputs, type DamagePart, type DamageTarget, type TargetDamage } from '@/dpm/targetDamage';
+import {
+  logSum,
+  targetDamage,
+  type DamageInputs,
+  type DamagePart,
+  type DamageTarget,
+  type TargetDamage,
+} from '@/dpm/targetDamage';
 
 const { SWAP } = CONSTS.dpm;
 const { SWAP_UPTIME_FIELD } = CONSTS.masteryRuneBuff;
@@ -55,7 +62,12 @@ function heroParts(result: TargetDamage, hero: string): DamagePart[] {
 }
 
 /** 자동 교체: 두 히어로의 공격 한 번씩 대미지를 모두 더한다. 교체 등장 후 지속 효과는 최대 상태라 두 히어로 모두 늘 켜짐 */
-export function targetDamageWithSwap(values: CalcValues, tables: StatTables, target: DamageTarget, inputs: DamageInputs): TargetDamage {
+export function targetDamageWithSwap(
+  values: CalcValues,
+  tables: StatTables,
+  target: DamageTarget,
+  inputs: DamageInputs,
+): TargetDamage {
   const swapped = inputs.swap ? swappedHeroValues(values) : null;
   if (!swapped) return targetDamage(values, tables, target, inputs);
   const second = targetDamage(withUptime(swapped), tables, target, inputs);

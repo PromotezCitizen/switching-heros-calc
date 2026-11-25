@@ -5,7 +5,15 @@
 import { CONSTS } from '@/CONSTS';
 import { CALC_KEY_PREFIX } from '@/calc/storeKeys';
 import type { StatTables } from '@/data/statTables';
-import { importSave, missingSaveKeys, pickDefault, SAVE_FILE_KINDS, topKeys, type SaveFileKind, type SaveFiles } from '@/usb/saveImport/importSave';
+import {
+  importSave,
+  missingSaveKeys,
+  pickDefault,
+  SAVE_FILE_KINDS,
+  topKeys,
+  type SaveFileKind,
+  type SaveFiles,
+} from '@/usb/saveImport/importSave';
 
 const { SAVE_FILE_PATTERN } = CONSTS.usb;
 
@@ -40,7 +48,11 @@ function parseJson(bytes: Uint8Array): unknown {
 }
 
 /** 종류마다 파일을 읽어 입력 칸 값으로. 없는 종류가 있으면 부르기 전에 missingSaveKinds 로 막는다 */
-export async function importSaveFiles(names: string[], read: (name: string) => Promise<Uint8Array>, tables: StatTables): Promise<SaveImportOutcome> {
+export async function importSaveFiles(
+  names: string[],
+  read: (name: string) => Promise<Uint8Array>,
+  tables: StatTables,
+): Promise<SaveImportOutcome> {
   const loaded: Record<string, unknown> = {};
   const keysByKind: Partial<Record<SaveFileKind, string[]>> = {};
   for (const kind of SAVE_FILE_KINDS) {

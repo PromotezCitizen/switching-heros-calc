@@ -10,6 +10,7 @@ import {
   evaluateOneCastEach,
   makeChanceGuard,
   makeJumpLevels,
+  unreachableChanceTraits,
 } from '@/masteryOptimizer/evaluate';
 import { CONSTS } from '@/CONSTS';
 import { recommendAllocation } from '@/masteryOptimizer/recommend';
@@ -41,12 +42,26 @@ scope.onmessage = (event) => {
     // 비교 값은 공격마다 한 번씩 대미지 합 (쿨타임 · 시간은 보지 않음), 고정 · 무시 규칙은 대상 종류를 따른다
     const evaluate = (allocation: Record<string, number>) =>
       evaluateOneCastEach(noCardValues, traits, tables, allocation, inputs.target, inputs.damage);
-    const policy = traitPolicyFor(inputs.target, traits, {
+    const basePolicy = traitPolicyFor(inputs.target, traits, {
       attributes: formationHeroAttributes(noCardValues, tables),
       genders: formationHeroGenders(noCardValues, tables),
       targetUnits: formationHeroTargetUnits(noCardValues, tables),
       petCounts: equippedPetCounts(equippedPetIds(noCardValues), tables.Pet),
     });
+    // 지금 프리셋은 비교 기준이자 두 번째 출발점이다
+    const current = allocationFromValues(noCardValues, traits);
+    // 최대로 찍어도 100% 에 닿지 않는 확률의 특성은 먼저 찍지 않는다 (예: 매직 가드 50%). 계정 배분 위에 확률 특성만 최대로 올려 잰다
+    const chanceFirst = basePolicy.chanceFirst ?? new Set<string>();
+    const unreachable = unreachableChanceTraits(
+      noCardValues,
+      traits,
+      tables,
+      inputs.target,
+      inputs.damage,
+      chanceFirst,
+      current,
+    );
+    const policy = { ...basePolicy, chanceFirst: new Set([...chanceFirst].filter((rNo) => !unreachable.has(rNo))) };
     const totalPoints = totalMasteryPoints(tables, inputs.userLevel, inputs.vipLevel);
     // 확률 바닥: 100% 이상이던 확률, 켜진 얼티밋이 넘고 있던 문턱 아래로 내리지 않는다
     const chanceGuard = makeChanceGuard(noCardValues, traits, tables, inputs.target, inputs.damage);
@@ -63,8 +78,6 @@ scope.onmessage = (event) => {
         )
         .map((trait) => trait.rNo),
     );
-    // 지금 프리셋은 비교 기준이자 두 번째 출발점이다
-    const current = allocationFromValues(noCardValues, traits);
     const baseEfficiency = evaluate(current);
     scope.postMessage({ type: 'base', efficiency: baseEfficiency });
     const start = buildStartAllocation(traits, {

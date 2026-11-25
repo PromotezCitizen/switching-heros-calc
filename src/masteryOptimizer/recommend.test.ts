@@ -5,8 +5,27 @@ import { usedPoints, validateAllocation, type Allocation } from '@/masteryOptimi
 
 const USER_LEVEL = 1000;
 
-function trait(rNo: string, step: number, maxLevel: number, needPoint = 1, extra: Partial<MasteryTrait> = {}): MasteryTrait {
-  return { rNo, group: 'Stat', ultimate: false, step, unlockLevel: 1, maxLevel, needPoint, statName: `stat${rNo}`, statValue: 1, statUpValue: 1, desc: '', ...extra };
+function trait(
+  rNo: string,
+  step: number,
+  maxLevel: number,
+  needPoint = 1,
+  extra: Partial<MasteryTrait> = {},
+): MasteryTrait {
+  return {
+    rNo,
+    group: 'Stat',
+    ultimate: false,
+    step,
+    unlockLevel: 1,
+    maxLevel,
+    needPoint,
+    statName: `stat${rNo}`,
+    statValue: 1,
+    statUpValue: 1,
+    desc: '',
+    ...extra,
+  };
 }
 
 /** 효과가 줄어드는 (오목) 가짜 효율: Σ 가중치 × log(1 + 레벨) */
@@ -20,10 +39,12 @@ function bruteForce(traits: MasteryTrait[], evaluate: (allocation: Allocation) =
   let best = -Infinity;
   const walk = (index: number, allocation: Allocation): void => {
     if (index === traits.length) {
-      if (validateAllocation(traits, allocation, USER_LEVEL, total).length === 0) best = Math.max(best, evaluate(allocation));
+      if (validateAllocation(traits, allocation, USER_LEVEL, total).length === 0)
+        best = Math.max(best, evaluate(allocation));
       return;
     }
-    for (let level = 0; level <= traits[index].maxLevel; level += 1) walk(index + 1, level > 0 ? { ...allocation, [traits[index].rNo]: level } : allocation);
+    for (let level = 0; level <= traits[index].maxLevel; level += 1)
+      walk(index + 1, level > 0 ? { ...allocation, [traits[index].rNo]: level } : allocation);
   };
   walk(0, {});
   return best;
@@ -35,25 +56,46 @@ describe('추천 배분 탐색', () => {
 
   it('작은 표 전수 계산과 같은 답 (필요 포인트 모두 1)', () => {
     const total = 10;
-    const result = recommendAllocation(traits, { '4': 6, '3': 4 }, { evaluate, userLevel: USER_LEVEL, totalPoints: total, blockSizes: [4, 2, 1] });
+    const result = recommendAllocation(
+      traits,
+      { '4': 6, '3': 4 },
+      { evaluate, userLevel: USER_LEVEL, totalPoints: total, blockSizes: [4, 2, 1] },
+    );
     expect(result.efficiency).toBeCloseTo(bruteForce(traits, evaluate, total), 10);
     expect(result.efficiency).toBeGreaterThan(result.baseEfficiency);
   });
 
   it('예산과 규칙을 지킨다', () => {
-    const result = recommendAllocation(traits, { '4': 6, '3': 4 }, { evaluate, userLevel: USER_LEVEL, totalPoints: 10, blockSizes: [4, 2, 1] });
+    const result = recommendAllocation(
+      traits,
+      { '4': 6, '3': 4 },
+      { evaluate, userLevel: USER_LEVEL, totalPoints: 10, blockSizes: [4, 2, 1] },
+    );
     expect(usedPoints(traits, result.allocation)).toBeLessThanOrEqual(10);
     expect(validateAllocation(traits, result.allocation, USER_LEVEL, 10)).toEqual([]);
   });
 
   it('안 쓴 포인트도 쓴다', () => {
-    const result = recommendAllocation(traits, { '1': 1 }, { evaluate, userLevel: USER_LEVEL, totalPoints: 6, blockSizes: [2, 1] });
+    const result = recommendAllocation(
+      traits,
+      { '1': 1 },
+      { evaluate, userLevel: USER_LEVEL, totalPoints: 6, blockSizes: [2, 1] },
+    );
     expect(usedPoints(traits, result.allocation)).toBe(6);
   });
 
   it('이미 최선이면 그대로 둔다', () => {
-    const best = recommendAllocation(traits, {}, { evaluate, userLevel: USER_LEVEL, totalPoints: 10, blockSizes: [4, 2, 1] }).allocation;
-    const again = recommendAllocation(traits, best, { evaluate, userLevel: USER_LEVEL, totalPoints: 10, blockSizes: [4, 2, 1] });
+    const best = recommendAllocation(
+      traits,
+      {},
+      { evaluate, userLevel: USER_LEVEL, totalPoints: 10, blockSizes: [4, 2, 1] },
+    ).allocation;
+    const again = recommendAllocation(traits, best, {
+      evaluate,
+      userLevel: USER_LEVEL,
+      totalPoints: 10,
+      blockSizes: [4, 2, 1],
+    });
     expect(again.allocation).toEqual(best);
     expect(again.efficiency).toBeCloseTo(again.baseEfficiency, 12);
   });
@@ -62,7 +104,12 @@ describe('추천 배분 탐색', () => {
     const mixed = [trait('1', 1, 6, 2), trait('2', 1, 6, 1), trait('3', 1, 6, 3)];
     const mixedEvaluate = concave({ '1': 4, '2': 1, '3': 6 });
     const start = { '2': 6 };
-    const result = recommendAllocation(mixed, start, { evaluate: mixedEvaluate, userLevel: USER_LEVEL, totalPoints: 12, blockSizes: [3, 1] });
+    const result = recommendAllocation(mixed, start, {
+      evaluate: mixedEvaluate,
+      userLevel: USER_LEVEL,
+      totalPoints: 12,
+      blockSizes: [3, 1],
+    });
     expect(result.efficiency).toBeGreaterThanOrEqual(result.baseEfficiency);
     expect(validateAllocation(mixed, result.allocation, USER_LEVEL, 12)).toEqual([]);
   });
@@ -70,10 +117,18 @@ describe('추천 배분 탐색', () => {
   it('앞 단계를 채워야 열리는 특성은 열려 있을 때만 후보가 된다', () => {
     const chain = [trait('1', 1, 2), trait('2', 2, 6)];
     const chainEvaluate = concave({ '1': 0.1, '2': 10 });
-    const locked = recommendAllocation(chain, {}, { evaluate: chainEvaluate, userLevel: USER_LEVEL, totalPoints: 8, blockSizes: [2, 1] });
+    const locked = recommendAllocation(
+      chain,
+      {},
+      { evaluate: chainEvaluate, userLevel: USER_LEVEL, totalPoints: 8, blockSizes: [2, 1] },
+    );
     expect(validateAllocation(chain, locked.allocation, USER_LEVEL, 8)).toEqual([]);
     // 1번이 최대 (2) 면 2번이 열려 있으니 남은 포인트를 2번에 넣는다
-    const opened = recommendAllocation(chain, { '1': 2 }, { evaluate: chainEvaluate, userLevel: USER_LEVEL, totalPoints: 8, blockSizes: [2, 1] });
+    const opened = recommendAllocation(
+      chain,
+      { '1': 2 },
+      { evaluate: chainEvaluate, userLevel: USER_LEVEL, totalPoints: 8, blockSizes: [2, 1] },
+    );
     expect(opened.allocation['2']).toBe(6);
   });
 
@@ -82,9 +137,16 @@ describe('추천 배분 탐색', () => {
     const cheap = ['b1', 'b2', 'b3', 'b4', 'b5', 'b6'].map((rNo) => trait(rNo, 1, 100, 1));
     const swapTraits = [...cheap, trait('c', 1, 1, 5), trait('a', 1, 1, 5)];
     const swapEvaluate = (allocation: Allocation): number =>
-      cheap.reduce((sum, item) => sum + 0.001 * Math.log(1 + (allocation[item.rNo] ?? 0)), 0) + 2 * (allocation.c ?? 0) + 3 * (allocation.a ?? 0);
+      cheap.reduce((sum, item) => sum + 0.001 * Math.log(1 + (allocation[item.rNo] ?? 0)), 0) +
+      2 * (allocation.c ?? 0) +
+      3 * (allocation.a ?? 0);
     const start: Allocation = { b1: 4, b2: 4, b3: 4, b4: 4, b5: 4, b6: 4, c: 1 };
-    const result = recommendAllocation(swapTraits, start, { evaluate: swapEvaluate, userLevel: USER_LEVEL, totalPoints: 29, blockSizes: [4, 2, 1] });
+    const result = recommendAllocation(swapTraits, start, {
+      evaluate: swapEvaluate,
+      userLevel: USER_LEVEL,
+      totalPoints: 29,
+      blockSizes: [4, 2, 1],
+    });
     expect(result.allocation.a).toBe(1);
     expect(result.allocation.c).toBeUndefined();
     expect(usedPoints(swapTraits, result.allocation)).toBeLessThanOrEqual(29);
@@ -93,7 +155,11 @@ describe('추천 배분 탐색', () => {
 
   it('확률 문턱: 하나씩 올려서는 효율이 안 오르는 같은 묶음의 특성 쌍 (확률을 올리는 특성 + 문턱 효과 특성) 은 동시에 올려 찾는다', () => {
     // a 가 3 레벨 이상이고 b 가 1 레벨 이상일 때만 +5 (확률 100% 미만은 효과 0). 나머지 포인트는 c 가 작게 번다
-    const pair = [trait('a', 1, 6, 1, { statName: 'smiteAddPer' }), trait('b', 1, 6, 1, { statName: 'smiteToDmgUp1' }), trait('c', 1, 12, 1)];
+    const pair = [
+      trait('a', 1, 6, 1, { statName: 'smiteAddPer' }),
+      trait('b', 1, 6, 1, { statName: 'smiteToDmgUp1' }),
+      trait('c', 1, 12, 1),
+    ];
     const pairEvaluate = (allocation: Allocation): number =>
       0.01 * Math.log(1 + (allocation.c ?? 0)) + ((allocation.a ?? 0) >= 3 && (allocation.b ?? 0) >= 1 ? 5 : 0);
     const family = (item: MasteryTrait): string | null => (item.statName.startsWith('smite') ? 'smite' : null);
@@ -114,7 +180,11 @@ describe('추천 배분 탐색', () => {
 
   it('멈추라고 하면 그때까지의 최선을 돌려준다', () => {
     let calls = 0;
-    const result = recommendAllocation(traits, { '4': 6 }, { evaluate, userLevel: USER_LEVEL, totalPoints: 10, blockSizes: [4, 2, 1], shouldStop: () => (calls += 1) > 2 });
+    const result = recommendAllocation(
+      traits,
+      { '4': 6 },
+      { evaluate, userLevel: USER_LEVEL, totalPoints: 10, blockSizes: [4, 2, 1], shouldStop: () => (calls += 1) > 2 },
+    );
     expect(result.stopped).toBe(true);
     expect(validateAllocation(traits, result.allocation, USER_LEVEL, 10)).toEqual([]);
   });
@@ -126,7 +196,11 @@ describe('고정 · 무시 규칙 (policy)', () => {
 
   it('무시 특성에는 넣지 않고, 고정 특성에서는 빼지 않는다', () => {
     const policy = { fixed: new Set(['3']), ignored: new Set(['2']) };
-    const result = recommendAllocation(traits, { '3': 6 }, { evaluate, userLevel: USER_LEVEL, totalPoints: 12, blockSizes: [4, 2, 1], policy });
+    const result = recommendAllocation(
+      traits,
+      { '3': 6 },
+      { evaluate, userLevel: USER_LEVEL, totalPoints: 12, blockSizes: [4, 2, 1], policy },
+    );
     expect(result.allocation).toEqual({ '1': 6, '3': 6 });
   });
 });

@@ -35,14 +35,19 @@ describe('고른 옵션 (최고 등급 값)', () => {
     const baseOf = (target: 'normal' | 'boss' | 'hero') => coefficient(BASE, '201', { ...NORMAL, target, targets: 1 });
     // 옵션 2개 → SS 세트 ×3 도 같이 곱해짐
     expect(coefficient(options, '201', { ...NORMAL, target: 'normal' }) / base).toBeCloseTo(2 * 3, 10);
-    expect(coefficient(options, '201', { ...NORMAL, target: 'boss', targets: 1 }) / baseOf('boss')).toBeCloseTo(2 * 3, 10);
+    expect(coefficient(options, '201', { ...NORMAL, target: 'boss', targets: 1 }) / baseOf('boss')).toBeCloseTo(
+      2 * 3,
+      10,
+    );
     expect(coefficient(options, '201', { ...NORMAL, target: 'hero', targets: 1 }) / baseOf('hero')).toBeCloseTo(3, 10);
   });
 });
 
 describe('SS 세트 배수 (3_10_30_100)', () => {
   it('옵션 1개 ×1, 2개 ×3, 3개 ×10, 4개 ×30, 5개 ×100, 6개는 칸이 없어 마지막 값 ×100 (추정)', () => {
-    expect([1, 2, 3, 4, 5, 6].map((count) => ssSetMultiplier('3_10_30_100', count, 0))).toEqual([1, 3, 10, 30, 100, 100]);
+    expect([1, 2, 3, 4, 5, 6].map((count) => ssSetMultiplier('3_10_30_100', count, 0))).toEqual([
+      1, 3, 10, 30, 100, 100,
+    ]);
   });
   it('문양 세트 효과 5000% → ×51', () => {
     expect(ssSetMultiplier('3_10_30_100', 3, 5000)).toBeCloseTo(510, 10);
@@ -51,7 +56,10 @@ describe('SS 세트 배수 (3_10_30_100)', () => {
 
 describe('고른 문양', () => {
   it('기습 (스킬 1) Lv80 "레벨 +100" → 레벨 180 으로 계산, "데미지 15000%" → ×151', () => {
-    const levelPerk = skillCoefficient({ skillLevel_1: '80', skillPerk_1_80: 'SkillLv' }, tables, { skillId: '1', ...NORMAL });
+    const levelPerk = skillCoefficient({ skillLevel_1: '80', skillPerk_1_80: 'SkillLv' }, tables, {
+      skillId: '1',
+      ...NORMAL,
+    });
     expect(levelPerk.level).toBe(180);
     const plain = coefficient({ skillLevel_1: '80' }, '1');
     expect(coefficient({ skillLevel_1: '80', skillPerk_1_80: 'SkillDmg' }, '1') / plain).toBeCloseTo(151, 8);

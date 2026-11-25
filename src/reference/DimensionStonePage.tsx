@@ -4,7 +4,16 @@ import { Alert, Checkbox, Group, Loader, Paper, SimpleGrid, Stack, Table, Text, 
 import { CONSTS } from '@/CONSTS';
 import { formatLog, parseGameNumber } from '@/calc/gameNumber';
 import { useStatTables } from '@/data/statTables';
-import { alchemyStone, fillParts, minAlchemyLevelFor, setSteps, slotCosts, stonePartLog, stoneTotalLog, type PartInput } from '@/reference/dimensionStone';
+import {
+  alchemyStone,
+  fillParts,
+  minAlchemyLevelFor,
+  setSteps,
+  slotCosts,
+  stonePartLog,
+  stoneTotalLog,
+  type PartInput,
+} from '@/reference/dimensionStone';
 import { useCalcStore } from '@/store/useCalcStore';
 import { useUiValue } from '@/store/useUiStore';
 
@@ -124,7 +133,10 @@ function SetSection({ costs }: { costs: Costs }) {
                           ? translate('dimStone.noStone')
                           : step.grade === 0
                             ? translate('dimStone.alreadyEnough')
-                            : translate('dimStone.stoneGradeWithLevel', { grade: step.grade, level: minAlchemyLevelFor(step.grade).toLocaleString('ko-KR') })}
+                            : translate('dimStone.stoneGradeWithLevel', {
+                                grade: step.grade,
+                                level: minAlchemyLevelFor(step.grade).toLocaleString('ko-KR'),
+                              })}
                       </Text>
                     </Table.Td>
                   </Table.Tr>
@@ -230,7 +242,10 @@ function AlchemySection() {
             {translate('dimStone.alchemyStone', { grade: stone.grade })}
           </Text>
           <Text size="sm">
-            {translate('dimStone.alchemyAmount', { total: formatLog(stoneTotalLog(stone.grade)), part: formatLog(stonePartLog(stone.grade)) })}
+            {translate('dimStone.alchemyAmount', {
+              total: formatLog(stoneTotalLog(stone.grade)),
+              part: formatLog(stonePartLog(stone.grade)),
+            })}
           </Text>
           <Text size="sm">
             {translate('dimStone.alchemyChance', {

@@ -35,7 +35,12 @@ export function valuesWithAllocation(values: CalcValues, traits: MasteryTrait[],
  * 한 번씩 대미지 합 (log10): 평타 1번 + 장착 직업 스킬 1번씩 + 전용 스킬 1번 + 교체 스킬 1번 (교체가 켜져 있으면 두 히어로 모두).
  * 쿨타임 · 시전 횟수는 보지 않는다. 계산할 수 없으면 −Infinity
  */
-export function oneCastEachLog(values: CalcValues, tables: StatTables, target: DamageTarget, inputs: DamageInputs): number {
+export function oneCastEachLog(
+  values: CalcValues,
+  tables: StatTables,
+  target: DamageTarget,
+  inputs: DamageInputs,
+): number {
   return targetDamageWithSwap(values, tables, target, inputs).totalLog;
 }
 
@@ -51,6 +56,9 @@ export function evaluateOneCastEach(
   inputs: DamageInputs,
 ): number {
   const { RUSH_MIN_CHANCE, RUSH_MIN_CHANCE_FIELD } = CONSTS.dpm.OPTIMIZER_RULES;
-  const allocated = { ...valuesWithAllocation(values, traits, allocation), [RUSH_MIN_CHANCE_FIELD]: String(RUSH_MIN_CHANCE) };
+  const allocated = {
+    ...valuesWithAllocation(values, traits, allocation),
+    [RUSH_MIN_CHANCE_FIELD]: String(RUSH_MIN_CHANCE),
+  };
   return oneCastEachLog(allocated, tables, target, inputs);
 }

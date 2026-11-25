@@ -97,7 +97,10 @@ function ExclusiveWeaponCells({
           aria-label={translate('calc.exclusiveWeapon.starLabel', { name: ownerName })}
           data={[
             { value: NOT_OWNED, label: translate('calc.exclusiveWeapon.notOwned') },
-            ...Array.from({ length: weapon.maxStar + 1 }, (_, starNumber) => ({ value: String(starNumber), label: `★${starNumber}` })),
+            ...Array.from({ length: weapon.maxStar + 1 }, (_, starNumber) => ({
+              value: String(starNumber),
+              label: `★${starNumber}`,
+            })),
           ]}
           value={star ?? NOT_OWNED}
           allowDeselect={false}
@@ -192,7 +195,10 @@ const HeroRosterRow = memo(function HeroRosterRow({
           size="xs"
           style={{ width: HERO_GRADE_WIDTH }}
           aria-label={translate('calc.heroRoster.gradeLabel', { name: hero.name })}
-          data={[{ value: NOT_OWNED, label: translate('calc.heroRoster.notOwned') }, ...grades.map((choice) => ({ value: choice, label: choice }))]}
+          data={[
+            { value: NOT_OWNED, label: translate('calc.heroRoster.notOwned') },
+            ...grades.map((choice) => ({ value: choice, label: choice })),
+          ]}
           value={grade}
           allowDeselect={false}
           onChange={(next) => {
@@ -279,74 +285,80 @@ export function HeroRosterPanel({ values, setValue, tables, descriptions }: TabP
   const [optionWeaponId, setOptionWeaponId] = useState<string | null>(null);
   return (
     <Stack gap="md">
-    {/* 높이가 TABLE_MAX_HEIGHT 를 넘으면 표 안에서 위아래 스크롤, 좁으면 가로 스크롤. 머리줄 (두 단) 은 맨 위 고정 */}
-    <Box style={{ overflow: 'auto', maxHeight: TABLE_MAX_HEIGHT }}>
-      <Table verticalSpacing={4} horizontalSpacing="xs" miw={TABLE_MIN_WIDTH} stickyHeader>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th colSpan={HERO_COLUMN_COUNT}>{translate('calc.heroRoster.heroGroup')}</Table.Th>
-            <Table.Th colSpan={WEAPON_COLUMN_COUNT} style={{ borderLeft: WEAPON_DIVIDER }}>
-              {translate('calc.heroRoster.weaponGroup')}
-            </Table.Th>
-          </Table.Tr>
-          <Table.Tr>
-            <Table.Th>{translate('calc.heroRoster.hero')}</Table.Th>
-            <Table.Th>{translate('calc.heroRoster.grade')}</Table.Th>
-            <Table.Th>{translate('calc.heroRoster.star')}</Table.Th>
-            <Table.Th>{translate('calc.heroRoster.awaken')}</Table.Th>
-            <Table.Th>{translate('calc.heroRoster.affinity')}</Table.Th>
-            <Table.Th style={{ borderLeft: WEAPON_DIVIDER }}>{translate('calc.exclusiveWeapon.star')}</Table.Th>
-            <Table.Th>{translate('calc.exclusiveWeapon.level')}</Table.Th>
-            <Table.Th>{translate('calc.exclusiveWeapon.missionStar')}</Table.Th>
-            <Table.Th>{translate('calc.exclusiveWeapon.optionColumn')}</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {heroes.map((hero) => {
-            const weapon = weaponByHero.get(hero.charId);
-            const weaponValues = weaponValuesOf(values, weapon);
-            return (
-              <HeroRosterRow
-                key={hero.charId}
-                hero={hero}
-                grade={values[rosterGradeField(hero.charId)] ?? NOT_OWNED}
-                star={values[rosterStarField(hero.charId)]}
-                awaken={values[rosterAwakenField(hero.charId)]}
-                affinity={values[rosterAffinityField(hero.charId)]}
-                weapon={weapon}
-                weaponStar={weaponValues.star}
-                weaponLevel={weaponValues.level}
-                weaponMissionStar={weaponValues.missionStar}
-                tables={tables}
-                setValue={setValue}
-                onOpenOption={setOptionWeaponId}
-              />
-            );
-          })}
-          {orphanWeapons.map((weapon) => {
-            const ownerName = translate('calc.exclusiveWeapon.unknownOwner', { id: weapon.weaponId });
-            return (
-              <Table.Tr key={`weapon-${weapon.weaponId}`}>
-                <Table.Td colSpan={HERO_COLUMN_COUNT}>
-                  <Text size="sm">{ownerName}</Text>
-                </Table.Td>
-                <ExclusiveWeaponCells weapon={weapon} ownerName={ownerName} weaponValues={weaponValuesOf(values, weapon)} setValue={setValue} onOpenOption={setOptionWeaponId} />
-              </Table.Tr>
-            );
-          })}
-        </Table.Tbody>
-      </Table>
-    </Box>
-    <ExclusiveOptionModal
-      weaponId={optionWeaponId}
-      onClose={() => setOptionWeaponId(null)}
-      values={values}
-      setValue={setValue}
-      tables={tables}
-      descriptions={descriptions}
-      heroes={heroes}
-      weapons={weapons}
-    />
+      {/* 높이가 TABLE_MAX_HEIGHT 를 넘으면 표 안에서 위아래 스크롤, 좁으면 가로 스크롤. 머리줄 (두 단) 은 맨 위 고정 */}
+      <Box style={{ overflow: 'auto', maxHeight: TABLE_MAX_HEIGHT }}>
+        <Table verticalSpacing={4} horizontalSpacing="xs" miw={TABLE_MIN_WIDTH} stickyHeader>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th colSpan={HERO_COLUMN_COUNT}>{translate('calc.heroRoster.heroGroup')}</Table.Th>
+              <Table.Th colSpan={WEAPON_COLUMN_COUNT} style={{ borderLeft: WEAPON_DIVIDER }}>
+                {translate('calc.heroRoster.weaponGroup')}
+              </Table.Th>
+            </Table.Tr>
+            <Table.Tr>
+              <Table.Th>{translate('calc.heroRoster.hero')}</Table.Th>
+              <Table.Th>{translate('calc.heroRoster.grade')}</Table.Th>
+              <Table.Th>{translate('calc.heroRoster.star')}</Table.Th>
+              <Table.Th>{translate('calc.heroRoster.awaken')}</Table.Th>
+              <Table.Th>{translate('calc.heroRoster.affinity')}</Table.Th>
+              <Table.Th style={{ borderLeft: WEAPON_DIVIDER }}>{translate('calc.exclusiveWeapon.star')}</Table.Th>
+              <Table.Th>{translate('calc.exclusiveWeapon.level')}</Table.Th>
+              <Table.Th>{translate('calc.exclusiveWeapon.missionStar')}</Table.Th>
+              <Table.Th>{translate('calc.exclusiveWeapon.optionColumn')}</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {heroes.map((hero) => {
+              const weapon = weaponByHero.get(hero.charId);
+              const weaponValues = weaponValuesOf(values, weapon);
+              return (
+                <HeroRosterRow
+                  key={hero.charId}
+                  hero={hero}
+                  grade={values[rosterGradeField(hero.charId)] ?? NOT_OWNED}
+                  star={values[rosterStarField(hero.charId)]}
+                  awaken={values[rosterAwakenField(hero.charId)]}
+                  affinity={values[rosterAffinityField(hero.charId)]}
+                  weapon={weapon}
+                  weaponStar={weaponValues.star}
+                  weaponLevel={weaponValues.level}
+                  weaponMissionStar={weaponValues.missionStar}
+                  tables={tables}
+                  setValue={setValue}
+                  onOpenOption={setOptionWeaponId}
+                />
+              );
+            })}
+            {orphanWeapons.map((weapon) => {
+              const ownerName = translate('calc.exclusiveWeapon.unknownOwner', { id: weapon.weaponId });
+              return (
+                <Table.Tr key={`weapon-${weapon.weaponId}`}>
+                  <Table.Td colSpan={HERO_COLUMN_COUNT}>
+                    <Text size="sm">{ownerName}</Text>
+                  </Table.Td>
+                  <ExclusiveWeaponCells
+                    weapon={weapon}
+                    ownerName={ownerName}
+                    weaponValues={weaponValuesOf(values, weapon)}
+                    setValue={setValue}
+                    onOpenOption={setOptionWeaponId}
+                  />
+                </Table.Tr>
+              );
+            })}
+          </Table.Tbody>
+        </Table>
+      </Box>
+      <ExclusiveOptionModal
+        weaponId={optionWeaponId}
+        onClose={() => setOptionWeaponId(null)}
+        values={values}
+        setValue={setValue}
+        tables={tables}
+        descriptions={descriptions}
+        heroes={heroes}
+        weapons={weapons}
+      />
     </Stack>
   );
 }
@@ -383,7 +395,11 @@ function ExclusiveOptionModal({
   const nextStar = weaponId ? optionUnlockStar(tables, weaponId, open + 1) : null;
   const rowNumbers = Array.from({ length: OPTION_ROWS }, (_, index) => index + 1);
   return (
-    <Modal opened={!!weaponId} onClose={onClose} title={translate('calc.exclusiveWeapon.optionTitle', { name: ownerName })}>
+    <Modal
+      opened={!!weaponId}
+      onClose={onClose}
+      title={translate('calc.exclusiveWeapon.optionTitle', { name: ownerName })}
+    >
       {weaponId && (
         <Stack gap="xs">
           <Text size="xs" c="dimmed">

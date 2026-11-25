@@ -4,7 +4,13 @@ import { Group, Stack, Text } from '@mantine/core';
 import { CONSTS } from '@/CONSTS';
 import { combineLines } from '@/calc/combine';
 import { formatLog } from '@/calc/gameNumber';
-import { FAIRY_BLESSING_ON_FIELD, FAIRY_BOND_LEVEL_FIELD, PROFILE_ICON_FIELDS, affinityLines, fairyBlessingRow } from '@/calc/sources/textLines/other';
+import {
+  FAIRY_BLESSING_ON_FIELD,
+  FAIRY_BOND_LEVEL_FIELD,
+  PROFILE_ICON_FIELDS,
+  affinityLines,
+  fairyBlessingRow,
+} from '@/calc/sources/textLines/other';
 import { isChecked, wholeLevel } from '@/calc/sources/textLines/screenFields';
 import type { TabPanelProps } from '@/calc/types';
 import { ScreenValueInput } from '@/calc/panels/TextLinesFields';
@@ -16,7 +22,12 @@ const AFFINITY_SHOWN_STATS = [
   ['_per_hp', 'calc.affinity.hp'],
 ] as const;
 
-function ScreenFieldsPanel({ values, setValue, fieldIds, helpKey }: Pick<TabPanelProps, 'values' | 'setValue'> & { fieldIds: string[]; helpKey: string }) {
+function ScreenFieldsPanel({
+  values,
+  setValue,
+  fieldIds,
+  helpKey,
+}: Pick<TabPanelProps, 'values' | 'setValue'> & { fieldIds: string[]; helpKey: string }) {
   const { t: translate } = useTranslation();
   return (
     <Stack gap="xs">
@@ -79,7 +90,11 @@ export function FairyPanel({ values, tables }: TabPanelProps) {
       <Group gap="xs">
         <Text size="sm">{translate('calc.fairy.value')}</Text>
         <Text size="sm" fw={600}>
-          {!on ? translate('calc.fairy.off') : percent === undefined ? '-' : translate('calc.fairy.percent', { value: Number(percent) })}
+          {!on
+            ? translate('calc.fairy.off')
+            : percent === undefined
+              ? '-'
+              : translate('calc.fairy.percent', { value: Number(percent) })}
         </Text>
       </Group>
       <Text size="xs" c="dimmed">

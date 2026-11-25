@@ -61,7 +61,14 @@ describe('히어로 선택', () => {
   });
 
   it('두 히어로: 셰나 S 2성 기본값 (공격력 같음, 체력 다름)', () => {
-    const values: CalcValues = { charName: '셰나', charName2: '루피아', charGrade: 'S', charStar: '2', atk: '735.70A', hp: '1.5A' };
+    const values: CalcValues = {
+      charName: '셰나',
+      charName2: '루피아',
+      charGrade: 'S',
+      charStar: '2',
+      atk: '735.70A',
+      hp: '1.5A',
+    };
     const base = heroBase(values, tables)!;
     expect(base.atk).toBeCloseTo(5.866698394777513, 12);
     expect(base.hp).toBeCloseTo(7.042789653833195, 12);
@@ -124,13 +131,23 @@ describe('베르 각성 단계', () => {
   });
 
   it('LR ★5 = 113단계, 최종 배율과 화면 확인 문구', () => {
-    const values: CalcValues = { awakenGrade: 'LR', awakenStar: '5', awakenTotalFinalAtk: '153.30S', awakenTotalFinalHp: '3.56Q' };
+    const values: CalcValues = {
+      awakenGrade: 'LR',
+      awakenStar: '5',
+      awakenTotalFinalAtk: '153.30S',
+      awakenTotalFinalHp: '3.56Q',
+    };
     const stage = selectedAwakenStage(values, tables)!;
     expect(stage.awakenLv).toBe(113);
     expect(stage.finalAtk).toBeCloseTo(59.185542154854375, 12);
     expect(stage.finalHp).toBeCloseTo(59.185542154854375, 12);
     // 기존: "최종 공격력: 화면 ×153.30S / 수치표 ×153.30S 같음 · 최종 체력: 화면 ×3.56Q / 수치표 ×153.30S 다름"
-    const check = awakenFinalCheck(values, stage).map((row) => [row.target, formatLog(row.screenLog), formatLog(row.tableLog), row.same]);
+    const check = awakenFinalCheck(values, stage).map((row) => [
+      row.target,
+      formatLog(row.screenLog),
+      formatLog(row.tableLog),
+      row.same,
+    ]);
     expect(check).toEqual([
       ['finalAtk', '153.30S', '153.30S', true],
       ['finalHp', '3.56Q', '153.30S', false],

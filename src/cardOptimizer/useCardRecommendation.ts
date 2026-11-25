@@ -7,7 +7,14 @@ import type { CardRecommendProgress } from '@/cardOptimizer/recommendCards';
 export type CardRecommendationState =
   | { status: 'idle' }
   | { status: 'running'; progress: CardRecommendProgress | null }
-  | { status: 'done'; loadout: Loadout; baseEfficiency: number | null; efficiency: number; evaluations: number; lockedGroups?: LockedMarkGroup[] }
+  | {
+      status: 'done';
+      loadout: Loadout;
+      baseEfficiency: number | null;
+      efficiency: number;
+      evaluations: number;
+      lockedGroups?: LockedMarkGroup[];
+    }
   | { status: 'failed'; message: string };
 
 /** 카드 추천 계산을 작업자에서 돌린다 (useRecommendation 과 같은 방식) */

@@ -77,4 +77,6 @@ for (const row of items) {
 writeFileSync(IMAGES_PATH, `${JSON.stringify(images, null, 2)}\n`);
 console.log(`그림 ${Object.keys(images).length} / ${ids.length} (${itemFiles.at(-1)})`);
 console.log(`이름 ${Object.keys(names).length} / ${ids.length}, 없음: ${missingNames.join(', ') || '-'}`);
-console.log(`효과 ${Object.keys(effects).length} / ${stats.size}, 없음 (계산기 스탯 설명으로 대신): ${missingEffects.join(', ') || '-'}`);
+console.log(
+  `효과 ${Object.keys(effects).length} / ${stats.size}, 없음 (계산기 스탯 설명으로 대신): ${missingEffects.join(', ') || '-'}`,
+);

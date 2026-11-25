@@ -1,7 +1,13 @@
 /** 저장 데이터 Reinforce → 베르 각성 · 특성 · 훈련 입력 칸 값 */
 import { CONSTS } from '@/CONSTS';
 import { tableRows, type StatTables } from '@/data/statTables';
-import { groupBy, readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
+import {
+  groupBy,
+  readDictionary,
+  runSection,
+  type SaveDictionary,
+  type SaveImportResult,
+} from '@/usb/saveImport/saveDictionary';
 
 const { TRAINING_SHOWN_STATS } = CONSTS.usb;
 /** 각성 표의 능력치 열 type1 ~ type6 */

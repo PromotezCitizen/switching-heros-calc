@@ -1,13 +1,29 @@
 import { describe, expect, it } from 'vitest';
 import { loadoutFromValues, markCountOf, parseOwnedCards, valuesWithLoadout } from '@/cardOptimizer/loadout';
-import { cardSlotField, cardGradeField, cardSetPickField, CARD_SET_BONUS_FIELD } from '@/calc/sources/heroWeaponCardPet/card';
+import {
+  cardSlotField,
+  cardGradeField,
+  cardSetPickField,
+  CARD_SET_BONUS_FIELD,
+} from '@/calc/sources/heroWeaponCardPet/card';
 import { loadTestTables } from '@/test/loadTestTables';
 import { ownedCardsText } from '@/usb/saveImport/ownedCards';
 
 const tables = loadTestTables();
 
 describe('카드 편성', () => {
-  const saved = { cardDic: { k: [36, 4], v: [{ trsc: 15, setIdDic: { k: [1, 2, 3], v: [{ setIdList: [3, 2] }, { setIdList: [8] }, { setIdList: [14, 11] }] } }, { trsc: 10 }] } };
+  const saved = {
+    cardDic: {
+      k: [36, 4],
+      v: [
+        {
+          trsc: 15,
+          setIdDic: { k: [1, 2, 3], v: [{ setIdList: [3, 2] }, { setIdList: [8] }, { setIdList: [14, 11] }] },
+        },
+        { trsc: 10 },
+      ],
+    },
+  };
 
   it('저장 데이터 → 글 → 보유 카드로 왕복한다', () => {
     const owned = parseOwnedCards(ownedCardsText(saved));

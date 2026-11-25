@@ -69,16 +69,34 @@ export interface BatchHandle {
   stop: () => void;
 }
 
-export function startBatch({ storeValues, tables, monsterHp, parts = 'all', save, onProgress }: BatchOptions): BatchHandle {
+export function startBatch({
+  storeValues,
+  tables,
+  monsterHp,
+  parts = 'all',
+  save,
+  onProgress,
+}: BatchOptions): BatchHandle {
   const workers = new Set<Worker>();
   let stopped = false;
   const runsMastery = parts !== 'cards';
   const runsCards = parts !== 'mastery';
-  const progress: BatchProgress = { parts, phase: runsMastery ? 'mastery' : 'cards', masteryDone: 0, cardsDone: 0, running: [], failed: [] };
+  const progress: BatchProgress = {
+    parts,
+    phase: runsMastery ? 'mastery' : 'cards',
+    masteryDone: 0,
+    cardsDone: 0,
+    running: [],
+    failed: [],
+  };
   const report = () => onProgress({ ...progress, running: [...progress.running], failed: [...progress.failed] });
 
   /** 작업자 하나를 돌려 끝 메시지의 결과를 받는다 (멈추면 끝내고 null) */
-  function runWorker<Request, Result>(createWorker: () => Worker, request: Request, isDone: (message: unknown) => Result | undefined): Promise<Result | null> {
+  function runWorker<Request, Result>(
+    createWorker: () => Worker,
+    request: Request,
+    isDone: (message: unknown) => Result | undefined,
+  ): Promise<Result | null> {
     return new Promise((resolve, reject) => {
       if (stopped) return resolve(null);
       const worker = createWorker();
@@ -107,7 +125,8 @@ export function startBatch({ storeValues, tables, monsterHp, parts = 'all', save
 
   // new Worker(new URL(...)) 를 한 식으로 써야 빌드가 작업자 파일을 js 로 묶는다 (URL 만 따로 만들면 .ts 그대로 복사됨)
   const masteryWorker = () => new Worker(new URL('./recommend.worker.ts', import.meta.url), { type: 'module' });
-  const cardWorker = () => new Worker(new URL('/src/cardOptimizer/cardRecommend.worker.ts', import.meta.url), { type: 'module' });
+  const cardWorker = () =>
+    new Worker(new URL('/src/cardOptimizer/cardRecommend.worker.ts', import.meta.url), { type: 'module' });
   const swap = optimizerInputsFor(storeValues, BATCH_MASTERY_TARGETS[0], monsterHp).damage.swap === true;
   const ownedText = storeValues[OWNED_CARDS_KEY] ?? '';
   const fixedCardIds = fixedCardIdsOf(storeValues[CARD_FIXED_KEY]);
@@ -129,12 +148,22 @@ export function startBatch({ storeValues, tables, monsterHp, parts = 'all', save
     report();
     await runPool(runsMastery ? BATCH_MASTERY_TARGETS : [], BATCH.MASTERY_LANES, (target) =>
       withRunning(target, async () => {
-        const request: RecommendRequest = { values: optimizerValuesFor(storeValues, target), tables, inputs: optimizerInputsFor(storeValues, target, monsterHp) };
+        const request: RecommendRequest = {
+          values: optimizerValuesFor(storeValues, target),
+          tables,
+          inputs: optimizerInputsFor(storeValues, target, monsterHp),
+        };
         const result = await runWorker<RecommendRequest, Recommendation>(masteryWorker, request, (message) =>
-          (message as RecommendMessage).type === 'done' ? (message as Extract<RecommendMessage, { type: 'done' }>).result : undefined,
+          (message as RecommendMessage).type === 'done'
+            ? (message as Extract<RecommendMessage, { type: 'done' }>).result
+            : undefined,
         );
         if (!result || stopped) return;
-        const stored: StoredMasteryResult = { allocation: result.allocation, baseEfficiency: result.baseEfficiency, efficiency: result.efficiency };
+        const stored: StoredMasteryResult = {
+          allocation: result.allocation,
+          baseEfficiency: result.baseEfficiency,
+          efficiency: result.efficiency,
+        };
         save(masteryResultKey(target, swap), JSON.stringify(stored));
         progress.masteryDone += 1;
       }),
@@ -144,15 +173,36 @@ export function startBatch({ storeValues, tables, monsterHp, parts = 'all', save
     report();
     await runPool(runsCards ? BATCH_CARD_TARGETS : [], BATCH.CARD_LANES, (target) =>
       withRunning(target, async () => {
-        const base: CardRecommendRequest = { values: optimizerValuesFor(storeValues, target), tables, inputs: optimizerInputsFor(storeValues, target, monsterHp), ownedText, mode: 'cards' };
+        const base: CardRecommendRequest = {
+          values: optimizerValuesFor(storeValues, target),
+          tables,
+          inputs: optimizerInputsFor(storeValues, target, monsterHp),
+          ownedText,
+          mode: 'cards',
+        };
         const takeDone = (message: unknown) =>
-          (message as CardRecommendMessage).type === 'done' ? (message as Extract<CardRecommendMessage, { type: 'done' }>).result : undefined;
-        const cards = await runWorker<CardRecommendRequest, CardRecommendation>(cardWorker, { ...base, fixedCardIds }, takeDone);
+          (message as CardRecommendMessage).type === 'done'
+            ? (message as Extract<CardRecommendMessage, { type: 'done' }>).result
+            : undefined;
+        const cards = await runWorker<CardRecommendRequest, CardRecommendation>(
+          cardWorker,
+          { ...base, fixedCardIds },
+          takeDone,
+        );
         if (!cards || stopped) return;
         const cardIds = cards.loadout.map((entry) => entry.card.cardId);
-        const marks = await runWorker<CardRecommendRequest, CardRecommendation>(cardWorker, { ...base, mode: 'marks', cardIds }, takeDone);
+        const marks = await runWorker<CardRecommendRequest, CardRecommendation>(
+          cardWorker,
+          { ...base, mode: 'marks', cardIds },
+          takeDone,
+        );
         if (!marks || stopped) return;
-        const stored = storedCardResult(marks.loadout, marks.baseEfficiency ?? marks.efficiency, marks.efficiency, marks.lockedGroups);
+        const stored = storedCardResult(
+          marks.loadout,
+          marks.baseEfficiency ?? marks.efficiency,
+          marks.efficiency,
+          marks.lockedGroups,
+        );
         save(cardResultKey(resultSlot(target, swap)), JSON.stringify(stored));
         progress.cardsDone += 1;
       }),

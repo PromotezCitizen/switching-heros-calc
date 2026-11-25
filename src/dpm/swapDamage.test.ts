@@ -16,7 +16,10 @@ import type { SkillSave } from '@/usb/saveImport/skillRuneValues';
 const tables = loadTestTables();
 const raw = saveSubset1018 as unknown as Omit<SaveFiles, 'Default'> & { Default: Parameters<typeof pickDefault>[0] };
 const imported = importSave({ ...raw, Default: pickDefault(raw.Default) }, tables);
-const VALUES: CalcValues = { ...imported.values, [ACCOUNT_KEYS.vipLevel]: imported.accountValues[ACCOUNT_KEYS.vipLevel] };
+const VALUES: CalcValues = {
+  ...imported.values,
+  [ACCOUNT_KEYS.vipLevel]: imported.accountValues[ACCOUNT_KEYS.vipLevel],
+};
 const INPUTS: DamageInputs = {
   targetsPerSkill: 3,
   orbShardHits: {},
@@ -32,7 +35,7 @@ describe('저장 가져오기: 2슬롯 히어로', () => {
     const presetKey = pickDefault(raw.Default).presetKey ?? -1;
     const slot2 = readDictionary(raw.Char._presetDic).get(presetKey)?.slot2 ?? -1;
     const presetSkills = readDictionary((raw.Skill as unknown as SkillSave).eqPresetSkillDic).get(presetKey);
-    const expected = presetSkills ? readDictionary(presetSkills).get(slot2)?.skillIds ?? [] : [];
+    const expected = presetSkills ? (readDictionary(presetSkills).get(slot2)?.skillIds ?? []) : [];
     expect(imported.values.charName2).toBeTruthy();
     expected.forEach((skillId, index) => {
       expect(imported.values[`skillEquip2_${index + 1}`]).toBe(skillId ? String(skillId) : undefined);
@@ -117,6 +120,8 @@ describe('교체 계산 = 두 히어로 공격 한 번씩 대미지를 모두 �
 
   it('2슬롯 히어로가 없으면 1슬롯 결과 그대로', () => {
     const solo = { ...VALUES, charName2: '' };
-    expect(targetDamageWithSwap(solo, tables, 'stage', INPUTS).totalLog).toBe(targetDamage(solo, tables, 'stage', INPUTS).totalLog);
+    expect(targetDamageWithSwap(solo, tables, 'stage', INPUTS).totalLog).toBe(
+      targetDamage(solo, tables, 'stage', INPUTS).totalLog,
+    );
   });
 });

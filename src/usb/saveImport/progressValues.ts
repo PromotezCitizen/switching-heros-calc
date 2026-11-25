@@ -6,7 +6,12 @@ import { CONSTS } from '@/CONSTS';
 import { tableRows, type StatTables } from '@/data/statTables';
 import { SOUL_FORGE_FIELD, soulForgeSlotField } from '@/calc/sources/heroWeaponCardPet/weapon';
 import { figures } from '@/calc/sources/providers/figure';
-import { readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
+import {
+  readDictionary,
+  runSection,
+  type SaveDictionary,
+  type SaveImportResult,
+} from '@/usb/saveImport/saveDictionary';
 
 const { LEVEL_FIELD: CORE_MASTERY_LEVEL_FIELD } = CONSTS.providers.coreMastery;
 const { LEVEL_FIELD_PREFIX: FIGURE_LEVEL_PREFIX } = CONSTS.providers.figure;
@@ -31,10 +36,17 @@ export function soulForgeValues(equip: SoulForgeSave, tables: StatTables): SaveI
     if (!data) return;
     values[SOUL_FORGE_FIELD] = String(data.lv);
     const active = new Set(
-      [...readDictionary(data.slotDataDic)].filter(([, slot]) => (slot.isGet ?? 1) > 0).map(([slotIdx]) => String(slotIdx)),
+      [...readDictionary(data.slotDataDic)]
+        .filter(([, slot]) => (slot.isGet ?? 1) > 0)
+        .map(([slotIdx]) => String(slotIdx)),
     );
-    const known = tables.SoulForge ? tableRows(tables.SoulForge).map((row) => row.statIdx).filter((statIdx) => Number(statIdx) >= 1) : [];
-    for (const slotIdx of new Set([...known, ...active])) values[soulForgeSlotField(slotIdx)] = String(active.has(slotIdx));
+    const known = tables.SoulForge
+      ? tableRows(tables.SoulForge)
+          .map((row) => row.statIdx)
+          .filter((statIdx) => Number(statIdx) >= 1)
+      : [];
+    for (const slotIdx of new Set([...known, ...active]))
+      values[soulForgeSlotField(slotIdx)] = String(active.has(slotIdx));
   });
   return { values, notes };
 }

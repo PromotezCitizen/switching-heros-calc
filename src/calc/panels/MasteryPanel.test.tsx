@@ -10,7 +10,9 @@ const tables = loadTestTables();
 const IGNORE_CHANGE = (): void => undefined;
 
 function renderPanel(readOnly?: boolean) {
-  return renderWithProviders(<MasteryPanel values={{}} setValue={IGNORE_CHANGE} tables={tables} descriptions={{}} readOnly={readOnly} />);
+  return renderWithProviders(
+    <MasteryPanel values={{}} setValue={IGNORE_CHANGE} tables={tables} descriptions={{}} readOnly={readOnly} />,
+  );
 }
 
 describe('특성 패널 (MasteryPanel) 읽기 전용', () => {
@@ -47,11 +49,22 @@ describe('특성 패널 앞 단계 조건', () => {
     const second = traits.find((trait) => !trait.ultimate && trait.group === first.group && trait.step === 2)!;
     const changes: [string, string][] = [];
     renderWithProviders(
-      <MasteryPanel values={{}} setValue={(key, value) => changes.push([key, value])} tables={tables} descriptions={{}} />,
+      <MasteryPanel
+        values={{}}
+        setValue={(key, value) => changes.push([key, value])}
+        tables={tables}
+        descriptions={{}}
+      />,
     );
     const nameOf = (rNo: string, fallback: string) => i18n.t(`calc.mastery.names.${rNo}`, { defaultValue: fallback });
-    fireEvent.click(screen.getByRole('button', { name: i18n.t('calc.mastery.fillMax', { name: nameOf(second.rNo, second.statName) }) }));
-    fireEvent.click(screen.getByRole('button', { name: i18n.t('calc.mastery.fillMax', { name: nameOf(first.rNo, first.statName) }) }));
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: i18n.t('calc.mastery.fillMax', { name: nameOf(second.rNo, second.statName) }),
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: i18n.t('calc.mastery.fillMax', { name: nameOf(first.rNo, first.statName) }) }),
+    );
     expect(changes).toEqual([
       [masteryLevelKey(second.rNo), '0'],
       [masteryLevelKey(first.rNo), String(first.maxLevel)],
@@ -62,7 +75,12 @@ describe('특성 패널 앞 단계 조건', () => {
     const traits = masteryTraits(tables.Mastery);
     const second = traits.find((trait) => !trait.ultimate && trait.step === 2)!;
     renderWithProviders(
-      <MasteryPanel values={{ [masteryLevelKey(second.rNo)]: '1' }} setValue={IGNORE_CHANGE} tables={tables} descriptions={{}} />,
+      <MasteryPanel
+        values={{ [masteryLevelKey(second.rNo)]: '1' }}
+        setValue={IGNORE_CHANGE}
+        tables={tables}
+        descriptions={{}}
+      />,
     );
     expect(screen.getByText(/앞 단계 조건을 못 채운 특성/)).toBeTruthy();
   });

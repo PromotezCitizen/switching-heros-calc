@@ -5,7 +5,8 @@ import { loadTestTables } from '@/test/loadTestTables';
 const tables = loadTestTables();
 const label = (key: string) => key;
 const trait = (rNo: string) => masteryTraits(tables.Mastery).find((candidate) => candidate.rNo === rNo)!;
-const levels = (...entries: [string, number][]) => Object.fromEntries(entries.map(([rNo, level]) => [masteryLevelKey(rNo), String(level)]));
+const levels = (...entries: [string, number][]) =>
+  Object.fromEntries(entries.map(([rNo, level]) => [masteryLevelKey(rNo), String(level)]));
 
 describe('일반 특성의 교체 등장 후 지속 효과 (_per_<스탯>_HeroSwap)', () => {
   it('특성 26 · 27 · 28 은 교체 등장 후 20초간 효과다', () => {
@@ -21,7 +22,11 @@ describe('일반 특성의 교체 등장 후 지속 효과 (_per_<스탯>_HeroSw
 
   it('켜진 시간 비율 100% 면 기본 스탯 줄로 바꿔 값 그대로 넣는다', () => {
     const lines = masteryLines(levels(['26', 20], ['27', 20], ['28', 20]), tables.Mastery, label, 100);
-    expect(lines.map((line) => line.stat).sort()).toEqual(['_per_ChangeSkillDamage', '_per_CharSkillDamage', '_per_buffAndActiveDmg']);
+    expect(lines.map((line) => line.stat).sort()).toEqual([
+      '_per_ChangeSkillDamage',
+      '_per_CharSkillDamage',
+      '_per_buffAndActiveDmg',
+    ]);
     const buff = lines.find((line) => line.stat === '_per_buffAndActiveDmg');
     expect(buff?.value).toBeCloseTo(traitValue(trait('26'), 20), 9);
   });

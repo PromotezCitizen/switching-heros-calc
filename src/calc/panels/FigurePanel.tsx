@@ -16,8 +16,17 @@ import FIGURE_IMAGES from '@/calc/sources/providers/figureImages.json';
 import { statLabel, type StatDescriptions } from '@/calc/statText';
 import type { TabPanelProps } from '@/calc/types';
 
-const { CARD_MIN_WIDTH, ICON_FOLDER, ICON_PREFIX, ICON_DIGITS, ICON_SIZE, LEVEL_INPUT_WIDTH, SLOT_COUNT, STAT_COLUMN_PREFIX, TARGET_HERO_PATTERN } =
-  CONSTS.providers.figure;
+const {
+  CARD_MIN_WIDTH,
+  ICON_FOLDER,
+  ICON_PREFIX,
+  ICON_DIGITS,
+  ICON_SIZE,
+  LEVEL_INPUT_WIDTH,
+  SLOT_COUNT,
+  STAT_COLUMN_PREFIX,
+  TARGET_HERO_PATTERN,
+} = CONSTS.providers.figure;
 const { EMPTY_STATS } = CONSTS.providers;
 const UNUSED_OPACITY = CONSTS.heroWeaponCardPet.ui.UNUSED_OPACITY;
 
@@ -127,7 +136,12 @@ export default function FigurePanel({ values, setValue, tables, descriptions }: 
           <Title order={5}>{translate(`calc.figure.groups.${group.key}`, { count: group.items.length })}</Title>
           <AutoGrid minItemWidth={CARD_MIN_WIDTH}>
             {group.items.map((view) => (
-              <FigureCard key={view.figure.figureId} view={view} level={values[figureLevelField(view.figure.figureId)]} setValue={setValue} />
+              <FigureCard
+                key={view.figure.figureId}
+                view={view}
+                level={values[figureLevelField(view.figure.figureId)]}
+                setValue={setValue}
+              />
             ))}
           </AutoGrid>
         </Stack>
@@ -137,7 +151,11 @@ export default function FigurePanel({ values, setValue, tables, descriptions }: 
 }
 
 /** 피규어마다 이름 · 효과 이름 · 전용 여부 */
-function buildViews(tables: StatTables, descriptions: StatDescriptions, translate: (key: string, options?: Record<string, unknown>) => string): FigureView[] {
+function buildViews(
+  tables: StatTables,
+  descriptions: StatDescriptions,
+  translate: (key: string, options?: Record<string, unknown>) => string,
+): FigureView[] {
   const heroes = rosterHeroes(tables);
   const heroName = new Map(heroes.map((hero) => [hero.charId, hero.name]));
   const heroNames = new Set(heroes.map((hero) => hero.name));
@@ -152,7 +170,9 @@ function buildViews(tables: StatTables, descriptions: StatDescriptions, translat
           heroOnly = true;
           heroKey = heroName.get(target[1]) ?? null;
           const hero = heroName.get(target[1]) ?? translate('calc.figure.unknownHero', { id: target[1] });
-          return translate(`calc.figure.targetHero.${target[2].toLowerCase() === 'hp' ? 'hp' : 'attackDamage'}`, { hero });
+          return translate(`calc.figure.targetHero.${target[2].toLowerCase() === 'hp' ? 'hp' : 'attackDamage'}`, {
+            hero,
+          });
         }
         // 번역 표 짧은 효과 이름, 없으면 계산기 스탯 설명
         return translate(`calc.figure.effects.${stat}`, { defaultValue: statLabel(descriptions, stat) });

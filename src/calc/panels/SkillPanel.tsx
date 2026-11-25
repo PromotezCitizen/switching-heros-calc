@@ -1,6 +1,18 @@
 import { useTranslation } from 'react-i18next';
 import { memo } from 'react';
-import { Card, Collapse, Group, Image, NumberInput, Select, SimpleGrid, Stack, Table, Text, UnstyledButton } from '@mantine/core';
+import {
+  Card,
+  Collapse,
+  Group,
+  Image,
+  NumberInput,
+  Select,
+  SimpleGrid,
+  Stack,
+  Table,
+  Text,
+  UnstyledButton,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { CONSTS } from '@/CONSTS';
 import HorizontalScrollRow from '@/components/HorizontalScrollRow';
@@ -85,7 +97,9 @@ function EquipRow({
         ];
         return (
           <Stack key={slot} gap={2} align="center">
-            <Text size="xs" c="dimmed">{slotLabel}</Text>
+            <Text size="xs" c="dimmed">
+              {slotLabel}
+            </Text>
             <IconPicker
               label={slotLabel}
               title={pickTitle(slot)}
@@ -123,25 +137,33 @@ export default function SkillPanel({ values, setValue, tables }: TabPanelProps) 
         pickTitle={(slot) => translate('calc.skill.equipPickTitle', { slot })}
       />
       <Text size="sm">{translate('calc.skill.equippedLevelSum', { sum: equippedSkillLevelSum(values) })}</Text>
-      <SectionTitle>{translate('calc.skill.equipTitle2', { name: secondHero || translate('calc.skill.noSecondHero') })}</SectionTitle>
+      <SectionTitle>
+        {translate('calc.skill.equipTitle2', { name: secondHero || translate('calc.skill.noSecondHero') })}
+      </SectionTitle>
       {secondHero ? (
         <>
-        <EquipRow
-          values={values}
-          setValue={setValue}
-          tables={tables}
-          job={heroFirstRow(tables, secondHero)?.job}
-          field={secondSkillEquipField}
-          pickTitle={(slot) => translate('calc.skill.equipPickTitle2', { slot })}
-        />
-        <Text size="sm">{translate('calc.skill.equippedLevelSum', { sum: equippedSkillLevelSum(values, secondSkillEquipField) })}</Text>
+          <EquipRow
+            values={values}
+            setValue={setValue}
+            tables={tables}
+            job={heroFirstRow(tables, secondHero)?.job}
+            field={secondSkillEquipField}
+            pickTitle={(slot) => translate('calc.skill.equipPickTitle2', { slot })}
+          />
+          <Text size="sm">
+            {translate('calc.skill.equippedLevelSum', { sum: equippedSkillLevelSum(values, secondSkillEquipField) })}
+          </Text>
         </>
       ) : (
-        <Text size="xs" c="dimmed">{translate('calc.skill.secondHeroHelp')}</Text>
+        <Text size="xs" c="dimmed">
+          {translate('calc.skill.secondHeroHelp')}
+        </Text>
       )}
 
       <SectionTitle>{translate('calc.skill.ownedTitle')}</SectionTitle>
-      <Text size="xs" c="dimmed">{translate('calc.skill.ownedHelp')}</Text>
+      <Text size="xs" c="dimmed">
+        {translate('calc.skill.ownedHelp')}
+      </Text>
       {/* 직업 카드 4장: 영역이 넓으면 한 줄 4개, 좁으면 2 × 2, 더 좁으면 한 줄에 1개 (카드 최소 300px) */}
       <SimpleGrid type="container" cols={JOB_CARD_COLUMNS} spacing="md">
         {JOBS.map((job) => (
@@ -213,7 +235,9 @@ const OwnedSkillRow = memo(function OwnedSkillRow({ row, fieldValues, tables, se
   const perkLevels = skillPerkLevels(tables, row.skillId).filter((targetLevel) => level >= Number(targetLevel));
   // 같은 옵션은 한 스킬에 하나만 (게임과 같음): 다른 칸에 고른 옵션은 고를 수 없게
   const optionChoicesFor = (slot: number) => {
-    const usedElsewhere = new Set(slots.filter((other) => other !== slot).map((other) => values[skillOptionField(row.skillId, other)]));
+    const usedElsewhere = new Set(
+      slots.filter((other) => other !== slot).map((other) => values[skillOptionField(row.skillId, other)]),
+    );
     return [
       { value: NO_OPTION, label: translate('calc.skill.optionNone') },
       ...skillRuneChoices(tables, row.skillId).map((rune) => ({
@@ -266,7 +290,11 @@ const OwnedSkillRow = memo(function OwnedSkillRow({ row, fieldValues, tables, se
                     data={optionChoicesFor(slot)}
                     allowDeselect={false}
                     maxDropdownHeight={OPTION_DROPDOWN_MAX_HEIGHT}
-                    leftSection={<Text size="xs" c="dimmed">{slot}</Text>}
+                    leftSection={
+                      <Text size="xs" c="dimmed">
+                        {slot}
+                      </Text>
+                    }
                     aria-label={translate('calc.skill.optionLabel', { name: row.name, slot })}
                     value={values[skillOptionField(row.skillId, slot)] ?? NO_OPTION}
                     onChange={(picked) => setValue(skillOptionField(row.skillId, slot), picked ?? NO_OPTION)}
@@ -278,12 +306,19 @@ const OwnedSkillRow = memo(function OwnedSkillRow({ row, fieldValues, tables, se
                     size="xs"
                     data={[
                       { value: NO_OPTION, label: translate('calc.skill.perkNone') },
-                      ...skillPerkChoices(tables, row.skillId, targetLevel).map((perk) => ({ value: perk.perkType, label: perk.desc })),
+                      ...skillPerkChoices(tables, row.skillId, targetLevel).map((perk) => ({
+                        value: perk.perkType,
+                        label: perk.desc,
+                      })),
                     ]}
                     allowDeselect={false}
                     maxDropdownHeight={OPTION_DROPDOWN_MAX_HEIGHT}
                     leftSectionWidth={PERK_LEVEL_LABEL_WIDTH}
-                    leftSection={<Text size="xs" c="dimmed">{translate('calc.skill.perkLevel', { level: targetLevel })}</Text>}
+                    leftSection={
+                      <Text size="xs" c="dimmed">
+                        {translate('calc.skill.perkLevel', { level: targetLevel })}
+                      </Text>
+                    }
                     aria-label={translate('calc.skill.perkLabel', { name: row.name, level: targetLevel })}
                     value={values[skillPerkField(row.skillId, targetLevel)] ?? NO_OPTION}
                     onChange={(picked) => setValue(skillPerkField(row.skillId, targetLevel), picked ?? NO_OPTION)}

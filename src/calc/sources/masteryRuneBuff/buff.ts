@@ -13,7 +13,13 @@ import type { CalcValues } from '@/calc/types';
 import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
 import { equippedExclusiveStar } from '@/calc/sources/heroWeaponCardPet/weapon';
 import { hasEquippedActiveSkill } from '@/calc/sources/skill/skill';
-import { learnedTraitValue, masteryLevel, masteryTraits, plainNumber, rushChanceCounts } from '@/calc/sources/masteryRuneBuff/mastery';
+import {
+  learnedTraitValue,
+  masteryLevel,
+  masteryTraits,
+  plainNumber,
+  rushChanceCounts,
+} from '@/calc/sources/masteryRuneBuff/mastery';
 import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 import { summaryTarget } from '@/calc/sources/summary/summary';
 
@@ -230,7 +236,13 @@ export function normalMonsterFoodLines(values: CalcValues, sourceLabel: SourceLa
  */
 export function attackEventBuffLines(values: CalcValues, sourceLabel: SourceLabel): Line[] {
   if (!readFlag(values, ATTACK_EVENT_BUFF_FIELD)) return [];
-  return [{ source: sourceLabel('calc.buff.attackEventBuffSource'), stat: ATTACK_EVENT_BUFF.stat, value: ATTACK_EVENT_BUFF.percent }];
+  return [
+    {
+      source: sourceLabel('calc.buff.attackEventBuffSource'),
+      stat: ATTACK_EVENT_BUFF.stat,
+      value: ATTACK_EVENT_BUFF.percent,
+    },
+  ];
 }
 
 /**
@@ -248,7 +260,11 @@ export function onAttackBuffLines(
     const onAttackStats = new Set([targetStats[group]].flat().map((name) => name.toLowerCase()));
     return otherLines
       .filter((line) => onAttackStats.has(line.stat.toLowerCase()))
-      .map((line): Line => ({ ...line, source: sourceLabel('calc.buff.onAttackSource', { source: line.source }), stat }));
+      .map((line): Line => ({
+        ...line,
+        source: sourceLabel('calc.buff.onAttackSource', { source: line.source }),
+        stat,
+      }));
   });
 }
 
@@ -303,7 +319,8 @@ export function finalAttackMultiplierLines(values: CalcValues, sourceLabel: Sour
 export function exclusiveStackBuffLines(values: CalcValues, sourceLabel: SourceLabel, tables: StatTables): Line[] {
   const { TABLE, WEAPON_ID, STAT_TYPE } = EXCLUSIVE_STACK_BUFF;
   const table = tables[TABLE];
-  const row = table && tableRows(table).find((record) => record.weaponType === WEAPON_ID && record.statType === STAT_TYPE);
+  const row =
+    table && tableRows(table).find((record) => record.weaponType === WEAPON_ID && record.statType === STAT_TYPE);
   if (!row || equippedExclusiveStar(values, tables, WEAPON_ID) < Number(row.star)) return [];
   const perStack = Number(row.val2);
   const maxStacks = Number(row.val3);

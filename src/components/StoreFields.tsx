@@ -182,7 +182,13 @@ export function GroupedSelectField({ storeKey, label, hint, groups, disabled }: 
 }
 
 /** 켬/끔 체크 칸. 저장소에는 'true' / 'false' 글로 저장. 저장된 값이 없을 때는 defaultChecked */
-export function FlagField({ storeKey, label, hint, defaultChecked = false, disabled }: FieldBase & { defaultChecked?: boolean; disabled?: boolean }) {
+export function FlagField({
+  storeKey,
+  label,
+  hint,
+  defaultChecked = false,
+  disabled,
+}: FieldBase & { defaultChecked?: boolean; disabled?: boolean }) {
   const [text, setText] = useStoreValue(storeKey);
   return (
     <Checkbox

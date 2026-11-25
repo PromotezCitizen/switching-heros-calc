@@ -10,12 +10,18 @@ const label = (key: string, params?: Record<string, unknown>) => `${key}${params
 
 describe('테두리 보유 효과 (5.70 새 제공자)', () => {
   it('효과가 있는 테두리는 1~16번 (0번은 스탯 없음)', () => {
-    expect(frameRows(tables).map((row) => row.frameId)).toEqual(Array.from({ length: 16 }, (_, index) => String(index + 1)));
+    expect(frameRows(tables).map((row) => row.frameId)).toEqual(
+      Array.from({ length: 16 }, (_, index) => String(index + 1)),
+    );
   });
 
   it('켠 테두리마다 공격력 줄 하나 (장착 여부와 무관, 안 켜면 줄 없음)', () => {
     expect(frameLines({}, tables, label)).toEqual([]);
-    const lines = frameLines({ [frameOwnedField('3')]: 'true', [frameOwnedField('5')]: 'false', [frameOwnedField('7')]: 'true' }, tables, label);
+    const lines = frameLines(
+      { [frameOwnedField('3')]: 'true', [frameOwnedField('5')]: 'false', [frameOwnedField('7')]: 'true' },
+      tables,
+      label,
+    );
     expect(lines.map((line) => [line.stat, line.value])).toEqual([
       ['_per_attackDamage', 100],
       ['_per_attackDamage', 100],

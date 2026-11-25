@@ -5,7 +5,13 @@
  * 확률 옵션은 기대값 (최고 등급 값 / 100). 문서가 "못 찾음" 이라 추정하거나 넣지 못한 몫은 estimates 에 표시를 남긴다
  */
 import { CONSTS } from '@/CONSTS';
-import { SKILL_EQUIP_SLOT_NUMBERS, chosenSkillOptions, chosenSkillPerks, skillEquipField, skillRows } from '@/calc/sources/skill/skill';
+import {
+  SKILL_EQUIP_SLOT_NUMBERS,
+  chosenSkillOptions,
+  chosenSkillPerks,
+  skillEquipField,
+  skillRows,
+} from '@/calc/sources/skill/skill';
 import type { CalcValues } from '@/calc/types';
 import type { StatTables } from '@/data/statTables';
 import { optionValue, perkNumber, perkOf, percentFactor, type SkillHits } from '@/dpm/archerSkillHits';
@@ -15,7 +21,12 @@ const { SWORDSMAN_SKILLS: SWORDSMAN, PIERCE_EXTRA_TARGETS, PERCENT_DIVISOR } = C
 
 const UNSUPPORTED: SkillHits = { supported: false, hits: 0, coefficientFactor: 1 };
 
-export function swordsmanSkillHits(values: CalcValues, tables: StatTables, skillId: string, targets: number): SkillHits {
+export function swordsmanSkillHits(
+  values: CalcValues,
+  tables: StatTables,
+  skillId: string,
+  targets: number,
+): SkillHits {
   const row = skillRows(tables).find((candidate) => candidate.skillId === skillId);
   if (!row) return UNSUPPORTED;
   const value1 = Number(row.value1) || 0;
@@ -26,7 +37,12 @@ export function swordsmanSkillHits(values: CalcValues, tables: StatTables, skill
   const equipped = new Set(SKILL_EQUIP_SLOT_NUMBERS.map((slot) => values[skillEquipField(slot)]).filter(Boolean));
   const hasAnyOption = (types: readonly string[]) => options.some((option) => types.includes(option.type));
   const pierceTargets = (pierce: number) => Math.min(targets, pierce + PIERCE_EXTRA_TARGETS);
-  const found = (hits: number, coefficientFactor = 1, estimates: string[] = []): SkillHits => ({ supported: true, hits, coefficientFactor, estimates });
+  const found = (hits: number, coefficientFactor = 1, estimates: string[] = []): SkillHits => ({
+    supported: true,
+    hits,
+    coefficientFactor,
+    estimates,
+  });
 
   switch (skillId) {
     case SWORDSMAN.DASH:
@@ -45,9 +61,15 @@ export function swordsmanSkillHits(values: CalcValues, tables: StatTables, skill
       // 판정 1번. 서로를 장착하면 확률로 다른 쪽을 한 번 더 (같은 계수 · 판정 1번으로 본다), 문양은 두 스킬 동시 장착일 때 계수 배수
       const horizontal = skillId === SWORDSMAN.HORIZONTAL_SLASH;
       const otherEquipped = equipped.has(horizontal ? SWORDSMAN.VERTICAL_SLASH : SWORDSMAN.HORIZONTAL_SLASH);
-      const extraOption = optionValue(options, horizontal ? SWORDSMAN.HORIZONTAL_EXTRA_OPTION : SWORDSMAN.VERTICAL_EXTRA_OPTION);
+      const extraOption = optionValue(
+        options,
+        horizontal ? SWORDSMAN.HORIZONTAL_EXTRA_OPTION : SWORDSMAN.VERTICAL_EXTRA_OPTION,
+      );
       const comboPerk = perkOf(perks, SWORDSMAN.COMBO_PERK);
-      return found(targets * (1 + (otherEquipped ? chanceOf(extraOption ?? 0) : 0)), comboPerk && otherEquipped ? percentFactor(perkNumber(comboPerk, 'val1')) : 1);
+      return found(
+        targets * (1 + (otherEquipped ? chanceOf(extraOption ?? 0) : 0)),
+        comboPerk && otherEquipped ? percentFactor(perkNumber(comboPerk, 'val1')) : 1,
+      );
     }
     case SWORDSMAN.PHANTOM_SWORD: {
       // 환영검 value2 개 × 유도 투사체, 관통 value3 (옵션 500 이면 관통 포기 + 데미지), 옵션 501: 확률로 2배
@@ -60,7 +82,9 @@ export function swordsmanSkillHits(values: CalcValues, tables: StatTables, skill
     case SWORDSMAN.MULTI_SLASH: {
       // 판정 n 번 (n = value1, 문양이면 절반), 옵션 600: 확률로 4번 더. 검기 옵션은 넣지 못함
       const perk = perkOf(perks, SWORDSMAN.MULTI_SLASH_PERK);
-      const slashes = (perk ? Math.floor(Math.floor(value1) / 2) : Math.floor(value1)) + SWORDSMAN.MULTI_SLASH_EXTRA_COUNT * chanceOf(optionValue(options, SWORDSMAN.MULTI_SLASH_EXTRA_OPTION) ?? 0);
+      const slashes =
+        (perk ? Math.floor(Math.floor(value1) / 2) : Math.floor(value1)) +
+        SWORDSMAN.MULTI_SLASH_EXTRA_COUNT * chanceOf(optionValue(options, SWORDSMAN.MULTI_SLASH_EXTRA_OPTION) ?? 0);
       const estimates = hasAnyOption(SWORDSMAN.MULTI_SLASH_AURA_OPTIONS) ? [SWORDSMAN.ESTIMATE_AURA_NOT_COUNTED] : [];
       return found(slashes * targets, perk ? percentFactor(perkNumber(perk, 'val1')) : 1, estimates);
     }
@@ -78,8 +102,12 @@ export function swordsmanSkillHits(values: CalcValues, tables: StatTables, skill
     }
     case SWORDSMAN.CRESCENT: {
       // 초승달 value2 개 (옵션 901: 확률로 2개 더) × 관통 value3 + 옵션 900
-      const count = Math.floor(value2) + SWORDSMAN.CRESCENT_EXTRA_COUNT * chanceOf(optionValue(options, SWORDSMAN.CRESCENT_EXTRA_OPTION) ?? 0);
-      return found(count * pierceTargets(Math.floor(value3) + (optionValue(options, SWORDSMAN.CRESCENT_PIERCE_OPTION) ?? 0)));
+      const count =
+        Math.floor(value2) +
+        SWORDSMAN.CRESCENT_EXTRA_COUNT * chanceOf(optionValue(options, SWORDSMAN.CRESCENT_EXTRA_OPTION) ?? 0);
+      return found(
+        count * pierceTargets(Math.floor(value3) + (optionValue(options, SWORDSMAN.CRESCENT_PIERCE_OPTION) ?? 0)),
+      );
     }
     case SWORDSMAN.LETHAL_SLASH: {
       // 판정 n 번 (n = value1 + 옵션 1000, 문양이면 절반), 옵션 1003: 데미지 (1 + v/100) × 1.45

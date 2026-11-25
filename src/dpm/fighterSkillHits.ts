@@ -24,7 +24,13 @@ export function repeatedTicks(duration: number, first: number, interval: number)
 }
 
 /** statusCount = 대상에 걸린 상태이상 수 (0 보다 크면 "상태이상인 적" 조건 문양이 켜진다) */
-export function fighterSkillHits(values: CalcValues, tables: StatTables, skillId: string, targets: number, statusCount = 0): SkillHits {
+export function fighterSkillHits(
+  values: CalcValues,
+  tables: StatTables,
+  skillId: string,
+  targets: number,
+  statusCount = 0,
+): SkillHits {
   const row = skillRows(tables).find((candidate) => candidate.skillId === skillId);
   if (!row) return UNSUPPORTED;
   const value1 = Number(row.value1) || 0;
@@ -32,7 +38,12 @@ export function fighterSkillHits(values: CalcValues, tables: StatTables, skillId
   const options = chosenSkillOptions(values, tables, skillId);
   const perks = chosenSkillPerks(values, tables, skillId);
   const has = (type: string) => optionValue(options, type) !== undefined;
-  const found = (hits: number, coefficientFactor = 1, estimates: string[] = []): SkillHits => ({ supported: true, hits, coefficientFactor, estimates });
+  const found = (hits: number, coefficientFactor = 1, estimates: string[] = []): SkillHits => ({
+    supported: true,
+    hits,
+    coefficientFactor,
+    estimates,
+  });
   const perkFactor = (perkType: string, column: 'val1' | 'val2' | 'val3') => {
     const perk = perkOf(perks, perkType);
     return perk ? percentFactor(perkNumber(perk, column)) : 1;
@@ -49,18 +60,23 @@ export function fighterSkillHits(values: CalcValues, tables: StatTables, skillId
       return found(targets);
     case FIGHTER.CLAW: {
       // 판정 4번, 옵션 1300: 확률로 7번
-      const times = FIGHTER.CLAW_HITS + FIGHTER.CLAW_EXTRA_HITS * chanceOf(optionValue(options, FIGHTER.CLAW_EXTRA_OPTION) ?? 0);
+      const times =
+        FIGHTER.CLAW_HITS + FIGHTER.CLAW_EXTRA_HITS * chanceOf(optionValue(options, FIGHTER.CLAW_EXTRA_OPTION) ?? 0);
       return found(times * targets, perkFactor(FIGHTER.CLAW_PERK, 'val3'));
     }
     case FIGHTER.DRAGON_WHEEL: {
       // 켜질 때 지속 동안 간격 I 마다 판정
-      const duration = (Number(row.buffDuration) || 0) + skillOptionSum(values, tables, skillId, BUFF_DURATION_OPTION_TYPE);
+      const duration =
+        (Number(row.buffDuration) || 0) + skillOptionSum(values, tables, skillId, BUFF_DURATION_OPTION_TYPE);
       const intervalPerk = perkOf(perks, FIGHTER.DRAGON_WHEEL_INTERVAL_PERK);
       const interval =
         value1 /
         (intervalPerk ? percentFactor(perkNumber(intervalPerk, 'val1')) : 1) /
         percentFactor(optionValue(options, FIGHTER.DRAGON_WHEEL_INTERVAL_OPTION) ?? 0);
-      const factor = FIGHTER.DRAGON_WHEEL_DAMAGE_PERKS.reduce((product, perkType) => product * perkFactor(perkType, 'val2'), 1);
+      const factor = FIGHTER.DRAGON_WHEEL_DAMAGE_PERKS.reduce(
+        (product, perkType) => product * perkFactor(perkType, 'val2'),
+        1,
+      );
       return found(repeatedTicks(duration, FIGHTER.DRAGON_WHEEL_FIRST_TICK_SECONDS, interval) * targets, factor);
     }
     case FIGHTER.DASH_PUNCH:
@@ -68,7 +84,9 @@ export function fighterSkillHits(values: CalcValues, tables: StatTables, skillId
       return found(targets, 1, perkOf(perks, FIGHTER.DASH_PUNCH_PERK) ? [FIGHTER.ESTIMATE_STACK_PERK_NOT_COUNTED] : []);
     case FIGHTER.MULTI_PUNCH:
       // 판정 int(value1) + int(옵션 1600) 번
-      return found((Math.floor(value1) + Math.floor(optionValue(options, FIGHTER.MULTI_PUNCH_EXTRA_OPTION) ?? 0)) * targets);
+      return found(
+        (Math.floor(value1) + Math.floor(optionValue(options, FIGHTER.MULTI_PUNCH_EXTRA_OPTION) ?? 0)) * targets,
+      );
     case FIGHTER.WIND_SPHERE: {
       // 첫 판정 0.5초, 간격 I, 지속 D
       const half = has(FIGHTER.WIND_SPHERE_HALF_OPTION);
@@ -77,7 +95,10 @@ export function fighterSkillHits(values: CalcValues, tables: StatTables, skillId
         (FIGHTER.WIND_SPHERE_BASE_SECONDS + (optionValue(options, FIGHTER.WIND_SPHERE_DURATION_OPTION) ?? 0)) *
         (half ? FIGHTER.HALF_FACTOR : 1) *
         (perk ? 1 - perkNumber(perk, 'val1') / PERCENT_DIVISOR : 1);
-      const interval = Math.max(FIGHTER.WIND_SPHERE_MIN_INTERVAL, value1 / percentFactor(optionValue(options, FIGHTER.WIND_SPHERE_HALF_OPTION) ?? 0));
+      const interval = Math.max(
+        FIGHTER.WIND_SPHERE_MIN_INTERVAL,
+        value1 / percentFactor(optionValue(options, FIGHTER.WIND_SPHERE_HALF_OPTION) ?? 0),
+      );
       const estimates = has(FIGHTER.WIND_SPHERE_EXPLODE_OPTION) ? [FIGHTER.ESTIMATE_EXPLODE_OPTION_NOT_COUNTED] : [];
       return found(
         repeatedTicks(duration, FIGHTER.WIND_SPHERE_FIRST_TICK_SECONDS, interval) * targets,

@@ -63,7 +63,13 @@ export default function OwnedCardsTable({ tables }: { tables: StatTables }) {
                     <Table.Tr key={cardId} style={{ opacity: card ? undefined : UNUSED_OPACITY }}>
                       <Table.Td>
                         <Group gap={6} wrap="nowrap">
-                          <Image src={iconUrl(CARD_ICON_PREFIX + cardId)} w={ICON_SIZE} h={ICON_SIZE} fit="contain" alt="" />
+                          <Image
+                            src={iconUrl(CARD_ICON_PREFIX + cardId)}
+                            w={ICON_SIZE}
+                            h={ICON_SIZE}
+                            fit="contain"
+                            alt=""
+                          />
                           <Text size="sm">{name}</Text>
                         </Group>
                       </Table.Td>
@@ -73,10 +79,20 @@ export default function OwnedCardsTable({ tables }: { tables: StatTables }) {
                           size="xs"
                           style={{ width: SELECT_WIDTH }}
                           aria-label={translate('calc.card.ownedGradeLabel', { name })}
-                          data={[{ value: NOT_OWNED, label: translate('calc.card.none') }, ...cardGrades(tables, cardId).map((value) => ({ value, label: value }))]}
+                          data={[
+                            { value: NOT_OWNED, label: translate('calc.card.none') },
+                            ...cardGrades(tables, cardId).map((value) => ({ value, label: value })),
+                          ]}
                           value={grade}
                           allowDeselect={false}
-                          onChange={(next) => changeStar(cardId, next ? (rows.find((candidate) => candidate.grade === next)?.star ?? NOT_OWNED) : NOT_OWNED)}
+                          onChange={(next) =>
+                            changeStar(
+                              cardId,
+                              next
+                                ? (rows.find((candidate) => candidate.grade === next)?.star ?? NOT_OWNED)
+                                : NOT_OWNED,
+                            )
+                          }
                         />
                       </Table.Td>
                       <Table.Td>
@@ -87,7 +103,10 @@ export default function OwnedCardsTable({ tables }: { tables: StatTables }) {
                           disabled={!grade}
                           data={rows
                             .filter((candidate) => candidate.grade === grade)
-                            .map((candidate) => ({ value: candidate.star, label: translate('calc.card.starText', { star: cardDisplayStar(tables, candidate) }) }))}
+                            .map((candidate) => ({
+                              value: candidate.star,
+                              label: translate('calc.card.starText', { star: cardDisplayStar(tables, candidate) }),
+                            }))}
                           value={row ? row.star : null}
                           allowDeselect={false}
                           onChange={(next) => next && changeStar(cardId, next)}

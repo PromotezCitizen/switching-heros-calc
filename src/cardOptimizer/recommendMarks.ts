@@ -57,12 +57,20 @@ export function tierCounts(total: number, sets: number): number[][] {
 }
 
 /** 세트별 개수대로 카드에 세트를 나눠 준다 (카드마다 고를 수 있는 세트 안에서). 개수가 큰 세트부터, 선택지가 적은 카드부터 채운다. 못 나누면 null */
-function assignCounts(entries: { index: number; options: string[] }[], sets: string[], counts: number[]): Map<number, string> | null {
+function assignCounts(
+  entries: { index: number; options: string[] }[],
+  sets: string[],
+  counts: number[],
+): Map<number, string> | null {
   const free = [...entries];
   const assignment = new Map<number, string>();
-  const order = sets.map((setId, position) => ({ setId, count: counts[position] })).sort((left, right) => right.count - left.count);
+  const order = sets
+    .map((setId, position) => ({ setId, count: counts[position] }))
+    .sort((left, right) => right.count - left.count);
   for (const { setId, count } of order) {
-    const candidates = free.filter((entry) => entry.options.includes(setId)).sort((left, right) => left.options.length - right.options.length);
+    const candidates = free
+      .filter((entry) => entry.options.includes(setId))
+      .sort((left, right) => left.options.length - right.options.length);
     if (candidates.length < count) return null;
     for (const entry of candidates.slice(0, count)) {
       assignment.set(entry.index, setId);
@@ -94,7 +102,9 @@ export function bestGroupLoadout(
   onMeasured?: (efficiency: number, loadout: Loadout) => void,
 ): { loadout: Loadout; efficiency: number; stopped: boolean } {
   // 이 마크 번호를 가진 카드와 카드마다 고를 수 있는 세트
-  const entries = loadout.flatMap((entry, index) => (mark < markCount(entry.card) ? [{ index, options: entry.card.setsByMark[mark] ?? [] }] : []));
+  const entries = loadout.flatMap((entry, index) =>
+    mark < markCount(entry.card) ? [{ index, options: entry.card.setsByMark[mark] ?? [] }] : [],
+  );
   const sets = [...new Set(entries.flatMap((entry) => entry.options))];
   let bestTrial: Loadout | null = null;
   let bestValue = currentBest;

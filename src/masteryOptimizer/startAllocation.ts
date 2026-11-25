@@ -18,7 +18,12 @@ export interface StartOptions {
   userLevel: number;
   totalPoints: number;
   shouldStop?: () => boolean;
-  onProgress?: (progress: { phase: StartPhase; efficiency: number; evaluations: number; allocation: Allocation }) => void;
+  onProgress?: (progress: {
+    phase: StartPhase;
+    efficiency: number;
+    evaluations: number;
+    allocation: Allocation;
+  }) => void;
   /** 고정 (그 단계에서 고르지 않고 최대 레벨) · 무시 (다른 특성이 없을 때만 고름) 규칙 */
   policy?: TraitPolicy;
 }
@@ -55,9 +60,9 @@ export function buildStartAllocation(traits: MasteryTrait[], options: StartOptio
   // 1) 뼈대: 묶음마다 한 단계에서 하나를 최대 레벨로
   const groups = [...new Set(traits.filter((trait) => !trait.ultimate).map((trait) => trait.group))];
   for (const group of groups) {
-    const steps = [...new Set(traits.filter((trait) => !trait.ultimate && trait.group === group).map((trait) => trait.step))].sort(
-      (left, right) => left - right,
-    );
+    const steps = [
+      ...new Set(traits.filter((trait) => !trait.ultimate && trait.group === group).map((trait) => trait.step)),
+    ].sort((left, right) => left - right);
     for (const step of steps) {
       if (shouldStop?.()) {
         stopped = true;
@@ -73,7 +78,8 @@ export function buildStartAllocation(traits: MasteryTrait[], options: StartOptio
       const fixedHere = open.filter((trait) => policy?.fixed.has(trait.rNo));
       if (fixedHere.length > 0) {
         for (const trait of fixedHere) {
-          if (usedPoints(traits, allocation) + trait.maxLevel * trait.needPoint <= totalPoints) allocation = withLevel(allocation, trait.rNo, trait.maxLevel);
+          if (usedPoints(traits, allocation) + trait.maxLevel * trait.needPoint <= totalPoints)
+            allocation = withLevel(allocation, trait.rNo, trait.maxLevel);
         }
         efficiency = measure(allocation);
         report('skeleton');
@@ -105,7 +111,8 @@ export function buildStartAllocation(traits: MasteryTrait[], options: StartOptio
   // 2) 얼티밋을 모두 켠다 (유저 레벨이 되고 그 묶음 18단계 특성 하나가 최대 레벨인 것만)
   if (!stopped) {
     for (const trait of traits) {
-      if (trait.ultimate && !policy?.ignored.has(trait.rNo) && isUnlocked(traits, trait, allocation, userLevel)) allocation = withLevel(allocation, trait.rNo, trait.maxLevel);
+      if (trait.ultimate && !policy?.ignored.has(trait.rNo) && isUnlocked(traits, trait, allocation, userLevel))
+        allocation = withLevel(allocation, trait.rNo, trait.maxLevel);
     }
     efficiency = measure(allocation);
     report('ultimates');

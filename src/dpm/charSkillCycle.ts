@@ -4,7 +4,6 @@
  */
 import { tableRows, type RawTable, type TableRow } from '@/data/statTables';
 
-
 export function charSkillRow(
   awakenTable: RawTable | undefined,
   charSkillTable: RawTable | undefined,
@@ -39,4 +38,3 @@ export function changeSkillRow(
   const skillId = awakened || heroChangeSkillId;
   return skillId ? tableRows(changeSkillTable).find((row) => row.skillId === skillId) : undefined;
 }
-

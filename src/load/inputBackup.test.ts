@@ -20,7 +20,9 @@ describe('입력값 파일로 저장 · 불러오기', () => {
   it('JSON 이 아니거나 이 계산기 파일이 아니면 실패, 글이 아닌 값은 버림', () => {
     expect(parseBackup('{')).toEqual({ ok: false, reason: 'notJson' });
     expect(parseBackup(JSON.stringify({ values: {} }))).toEqual({ ok: false, reason: 'notBackup' });
-    const mixed = parseBackup(JSON.stringify({ kind: 'switching-heroes-calc-inputs', version: '0.0.0', values: { a: '1', b: 2 } }));
+    const mixed = parseBackup(
+      JSON.stringify({ kind: 'switching-heroes-calc-inputs', version: '0.0.0', values: { a: '1', b: 2 } }),
+    );
     expect(mixed.ok && mixed.backup.values).toEqual({ a: '1' });
   });
 

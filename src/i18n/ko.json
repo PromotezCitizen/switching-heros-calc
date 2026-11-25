@@ -58,7 +58,6 @@
     }
   },
 
-
   "viewer": {
     "familiesLabel": "스탯 종류",
     "search": "스탯 종류 · 효과 검색",
@@ -241,7 +240,12 @@
     "floor": "층",
     "floorLabel": "{{floor}}층",
     "kindHeader": "구분",
-    "kind": { "current": "현재 층", "afterWall": "25층 단위 다음 층", "wall": "25층 단위 층", "beforeWall": "25층 단위 앞 층" },
+    "kind": {
+      "current": "현재 층",
+      "afterWall": "25층 단위 다음 층",
+      "wall": "25층 단위 층",
+      "beforeWall": "25층 단위 앞 층"
+    },
     "notRecommended": "비추천",
     "perKill": "1마리 경험치 {{exp}} · 골드 {{gold}}",
     "perKillExpHeader": "1마리 경험치",

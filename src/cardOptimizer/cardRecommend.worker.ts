@@ -8,10 +8,22 @@
 import '@/masteryOptimizer/workerShim';
 import '@/i18n';
 import type { CardRecommendMessage, CardRecommendRequest } from '@/cardOptimizer/cardWorkerTypes';
-import { loadoutFromValues, markCountOf, parseOwnedCards, valuesWithLoadout, type Loadout, type OwnedCard } from '@/cardOptimizer/loadout';
+import {
+  loadoutFromValues,
+  markCountOf,
+  parseOwnedCards,
+  valuesWithLoadout,
+  type Loadout,
+  type OwnedCard,
+} from '@/cardOptimizer/loadout';
 import { recommendCards } from '@/cardOptimizer/recommendCards';
 import { ascendMarks, bestGroupLoadout, recommendMarks, startMarkLoadout } from '@/cardOptimizer/recommendMarks';
-import { CARD_EXTRA_MARKS_FIELD, CARD_MARK_NUMBERS, CARD_SLOT_NUMBERS, setIdsForMark } from '@/calc/sources/heroWeaponCardPet/card';
+import {
+  CARD_EXTRA_MARKS_FIELD,
+  CARD_MARK_NUMBERS,
+  CARD_SLOT_NUMBERS,
+  setIdsForMark,
+} from '@/calc/sources/heroWeaponCardPet/card';
 import { scanLockedGroups, type LockedMarkGroup } from '@/cardOptimizer/lockedMarkGroups';
 import { masteryTraits } from '@/calc/sources/masteryRuneBuff/mastery';
 import { oneCastEachLog, valuesWithAllocation } from '@/masteryOptimizer/evaluate';
@@ -71,16 +83,19 @@ scope.onmessage = async (event) => {
     const values = valuesWithAllocation(currentValues, masteryTraits(tables.Mastery), {});
     const owned = parseOwnedCards(ownedText);
     // 비교 값은 공격마다 한 번씩 대미지 합 (특성 추천과 같은 기준, 쿨타임 · 시간은 보지 않음)
-    const evaluate = (loadout: Loadout) => oneCastEachLog(valuesWithLoadout(values, tables, loadout), tables, inputs.target, inputs.damage);
+    const evaluate = (loadout: Loadout) =>
+      oneCastEachLog(valuesWithLoadout(values, tables, loadout), tables, inputs.target, inputs.damage);
     const markCount = (card: OwnedCard) => markCountOf(tables, card);
     const onProgress = (progress: Parameters<NonNullable<Parameters<typeof recommendCards>[1]['onProgress']>>[0]) =>
       scope.postMessage({ type: 'progress', progress });
     const current = loadoutFromValues(values, tables, owned);
     // 세트 마크는 "없는 것 포함": 카드가 열어 둔 세트 목록이 아니라 그 마크 번호의 모든 세트를 후보로 쓴다 (카드는 지금 가진 것만)
     const allSets = CARD_MARK_NUMBERS.map((mark) => setIdsForMark(tables, mark));
-    const cards = (cardIds?.length ? cardIds.flatMap((cardId) => owned.filter((card) => card.cardId === cardId)) : current.map((entry) => entry.card)).map(
-      (card) => ({ ...card, setsByMark: allSets }),
-    );
+    const cards = (
+      cardIds?.length
+        ? cardIds.flatMap((cardId) => owned.filter((card) => card.cardId === cardId))
+        : current.map((entry) => entry.card)
+    ).map((card) => ({ ...card, setsByMark: allSets }));
     /** picks (카드마다 고른 세트) 를 넣은 편성 */
     const loadoutWith = (picks: string[][] | undefined): Loadout =>
       picks ? cards.map((card, index) => ({ card, picks: picks[index] ?? [] })) : startMarkLoadout(cards, markCount);
@@ -88,7 +103,12 @@ scope.onmessage = async (event) => {
     const lockedEvaluator = (loadout: Loadout) => {
       const recommendedValues = valuesWithLoadout(values, tables, loadout);
       return (extra: Record<string, number>) =>
-        oneCastEachLog({ ...recommendedValues, [CARD_EXTRA_MARKS_FIELD]: JSON.stringify(extra) }, tables, inputs.target, inputs.damage);
+        oneCastEachLog(
+          { ...recommendedValues, [CARD_EXTRA_MARKS_FIELD]: JSON.stringify(extra) },
+          tables,
+          inputs.target,
+          inputs.damage,
+        );
     };
 
     if (mode === 'cards') {
@@ -100,7 +120,16 @@ scope.onmessage = async (event) => {
         .flatMap((cardId) => owned.filter((card) => card.cardId === cardId).slice(0, 1))
         .slice(0, CARD_SLOT_NUMBERS.length)
         .map((card) => ({ card, picks: [] }));
-      const result = recommendCards(fixed, { evaluate, baseEfficiency, markCount, owned, slots: CARD_SLOT_NUMBERS.length, withMarks: false, onProgress, fixedCount: fixed.length });
+      const result = recommendCards(fixed, {
+        evaluate,
+        baseEfficiency,
+        markCount,
+        owned,
+        slots: CARD_SLOT_NUMBERS.length,
+        withMarks: false,
+        onProgress,
+        fixedCount: fixed.length,
+      });
       scope.postMessage({ type: 'done', result });
       return;
     }
@@ -109,13 +138,21 @@ scope.onmessage = async (event) => {
       const mark = request.mark ?? 0;
       const loadout = loadoutWith(request.picks);
       const group = bestGroupLoadout(loadout, mark, markCount, evaluate, evaluate(loadout));
-      scope.postMessage({ type: 'groupDone', picks: group.loadout.map((entry) => entry.picks[mark] ?? ''), efficiency: group.efficiency });
+      scope.postMessage({
+        type: 'groupDone',
+        picks: group.loadout.map((entry) => entry.picks[mark] ?? ''),
+        efficiency: group.efficiency,
+      });
       return;
     }
     if (mode === 'lockedGroup') {
       // 하위 작업자: 안 열린 묶음 하나 (1부터) 의 0 · 2 · 4 · 6장
       const mark = request.mark ?? 1;
-      const [group] = scanLockedGroups([mark], (target) => setIdsForMark(tables, target), lockedEvaluator(loadoutWith(request.picks)));
+      const [group] = scanLockedGroups(
+        [mark],
+        (target) => setIdsForMark(tables, target),
+        lockedEvaluator(loadoutWith(request.picks)),
+      );
       scope.postMessage({ type: 'lockedDone', group: group ?? null });
       return;
     }
@@ -123,12 +160,17 @@ scope.onmessage = async (event) => {
     // marks: 비교 기준은 지금 끼고 있는 편성 (카드 + 세트 마크, 특성은 비운 상태)
     const baseEfficiency = evaluate(current);
     scope.postMessage({ type: 'base', efficiency: baseEfficiency });
-    const lockedMarksOf = (loadout: Loadout) => CARD_MARK_NUMBERS.filter((mark) => !loadout.some((entry) => markCount(entry.card) >= mark));
+    const lockedMarksOf = (loadout: Loadout) =>
+      CARD_MARK_NUMBERS.filter((mark) => !loadout.some((entry) => markCount(entry.card) >= mark));
 
     if (typeof Worker === 'undefined') {
       // 하위 작업자를 못 쓰는 환경: 예전처럼 차례로
       const result = recommendMarks(cards, { evaluate, baseEfficiency, markCount, onProgress });
-      const lockedGroups = scanLockedGroups(lockedMarksOf(result.loadout), (mark) => setIdsForMark(tables, mark), lockedEvaluator(result.loadout));
+      const lockedGroups = scanLockedGroups(
+        lockedMarksOf(result.loadout),
+        (mark) => setIdsForMark(tables, mark),
+        lockedEvaluator(result.loadout),
+      );
       scope.postMessage({ type: 'done', result: { ...result, lockedGroups } });
       return;
     }
@@ -148,7 +190,10 @@ scope.onmessage = async (event) => {
     const marks = Math.max(0, ...cards.map(markCount));
     let evaluations = 0;
     const groupResults = await runPool(
-      Array.from({ length: marks }, (_, mark) => () => runSubWorker(subRequest({ mode: 'markGroup', mark, picks: startPicks }))),
+      Array.from(
+        { length: marks },
+        (_, mark) => () => runSubWorker(subRequest({ mode: 'markGroup', mark, picks: startPicks })),
+      ),
       MAX_SUB_WORKERS,
     );
     groupResults.forEach((message, mark) => {
@@ -177,11 +222,18 @@ scope.onmessage = async (event) => {
     // 3) 안 열린 묶음마다 하위 작업자로 0 · 2 · 4 · 6장
     const finalPicks = loadout.map((entry) => entry.picks);
     const lockedResults = await runPool(
-      lockedMarksOf(loadout).map((mark) => () => runSubWorker(subRequest({ mode: 'lockedGroup', mark, picks: finalPicks }))),
+      lockedMarksOf(loadout).map(
+        (mark) => () => runSubWorker(subRequest({ mode: 'lockedGroup', mark, picks: finalPicks })),
+      ),
       MAX_SUB_WORKERS,
     );
-    const lockedGroups = lockedResults.flatMap((message): LockedMarkGroup[] => (message.type === 'lockedDone' && message.group ? [message.group] : []));
-    scope.postMessage({ type: 'done', result: { loadout, baseEfficiency, efficiency: best, evaluations, stopped: false, lockedGroups } });
+    const lockedGroups = lockedResults.flatMap((message): LockedMarkGroup[] =>
+      message.type === 'lockedDone' && message.group ? [message.group] : [],
+    );
+    scope.postMessage({
+      type: 'done',
+      result: { loadout, baseEfficiency, efficiency: best, evaluations, stopped: false, lockedGroups },
+    });
   } catch (error) {
     scope.postMessage({ type: 'failed', message: String(error) });
   }

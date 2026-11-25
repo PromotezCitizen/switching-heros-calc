@@ -28,11 +28,18 @@ export function autoSwapOn(storeValues: Record<string, string>): boolean {
 
 /** 대상의 콘텐츠 프리셋 칸으로 바꾼 계산 입력값 (계산식 확인기 칸 + VIP 레벨) */
 export function optimizerValuesFor(storeValues: Record<string, string>, target: DamageTarget): CalcValues {
-  return valuesForTarget({ ...calcValuesOf(storeValues), [ACCOUNT_KEYS.vipLevel]: storeValues[ACCOUNT_KEYS.vipLevel] ?? '' }, target);
+  return valuesForTarget(
+    { ...calcValuesOf(storeValues), [ACCOUNT_KEYS.vipLevel]: storeValues[ACCOUNT_KEYS.vipLevel] ?? '' },
+    target,
+  );
 }
 
 /** 대상 하나의 대미지 계산 조건 */
-export function optimizerInputsFor(storeValues: Record<string, string>, target: DamageTarget, monsterHp: MonsterHpData | null): OptimizerInputs {
+export function optimizerInputsFor(
+  storeValues: Record<string, string>,
+  target: DamageTarget,
+  monsterHp: MonsterHpData | null,
+): OptimizerInputs {
   const stageFloor = readNumber(storeValues, OPTIMIZER_KEYS.STAGE_FLOOR);
   return {
     userLevel: readNumber(storeValues, OPTIMIZER_KEYS.USER_LEVEL),

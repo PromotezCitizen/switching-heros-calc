@@ -1,10 +1,23 @@
 /** 저장 데이터 Progress (도감 · 칭호) · Alchemy (연성) → 표를 합쳐 계산한 화면 값 칸 */
 import { CONSTS } from '@/CONSTS';
-import { groupBy, readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
+import {
+  groupBy,
+  readDictionary,
+  runSection,
+  type SaveDictionary,
+  type SaveImportResult,
+} from '@/usb/saveImport/saveDictionary';
 import { tableRows, type StatTables } from '@/data/statTables';
 import { multiplierLogFromPercent, percentTextFromMultiplierLog } from '@/usb/saveImport/saveText';
 
-const { ATTACK_PERCENT_STAT, HP_PERCENT_STAT, ALCHEMY_ALL_PARTS, ALCHEMY_SUM_FIELDS, ALCHEMY_SUM_DECIMALS, ALCHEMY_PART_FIELDS } = CONSTS.usb;
+const {
+  ATTACK_PERCENT_STAT,
+  HP_PERCENT_STAT,
+  ALCHEMY_ALL_PARTS,
+  ALCHEMY_SUM_FIELDS,
+  ALCHEMY_SUM_DECIMALS,
+  ALCHEMY_PART_FIELDS,
+} = CONSTS.usb;
 
 export interface CollectionProgress {
   collectionDic: SaveDictionary<number, number>;
@@ -17,7 +30,11 @@ export interface AlchemySave {
   slotData: { slotLvDic: SaveDictionary<number, number> };
 }
 
-export function collectionValues(progress: CollectionProgress, alchemy: AlchemySave, tables: StatTables): SaveImportResult {
+export function collectionValues(
+  progress: CollectionProgress,
+  alchemy: AlchemySave,
+  tables: StatTables,
+): SaveImportResult {
   const values: Record<string, string> = {};
   const notes: string[] = [];
 
@@ -32,7 +49,8 @@ export function collectionValues(progress: CollectionProgress, alchemy: AlchemyS
       let log = 0;
       for (const [collectId, level] of collected) {
         for (const row of collectionRows.get(String(collectId)) ?? []) {
-          if (Number(row.level) === level && row.stat_type === stat) log += multiplierLogFromPercent(Number(row.stat_value));
+          if (Number(row.level) === level && row.stat_type === stat)
+            log += multiplierLogFromPercent(Number(row.stat_value));
         }
       }
       values[field] = percentTextFromMultiplierLog(log);
@@ -60,22 +78,34 @@ export function collectionValues(progress: CollectionProgress, alchemy: AlchemyS
 }
 
 /** 연성: 슬롯 단계 (가장 낮은 슬롯 기준) 까지의 부위 % · 세트 %, 장착 아이템 공격력 · 체력 %, 보조 능력치 합 */
-function alchemyTotals(alchemy: AlchemySave, tables: StatTables, values: Record<string, string>, notes: string[]): void {
+function alchemyTotals(
+  alchemy: AlchemySave,
+  tables: StatTables,
+  values: Record<string, string>,
+  notes: string[],
+): void {
   const slotRows = tableRows(tables.AlchemySlot);
   const slotLevels = [...readDictionary(alchemy.slotData.slotLvDic).values()];
   const minSlot = Math.min(...slotLevels);
-  if (new Set(slotLevels).size > 1) notes.push(`아티팩트 슬롯 단계가 서로 달라서 가장 낮은 ${minSlot}단계로 계산했어요`);
+  if (new Set(slotLevels).size > 1)
+    notes.push(`아티팩트 슬롯 단계가 서로 달라서 가장 낮은 ${minSlot}단계로 계산했어요`);
   const partLogByStat = new Map<string, number>();
   const parts = [...new Set(slotRows.map((row) => row.parts))].filter((part) => part !== ALCHEMY_ALL_PARTS).sort();
   for (const part of parts) {
     const rows = slotRows.filter((row) => row.parts === part && Number(row.lv) <= minSlot);
     if (rows.length === 0) continue;
-    partLogByStat.set(rows[0].statType, rows.reduce((sum, row) => sum + multiplierLogFromPercent(Number(row.statValue)), 0));
+    partLogByStat.set(
+      rows[0].statType,
+      rows.reduce((sum, row) => sum + multiplierLogFromPercent(Number(row.statValue)), 0),
+    );
   }
   const setLogByStat = new Map<string, number>();
   for (const row of slotRows) {
     if (row.parts !== ALCHEMY_ALL_PARTS || Number(row.enhCostVal) > minSlot) continue;
-    setLogByStat.set(row.statType, (setLogByStat.get(row.statType) ?? 0) + multiplierLogFromPercent(Number(row.statValue)));
+    setLogByStat.set(
+      row.statType,
+      (setLogByStat.get(row.statType) ?? 0) + multiplierLogFromPercent(Number(row.statValue)),
+    );
   }
   const items = [...readDictionary(alchemy.equipItemDic).values()];
   const subStatSums = new Map<string, number>();
@@ -83,7 +113,8 @@ function alchemyTotals(alchemy: AlchemySave, tables: StatTables, values: Record<
     item.uTypes2.forEach((stat, index) => subStatSums.set(stat, (subStatSums.get(stat) ?? 0) + item.uValues[index]));
   }
   const { ALCHEMY_ITEM_ATTACK_INDEX: attackIndex, ALCHEMY_ITEM_HP_INDEX: hpIndex } = CONSTS.usb;
-  const itemLog = (index: number) => items.reduce((sum, item) => sum + multiplierLogFromPercent(item.pValues[index]), 0);
+  const itemLog = (index: number) =>
+    items.reduce((sum, item) => sum + multiplierLogFromPercent(item.pValues[index]), 0);
   values.artifactTotalAtk = percentTextFromMultiplierLog(
     itemLog(attackIndex) + (partLogByStat.get(ATTACK_PERCENT_STAT) ?? 0) + (setLogByStat.get(ATTACK_PERCENT_STAT) ?? 0),
   );
@@ -92,7 +123,8 @@ function alchemyTotals(alchemy: AlchemySave, tables: StatTables, values: Record<
   );
   // 같은 등급 (rarity 숫자 그대로) 이 가장 많은 등급의 개수: 얼티밋 균형의 완성 · 완전한 세트 조건 (게임 코드 m2687)
   const gradeCounts = new Map<number, number>();
-  for (const item of items) if (Number.isFinite(item.rarity)) gradeCounts.set(item.rarity, (gradeCounts.get(item.rarity) ?? 0) + 1);
+  for (const item of items)
+    if (Number.isFinite(item.rarity)) gradeCounts.set(item.rarity, (gradeCounts.get(item.rarity) ?? 0) + 1);
   values[CONSTS.masteryRuneBuff.ALCHEMY_SAME_GRADE_FIELD] = String(Math.max(0, ...gradeCounts.values()));
   for (const [field, stat] of Object.entries(ALCHEMY_SUM_FIELDS)) {
     values[field] = (subStatSums.get(stat) ?? 0).toFixed(ALCHEMY_SUM_DECIMALS);

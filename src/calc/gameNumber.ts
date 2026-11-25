@@ -27,13 +27,14 @@ export interface ParsedGameNumber {
 /** 단위 글자 → 번호 (엑셀 열 이름 방식: A=1 … Z=26, AA=27 … ZZ=702, AAA=703 …). 글자 없으면 0 */
 export function letterIndex(letters: string): number {
   let index = 0;
-  for (const letter of letters.toLowerCase()) index = index * LETTER_COUNT + (letter.charCodeAt(0) - LOWER_BEFORE_A_CODE);
+  for (const letter of letters.toLowerCase())
+    index = index * LETTER_COUNT + (letter.charCodeAt(0) - LOWER_BEFORE_A_CODE);
   return index;
 }
 
 /** 단위 번호 → 대문자 글자 (게임 화면 표기, 게임 m850 과 같은 방식) */
 export function unitSuffix(index: number): string {
-  let suffix = "";
+  let suffix = '';
   for (let rest = index; rest > 0; rest = Math.floor((rest - 1) / LETTER_COUNT)) {
     suffix = String.fromCharCode(UPPER_A_CODE + ((rest - 1) % LETTER_COUNT)) + suffix;
   }

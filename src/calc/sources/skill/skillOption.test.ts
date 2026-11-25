@@ -66,17 +66,26 @@ describe('스킬 문양 (SkillPerk): 해금 레벨 60 ~ 120 칸마다 후보 2�
 
   it('스킬 레벨이 해금 레벨에 못 미친 칸은 고른 것이 있어도 안 센다', () => {
     const coolDown = tablesPerk('CoolTimeDown');
-    const values = { [`skillLevel_${coolDown.skillId}`]: String(Number(coolDown.targetLv) - 1), [`skillPerk_${coolDown.skillId}_${coolDown.targetLv}`]: 'CoolTimeDown' };
+    const values = {
+      [`skillLevel_${coolDown.skillId}`]: String(Number(coolDown.targetLv) - 1),
+      [`skillPerk_${coolDown.skillId}_${coolDown.targetLv}`]: 'CoolTimeDown',
+    };
     expect(chosenSkillPerks(values, tables, coolDown.skillId)).toEqual([]);
     expect(skillPerkCoolSeconds(values, tables, coolDown.skillId)).toBe(0);
   });
 
   it('쿨타임 감소 문양은 val1 초를 빼고, 쿨타임이 늘어나는 문양은 val1 초를 더한다', () => {
     const coolDown = tablesPerk('CoolTimeDown');
-    const downValues = { [`skillLevel_${coolDown.skillId}`]: '120', [`skillPerk_${coolDown.skillId}_${coolDown.targetLv}`]: 'CoolTimeDown' };
+    const downValues = {
+      [`skillLevel_${coolDown.skillId}`]: '120',
+      [`skillPerk_${coolDown.skillId}_${coolDown.targetLv}`]: 'CoolTimeDown',
+    };
     expect(skillPerkCoolSeconds(downValues, tables, coolDown.skillId)).toBe(Number(coolDown.val1));
     const coolUp = tablesPerk('CoolTimeUpAndSkillDmg');
-    const upValues = { [`skillLevel_${coolUp.skillId}`]: '120', [`skillPerk_${coolUp.skillId}_${coolUp.targetLv}`]: 'CoolTimeUpAndSkillDmg' };
+    const upValues = {
+      [`skillLevel_${coolUp.skillId}`]: '120',
+      [`skillPerk_${coolUp.skillId}_${coolUp.targetLv}`]: 'CoolTimeUpAndSkillDmg',
+    };
     expect(skillPerkCoolSeconds(upValues, tables, coolUp.skillId)).toBe(-Number(coolUp.val1));
   });
 });
@@ -112,7 +121,11 @@ describe('스킬 옵션 능력치 줄: 다발 화살 252', () => {
   it('다른 옵션도 골랐을 때 최고 값 × 최대 중첩: 어퍼컷 10 × 6, 몸통 박치기 15 × 5, 화살 폭격 100, 용의 가호 공격속도 50', () => {
     const owned = { skillLevel_153: '30', skillLevel_155: '30', skillLevel_255: '30', skillLevel_104: '30' };
     const fighterOptions = { skillOption_153_1: '209', skillOption_155_1: '238', skillOption_104_1: '166' };
-    const fighter = skillOptionLines({ ...owned, ...fighterOptions, skillEquip_1: '153', skillEquip_2: '155', skillEquip_3: '104' }, tables, label);
+    const fighter = skillOptionLines(
+      { ...owned, ...fighterOptions, skillEquip_1: '153', skillEquip_2: '155', skillEquip_3: '104' },
+      tables,
+      label,
+    );
     expect(fighter.map((line) => [line.stat, line.value])).toEqual([
       ['_per_attackDamage', 60],
       ['_per_attackDamage', 75],

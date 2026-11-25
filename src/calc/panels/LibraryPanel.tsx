@@ -34,7 +34,9 @@ export default function LibraryPanel({ values, setValue, tables, descriptions }:
       <Group gap="xs">
         <SectionTitle>{translate('calc.library.archiveTitle')}</SectionTitle>
         <Text size="sm" c="dimmed">
-          {translate(values[ARCHIVE_LEVEL_FIELD] ? 'calc.library.archiveLevelImported' : 'calc.library.archiveLevel', { level: archiveLevel })}
+          {translate(values[ARCHIVE_LEVEL_FIELD] ? 'calc.library.archiveLevelImported' : 'calc.library.archiveLevel', {
+            level: archiveLevel,
+          })}
         </Text>
       </Group>
       {/* 책 4권 한 줄: 아이콘 · 이름 · 레벨 칸 · 효과. 칸 폭이 모자라면 가로 스크롤 */}

@@ -91,8 +91,21 @@ function levelsFor(trait: MasteryTrait, block: number): number {
   return Math.max(1, Math.floor(block / trait.needPoint));
 }
 
-export function recommendAllocation(traits: MasteryTrait[], current: Allocation, options: RecommendOptions): Recommendation {
-  const { evaluate, userLevel, totalPoints, blockSizes = DEFAULT_BLOCK_SIZES, shouldStop, onProgress, comboFamily, policy } = options;
+export function recommendAllocation(
+  traits: MasteryTrait[],
+  current: Allocation,
+  options: RecommendOptions,
+): Recommendation {
+  const {
+    evaluate,
+    userLevel,
+    totalPoints,
+    blockSizes = DEFAULT_BLOCK_SIZES,
+    shouldStop,
+    onProgress,
+    comboFamily,
+    policy,
+  } = options;
   const canAdd = (trait: MasteryTrait) => !policy?.ignored.has(trait.rNo) && !policy?.fixed.has(trait.rNo);
   const canRemove = (trait: MasteryTrait) => !policy?.fixed.has(trait.rNo);
   let evaluations = options.evaluationsBefore ?? 0;
@@ -136,7 +149,11 @@ export function recommendAllocation(traits: MasteryTrait[], current: Allocation,
         // 빼면 규칙이 깨지는 특성 (뒤 단계의 앞 단계 조건 등) 은 후보가 아니다 — 후보 수를 헛되이 차지하지 않게 미리 거른다
         if (validateAllocation(traits, reduced, userLevel, totalPoints).length > 0) continue;
         const loss = best - measure(reduced);
-        removes.push({ trait, rate: Math.max(loss, 0) / (removed * trait.needPoint), points: removed * trait.needPoint });
+        removes.push({
+          trait,
+          rate: Math.max(loss, 0) / (removed * trait.needPoint),
+          points: removed * trait.needPoint,
+        });
       }
       removes.sort((left, right) => left.rate - right.rate || right.points - left.points);
 
@@ -144,7 +161,9 @@ export function recommendAllocation(traits: MasteryTrait[], current: Allocation,
       search: for (const add of adds.slice(0, TOP_CANDIDATES)) {
         // 넣을 특성을 한 레벨이라도 사려면 빼서 확보하는 포인트 (+ 안 쓴 포인트) 가 그 비용 이상이어야 한다.
         // 비용을 못 대는 후보가 상위 자리를 차지해 대는 후보가 시도조차 안 되는 일이 없도록 먼저 거른다
-        const affordable = removes.filter((remove) => (remove.trait ? remove.points + free : remove.points) >= add.trait.needPoint);
+        const affordable = removes.filter(
+          (remove) => (remove.trait ? remove.points + free : remove.points) >= add.trait.needPoint,
+        );
         for (const remove of affordable.slice(0, TOP_CANDIDATES)) {
           if (remove.trait?.rNo === add.trait.rNo || add.rate <= remove.rate) continue;
           const trial = transfer(traits, allocation, add.trait, remove.trait, block, free);
@@ -162,7 +181,18 @@ export function recommendAllocation(traits: MasteryTrait[], current: Allocation,
       if (!improved && comboFamily && comboAttempts < MAX_COMBO_ATTEMPTS_PER_BLOCK) {
         comboAttempts += 1;
         const pairFamily = (trait: MasteryTrait) => (canAdd(trait) ? comboFamily(trait) : null);
-        const combo = bestPairMove(traits, allocation, pairFamily, removes, block, free, userLevel, totalPoints, measure, best);
+        const combo = bestPairMove(
+          traits,
+          allocation,
+          pairFamily,
+          removes,
+          block,
+          free,
+          userLevel,
+          totalPoints,
+          measure,
+          best,
+        );
         if (combo) {
           allocation = combo.allocation;
           best = combo.value;

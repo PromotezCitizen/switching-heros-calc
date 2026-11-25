@@ -40,7 +40,9 @@ export interface SuperCriticalStats {
 /** 슈퍼 치명타 확률 P1 (치명타 확률 V 가 100 을 넘은 만큼 10 마다 over 를 더함) */
 export function superCriticalChance(stats: SuperCriticalStats, criticalRate: number): number {
   const overSteps =
-    criticalRate > SUPER_CRITICAL.RATE_THRESHOLD ? Math.floor(Math.trunc(criticalRate - SUPER_CRITICAL.RATE_THRESHOLD) / SUPER_CRITICAL.STEP) : 0;
+    criticalRate > SUPER_CRITICAL.RATE_THRESHOLD
+      ? Math.floor(Math.trunc(criticalRate - SUPER_CRITICAL.RATE_THRESHOLD) / SUPER_CRITICAL.STEP)
+      : 0;
   return stats.base + stats.add + overSteps * stats.over;
 }
 
@@ -64,7 +66,12 @@ export function expectedSuperCritical(stats: SuperCriticalStats, criticalRate: n
 }
 
 /** 치명타 기대 배수 Ec = (1 − pc) + pc × (C / 100) × D × Es */
-export function expectedCritical(criticalRate: number, damageSum: number, damageMultiplier: number, superCritical: number): number {
+export function expectedCritical(
+  criticalRate: number,
+  damageSum: number,
+  damageMultiplier: number,
+  superCritical: number,
+): number {
   const chance = chanceOf(criticalRate);
   return 1 - chance + chance * (damageSum / CRITICAL_DAMAGE_DIVISOR) * damageMultiplier * superCritical;
 }
@@ -80,6 +87,7 @@ export function expectedSpear(chancePercent: number, addDamage: number): number 
 export function expectedSmite(chancePercent: number, addDamage: number, ccDamage: number, statusCount: number): number {
   if (statusCount <= 0 || chancePercent <= 0) return 1;
   const chance = chanceOf(chancePercent);
-  const cc = statusCount >= SMITE.CC_FROM_COUNT && ccDamage !== 0 ? Math.pow(1 + ccDamage / PERCENT_DIVISOR, statusCount) : 1;
+  const cc =
+    statusCount >= SMITE.CC_FROM_COUNT && ccDamage !== 0 ? Math.pow(1 + ccDamage / PERCENT_DIVISOR, statusCount) : 1;
   return 1 - chance + chance * (SMITE.BASE + addDamage / PERCENT_DIVISOR) * cc;
 }

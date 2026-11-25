@@ -86,7 +86,9 @@ describe('코어 특성 · 피규어 · 룬 연구실 · 스킬 옵션 화면', 
   it('룬 탭: 속성 룬이 모두 최대면 연구실 레벨 칸 세 개 (비어 있음) 가 보이고 입력하면 runeLab_<속성> 칸 이름', () => {
     const rune = masteryRuneBuffTabs(() => []).find((tab) => tab.id === 'rune')!;
     const maxed = Object.fromEntries(
-      attributeRunes(tables.AttributeRune).filter((item) => item.key !== CONSTS.masteryRuneBuff.CORE_RUNE_KEY).map((item) => [runeFieldKey(item), String(item.maxLevel)]),
+      attributeRunes(tables.AttributeRune)
+        .filter((item) => item.key !== CONSTS.masteryRuneBuff.CORE_RUNE_KEY)
+        .map((item) => [runeFieldKey(item), String(item.maxLevel)]),
     );
     const setValue = renderTab(rune, maxed);
     const fire = screen.getByLabelText('불 연구실 레벨') as HTMLInputElement;

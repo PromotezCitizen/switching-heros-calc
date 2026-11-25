@@ -36,9 +36,12 @@ export function heroOptionMultiplier(values: CalcValues, tables: StatTables): nu
   for (const skillId of equipped) {
     const level = skillLevel(values, skillId);
     for (const perk of chosenSkillPerks(values, tables, skillId)) {
-      if (isOneOf(CHAR_SKILL.PERK_DAMAGE_VAL1, perk.perkType)) multiplier *= 1 + perkNumber(perk, 'val1') / PERCENT_DIVISOR;
-      else if (isOneOf(CHAR_SKILL.PERK_DAMAGE_PER_LEVEL, perk.perkType)) multiplier *= 1 + (level * perkNumber(perk, 'val1')) / PERCENT_DIVISOR;
-      else if (perk.perkType === CHAR_SKILL.PERK_DAMAGE_STACK) multiplier *= 1 + (perkNumber(perk, 'val2') * perkNumber(perk, 'val3')) / PERCENT_DIVISOR;
+      if (isOneOf(CHAR_SKILL.PERK_DAMAGE_VAL1, perk.perkType))
+        multiplier *= 1 + perkNumber(perk, 'val1') / PERCENT_DIVISOR;
+      else if (isOneOf(CHAR_SKILL.PERK_DAMAGE_PER_LEVEL, perk.perkType))
+        multiplier *= 1 + (level * perkNumber(perk, 'val1')) / PERCENT_DIVISOR;
+      else if (perk.perkType === CHAR_SKILL.PERK_DAMAGE_STACK)
+        multiplier *= 1 + (perkNumber(perk, 'val2') * perkNumber(perk, 'val3')) / PERCENT_DIVISOR;
     }
   }
   return multiplier;
@@ -49,16 +52,24 @@ function meteorCount(values: CalcValues, tables: StatTables, row: TableRow): num
   const base = Number(row.value1) || CHAR_SKILL.DEFAULT_METEORS;
   const weapon = CHAR_SKILL.METEOR_WEAPON;
   if (equippedExclusiveStar(values, tables, weapon.WEAPON_ID) < weapon.STAR || !tables[TRANSCEND_TABLE]) return base;
-  const transcend = tableRows(tables[TRANSCEND_TABLE]).find((candidate) => candidate.weaponType === weapon.WEAPON_ID && Number(candidate.star) === weapon.STAR);
+  const transcend = tableRows(tables[TRANSCEND_TABLE]).find(
+    (candidate) => candidate.weaponType === weapon.WEAPON_ID && Number(candidate.star) === weapon.STAR,
+  );
   return base + (Number(transcend?.[weapon.VALUE]) || 0);
 }
 
-export function charSkillHits(values: CalcValues, tables: StatTables, targets: number, orbShardHits: number): CharSkillHits {
+export function charSkillHits(
+  values: CalcValues,
+  tables: StatTables,
+  targets: number,
+  orbShardHits: number,
+): CharSkillHits {
   const hero = heroFirstRow(tables, slotHeroName(values, tables));
   const awakenLevel = hero ? Number(values[rosterAwakenField(hero.charId)]) || 0 : 0;
   const row = hero ? charSkillRow(tables.CharacterAwaken, tables.CharSkill, hero.charId, awakenLevel) : undefined;
   if (!hero || !row) return { supported: false, skillId: null, coefficientLog: -Infinity, hits: 0 };
-  const coefficientLog = Math.log10((Number(row.damage) || 0) / PERCENT_DIVISOR) + Math.log10(heroOptionMultiplier(values, tables));
+  const coefficientLog =
+    Math.log10((Number(row.damage) || 0) / PERCENT_DIVISOR) + Math.log10(heroOptionMultiplier(values, tables));
   if (hero.charId === CHAR_SKILL.LIN_CHAR_ID && row.skillId === CHAR_SKILL.LIN_DRAGON_WAVE_SKILL) {
     // 용의 파동 value1 개 × 맞는 적 수 (관통 99)
     return {
@@ -68,8 +79,10 @@ export function charSkillHits(values: CalcValues, tables: StatTables, targets: n
       hits: (Number(row.value1) || 0) * Math.min(targets, CHAR_SKILL.LIN_WAVE_PIERCE),
     };
   }
-  if (hero.charId !== CHAR_SKILL.EIKA_CHAR_ID) return { supported: false, skillId: row.skillId, coefficientLog, hits: 0 };
-  const orbShardFactor = Number(row.coolTime) >= CHAR_SKILL.ORB_FROM_STAGE ? (Number(row.value3) || 0) / PERCENT_DIVISOR : 0;
+  if (hero.charId !== CHAR_SKILL.EIKA_CHAR_ID)
+    return { supported: false, skillId: row.skillId, coefficientLog, hits: 0 };
+  const orbShardFactor =
+    Number(row.coolTime) >= CHAR_SKILL.ORB_FROM_STAGE ? (Number(row.value3) || 0) / PERCENT_DIVISOR : 0;
   return {
     supported: true,
     skillId: row.skillId,

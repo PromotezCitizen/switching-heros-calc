@@ -20,7 +20,10 @@ describe('tableNumberLog', () => {
   it('보통 수, 긴 정수, 지수 표기', () => {
     expect(tableNumberLog('5')).toBeCloseTo(Math.log10(5), 12);
     expect(tableNumberLog('12.5')).toBeCloseTo(Math.log10(12.5), 12);
-    expect(tableNumberLog('1569280000000000000000000000000000000000000000000000000000')).toBeCloseTo(Math.log10(1.56928) + 57, 9);
+    expect(tableNumberLog('1569280000000000000000000000000000000000000000000000000000')).toBeCloseTo(
+      Math.log10(1.56928) + 57,
+      9,
+    );
     expect(tableNumberLog('1.276E+1083')).toBeCloseTo(Math.log10(1.276) + 1083, 9);
     expect(tableNumberLog('')).toBe(-Infinity);
   });

@@ -61,7 +61,12 @@ export function figures(tables: StatTables): Figure[] {
       const level = Number(row[LEVEL_COLUMN]);
       const current = byId.get(figureId);
       if (!current) {
-        byId.set(figureId, { figureId, grade: row[GRADE_COLUMN], maxLevel: level, firstStat: row[`${STAT_COLUMN_PREFIX}1`] });
+        byId.set(figureId, {
+          figureId,
+          grade: row[GRADE_COLUMN],
+          maxLevel: level,
+          firstStat: row[`${STAT_COLUMN_PREFIX}1`],
+        });
       } else {
         current.maxLevel = Math.max(current.maxLevel, level);
       }
@@ -85,15 +90,22 @@ export function figureLevel(values: CalcValues, figureId: string): number {
 
 /** 개수형 효과의 N (피규어 레벨 합 · 신화 피규어 수 · 배지 점수 합 · 전용 무기 초월 합 · 히어로 각성 합) */
 export function figureCounts(values: CalcValues, tables: StatTables): Record<FigureCountKind, number> {
-  const owned = figures(tables).map((figure) => ({ grade: figure.grade, level: Math.min(figureLevel(values, figure.figureId), figure.maxLevel) }));
-  const levelSum = (grades: string[]) => owned.reduce((sum, figure) => (grades.includes(figure.grade) ? sum + figure.level : sum), 0);
+  const owned = figures(tables).map((figure) => ({
+    grade: figure.grade,
+    level: Math.min(figureLevel(values, figure.figureId), figure.maxLevel),
+  }));
+  const levelSum = (grades: string[]) =>
+    owned.reduce((sum, figure) => (grades.includes(figure.grade) ? sum + figure.level : sum), 0);
   const stickerIds = [...new Set(tableRows(tables.CardStickerSet ?? EMPTY_TABLE).map((row) => row.stickerId))];
   return {
     figureLevelDC: levelSum(LEVEL_SUM_GRADES.figureLevelDC),
     figureLevelDCB: levelSum(LEVEL_SUM_GRADES.figureLevelDCB),
     mythicFigures: owned.filter((figure) => figure.grade === MYTHIC_GRADE && figure.level > 0).length,
     stickerPoints: stickerIds.reduce((sum, stickerId) => sum + numberValue(values, stickerLevelField(stickerId)), 0),
-    weaponTranscend: exclusiveWeapons(tables).reduce((sum, weapon) => sum + numberValue(values, exclusiveOwnedStarField(weapon.weaponId)), 0),
+    weaponTranscend: exclusiveWeapons(tables).reduce(
+      (sum, weapon) => sum + numberValue(values, exclusiveOwnedStarField(weapon.weaponId)),
+      0,
+    ),
     heroAwaken: tables.Character
       ? rosterHeroes(tables).reduce((sum, hero) => sum + numberValue(values, rosterAwakenField(hero.charId)), 0)
       : 0,

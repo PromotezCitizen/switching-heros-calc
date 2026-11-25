@@ -48,9 +48,18 @@ import {
   type ViewerTables,
 } from '@/statViewer/statViewerData';
 
-const { KIND_ORDER, TAG_TYPES, UNRESOLVED_TABLES, TABLE_DIR, MASTERY_TABLE, RAW_TABLE_MAX_HEIGHT, ENTITY_MIN_WIDTH, ENTITY_MAX_WIDTH } =
-  CONSTS.statViewer;
-const { SIDE_NAV_MIN_SCREEN_WIDTH, STICKY_HEADER_HEIGHT_VAR, STICKY_SUB_TAB_HEIGHT_VAR, STICKY_HEADER_Z_INDEX } = CONSTS.display;
+const {
+  KIND_ORDER,
+  TAG_TYPES,
+  UNRESOLVED_TABLES,
+  TABLE_DIR,
+  MASTERY_TABLE,
+  RAW_TABLE_MAX_HEIGHT,
+  ENTITY_MIN_WIDTH,
+  ENTITY_MAX_WIDTH,
+} = CONSTS.statViewer;
+const { SIDE_NAV_MIN_SCREEN_WIDTH, STICKY_HEADER_HEIGHT_VAR, STICKY_SUB_TAB_HEIGHT_VAR, STICKY_HEADER_Z_INDEX } =
+  CONSTS.display;
 /** 나란히 놓을 때 왼쪽 목록 폭 (예전 격자 12칸 중 3칸과 같은 비율) */
 const FAMILY_LIST_WIDTH = '25%';
 /** 페이지 아래 여백 (App 의 Container pb="md") */
@@ -63,7 +72,17 @@ const MONO = 'var(--mantine-font-family-monospace)';
 const RATIO_PREFIX = '×';
 
 /** 원본 표 (자기 안에서만 스크롤) */
-function RawTable({ table, rowIndexes, columns, memberColumns }: { table: ViewerTable; rowIndexes?: number[]; columns?: string[]; memberColumns?: string[] }) {
+function RawTable({
+  table,
+  rowIndexes,
+  columns,
+  memberColumns,
+}: {
+  table: ViewerTable;
+  rowIndexes?: number[];
+  columns?: string[];
+  memberColumns?: string[];
+}) {
   const { headers, rows } = rawRows(table, rowIndexes, columns, memberColumns);
   return (
     <ScrollArea.Autosize mah={RAW_TABLE_MAX_HEIGHT} type="auto">
@@ -92,7 +111,15 @@ function RawTable({ table, rowIndexes, columns, memberColumns }: { table: Viewer
 }
 
 /** 대상별 표: 등급 머리글로 정렬 방향 전환, 원본 버튼으로 그 줄의 원본 행 */
-function EntityTable({ list, table, groupKey }: { list: ViewerSource[]; table: ViewerTable | undefined; groupKey: string }) {
+function EntityTable({
+  list,
+  table,
+  groupKey,
+}: {
+  list: ViewerSource[];
+  table: ViewerTable | undefined;
+  groupKey: string;
+}) {
   const { t: translate } = useTranslation();
   const [direction, setDirection] = useState<SortDirection>(() => defaultSortDirection(groupKey.split('|')[0]));
   const [openRaw, setOpenRaw] = useState<ReadonlySet<number>>(new Set());
@@ -127,7 +154,14 @@ function EntityTable({ list, table, groupKey }: { list: ViewerSource[]; table: V
         </Table.Thead>
         <Table.Tbody>
           {rows.map((row, index) => (
-            <EntityTableRow key={index} row={row} columns={columns} table={table} rawOpen={openRaw.has(index)} onToggleRaw={() => toggleRaw(index)} />
+            <EntityTableRow
+              key={index}
+              row={row}
+              columns={columns}
+              table={table}
+              rawOpen={openRaw.has(index)}
+              onToggleRaw={() => toggleRaw(index)}
+            />
           ))}
         </Table.Tbody>
       </Table>
@@ -172,7 +206,12 @@ function EntityTableRow({
       {rawOpen && table && (
         <Table.Tr bg="var(--mantine-color-default-hover)">
           <Table.Td colSpan={columns.length + 2} style={{ maxWidth: 0 }}>
-            <RawTable table={table} rowIndexes={row.source.rows} columns={row.source.columns} memberColumns={row.source.memberColumns} />
+            <RawTable
+              table={table}
+              rowIndexes={row.source.rows}
+              columns={row.source.columns}
+              memberColumns={row.source.memberColumns}
+            />
           </Table.Td>
         </Table.Tr>
       )}
@@ -181,7 +220,17 @@ function EntityTableRow({
 }
 
 /** 표 × 스탯 묶음 한 줄: 요약 (표 · 스탯 · 태그 · 계산 방식 · 값 범위), 값이 다르면 펼쳐서 대상별 표 */
-function SourceGroup({ meta, tables, groupKey, list }: { meta: ViewerMeta; tables: ViewerTables; groupKey: string; list: ViewerSource[] }) {
+function SourceGroup({
+  meta,
+  tables,
+  groupKey,
+  list,
+}: {
+  meta: ViewerMeta;
+  tables: ViewerTables;
+  groupKey: string;
+  list: ViewerSource[];
+}) {
   const { t: translate } = useTranslation();
   const [opened, setOpened] = useState(false);
   const first = list[0];
@@ -225,7 +274,11 @@ function SourceGroup({ meta, tables, groupKey, list }: { meta: ViewerMeta; table
   );
 
   if (allSame) {
-    return <Box py="xs" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>{heading}</Box>;
+    return (
+      <Box py="xs" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
+        {heading}
+      </Box>
+    );
   }
   return (
     <Box style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
@@ -243,11 +296,26 @@ function SourceGroup({ meta, tables, groupKey, list }: { meta: ViewerMeta; table
 }
 
 /** 고른 계열의 필터 칩 + 묶음 목록. 칩 두 줄은 스크롤해도 chipsTop 위치에 붙어 있다 */
-function FamilySources({ meta, tables, family, chipsTop }: { meta: ViewerMeta; tables: ViewerTables; family: string; chipsTop: string }) {
+function FamilySources({
+  meta,
+  tables,
+  family,
+  chipsTop,
+}: {
+  meta: ViewerMeta;
+  tables: ViewerTables;
+  family: string;
+  chipsTop: string;
+}) {
   const { t: translate } = useTranslation();
-  const sources = useMemo(() => meta.sources.filter((source) => meta.stats[source.stat]?.family === family), [meta, family]);
+  const sources = useMemo(
+    () => meta.sources.filter((source) => meta.stats[source.stat]?.family === family),
+    [meta, family],
+  );
   const kindsPresent = KIND_ORDER.filter((kind) => sources.some((source) => meta.stats[source.stat].kind === kind));
-  const tagsPresent = TAG_TYPES.filter((type) => sources.some((source) => meta.stats[source.stat].tags.some(([tagType]) => tagType === type)));
+  const tagsPresent = TAG_TYPES.filter((type) =>
+    sources.some((source) => meta.stats[source.stat].tags.some(([tagType]) => tagType === type)),
+  );
   const [kinds, setKinds] = useState<string[]>(kindsPresent);
   const [tagTypes, setTagTypes] = useState<string[]>(tagsPresent);
   const groups = groupSources(sources, meta.stats, kinds, tagTypes);
@@ -294,7 +362,9 @@ function FamilySources({ meta, tables, family, chipsTop }: { meta: ViewerMeta; t
       {/* 첫 항목 위 테두리를 칩 줄 아래 테두리와 겹쳐 선 하나로 */}
       <Box mt={-1}>
         {groups.length ? (
-          groups.map(({ key, list }) => <SourceGroup key={key} meta={meta} tables={tables} groupKey={key} list={list} />)
+          groups.map(({ key, list }) => (
+            <SourceGroup key={key} meta={meta} tables={tables} groupKey={key} list={list} />
+          ))
         ) : (
           <Text size="sm" c="dimmed">
             {translate('viewer.noSources')}
@@ -309,7 +379,15 @@ function FamilySources({ meta, tables, family, chipsTop }: { meta: ViewerMeta; t
  * 폰: 위쪽 탭 줄 아래에 붙는 검색 · 계열 탭 줄. 자기 높이를 STICKY_SUB_TAB_HEIGHT_VAR 로 알려
  * 그 아래 칩 줄이 틈 없이 붙는다 (자료를 다 불러온 뒤 나타나므로 따로 떼어 나타날 때 잰다)
  */
-function PhoneFamilyBar({ barRef, label, children }: { barRef: Ref<HTMLDivElement>; label: string; children: ReactNode }) {
+function PhoneFamilyBar({
+  barRef,
+  label,
+  children,
+}: {
+  barRef: Ref<HTMLDivElement>;
+  label: string;
+  children: ReactNode;
+}) {
   const measureRef = useStickyHeaderHeight<HTMLDivElement>(STICKY_SUB_TAB_HEIGHT_VAR);
   const ref = useMergedRef(measureRef, barRef);
   return (
@@ -367,13 +445,21 @@ export default function StatViewerPage() {
     const content = phoneSourcesRef.current;
     if (bar && content) {
       const contentStart =
-        content.getBoundingClientRect().top + window.scrollY - bar.getBoundingClientRect().height - bar.getBoundingClientRect().top;
+        content.getBoundingClientRect().top +
+        window.scrollY -
+        bar.getBoundingClientRect().height -
+        bar.getBoundingClientRect().top;
       if (window.scrollY > contentStart) window.scrollTo({ top: contentStart });
     }
   };
 
   const familyKeys = useMemo(
-    () => (meta ? Object.keys(meta.families).sort((left, right) => meta.families[right].sourceCount - meta.families[left].sourceCount) : []),
+    () =>
+      meta
+        ? Object.keys(meta.families).sort(
+            (left, right) => meta.families[right].sourceCount - meta.families[left].sourceCount,
+          )
+        : [],
     [meta],
   );
 
@@ -393,7 +479,9 @@ export default function StatViewerPage() {
       </Group>
     );
   }
-  const tables: ViewerTables = Object.fromEntries(tableNames.map((name, index) => [name, filesState.data[tableFiles[index]]]));
+  const tables: ViewerTables = Object.fromEntries(
+    tableNames.map((name, index) => [name, filesState.data[tableFiles[index]]]),
+  );
   const shownFamilies = familyKeys.filter((key) => familyMatches(meta, key, search));
 
   const familyItems = shownFamilies.length ? (
@@ -475,7 +563,13 @@ export default function StatViewerPage() {
               {familyItems}
             </ScrollArea>
           </Paper>
-          <Paper ref={sourcesRef} withBorder p="sm" pt={family ? 0 : undefined} style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
+          <Paper
+            ref={sourcesRef}
+            withBorder
+            p="sm"
+            pt={family ? 0 : undefined}
+            style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}
+          >
             {sources}
           </Paper>
           <ScrollTopButton target={sourcesRef} />
@@ -502,7 +596,13 @@ export default function StatViewerPage() {
             )}
           </PhoneFamilyBar>
           {/* 탭 줄과 사이 간격 (Stack gap md) 을 없애 칩이 처음 자리 = 붙은 자리 (탭 줄 바로 아래) */}
-          <Paper ref={phoneSourcesRef} withBorder p="sm" pt={family ? 0 : undefined} mt={`calc(-1 * ${PAGE_STACK_GAP})`}>
+          <Paper
+            ref={phoneSourcesRef}
+            withBorder
+            p="sm"
+            pt={family ? 0 : undefined}
+            mt={`calc(-1 * ${PAGE_STACK_GAP})`}
+          >
             {sources}
           </Paper>
           <ScrollTopButton />

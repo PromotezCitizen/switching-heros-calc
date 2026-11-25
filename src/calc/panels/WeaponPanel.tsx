@@ -22,7 +22,8 @@ import { iconUrl } from '@/calc/panels/heroWeaponCardPet/IconPicker';
 
 const { JOBS, MIN_NUMBER } = CONSTS.heroWeaponCardPet;
 const { LINK_ICONS } = CONSTS.heroWeaponCardPet.weapon;
-const { CARD_ICON_SIZE, LINK_CARD_MIN_WIDTH, LINK_LEVEL_INPUT_WIDTH, NORMAL_WEAPON_COLUMNS } = CONSTS.heroWeaponCardPet.ui;
+const { CARD_ICON_SIZE, LINK_CARD_MIN_WIDTH, LINK_LEVEL_INPUT_WIDTH, NORMAL_WEAPON_COLUMNS } =
+  CONSTS.heroWeaponCardPet.ui;
 
 /** 무기: 전용 무기·웨폰 링크·누적 능력치·일반 무기·무기 옵션 (소울포지는 탭 따로) */
 export default function WeaponPanel({ values, setValue, tables }: TabPanelProps) {
@@ -38,7 +39,9 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
   // 장착 효과는 1슬롯 히어로가 전용 무기를 꼈을 때만 (캐릭터 각성 칸의 "전용 무기 장착")
   const possess = normalWeaponPossessEffect(tables, values);
   const normalWeaponRows = rowsOf(tables, 'WeaponJob');
-  const exclusiveHero = usesExclusiveWeapon(values, tables) ? heroByName(tables, slotHeroName(values, tables)) : undefined;
+  const exclusiveHero = usesExclusiveWeapon(values, tables)
+    ? heroByName(tables, slotHeroName(values, tables))
+    : undefined;
   const totalAtk = weaponTotalAtk(values, tables);
 
   return (
@@ -53,7 +56,9 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
             <Card key={job} withBorder padding="xs">
               <Stack gap={4} align="center">
                 <Image src={iconUrl(LINK_ICONS[job])} w={CARD_ICON_SIZE} h={CARD_ICON_SIZE} fit="contain" alt="" />
-                <Text size="sm" fw={600}>{translate('calc.weapon.linkCardName', { job: jobName })}</Text>
+                <Text size="sm" fw={600}>
+                  {translate('calc.weapon.linkCardName', { job: jobName })}
+                </Text>
                 <NumberInput
                   size="xs"
                   w={LINK_LEVEL_INPUT_WIDTH}
@@ -88,14 +93,18 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
           value={values[LINK_STAR_FIELD] ?? ''}
           onChange={(next) => setValue(LINK_STAR_FIELD, String(next))}
         />
-        <Text size="xs" c="dimmed">/ {linkStarMax(tables)}</Text>
+        <Text size="xs" c="dimmed">
+          / {linkStarMax(tables)}
+        </Text>
       </Group>
 
       <SectionTitle>{translate('calc.weapon.totalTitle')}</SectionTitle>
       {/* 입력 칸 없이 히어로 탭 전용 무기 표의 초월 ★ 로 계산 (★ 를 안 넣었으면 0%) */}
       <Group gap="xs">
         <Text size="sm">{translate('calc.weapon.totalAtk')}</Text>
-        <Text size="sm" fw={600}>{totalAtk ? `${formatLog(totalAtk.percentLog)}%` : translate('calc.weapon.totalZero')}</Text>
+        <Text size="sm" fw={600}>
+          {totalAtk ? `${formatLog(totalAtk.percentLog)}%` : translate('calc.weapon.totalZero')}
+        </Text>
       </Group>
       <Text size="xs" c="dimmed">
         {translate('calc.weapon.totalFromStars')}
@@ -108,7 +117,10 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
         <Text size="sm">{translate('calc.weapon.possessLabel')}</Text>
         <Text size="sm" fw={600}>
           {possess
-            ? translate('calc.weapon.possessValue', { count: possess.weaponCount, multiplier: formatLog(possess.multiplierLog) })
+            ? translate('calc.weapon.possessValue', {
+                count: possess.weaponCount,
+                multiplier: formatLog(possess.multiplierLog),
+              })
             : '-'}
         </Text>
       </Group>
@@ -158,7 +170,6 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
           </Accordion.Item>
         </Accordion>
       )}
-
     </Stack>
   );
 }

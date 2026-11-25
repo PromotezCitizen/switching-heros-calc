@@ -99,14 +99,14 @@ export function recommendCards(current: Loadout, options: CardRecommendOptions):
     options.withMarks === false
       ? []
       : Array.from({ length: markCount(card) }, (_, mark) => {
-      const choices = card.setsByMark[mark] ?? [];
-      const counts = new Map<string, number>();
-      for (const entry of others) {
-        const pick = entry.picks[mark];
-        if (pick && choices.includes(pick)) counts.set(pick, (counts.get(pick) ?? 0) + 1);
-      }
-      return [...choices].sort((left, right) => (counts.get(right) ?? 0) - (counts.get(left) ?? 0))[0] ?? '';
-    });
+          const choices = card.setsByMark[mark] ?? [];
+          const counts = new Map<string, number>();
+          for (const entry of others) {
+            const pick = entry.picks[mark];
+            if (pick && choices.includes(pick)) counts.set(pick, (counts.get(pick) ?? 0) + 1);
+          }
+          return [...choices].sort((left, right) => (counts.get(right) ?? 0) - (counts.get(left) ?? 0))[0] ?? '';
+        });
 
   const first = improvePicks(loadout, best);
   loadout = first.loadout;

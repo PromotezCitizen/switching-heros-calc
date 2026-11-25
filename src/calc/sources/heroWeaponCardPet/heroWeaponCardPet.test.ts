@@ -21,12 +21,25 @@ import { tableRows, type StatTables } from '@/data/statTables';
 import type { Line } from '@/calc/combine';
 import { formatLog } from '@/calc/gameNumber';
 import type { CalcValues } from '@/calc/types';
-import { cardCountsByGrade, cardSlotGradeStars, cardStackLines, countExpandedLines, sssCardCount } from '@/calc/sources/heroWeaponCardPet/card';
+import {
+  cardCountsByGrade,
+  cardSlotGradeStars,
+  cardStackLines,
+  countExpandedLines,
+  sssCardCount,
+} from '@/calc/sources/heroWeaponCardPet/card';
 import { EXPECTED_FROM_HTML } from '@/calc/sources/heroWeaponCardPet/expectedFromHtml';
 import { equippedPetIds, heroWeaponCardPetTabs } from '@/calc/sources/heroWeaponCardPet/index';
 import { libraryArchiveLevel } from '@/calc/sources/heroWeaponCardPet/library';
 import { mineAwakenTotal, mineMultiplier } from '@/calc/sources/heroWeaponCardPet/mine';
-import { maxStagePetCounts, ownedPetField, petLines, petRegionLevelField, petRegionLines, petRegionUnlocked } from '@/calc/sources/heroWeaponCardPet/pet';
+import {
+  maxStagePetCounts,
+  ownedPetField,
+  petLines,
+  petRegionLevelField,
+  petRegionLines,
+  petRegionUnlocked,
+} from '@/calc/sources/heroWeaponCardPet/pet';
 import { gradeStarValue, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
 import {
   equipWeaponRelicMultiplier,
@@ -119,7 +132,11 @@ const TAB_OF_SCENARIO: Record<keyof typeof EXPECTED_FROM_HTML, string> = {
 const CHANGED_FROM_HTML = new Set(['weaponWithHero', 'card', 'mine', 'weaponNoHero']);
 
 describe('기존 HTML 과 같은 줄', () => {
-  it.each((Object.keys(TAB_OF_SCENARIO) as Array<keyof typeof EXPECTED_FROM_HTML>).filter((scenario) => !CHANGED_FROM_HTML.has(scenario)))('%s', (scenario) => {
+  it.each(
+    (Object.keys(TAB_OF_SCENARIO) as Array<keyof typeof EXPECTED_FROM_HTML>).filter(
+      (scenario) => !CHANGED_FROM_HTML.has(scenario),
+    ),
+  )('%s', (scenario) => {
     const expected = EXPECTED_FROM_HTML[scenario];
     expect(expected.notAccepted).toEqual([]);
     expectSameLines(tabLines(TAB_OF_SCENARIO[scenario], { ...expected.values }), expected.lines);
@@ -152,13 +169,16 @@ describe('바뀐 계산', () => {
       weaponOptionValue4: '70%',
     };
     expect(openOptionSlots(values, tables)).toBe(3);
-    const optionLines = (input: CalcValues) => tabLines('weapon', input).filter((line) => line.source.startsWith('무기 옵션'));
+    const optionLines = (input: CalcValues) =>
+      tabLines('weapon', input).filter((line) => line.source.startsWith('무기 옵션'));
     expect(optionLines(values).map((line) => line.source)).toEqual(['무기 옵션 1번', '무기 옵션 3번', '무기 옵션 4번']);
     expect(openOptionSlots({ ...values, exclusiveOwnedStar_1021: '' }, tables)).toBe(0);
     expect(optionLines({ ...values, exclusiveOwnedStar_1021: '' })).toEqual([]);
     expect(openOptionSlots({ ...values, exclusiveOwnedStar_1021: '14' }, tables)).toBe(8);
     // 칸 n 을 여는 ★ = Option weapon_dice_lock_n (1 · 2 · 4 · 6 · 8 · 10 · 12 · 14)
-    expect([1, 2, 3, 4, 5, 6, 7, 8].map((index) => optionUnlockStar(tables, '1021', index))).toEqual([1, 2, 4, 6, 8, 10, 12, 14]);
+    expect([1, 2, 3, 4, 5, 6, 7, 8].map((index) => optionUnlockStar(tables, '1021', index))).toEqual([
+      1, 2, 4, 6, 8, 10, 12, 14,
+    ]);
   });
 
   it('무기 옵션은 전용 무기마다 저장 (1슬롯 히어로 무기 칸), 그 무기 칸이 비었으면 예전 칸', () => {
@@ -169,13 +189,17 @@ describe('바뀐 계산', () => {
     expect(perWeapon.stat(1)).toBe('exclusiveOptionStat_1021_1');
     expect(perWeapon.value(3)).toBe('exclusiveOptionValue_1021_3');
     // 다른 무기 칸만 있으면 예전 칸
-    expect(heroOptionFields({ ...base, exclusiveOptionStat_9999_1: '_per_attackDamage' }, tables).stat(1)).toBe('weaponOptionStat1');
+    expect(heroOptionFields({ ...base, exclusiveOptionStat_9999_1: '_per_attackDamage' }, tables).stat(1)).toBe(
+      'weaponOptionStat1',
+    );
   });
 
   it('전용 무기 초월 스탯 줄 (statType 1~4): 그 히어로가 전용 무기를 장착했을 때만 (게임 @306b564), 같은 스탯은 줄마다 따로', () => {
     const values: CalcValues = { charName: '에이카', exclusiveOwnedStar_1021: '11', exclusiveOwnedLevel_1021: '10' };
     const transcendLines = (input: CalcValues) =>
-      exclusiveWeaponLines(input, tables, label).filter((line) => line.source !== label('calc.weapon.sources.exclusive'));
+      exclusiveWeaponLines(input, tables, label).filter(
+        (line) => line.source !== label('calc.weapon.sources.exclusive'),
+      );
     // 무기 미보유 (★ 빈칸) = 초월 줄 없음 (보유한 전용 무기는 늘 낀 것으로 봄)
     expect(transcendLines({ ...values, exclusiveOwnedStar_1021: '' })).toEqual([]);
     // 장착하면 ★11 이하의 statType 1~4 줄 (교체 스킬 ★2/5/8, 전용 스킬 ★3/6/9, 공격력 ★11)
@@ -204,7 +228,15 @@ describe('바뀐 계산', () => {
     expect(tabLines('mine', { mineLevel: '1', ...awakenValues('18') })).toEqual([]);
   });
   it('광산 각성 총합 = 보유 히어로 (등급 있음) 전체의 각성 레벨 합, 배치 여부 · 미보유 칸은 안 봄', () => {
-    expect(mineAwakenTotal({ heroOwnedGrade_0: 'S', heroOwnedAwaken_0: '3', heroOwnedGrade_205: 'SSS', heroOwnedAwaken_205: '12', heroOwnedAwaken_999: '5' })).toBe(15);
+    expect(
+      mineAwakenTotal({
+        heroOwnedGrade_0: 'S',
+        heroOwnedAwaken_0: '3',
+        heroOwnedGrade_205: 'SSS',
+        heroOwnedAwaken_205: '12',
+        heroOwnedAwaken_999: '5',
+      }),
+    ).toBe(15);
     expect(mineAwakenTotal({})).toBe(0);
   });
 
@@ -217,18 +249,26 @@ describe('바뀐 계산', () => {
       [linkLevelField('Archer')]: '191',
       [linkLevelField('Mage')]: '191',
     };
-    expect(['Swordsman', 'Fighter', 'Archer', 'Mage'].map((job) => formatLog(weaponLinkLog(values, linkTables, job)!))).toEqual([
-      '818.20A',
-      '818.00A',
-      '792.60A',
-      '793.00A',
-    ]);
+    expect(
+      ['Swordsman', 'Fighter', 'Archer', 'Mage'].map((job) => formatLog(weaponLinkLog(values, linkTables, job)!)),
+    ).toEqual(['818.20A', '818.00A', '792.60A', '793.00A']);
   });
   it('무기 누적 능력치: 보유 전용 무기 ★ → 초월 미션 공격력 보상 곱 (02:48 저장 데이터 trscLv → 화면 1,282% = 1,282.187%)', () => {
     // claude-docs/device_data/2026-10-07_0248_219 Equip.json psCharWeaponDic 의 trscLv 그대로. 장착 여부는 넣지 않음 (보유 효과)
     const starOfWeapon: Record<string, string> = {
-      '1005': '5', '1021': '13', '1022': '2', '1031': '1', '1026': '2', '1001': '4', '1025': '1',
-      '1019': '1', '1015': '1', '1006': '2', '1020': '1', '1027': '1', '1004': '1',
+      '1005': '5',
+      '1021': '13',
+      '1022': '2',
+      '1031': '1',
+      '1026': '2',
+      '1001': '4',
+      '1025': '1',
+      '1019': '1',
+      '1015': '1',
+      '1006': '2',
+      '1020': '1',
+      '1027': '1',
+      '1004': '1',
     };
     const values: CalcValues = Object.fromEntries(
       Object.entries(starOfWeapon).map(([weaponId, star]) => [exclusiveOwnedStarField(weaponId), star]),
@@ -238,7 +278,9 @@ describe('바뀐 계산', () => {
     expect(total.missionCount).toBe(20);
     expect(Math.pow(10, total.percentLog)).toBeCloseTo(1282.187013, 5);
     const totalLines = tabLines('weapon', values).filter((line) => line.source === '무기 누적 능력치 (전용 무기 ★)');
-    expect(totalLines).toEqual([{ source: '무기 누적 능력치 (전용 무기 ★)', stat: '_per_attackDamage', log: total.percentLog }]);
+    expect(totalLines).toEqual([
+      { source: '무기 누적 능력치 (전용 무기 ★)', stat: '_per_attackDamage', log: total.percentLog },
+    ]);
     // ★ 를 하나도 안 넣으면 줄 없음
     expect(weaponTotalAtk({}, tables)).toBeNull();
   });
@@ -250,7 +292,10 @@ describe('바뀐 계산', () => {
     const rewardsAtOrBelow = (limit: number) =>
       tableRows(tables.ContentMission).filter(
         (row) =>
-          row.groupId === '1021' && row.missionType === 'WeaponChar_Trans' && row.rwdStat === '_per_attackDamage' && Number(row.condValue0) <= limit,
+          row.groupId === '1021' &&
+          row.missionType === 'WeaponChar_Trans' &&
+          row.rwdStat === '_per_attackDamage' &&
+          Number(row.condValue0) <= limit,
       );
     const partial = weaponTotalAtk({ ...star, [exclusiveMissionReceivedStarField('1021')]: '5' }, tables)!;
     expect(partial.missionCount).toBe(rewardsAtOrBelow(5).length);
@@ -265,12 +310,23 @@ describe('바뀐 계산', () => {
   it('일반 무기 보유 효과: 무기 칸에 레벨을 넣으면 그 레벨로 (보유 기본 + 강화당 x 레벨), 비운 칸은 최대 레벨 (1.14)', () => {
     const rows = tableRows(tables.WeaponJob);
     const expectedLog = (levelOf: (row: (typeof rows)[number]) => number) =>
-      rows.reduce((sum, row) => sum + Math.log10(1 + (Number(row.possAbilVal1) + Number(row.possAbilEnh1) * levelOf(row)) / 100), 0);
-    expect(normalWeaponPossessEffect(tables)!.multiplierLog).toBeCloseTo(expectedLog((row) => Number(row.maxLv)), 9);
+      rows.reduce(
+        (sum, row) => sum + Math.log10(1 + (Number(row.possAbilVal1) + Number(row.possAbilEnh1) * levelOf(row)) / 100),
+        0,
+      );
+    expect(normalWeaponPossessEffect(tables)!.multiplierLog).toBeCloseTo(
+      expectedLog((row) => Number(row.maxLv)),
+      9,
+    );
     // 모든 무기를 0 레벨로 넣으면 보유 기본값만
     const zeros: CalcValues = Object.fromEntries(rows.map((row) => [normalWeaponLevelFieldId(row.weaponId), '0']));
-    expect(normalWeaponPossessEffect(tables, zeros)!.multiplierLog).toBeCloseTo(expectedLog(() => 0), 9);
-    expect(normalWeaponPossessEffect(tables, zeros)!.multiplierLog).toBeLessThan(normalWeaponPossessEffect(tables)!.multiplierLog);
+    expect(normalWeaponPossessEffect(tables, zeros)!.multiplierLog).toBeCloseTo(
+      expectedLog(() => 0),
+      9,
+    );
+    expect(normalWeaponPossessEffect(tables, zeros)!.multiplierLog).toBeLessThan(
+      normalWeaponPossessEffect(tables)!.multiplierLog,
+    );
     // 한 개만 7 레벨로 넣고 나머지는 비움 (최대)
     const [first] = rows;
     const one = { [normalWeaponLevelFieldId(first.weaponId)]: '7' };
@@ -305,7 +361,9 @@ describe('화면 표시 값', () => {
   });
   it('일반 무기 보유 효과', () => {
     const possess = normalWeaponPossessEffect(tables);
-    expect(`${possess?.weaponCount}종 최대 레벨: 체력 ${formatLog(possess?.multiplierLog)}배`).toBe(EXPECTED_FROM_HTML.card.screen.possess);
+    expect(`${possess?.weaponCount}종 최대 레벨: 체력 ${formatLog(possess?.multiplierLog)}배`).toBe(
+      EXPECTED_FROM_HTML.card.screen.possess,
+    );
   });
   it('장착 SSS 카드 장수 = 등급이 SSS 이상인 칸 수, 별 무관 (게임 코드 m2688 @33ec108, work_collect/README.md 1-1)', () => {
     // 기존 HTML 은 SSS 등급만 별과 상관없이 셌다 (2장: SSS 1성·2성). 게임은 SSS 이상이라 이 입력의 R 15 칸도 세어 3장
@@ -356,8 +414,9 @@ describe('전용 무기 장착 효과 × 유물 _per_<직업>_EquipWeapon (gap-a
     return { baseValues, relicRow, withRelicTables };
   }
   const equipLineValue = (values: CalcValues, withTables: StatTables) =>
-    exclusiveWeaponLines(values, withTables, label).find((line) => line.source === label('calc.weapon.sources.exclusive'))
-      ?.value as number;
+    exclusiveWeaponLines(values, withTables, label).find(
+      (line) => line.source === label('calc.weapon.sources.exclusive'),
+    )?.value as number;
 
   it('유물을 안 가졌으면 배수 1, 가졌으면 장착 효과 × (1 + 유물 값 / 100)', () => {
     const { baseValues, relicRow, withRelicTables } = equipScenario();
@@ -401,7 +460,9 @@ describe('소울포지 (영혼 단조) 게임 식', () => {
   it('현재 레벨은 켠 슬롯만, 켠 슬롯 수 k 의 bonusValue 배 (Lv1: 슬롯 1개 → x1, 둘 → x2)', () => {
     const one = tabLines('soulForge', { soulForgeLevel: '1', soulForgeSlot_1: 'true' }).map(lineOf);
     expect(one).toEqual([['_per_Male_AttackDamage', 20]]);
-    const both = tabLines('soulForge', { soulForgeLevel: '1', soulForgeSlot_1: 'true', soulForgeSlot_2: 'true' }).map(lineOf);
+    const both = tabLines('soulForge', { soulForgeLevel: '1', soulForgeSlot_1: 'true', soulForgeSlot_2: 'true' }).map(
+      lineOf,
+    );
     expect(both).toEqual([
       ['_per_Male_AttackDamage', 40],
       ['_per_Female_AttackDamage', 40],
@@ -470,7 +531,10 @@ describe('펫 지역 (T1286 m6886, stat-provider-formulas.md 3-16절 · combat-p
 
   it('펫 탭 줄에 들어가고, 입력이 비면 줄 없음', () => {
     const waterPet = firstPetOf('Water');
-    const values: CalcValues = { [ownedPetField(waterPet)]: lastStageChoice(waterPet), [petRegionLevelField('Water')]: '1' };
+    const values: CalcValues = {
+      [ownedPetField(waterPet)]: lastStageChoice(waterPet),
+      [petRegionLevelField('Water')]: '1',
+    };
     const petTab = heroWeaponCardPetTabs.find((candidate) => candidate.id === 'pet')!;
     expect(petTab.tableNames).toEqual(expect.arrayContaining(['PetRegion', 'Option']));
     expect(petTab.lines(values, regionTables).filter((line) => line.source.startsWith('펫 지역'))).toHaveLength(2);
@@ -513,7 +577,11 @@ describe('출처 합산 단계용 함수', () => {
     expect(countExpandedLines(lines, 0, label, false)).toEqual(countExpandedLines(lines, 0, label));
     const reached = countExpandedLines(lines, 0, label, true);
     expect(reached.lines[0]).toEqual(lines[0]);
-    expect(reached.lines[1]).toEqual({ source: '카드 (주위 적이 충분히 많을 때)', stat: '_per_attackDamage', value: 700 });
+    expect(reached.lines[1]).toEqual({
+      source: '카드 (주위 적이 충분히 많을 때)',
+      stat: '_per_attackDamage',
+      value: 700,
+    });
     expect(reached.skippedStats).toEqual(['_per_attackDamage_Kill']);
   });
   it('내 체력 70% 이상 조건의 공격력 · 스킬 데미지 줄은 꼬리말을 뗀 일반 스탯으로 합산하고, 치명타 데미지 줄은 그대로 둔다', () => {
@@ -548,7 +616,9 @@ describe('출처 합산 단계용 함수', () => {
       expect(statsOf(countExpandedLines(lines, 0, label, false, {}, 0, stage))).toEqual(lines.map((line) => line.stat));
     });
     it('스테이지에서 한 스킬에 적 1마리만 맞으면 적 1마리 줄이 켜진다', () => {
-      expect(statsOf(countExpandedLines(lines, 0, label, false, {}, 0, { damageTarget: 'stage', targetsPerSkill: 1 }))[2]).toBe('_per_skillDamage');
+      expect(
+        statsOf(countExpandedLines(lines, 0, label, false, {}, 0, { damageTarget: 'stage', targetsPerSkill: 1 }))[2],
+      ).toBe('_per_skillDamage');
     });
     describe('주위 적 5마리 이상 (_MonsterCntLong) · 이하 (_MonsterCntShort) 는 대상별 (nearby-enemy-range-2026-11-02.md)', () => {
       const countLines: Line[] = [
@@ -556,7 +626,9 @@ describe('출처 합산 단계용 함수', () => {
         { source: '부러진 뿔 예티', stat: '_per_DamageIncrease_MonsterCntLong', value: 200 },
       ];
       const statsFor = (damageTarget: string, enemyCountReached = false) =>
-        statsOf(countExpandedLines(countLines, 0, label, enemyCountReached, {}, 0, { damageTarget, targetsPerSkill: 1 }));
+        statsOf(
+          countExpandedLines(countLines, 0, label, enemyCountReached, {}, 0, { damageTarget, targetsPerSkill: 1 }),
+        );
       it('스테이지 · 속성 일반 층: 이상만 켜짐 ("적 수 5 이상" 칸과 상관없음)', () => {
         expect(statsFor('stage')).toEqual(['_per_attackDamage_MonsterCntShort', '_per_attackDamage']);
         expect(statsFor('stage', true)).toEqual(['_per_attackDamage_MonsterCntShort', '_per_attackDamage']);
@@ -571,7 +643,9 @@ describe('출처 합산 단계용 함수', () => {
       });
     });
     it('스테이지 보스: 5마리 이하 · 적 1마리 (적 1마리) · 스테이지 보스전이 켜진다', () => {
-      expect(statsOf(countExpandedLines(lines, 0, label, false, {}, 0, { damageTarget: 'stageBoss', targetsPerSkill: 1 }))).toEqual([
+      expect(
+        statsOf(countExpandedLines(lines, 0, label, false, {}, 0, { damageTarget: 'stageBoss', targetsPerSkill: 1 })),
+      ).toEqual([
         '_per_attackDamage',
         '_per_attackDamage',
         '_per_skillDamage',
@@ -581,11 +655,14 @@ describe('출처 합산 단계용 함수', () => {
       ]);
     });
     it('각성 던전: 스테이지 보스전은 꺼짐. 속성 던전 히어로: 주위 히어로 몬스터 줄 (_per_DamageIncrease_Hero 포함) 이 켜진다', () => {
-      expect(statsOf(countExpandedLines(lines, 0, label, false, {}, 0, { damageTarget: 'awaken', targetsPerSkill: 1 }))[3]).toBe('_per_criticalDmg_StageBoss');
-      expect(statsOf(countExpandedLines(lines, 0, label, false, {}, 0, { damageTarget: 'attributeHero', targetsPerSkill: 1 })).slice(4)).toEqual([
-        '_per_skillDamage',
-        '_per_attackDamage',
-      ]);
+      expect(
+        statsOf(countExpandedLines(lines, 0, label, false, {}, 0, { damageTarget: 'awaken', targetsPerSkill: 1 }))[3],
+      ).toBe('_per_criticalDmg_StageBoss');
+      expect(
+        statsOf(
+          countExpandedLines(lines, 0, label, false, {}, 0, { damageTarget: 'attributeHero', targetsPerSkill: 1 }),
+        ).slice(4),
+      ).toEqual(['_per_skillDamage', '_per_attackDamage']);
     });
     it('스킬 시전 시 스킬 데미지 (skillDamage_useSkill) 는 5중첩 선형으로 스킬 데미지 % 에 넣는다 (250 → 1250)', () => {
       const stacks = cardStackLines([{ source: '카드 34', stat: 'skillDamage_useSkill', value: 250 }], label);
@@ -661,7 +738,12 @@ describe('출처 합산 단계용 함수', () => {
 
 describe('파생 선택지', () => {
   it('장착한 펫의 옵션 묶음에 없는 능력치는 계산에서 뺀다 (기존 화면은 그런 값을 지움)', () => {
-    const values = { pet_101: 'SSS_1', petSlot1: '101', petOption1_1Stat: '_per_FireHero_AttackDamage', petOption1_1Value: '50%' };
+    const values = {
+      pet_101: 'SSS_1',
+      petSlot1: '101',
+      petOption1_1Stat: '_per_FireHero_AttackDamage',
+      petOption1_1Value: '50%',
+    };
     expect(petLines(values, tables, label).map((line) => line.source)).toEqual(['드라코 SSS 1성']);
   });
   it('고른 카드에 없는 등급·성이면 그 칸은 효과 없음', () => {

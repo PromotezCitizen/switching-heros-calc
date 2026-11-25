@@ -148,7 +148,10 @@ export function formatValues(source: ViewerSource, table: ViewerTable | undefine
   return grades.map((grade) => {
     const values = valueRuns(byGrade.get(grade) ?? [])
       .map((run) => {
-        const levels = run.from === run.to ? formatNumber(run.from) : formatNumber(run.from) + LEVEL_RANGE_SEPARATOR + formatNumber(run.to);
+        const levels =
+          run.from === run.to
+            ? formatNumber(run.from)
+            : formatNumber(run.from) + LEVEL_RANGE_SEPARATOR + formatNumber(run.to);
         return `${prefix}${formatNumber(run.value)}(${levelText(table, levels)})`;
       })
       .join(VALUE_SEPARATOR);
@@ -187,7 +190,9 @@ export function sameValueRange(
   list: ViewerSource[],
   table: ViewerTable | undefined,
 ): { type: 'levels'; from: string; to: string } | { type: 'count'; count: number } | null {
-  const levels = list.flatMap((source) => [source.levelMin, source.levelMax]).filter((level): level is number => level !== null);
+  const levels = list
+    .flatMap((source) => [source.levelMin, source.levelMax])
+    .filter((level): level is number => level !== null);
   const lowest = Math.min(...levels);
   const highest = Math.max(...levels);
   if (!levels.length || lowest === highest) return list.length > 1 ? { type: 'count', count: list.length } : null;
@@ -206,9 +211,19 @@ export function rangeLabel(first: string, last: string): string {
   let end = 0;
   while (start < first.length && start < last.length && first[start] === last[start]) start++;
   while (start > 0 && first[start - 1] !== ' ') start--;
-  while (end < first.length - start && end < last.length - start && first[first.length - 1 - end] === last[last.length - 1 - end]) end++;
+  while (
+    end < first.length - start &&
+    end < last.length - start &&
+    first[first.length - 1 - end] === last[last.length - 1 - end]
+  )
+    end++;
   while (end > 0 && first[first.length - end] !== ' ') end--;
-  return first.slice(0, first.length - end) + RANGE_SEPARATOR + last.slice(start, last.length - end) + first.slice(first.length - end);
+  return (
+    first.slice(0, first.length - end) +
+    RANGE_SEPARATOR +
+    last.slice(start, last.length - end) +
+    first.slice(first.length - end)
+  );
 }
 
 /** 정렬 순서로 이웃한 줄이 같은 값 하나로만 이뤄져 있으면 한 줄로 묶는다 */
@@ -275,11 +290,17 @@ export function entityRows(
       formula: [source.formula],
     },
     hasRaw:
-      !source.points && source.perLevel == null && source.levelMin != null && source.levelMax != null && source.rows.length > 1,
+      !source.points &&
+      source.perLevel == null &&
+      source.levelMin != null &&
+      source.levelMax != null &&
+      source.rows.length > 1,
   }));
   const columns = ENTITY_COLUMNS.filter(
     (column) =>
-      column === 'values' || rows.length === 1 || rows.some((row) => row.cells[column].join() !== rows[0].cells[column].join()),
+      column === 'values' ||
+      rows.length === 1 ||
+      rows.some((row) => row.cells[column].join() !== rows[0].cells[column].join()),
   );
   return { rows, columns };
 }
@@ -324,6 +345,8 @@ export function familyMatches(meta: ViewerMeta, key: string, search: string): bo
   return (
     family.label.toLowerCase().includes(query) ||
     key.toLowerCase().includes(query) ||
-    family.stats.some((name) => name.toLowerCase().includes(query) || statLabel(meta, name).toLowerCase().includes(query))
+    family.stats.some(
+      (name) => name.toLowerCase().includes(query) || statLabel(meta, name).toLowerCase().includes(query),
+    )
   );
 }

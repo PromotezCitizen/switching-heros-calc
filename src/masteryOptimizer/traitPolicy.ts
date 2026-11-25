@@ -56,7 +56,9 @@ export function traitPolicyFor(target: DamageTarget, traits: MasteryTrait[] = []
     .filter(([kind]) => kind !== unit)
     .flatMap(([, rNos]) => rNos);
   // 체력은 전부 빼고 계산한다: 체력을 올리는 얼티밋은 찍지 않는다
-  const hpUltimates = traits.filter((trait) => trait.ultimate && HP_STAT.test(trait.statName)).map((trait) => trait.rNo);
+  const hpUltimates = traits
+    .filter((trait) => trait.ultimate && HP_STAT.test(trait.statName))
+    .map((trait) => trait.rNo);
   return {
     fixed: new Set(OPTIMIZER_RULES.FIXED),
     ignored: new Set([

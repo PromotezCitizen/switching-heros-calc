@@ -101,7 +101,11 @@ function lineOf(row: TableRow, level: number, label: SourceLabel): Line | null {
   const stat = row[STAT_COLUMN];
   const value = Number(row[BASE_COLUMN]) + Number(row[ENHANCE_COLUMN]) * level;
   if (EMPTY_STATS.includes(stat) || !(value > 0)) return null;
-  return { source: label('calc.ancientRelic.source', { constellation: row[CONST_COLUMN], step: row[STEP_COLUMN] }), stat, value };
+  return {
+    source: label('calc.ancientRelic.source', { constellation: row[CONST_COLUMN], step: row[STEP_COLUMN] }),
+    stat,
+    value,
+  };
 }
 
 /**
@@ -116,7 +120,8 @@ export function constellationNameKey(tables: StatTables, constId: string): strin
   const id = Number(constId);
   if (!(id >= 1) || !Number.isInteger(cycle)) return null;
   const base = ((id - 1) % cycle) + 1;
-  const stepsOf = (constNumber: number) => Math.max(...(index.byConst.get(String(constNumber)) ?? []).map((row) => Number(row[STEP_COLUMN])));
+  const stepsOf = (constNumber: number) =>
+    Math.max(...(index.byConst.get(String(constNumber)) ?? []).map((row) => Number(row[STEP_COLUMN])));
   const stars = stepsOf(base);
   if (!Number.isFinite(stars)) return null;
   const order = ids.filter((other) => other <= base && stepsOf(other) === stars).length;
@@ -150,7 +155,9 @@ export function stepLevelField(idx: string): string {
 
 /** (별자리, 단계) 의 칸 행 (단계 보너스 빼고, 표 순서) */
 function stepNodes(index: AncientIndex, constId: string, step: number): TableRow[] {
-  return (index.byConst.get(constId) ?? []).filter((row) => Number(row[STEP_COLUMN]) === step && row[NODE_COLUMN] !== STEP_BONUS_NODE);
+  return (index.byConst.get(constId) ?? []).filter(
+    (row) => Number(row[STEP_COLUMN]) === step && row[NODE_COLUMN] !== STEP_BONUS_NODE,
+  );
 }
 
 /** 현재 단계의 칸 행 (화면 입력 칸 만들기용) */
@@ -182,7 +189,9 @@ export function ancientCurrent(values: CalcValues, tables: StatTables): AncientC
   const mastered = new Set(ancientMastered(values));
   const steps = ancientProgress(values).filter((entry) => !mastered.has(entry.constId));
   if (!steps.length) return null;
-  const own = steps.filter((entry) => entry.constId === steps[0].constId).sort((left, right) => Number(left.step) - Number(right.step));
+  const own = steps
+    .filter((entry) => entry.constId === steps[0].constId)
+    .sort((left, right) => Number(left.step) - Number(right.step));
   const current = own.find((entry) => !entry.active) ?? own[own.length - 1];
   return { constId: current.constId, step: Number(current.step), levels: current.levels };
 }
@@ -194,7 +203,9 @@ export function ancientRelicLines(values: CalcValues, tables: StatTables, label:
   // 진행 중인 별자리 앞의 별자리는 모두 달성 (별자리는 순서대로만 열림: 게임 문구 "다음 별자리로!" · "이전 별을 활성화하세요!",
   // 훈련 단계와 같은 방식)
   const current = ancientCurrent(values, tables);
-  const mastered = new Set(current ? [...index.byConst.keys()].filter((id) => Number(id) < Number(current.constId)) : []);
+  const mastered = new Set(
+    current ? [...index.byConst.keys()].filter((id) => Number(id) < Number(current.constId)) : [],
+  );
   for (const constId of mastered) {
     for (const row of index.byConst.get(constId) ?? []) {
       const line = lineOf(row, Number(row[MAX_LEVEL_COLUMN]), label);
@@ -216,7 +227,9 @@ export function ancientRelicLines(values: CalcValues, tables: StatTables, label:
     }
     // 현재 단계 칸이 모두 최대면 그 단계 보너스도
     const nodes = stepNodes(index, current.constId, current.step);
-    const full = nodes.length > 0 && nodes.every((row) => (current.levels.get(row[NODE_COLUMN]) ?? 0) >= Number(row[MAX_LEVEL_COLUMN]));
+    const full =
+      nodes.length > 0 &&
+      nodes.every((row) => (current.levels.get(row[NODE_COLUMN]) ?? 0) >= Number(row[MAX_LEVEL_COLUMN]));
     const bonus = full ? index.byNode.get(nodeKey(current.constId, String(current.step), STEP_BONUS_NODE)) : undefined;
     const bonusLine = bonus && lineOf(bonus, Number(bonus[MAX_LEVEL_COLUMN]), label);
     if (bonusLine) lines.push(bonusLine);

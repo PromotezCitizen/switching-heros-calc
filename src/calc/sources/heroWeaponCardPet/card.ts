@@ -6,7 +6,14 @@ import { CONSTS } from '@/CONSTS';
 import type { StatTables, TableRow } from '@/data/statTables';
 import type { Line } from '@/calc/combine';
 import type { CalcValues } from '@/calc/types';
-import { gradeStarValue, groupBy, numberValue, rowsOf, unique, type SourceLabel } from '@/calc/sources/heroWeaponCardPet/shared';
+import {
+  gradeStarValue,
+  groupBy,
+  numberValue,
+  rowsOf,
+  unique,
+  type SourceLabel,
+} from '@/calc/sources/heroWeaponCardPet/shared';
 
 const { EMPTY_STAT } = CONSTS.heroWeaponCardPet;
 const {
@@ -117,7 +124,10 @@ export function selectedCardRow(values: CalcValues, tables: StatTables, slot: nu
 
 /** 고유 효과 [스탯, 값] (등급마다 한 줄 해금) */
 export function cardPairs(row: TableRow): Array<[string, number]> {
-  return UNIQUE_ABILITY_SUFFIXES.map((suffix): [string, string] => [row[`uniqAbilType${suffix}`], row[`uniqAbilVal${suffix}`]])
+  return UNIQUE_ABILITY_SUFFIXES.map((suffix): [string, string] => [
+    row[`uniqAbilType${suffix}`],
+    row[`uniqAbilVal${suffix}`],
+  ])
     .filter(([stat, value]) => stat && stat !== EMPTY_STAT && Number(value) > 0)
     .map(([stat, value]) => [stat, Number(value)]);
 }
@@ -209,7 +219,8 @@ export function cardSetStates(values: CalcValues, tables: StatTables): CardSetSt
 
 export function cardLines(values: CalcValues, tables: StatTables, label: SourceLabel): Line[] {
   const lines: Line[] = [];
-  const cardName = (cardId: string) => label(`calc.card.cardNames.${cardId}`, { defaultValue: label('calc.card.cardFallback', { id: cardId }) });
+  const cardName = (cardId: string) =>
+    label(`calc.card.cardNames.${cardId}`, { defaultValue: label('calc.card.cardFallback', { id: cardId }) });
   for (const slot of CARD_SLOT_NUMBERS) {
     const row = selectedCardRow(values, tables, slot);
     if (!row) continue;
@@ -227,9 +238,16 @@ export function cardLines(values: CalcValues, tables: StatTables, label: SourceL
     }
   }
   for (const set of cardSetStates(values, tables)) {
-    const name = label(`calc.card.setNames.${set.setId}`, { defaultValue: label('calc.card.setFallback', { id: set.setId }) });
+    const name = label(`calc.card.setNames.${set.setId}`, {
+      defaultValue: label('calc.card.setFallback', { id: set.setId }),
+    });
     for (const tier of set.tiers) {
-      if (tier.reached) lines.push({ source: label('calc.card.sources.set', { name, count: tier.setCount }), stat: tier.stat, value: tier.value });
+      if (tier.reached)
+        lines.push({
+          source: label('calc.card.sources.set', { name, count: tier.setCount }),
+          stat: tier.stat,
+          value: tier.value,
+        });
     }
   }
   const stickerGroups = stickerUnlocked(values, tables) ? groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId') : [];
@@ -266,11 +284,17 @@ export function stickerUnlocked(values: CalcValues, tables: StatTables): boolean
 export function stickerShapeCounts(values: CalcValues, tables: StatTables): Record<string, number> {
   if (!stickerUnlocked(values, tables)) return {};
   return Object.fromEntries(
-    groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId').map((group) => [group.key, Math.max(Number(values[stickerCountField(group.key)]) || 0, 0)]),
+    groupBy(rowsOf(tables, 'CardStickerSet'), 'stickerId').map((group) => [
+      group.key,
+      Math.max(Number(values[stickerCountField(group.key)]) || 0, 0),
+    ]),
   );
 }
 
-export function stickerDisplayName(stickerId: string, label: (key: string, params?: Record<string, string | number>) => string): string {
+export function stickerDisplayName(
+  stickerId: string,
+  label: (key: string, params?: Record<string, string | number>) => string,
+): string {
   return label(`calc.card.stickerNames.${stickerId}`, { defaultValue: stickerId });
 }
 
@@ -394,7 +418,11 @@ export function countExpandedLines(
     }
     const condition = battle ? stripCondition(stat) : undefined;
     if (battle && condition && conditionMet(condition.kind, battle)) {
-      return { ...item, source: label('calc.card.sources.battleCondition', { source: item.source }), stat: aliasedStat(condition.base) };
+      return {
+        ...item,
+        source: label('calc.card.sources.battleCondition', { source: item.source }),
+        stat: aliasedStat(condition.base),
+      };
     }
     // 전투 상황이 없을 때만 종합 탭 "적 수 5 이상" 칸을 따른다 (대미지 계산은 대상별 표)
     if (!battle && enemyCountReached && stat.endsWith(ENEMY_COUNT_SUFFIX)) {
@@ -430,7 +458,13 @@ export function cardKillSpeedLines(otherLines: Line[], label: SourceLabel, targe
     .filter((item) => item.stat === KILL_ATTACK_SPEED_STAT)
     .reduce((total, item) => total + Number(item.value || 0), 0);
   if (!sum) return [];
-  return [{ source: label('calc.card.sources.killSpeedStacks', { stacks: KILL_MAX_STACKS }), stat: ATTACK_SPEED_STAT, value: sum * KILL_MAX_STACKS }];
+  return [
+    {
+      source: label('calc.card.sources.killSpeedStacks', { stacks: KILL_MAX_STACKS }),
+      stat: ATTACK_SPEED_STAT,
+      value: sum * KILL_MAX_STACKS,
+    },
+  ];
 }
 
 /**
@@ -441,7 +475,8 @@ export function cardKillSpeedLines(otherLines: Line[], label: SourceLabel, targe
 export function cardStackLines(otherLines: Line[], label: SourceLabel, target: string = KILL_STACK_TARGET): Line[] {
   const stackLines: Line[] = [];
   // 처치 중첩은 일반 몬스터를 계속 잡는 대상에서만 쌓인다 (보스 · 히어로 몬스터는 잡으면 전투가 끝난다)
-  const killLines = target === KILL_STACK_TARGET ? otherLines.filter((item) => item.stat === KILL_STAT && item.value) : [];
+  const killLines =
+    target === KILL_STACK_TARGET ? otherLines.filter((item) => item.stat === KILL_STAT && item.value) : [];
   if (killLines.length) {
     const factor = killLines.reduce((product, item) => product * (1 + (item.value as number) / PERCENT_DIVISOR), 1);
     stackLines.push({

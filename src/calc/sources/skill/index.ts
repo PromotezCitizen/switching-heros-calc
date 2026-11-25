@@ -6,7 +6,13 @@ import type { CalcTab } from '@/calc/types';
 
 export const skillTab: CalcTab = {
   id: 'skill',
-  tableNames: [CONSTS.skill.TABLE, CONSTS.skill.RUNE_TABLE, CONSTS.skill.SLOT_CONDITION_TABLE, CONSTS.skill.PERK_TABLE, CONSTS.hero.TABLES.CHARACTER],
+  tableNames: [
+    CONSTS.skill.TABLE,
+    CONSTS.skill.RUNE_TABLE,
+    CONSTS.skill.SLOT_CONDITION_TABLE,
+    CONSTS.skill.PERK_TABLE,
+    CONSTS.hero.TABLES.CHARACTER,
+  ],
   Panel: SkillPanel,
   lines: () => [],
 };

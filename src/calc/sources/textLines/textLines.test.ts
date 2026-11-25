@@ -172,7 +172,11 @@ describe('기타', () => {
 
   it('호감도: 히어로 표의 호감도 레벨 → 히어로마다 그 레벨의 누적 공격력·체력 % (서버 표 CharacterAffinity)', () => {
     // 린 (charId 0) Lv2 = 공격력 60 · 체력 30, 카이토 (charId 1) Lv15 = 600 · 300, 레벨 0 은 줄 없음
-    const lines = tabLines('affinity', { heroOwnedAffinity_0: '2', heroOwnedAffinity_1: '15', heroOwnedAffinity_2: '0' });
+    const lines = tabLines('affinity', {
+      heroOwnedAffinity_0: '2',
+      heroOwnedAffinity_1: '15',
+      heroOwnedAffinity_2: '0',
+    });
     expectLines(lines, [
       ['호감도 린 Lv2', '_per_attackDamage', 'value', 60],
       ['호감도 린 Lv2', '_per_hp', 'value', 30],
@@ -185,9 +189,7 @@ describe('기타', () => {
     });
   });
   it('축복 꺼짐 · 히어로 없음이면 줄이 없다', () => {
-    expect(
-      formerOtherLines({ fairyBlessingOn: 'false', fairyBondLevel: '1000', heroAwakenLevel: '10' }),
-    ).toEqual([]);
+    expect(formerOtherLines({ fairyBlessingOn: 'false', fairyBondLevel: '1000', heroAwakenLevel: '10' })).toEqual([]);
   });
   it('소수 레벨은 버림 (972.9 → 972, 2.7 → 2)', () => {
     const lines = formerOtherLines({

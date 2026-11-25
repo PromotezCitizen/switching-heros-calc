@@ -55,12 +55,14 @@ function petOptionFields(slot: number): string[] {
 function usePetText(descriptions: StatDescriptions) {
   const { t: translate } = useTranslation();
   const petName = (petId: string) => translate(`calc.pet.petNames.${petId}`);
-  const attributeName = (attribute: string) => translate(`calc.pet.attributes.${attribute}`, { defaultValue: attribute });
+  const attributeName = (attribute: string) =>
+    translate(`calc.pet.attributes.${attribute}`, { defaultValue: attribute });
   const attributeIcon = (attribute: string | undefined) =>
     attribute ? <TypeIcon path={ATTRIBUTE_ICONS[attribute]} name={attributeName(attribute)} /> : null;
   const leaderEffectText = (row: TableRow) => {
     const match = AILMENT_LEADER_PATTERN.exec(row.leaderStatType);
-    if (!match) return lineText(descriptions, { source: '', stat: row.leaderStatType, value: Number(row.leaderStatValue1) });
+    if (!match)
+      return lineText(descriptions, { source: '', stat: row.leaderStatType, value: Number(row.leaderStatValue1) });
     return translate('calc.pet.leaderAilment', {
       kind: translate(`calc.pet.ailmentKinds.${match[1]}`),
       count: row.leaderStatValue1,
@@ -81,7 +83,13 @@ interface OwnedPetCardProps {
 }
 
 /** 보유 펫 카드 하나 (memo: 그 펫 등급·성을 바꿀 때만 다시 그린다) */
-const OwnedPetCard = memo(function OwnedPetCard({ group, ownedChoice, tables, descriptions, setValue }: OwnedPetCardProps) {
+const OwnedPetCard = memo(function OwnedPetCard({
+  group,
+  ownedChoice,
+  tables,
+  descriptions,
+  setValue,
+}: OwnedPetCardProps) {
   const { translate, petName, attributeIcon, leaderEffectText } = usePetText(descriptions);
   const field = ownedPetField(group.key);
   const row = ownedPetRow({ [field]: ownedChoice }, tables, group.key);
@@ -191,7 +199,10 @@ const PetSlotCard = memo(function PetSlotCard(props: PetSlotCardProps) {
       };
     }),
   ];
-  const choices = petOptionStats(tables, petId).map((stat) => ({ value: stat, label: petOptionLabel(descriptions, stat) }));
+  const choices = petOptionStats(tables, petId).map((stat) => ({
+    value: stat,
+    label: petOptionLabel(descriptions, stat),
+  }));
   return (
     <Card withBorder padding="sm" style={{ borderColor: isLeader ? 'var(--mantine-primary-color-filled)' : undefined }}>
       <Stack gap="xs">
@@ -218,7 +229,9 @@ const PetSlotCard = memo(function PetSlotCard(props: PetSlotCardProps) {
           />
           {attributeIcon(petFirstRow(tables, petId)?.attribute)}
         </Group>
-        <Text size="sm" c="dimmed">{translate('calc.pet.optionsTitle')}</Text>
+        <Text size="sm" c="dimmed">
+          {translate('calc.pet.optionsTitle')}
+        </Text>
         <StatValueRows
           rowNumbers={PET_OPTION_NUMBERS}
           statField={(number) => petOptionStatField(slot, number)}
@@ -232,7 +245,11 @@ const PetSlotCard = memo(function PetSlotCard(props: PetSlotCardProps) {
           valuePlaceholder={translate('calc.pet.valuePlaceholder')}
           usableCount={petOptionCount(cardValues, tables, petId)}
         />
-        {petId && !row && <Text size="sm" c="dimmed">{translate('calc.pet.optionNote')}</Text>}
+        {petId && !row && (
+          <Text size="sm" c="dimmed">
+            {translate('calc.pet.optionNote')}
+          </Text>
+        )}
       </Stack>
     </Card>
   );
@@ -262,7 +279,9 @@ export default function PetPanel({ values, setValue, tables, descriptions }: Tab
           />
         ))}
       </AutoGrid>
-      <Text size="sm" c="dimmed">{translate('calc.pet.ownedHelp')}</Text>
+      <Text size="sm" c="dimmed">
+        {translate('calc.pet.ownedHelp')}
+      </Text>
 
       <SectionTitle>{translate('calc.pet.equipTitle')}</SectionTitle>
       <HorizontalScrollRow itemWidth={PET_SLOT_WIDTH}>
@@ -284,13 +303,17 @@ export default function PetPanel({ values, setValue, tables, descriptions }: Tab
           );
         })}
       </HorizontalScrollRow>
-      <Text size="sm" c="dimmed">{translate('calc.pet.equipHelp')}</Text>
+      <Text size="sm" c="dimmed">
+        {translate('calc.pet.equipHelp')}
+      </Text>
 
       {/* 펫 지역: 열렸으면 입력, 안 열렸으면 언제 열리는지 (2성 SSS 펫 1마리 이상) */}
       <SectionTitle>{translate('calc.pet.regionTitle')}</SectionTitle>
       {regionUnlocked ? (
         <>
-          <Text size="sm" c="dimmed">{translate('calc.pet.regionHelp')}</Text>
+          <Text size="sm" c="dimmed">
+            {translate('calc.pet.regionHelp')}
+          </Text>
           <Text size="sm">{translate('calc.pet.regionUnlocked', { count: maxStageTotal })}</Text>
           {/* 지역 3개 한 줄 (좁으면 가로 스크롤): 속성마다 지역 레벨 */}
           <HorizontalScrollRow itemWidth={REGION_INPUT_WIDTH}>
@@ -313,7 +336,9 @@ export default function PetPanel({ values, setValue, tables, descriptions }: Tab
           </HorizontalScrollRow>
         </>
       ) : (
-        <Text size="sm" c="dimmed">{translate('calc.pet.regionLocked', { count: maxStageTotal })}</Text>
+        <Text size="sm" c="dimmed">
+          {translate('calc.pet.regionLocked', { count: maxStageTotal })}
+        </Text>
       )}
     </Stack>
   );

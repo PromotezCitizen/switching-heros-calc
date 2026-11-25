@@ -3,7 +3,19 @@ import type { MasteryTrait } from '@/calc/sources/masteryRuneBuff/mastery';
 import { allocationChanges } from '@/masteryOptimizer/changes';
 
 function trait(rNo: string, needPoint: number): MasteryTrait {
-  return { rNo, group: 'Stat', ultimate: false, step: 1, unlockLevel: 1, maxLevel: 100, needPoint, statName: `stat${rNo}`, statValue: 1, statUpValue: 1, desc: '' };
+  return {
+    rNo,
+    group: 'Stat',
+    ultimate: false,
+    step: 1,
+    unlockLevel: 1,
+    maxLevel: 100,
+    needPoint,
+    statName: `stat${rNo}`,
+    statValue: 1,
+    statUpValue: 1,
+    desc: '',
+  };
 }
 
 describe('배분 차이', () => {

@@ -7,7 +7,13 @@ import { mageSkillHits } from '@/dpm/mageSkillHits';
 import { swordsmanSkillHits } from '@/dpm/swordsmanSkillHits';
 
 /** statusCount = 대상에 걸린 상태이상 수 ("상태이상인 적에게" 조건 문양용, 없으면 0) */
-export function jobSkillHits(values: CalcValues, tables: StatTables, skillId: string, targets: number, statusCount = 0): SkillHits {
+export function jobSkillHits(
+  values: CalcValues,
+  tables: StatTables,
+  skillId: string,
+  targets: number,
+  statusCount = 0,
+): SkillHits {
   const finders = [
     () => archerSkillHits(values, tables, skillId, targets),
     () => swordsmanSkillHits(values, tables, skillId, targets),

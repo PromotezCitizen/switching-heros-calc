@@ -1,5 +1,6 @@
 /** 피규어 개수형 효과의 N 종류 */
-export type FigureCountKind = 'figureLevelDC' | 'figureLevelDCB' | 'mythicFigures' | 'stickerPoints' | 'weaponTranscend' | 'heroAwaken';
+export type FigureCountKind =
+  'figureLevelDC' | 'figureLevelDCB' | 'mythicFigures' | 'stickerPoints' | 'weaponTranscend' | 'heroAwaken';
 
 /** 코어 특성 · 피규어 탭 (뒤늦게 계산에 넣은 능력치 제공자). CONSTS.providers 로 접근한다 */
 export const PROVIDER_CONSTS = {

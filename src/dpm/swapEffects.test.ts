@@ -36,11 +36,15 @@ describe('초월의 기운 (3002 · 3008): 두 히어로가 장착한 전용 무
   const heroes = { charName: '린', charName2: '에이카', exclusiveEquipped: 'true', exclusiveEquipped2: 'true' };
 
   it('합 = 장착한 전용 무기의 ★ (린 1001 ★5 + 에이카 1021 ★15 = 20)', () => {
-    expect(equippedWeaponStarSum({ ...heroes, exclusiveOwnedStar_1001: '5', exclusiveOwnedStar_1021: '15' }, tables)).toBe(20);
+    expect(
+      equippedWeaponStarSum({ ...heroes, exclusiveOwnedStar_1001: '5', exclusiveOwnedStar_1021: '15' }, tables),
+    ).toBe(20);
   });
 
   it('무기가 없는 히어로 (★ 빈칸) 는 합에 넣지 않는다', () => {
-    expect(equippedWeaponStarSum({ ...heroes, exclusiveOwnedStar_1001: '5', exclusiveOwnedStar_1021: '' }, tables)).toBe(5);
+    expect(
+      equippedWeaponStarSum({ ...heroes, exclusiveOwnedStar_1001: '5', exclusiveOwnedStar_1021: '' }, tables),
+    ).toBe(5);
   });
 
   it('합이 20 이상이면 3002 가 공격력 줄을 만들고, 20 미만이면 만들지 않는다', () => {
@@ -59,9 +63,13 @@ describe('초월의 기운 (3002 · 3008): 두 히어로가 장착한 전용 무
 describe('균형의 완성 (3000) · 완전한 세트 (3006): 같은 등급 연성장비 개수', () => {
   it('3000 은 5개 이상, 3006 은 8개 이상일 때만 공격력 줄', () => {
     expect(lines({ mastery_3000: ON }, { alchemySameGradeCount: 4 })).toEqual([]);
-    expect(lines({ mastery_3000: ON }, { alchemySameGradeCount: 5 }).map((line) => line.stat)).toEqual(['_per_attackDamage']);
+    expect(lines({ mastery_3000: ON }, { alchemySameGradeCount: 5 }).map((line) => line.stat)).toEqual([
+      '_per_attackDamage',
+    ]);
     expect(lines({ mastery_3006: ON }, { alchemySameGradeCount: 7 })).toEqual([]);
-    expect(lines({ mastery_3006: ON }, { alchemySameGradeCount: 8 }).map((line) => line.stat)).toEqual(['_per_attackDamage']);
+    expect(lines({ mastery_3006: ON }, { alchemySameGradeCount: 8 }).map((line) => line.stat)).toEqual([
+      '_per_attackDamage',
+    ]);
   });
 });
 
@@ -94,13 +102,21 @@ describe('교체 효과가 대미지에 들어간다', () => {
     const on = targetDamageWithSwap({ ...BASE, mastery_3009: ON }, tables, 'stage', INPUTS).totalLog;
     expect(on).toBeGreaterThan(off);
     const noSwapOff = targetDamageWithSwap(BASE, tables, 'stage', { ...INPUTS, swap: false }).totalLog;
-    const noSwapOn = targetDamageWithSwap({ ...BASE, mastery_3009: ON }, tables, 'stage', { ...INPUTS, swap: false }).totalLog;
+    const noSwapOn = targetDamageWithSwap({ ...BASE, mastery_3009: ON }, tables, 'stage', {
+      ...INPUTS,
+      swap: false,
+    }).totalLog;
     expect(noSwapOn).toBe(noSwapOff);
   });
 
   it('보스 대상에서는 일반 몬스터 피해 (3009) 는 효과가 없고 보스 피해 (3010) 가 오른다', () => {
     const base = targetDamageWithSwap(BASE, tables, 'stageBoss', INPUTS).totalLog;
-    expect(targetDamageWithSwap({ ...BASE, mastery_3009: ON }, tables, 'stageBoss', INPUTS).totalLog).toBeCloseTo(base, 10);
-    expect(targetDamageWithSwap({ ...BASE, mastery_3010: ON }, tables, 'stageBoss', INPUTS).totalLog).toBeGreaterThan(base);
+    expect(targetDamageWithSwap({ ...BASE, mastery_3009: ON }, tables, 'stageBoss', INPUTS).totalLog).toBeCloseTo(
+      base,
+      10,
+    );
+    expect(targetDamageWithSwap({ ...BASE, mastery_3010: ON }, tables, 'stageBoss', INPUTS).totalLog).toBeGreaterThan(
+      base,
+    );
   });
 });

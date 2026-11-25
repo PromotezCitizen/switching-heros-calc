@@ -1,6 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { CONSTS } from '@/CONSTS';
-import { CARD_MARK_NUMBERS, CARD_SLOT_NUMBERS, cardSetPickField, cardSlotField } from '@/calc/sources/heroWeaponCardPet/card';
+import {
+  CARD_MARK_NUMBERS,
+  CARD_SLOT_NUMBERS,
+  cardSetPickField,
+  cardSlotField,
+} from '@/calc/sources/heroWeaponCardPet/card';
 
 const { SET_ICON_UPPER_CASE_MAX, SET_ICON_UPPER_PREFIX, SET_ICON_LOWER_PREFIX } = CONSTS.heroWeaponCardPet.card;
 

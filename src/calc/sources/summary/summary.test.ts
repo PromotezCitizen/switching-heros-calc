@@ -170,7 +170,9 @@ describe('종합: 공격 대상 칸 (일반 / 보스 / 히어로 몬스터)', ()
       Object.entries(combined).find(([name]) => name.toLowerCase() === stat.toLowerCase())?.[1].log ?? 0;
     /** 대상 몬스터 대미지 % × 궁수 변형 × 물 변형 (1슬롯 히어로 = 궁수·물) */
     const targetLog = (kind: string) =>
-      logOf(`_per_${kind}MonsterDamage`) + logOf(`_per_${hero?.job}_${kind}MonsterDamage`) + logOf(`_per_${hero?.attribute}Hero_${kind}MonsterDamage`);
+      logOf(`_per_${kind}MonsterDamage`) +
+      logOf(`_per_${hero?.job}_${kind}MonsterDamage`) +
+      logOf(`_per_${hero?.attribute}Hero_${kind}MonsterDamage`);
     const normal = increaseLogs(lines, hero, 'normal').attack;
     const boss = increaseLogs(lines, hero, 'boss').attack;
     const heroTarget = increaseLogs(lines, hero, 'hero').attack;
@@ -361,8 +363,10 @@ describe('종합: 02:48 프로필 화면 (219) 과 대조', () => {
 
   it('02:48 공격력 증가: 공격력 이벤트 버프를 켜면 ×3, 적 수 5 이상을 켜면 카드 4번 ×8 만큼 화면과의 차이가 줄어든다 (이벤트 버프는 음식과 별도)', () => {
     const attackOnly = { ...PROFILE_0248_VALUES, attackEventBuff: 'true' };
-    const base = compareWithScreen(rows0248(PROFILE_0248_VALUES, CALC_TABS).atkIncrease.log, '3.35CK%')?.differenceLog as number;
-    const withBuff = compareWithScreen(rows0248(attackOnly, CALC_TABS).atkIncrease.log, '3.35CK%')?.differenceLog as number;
+    const base = compareWithScreen(rows0248(PROFILE_0248_VALUES, CALC_TABS).atkIncrease.log, '3.35CK%')
+      ?.differenceLog as number;
+    const withBuff = compareWithScreen(rows0248(attackOnly, CALC_TABS).atkIncrease.log, '3.35CK%')
+      ?.differenceLog as number;
     expect(withBuff - base).toBeCloseTo(Math.log10(3), 3);
     const withEnemies = compareWithScreen(
       rows0248({ ...attackOnly, summaryEnemyCountReached: 'true' }, CALC_TABS).atkIncrease.log,

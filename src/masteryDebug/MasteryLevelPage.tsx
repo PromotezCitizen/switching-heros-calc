@@ -51,8 +51,12 @@ export default function MasteryLevelPage() {
       byPoints,
       byUnlock,
       required: Math.max(byPoints, byUnlock),
-      previousStep: violations.filter((violation) => violation.kind === 'previousStep').map((violation) => nameOf(violation.rNo)),
-      ultimateGate: violations.filter((violation) => violation.kind === 'ultimateGate').map((violation) => nameOf(violation.rNo)),
+      previousStep: violations
+        .filter((violation) => violation.kind === 'previousStep')
+        .map((violation) => nameOf(violation.rNo)),
+      ultimateGate: violations
+        .filter((violation) => violation.kind === 'ultimateGate')
+        .map((violation) => nameOf(violation.rNo)),
     };
   }, [tables, values, vipLevel, translate]);
 
@@ -78,7 +82,10 @@ export default function MasteryLevelPage() {
         </Text>
         {userLevel > 0 && (
           <Text size="sm" c={userLevel >= result.required ? 'teal' : 'red'}>
-            {translate('masteryDebug.current', { level: userLevel.toLocaleString('ko-KR'), gap: (result.required - userLevel).toLocaleString('ko-KR') })}
+            {translate('masteryDebug.current', {
+              level: userLevel.toLocaleString('ko-KR'),
+              gap: (result.required - userLevel).toLocaleString('ko-KR'),
+            })}
           </Text>
         )}
         <Button size="compact-sm" variant="default" onClick={() => setValues({})}>
@@ -96,10 +103,14 @@ export default function MasteryLevelPage() {
         </Table.Tbody>
       </Table>
       {result.previousStep.length > 0 && (
-        <Alert color="yellow">{translate('masteryDebug.previousStep', { names: result.previousStep.join(', ') })}</Alert>
+        <Alert color="yellow">
+          {translate('masteryDebug.previousStep', { names: result.previousStep.join(', ') })}
+        </Alert>
       )}
       {result.ultimateGate.length > 0 && (
-        <Alert color="yellow">{translate('masteryDebug.ultimateGate', { names: result.ultimateGate.join(', ') })}</Alert>
+        <Alert color="yellow">
+          {translate('masteryDebug.ultimateGate', { names: result.ultimateGate.join(', ') })}
+        </Alert>
       )}
       <MasteryPanel
         values={values}

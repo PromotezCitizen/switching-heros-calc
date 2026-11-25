@@ -54,7 +54,8 @@ export function archerSkillHits(values: CalcValues, tables: StatTables, skillId:
       const halfArrows = optionValue(options, ARCHER.MULTI_SHOT_HALF_ARROWS);
       const noPierce = optionValue(options, ARCHER.MULTI_SHOT_NO_PIERCE);
       const stackPerk = perkOf(perks, ARCHER.MULTI_SHOT_PERK);
-      let arrows = value1 + (extraArrows === undefined ? 0 : ARCHER.MULTI_SHOT_EXTRA_ARROW_COUNT * chanceOf(extraArrows));
+      let arrows =
+        value1 + (extraArrows === undefined ? 0 : ARCHER.MULTI_SHOT_EXTRA_ARROW_COUNT * chanceOf(extraArrows));
       let factor = 1;
       if (halfArrows !== undefined) {
         arrows *= ARCHER.HALF_ARROWS_FACTOR;
@@ -63,7 +64,11 @@ export function archerSkillHits(values: CalcValues, tables: StatTables, skillId:
       if (noPierce !== undefined) factor *= percentFactor(noPierce);
       if (stackPerk) factor *= percentFactor(perkNumber(stackPerk, 'val1') * perkNumber(stackPerk, 'val3'));
       const casts = 1 + (twice === undefined ? 0 : chanceOf(twice));
-      return { supported: true, hits: casts * arrows * (noPierce === undefined ? pierceTargets(value2) : 1), coefficientFactor: factor };
+      return {
+        supported: true,
+        hits: casts * arrows * (noPierce === undefined ? pierceTargets(value2) : 1),
+        coefficientFactor: factor,
+      };
     }
     case ARCHER.GUIDED_SHOT: {
       const noPierce = optionValue(options, ARCHER.GUIDED_SHOT_NO_PIERCE);
@@ -73,13 +78,21 @@ export function archerSkillHits(values: CalcValues, tables: StatTables, skillId:
       if (noPierce !== undefined) factor *= percentFactor(noPierce);
       if (double !== undefined) factor *= 1 + (ARCHER.DOUBLE_FACTOR - 1) * chanceOf(double);
       if (perk) factor *= percentFactor(perkNumber(perk, 'val1'));
-      return { supported: true, hits: value1 * (noPierce === undefined ? pierceTargets(value2) : 1), coefficientFactor: factor };
+      return {
+        supported: true,
+        hits: value1 * (noPierce === undefined ? pierceTargets(value2) : 1),
+        coefficientFactor: factor,
+      };
     }
     case ARCHER.ARROW_RAIN: {
       // 범위의 적에게 value1 번
       const perk = perkOf(perks, ARCHER.ARROW_RAIN_PERK);
       const times = value1 + (perk ? perkNumber(perk, 'val2') : 0);
-      return { supported: true, hits: times * targets, coefficientFactor: perk ? percentFactor(perkNumber(perk, 'val1')) : 1 };
+      return {
+        supported: true,
+        hits: times * targets,
+        coefficientFactor: perk ? percentFactor(perkNumber(perk, 'val1')) : 1,
+      };
     }
     case ARCHER.LASER_SHOT: {
       // 작은 레이저 value2 개 × 계수 + 큰 레이저 value1 배
@@ -96,7 +109,11 @@ export function archerSkillHits(values: CalcValues, tables: StatTables, skillId:
       let factor = 1;
       if (noPierce !== undefined) factor *= percentFactor(noPierce);
       if (perk) factor *= percentFactor(perkNumber(perk, 'val2'));
-      return { supported: true, hits: arrows * (noPierce === undefined ? pierceTargets(value2) : 1), coefficientFactor: factor };
+      return {
+        supported: true,
+        hits: arrows * (noPierce === undefined ? pierceTargets(value2) : 1),
+        coefficientFactor: factor,
+      };
     }
     case ARCHER.ARROW_BARRAGE: {
       const perk = perkOf(perks, ARCHER.ARROW_BARRAGE_PERK);
@@ -115,7 +132,11 @@ export function archerSkillHits(values: CalcValues, tables: StatTables, skillId:
       let factor = noPierce === undefined ? 1 : percentFactor(noPierce);
       if (double !== undefined) factor *= 1 + (ARCHER.DOUBLE_FACTOR - 1) * chanceOf(double);
       if (perk) factor *= percentFactor(perkNumber(perk, 'val1'));
-      return { supported: true, hits: Math.floor(value2) * (noPierce === undefined ? pierceTargets(Math.floor(value1)) : 1), coefficientFactor: factor };
+      return {
+        supported: true,
+        hits: Math.floor(value2) * (noPierce === undefined ? pierceTargets(Math.floor(value1)) : 1),
+        coefficientFactor: factor,
+      };
     }
     case ARCHER.MULTI_STRAIGHT: {
       // 화살 int(value1) + int(옵션 2600) 발 × 관통 value2
@@ -124,7 +145,11 @@ export function archerSkillHits(values: CalcValues, tables: StatTables, skillId:
       const perk = perkOf(perks, ARCHER.MULTI_STRAIGHT_PERK);
       let factor = noPierce === undefined ? 1 : percentFactor(noPierce);
       if (perk) factor *= percentFactor(perkNumber(perk, 'val2'));
-      return { supported: true, hits: arrows * (noPierce === undefined ? pierceTargets(Math.floor(value2)) : 1), coefficientFactor: factor };
+      return {
+        supported: true,
+        hits: arrows * (noPierce === undefined ? pierceTargets(Math.floor(value2)) : 1),
+        coefficientFactor: factor,
+      };
     }
     case ARCHER.PHOENIX_SHOT: {
       // 불사조 1마리 (관통 무제한) + 옵션 2800 작은 불사조 3마리 (각 피닉스 샷의 v %), 한 적 1번 (추정)

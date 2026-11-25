@@ -56,14 +56,23 @@ export const DPM_CONSTS = {
       gender: { same: ['2008'], different: ['2009'] },
     } as Record<string, { same: readonly string[]; different: readonly string[] }>,
     /** 대상 종류 피해 얼티밋: 대상 종류에 맞는 것만 찍는다 (사냥의 기술 · 제왕 학살 · 숙적 처단과 그 2) */
-    UNIT_DAMAGE: { normal: ['3003', '3034'], boss: ['3004', '3035'], hero: ['3005', '3036'] } as Record<string, readonly string[]>,
+    UNIT_DAMAGE: { normal: ['3003', '3034'], boss: ['3004', '3035'], hero: ['3005', '3036'] } as Record<
+      string,
+      readonly string[]
+    >,
     /**
      * 전투 특화 히어로 공격력 얼티밋 (Character 표 targetUnit 별): 두 히어로의 특화가 같으면 그 특화 것만 찍고, 다르면 모두 후보
      * (심판의 일격 1015 · 1033 보스, 전장의 맹공 1016 · 1034 일반, 영웅 사냥꾼 1017 · 1035 히어로)
      */
-    TARGET_UNIT_ATTACK: { Boss: ['1015', '1033'], Normal: ['1016', '1034'], Hero: ['1017', '1035'] } as Record<string, readonly string[]>,
+    TARGET_UNIT_ATTACK: { Boss: ['1015', '1033'], Normal: ['1016', '1034'], Hero: ['1017', '1035'] } as Record<
+      string,
+      readonly string[]
+    >,
     /** 펫 속성 지배자 (공격력): 장착한 펫 중 가장 많은 속성 것만 찍는다 (같은 수면 그 속성들 모두, 펫이 없으면 모두 뺌) */
-    PET_MASTERS: { Fire: ['1005', '1030'], Water: ['1006', '1031'], Earth: ['1007', '1032'] } as Record<string, readonly string[]>,
+    PET_MASTERS: { Fire: ['1005', '1030'], Water: ['1006', '1031'], Earth: ['1007', '1032'] } as Record<
+      string,
+      readonly string[]
+    >,
     DEFENSE: {
       normal: ['48', '302'],
       boss: ['49', '303'],
@@ -103,14 +112,28 @@ export const DPM_CONSTS = {
     BASE: 10,
     STEP: 10,
     RATE_THRESHOLD: 100,
-    STATS: { BASE: 'superCritical', ADD: 'superCriticalAddPer', OVER: 'superCriticalOverPer', DAMAGE: '_per_superCriticalAddDmg' },
+    STATS: {
+      BASE: 'superCritical',
+      ADD: 'superCriticalAddPer',
+      OVER: 'superCriticalOverPer',
+      DAMAGE: '_per_superCriticalAddDmg',
+    },
     /** 2단계 (슈프림 치명타): 성공 배수 10 × T (칸 대응 유력) */
-    SUPREME: { BASE: 10, CHANCE: 'supremeCritical', DAMAGE: '_per_supremeCriticalDmgUp', OVER_TO_DAMAGE: 'supremeCriticalOverToDmg' },
+    SUPREME: {
+      BASE: 10,
+      CHANCE: 'supremeCritical',
+      DAMAGE: '_per_supremeCriticalDmgUp',
+      OVER_TO_DAMAGE: 'supremeCriticalOverToDmg',
+    },
   },
   /** 관통 (m2711): 성공 ×2 × (1 + addDmg/100)^floor(P/10) */
   SPEAR: { BASE: 2, STEP: 10, STATS: { BASE: 'spearAttack', ADD: 'spearAttackAddPer', DAMAGE: 'spearAttackAddDmg' } },
   /** 무자비 (m2712): 상태이상 ≥ 1 일 때만, 성공 ×(3 + addDmg/100), 상태이상 ≥ 2 이면 ×(1 + CC/100)^상태이상 수 */
-  SMITE: { BASE: 3, CC_FROM_COUNT: 2, STATS: { BASE: 'smite', ADD: 'smiteAddPer', DAMAGE: 'smiteAddDmg', CC: 'smiteAddDmgCC' } },
+  SMITE: {
+    BASE: 3,
+    CC_FROM_COUNT: 2,
+    STATS: { BASE: 'smite', ADD: 'smiteAddPer', DAMAGE: 'smiteAddDmg', CC: 'smiteAddDmgCC' },
+  },
   /**
    * 공격 종류별로 평타 기준 위에 더 곱하는 묶음 A 이름과 치명 C (합) · D (곱) 추가 (damage-formula.md 2-2: 조건 확정, 이름 유력).
    * JOB_VARIANT_SUFFIXES · ATTRIBUTE_VARIANT_SUFFIXES 는 _per_<직업>_<꼬리> · _per_<속성>Hero_<꼬리> 로 붙이는 꼬리 (어느 종류에 붙는지는 이름 뜻으로 넣은 추정)
@@ -152,7 +175,16 @@ export const DPM_CONSTS = {
       CRITICAL_DAMAGE_SUM: ['criticalDmg_CharSkill'],
       CRITICAL_DAMAGE_MULTIPLY: [],
     },
-  } as Record<string, { ATTACK: string[]; JOB_VARIANT_SUFFIXES: string[]; ATTRIBUTE_VARIANT_SUFFIXES: string[]; CRITICAL_DAMAGE_SUM: string[]; CRITICAL_DAMAGE_MULTIPLY: string[] }>,
+  } as Record<
+    string,
+    {
+      ATTACK: string[];
+      JOB_VARIANT_SUFFIXES: string[];
+      ATTRIBUTE_VARIANT_SUFFIXES: string[];
+      CRITICAL_DAMAGE_SUM: string[];
+      CRITICAL_DAMAGE_MULTIPLY: string[];
+    }
+  >,
   /**
    * 직업 스킬 한 발 계수 (damage-pipeline.md 3-3, catalog-skill-option.md): 옵션 종류 (SkillRune type) · 문양 종류 (SkillPerk perkType)
    */
@@ -583,11 +615,23 @@ export const DPM_CONSTS = {
     ['nightmare', 'globalRaidHero'],
   ] as readonly (readonly string[])[],
   /** 체력이 무한 (BigDouble.MaxValue 등) 인 대상 */
-  INFINITE_HP_TARGETS: ['awaken', 'nightmare', 'guildRaid', 'globalRaidNormal', 'globalRaidBoss', 'globalRaidHero'] as readonly string[],
+  INFINITE_HP_TARGETS: [
+    'awaken',
+    'nightmare',
+    'guildRaid',
+    'globalRaidNormal',
+    'globalRaidBoss',
+    'globalRaidHero',
+  ] as readonly string[],
   ATTRIBUTE_DUNGEON_SECONDS: 60,
   SECONDS_PER_MINUTE: 60,
   /** 스테이지 보스 남은 시간 50% 이하 (시간의 뒤쪽 절반) 에만 붙는 줄 (묶음 A 0x2e · 0x30) */
-  BOSS_TIME_SHORT: { SHARE: 0.5, ATTACK_STAT: '_per_attackDamage_BossTimeShort', SKILL_STAT: '_per_allSkillDamage_BossTimeShort', CRITICAL_RATE_STAT: 'criticalRate_BossTimeShort' },
+  BOSS_TIME_SHORT: {
+    SHARE: 0.5,
+    ATTACK_STAT: '_per_attackDamage_BossTimeShort',
+    SKILL_STAT: '_per_allSkillDamage_BossTimeShort',
+    CRITICAL_RATE_STAT: 'criticalRate_BossTimeShort',
+  },
   /**
    * 어디서도 읽지 않는 카드 · 세트 스탯 (표의 이름 그대로). 이 줄이 있으면 그 몫이 0 으로 빠지므로 빠진 몫으로 알린다.
    * 읽게 고친 스탯은 이 목록에서 뺀다 (전투 조건 꼬리말 · 몬스터 공격시 스킬 데미지 · 스킬 시전 시 스킬 데미지는 읽는다)

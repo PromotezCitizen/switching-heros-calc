@@ -19,9 +19,21 @@ const SAVED = {
         stepDic: {
           m_Keys: [1, 2, 3],
           m_Values: [
-            { id: 1, isActive: 1, lvDic: { m_Keys: [1, 2, 3, 4], m_Values: [25, 25, 25, 25].map((lv, i) => ({ idx: i + 1, lv })) } },
-            { id: 2, isActive: 1, lvDic: { m_Keys: [1, 2, 3, 4], m_Values: [25, 25, 25, 25].map((lv, i) => ({ idx: i + 1, lv })) } },
-            { id: 3, isActive: 0, lvDic: { m_Keys: [1, 2, 3, 4], m_Values: [0, 0, 25, 19].map((lv, i) => ({ idx: i + 1, lv })) } },
+            {
+              id: 1,
+              isActive: 1,
+              lvDic: { m_Keys: [1, 2, 3, 4], m_Values: [25, 25, 25, 25].map((lv, i) => ({ idx: i + 1, lv })) },
+            },
+            {
+              id: 2,
+              isActive: 1,
+              lvDic: { m_Keys: [1, 2, 3, 4], m_Values: [25, 25, 25, 25].map((lv, i) => ({ idx: i + 1, lv })) },
+            },
+            {
+              id: 3,
+              isActive: 0,
+              lvDic: { m_Keys: [1, 2, 3, 4], m_Values: [0, 0, 25, 19].map((lv, i) => ({ idx: i + 1, lv })) },
+            },
           ],
         },
       },
@@ -47,8 +59,14 @@ describe('별자리 유물', () => {
   });
 
   it('예전 진행 글만 있어도 같은 값 (새 칸이 비었을 때)', () => {
-    const legacy: CalcValues = { ancientMastered: '1', ancientProgress: '2:1:1:1=25,2=25,3=25,4=25;2:2:1:1=25,2=25,3=25,4=25;2:3:0:1=0,2=0,3=25,4=19' };
-    expect(screenPercent(legacy, '_per_Swordsman_AttackDamage')).toBeCloseTo(screenPercent(values, '_per_Swordsman_AttackDamage'), 6);
+    const legacy: CalcValues = {
+      ancientMastered: '1',
+      ancientProgress: '2:1:1:1=25,2=25,3=25,4=25;2:2:1:1=25,2=25,3=25,4=25;2:3:0:1=0,2=0,3=25,4=19',
+    };
+    expect(screenPercent(legacy, '_per_Swordsman_AttackDamage')).toBeCloseTo(
+      screenPercent(values, '_per_Swordsman_AttackDamage'),
+      6,
+    );
     expect(ancientRelicLines(legacy, tables, label).length).toBe(ancientRelicLines(values, tables, label).length);
   });
 
@@ -64,16 +82,28 @@ describe('별자리 유물', () => {
       _per_hp: 2400,
       _per_Swordsman_BossMonsterDamage: 150,
     };
-    for (const [stat, percent] of Object.entries(expected)) expect(screenPercent(values, stat), stat).toBeCloseTo(percent, 0);
+    for (const [stat, percent] of Object.entries(expected))
+      expect(screenPercent(values, stat), stat).toBeCloseTo(percent, 0);
   });
 
   it('입력이 비면 줄 없음, 5.70 이전 저장 (데이터 없음) 은 칸을 비운다', () => {
     expect(ancientRelicLines({}, tables, label)).toEqual([]);
-    expect(ancientRelicValues({}).values).toEqual({ ancientMastered: '', ancientCurrentConst: '', ancientCurrentStep: '', ancientProgress: '' });
+    expect(ancientRelicValues({}).values).toEqual({
+      ancientMastered: '',
+      ancientCurrentConst: '',
+      ancientCurrentStep: '',
+      ancientProgress: '',
+    });
   });
 
   it('현재 단계 칸이 모두 최대면 그 단계 보너스 (칸 1000) 가 들어가고, 하나라도 모자라면 안 들어간다', () => {
-    const base: CalcValues = { ancientCurrentConst: '2', ancientCurrentStep: '1', ancientStepLevel_1: '25', ancientStepLevel_2: '25', ancientStepLevel_3: '25' };
+    const base: CalcValues = {
+      ancientCurrentConst: '2',
+      ancientCurrentStep: '1',
+      ancientStepLevel_1: '25',
+      ancientStepLevel_2: '25',
+      ancientStepLevel_3: '25',
+    };
     const full = ancientRelicLines({ ...base, ancientStepLevel_4: '25' }, tables, label);
     const short = ancientRelicLines({ ...base, ancientStepLevel_4: '24' }, tables, label);
     expect(full.length).toBe(short.length + 1);

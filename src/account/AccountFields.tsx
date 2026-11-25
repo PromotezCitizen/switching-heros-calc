@@ -21,7 +21,11 @@ const FIRST_SKILL_UNLOCK = Math.min(...CONSTS.guild.SKILLS.map((skill) => skill.
  *
  */
 function FairyFlag({ storeKey, label, adRemoved }: { storeKey: string; label: string; adRemoved: boolean }) {
-  return adRemoved ? <Checkbox label={label} checked disabled readOnly /> : <FlagField storeKey={storeKey} label={label} />;
+  return adRemoved ? (
+    <Checkbox label={label} checked disabled readOnly />
+  ) : (
+    <FlagField storeKey={storeKey} label={label} />
+  );
 }
 
 /** 여러 페이지가 같이 쓰는 계정 값 (유저 레벨 · VIP · 길드 · 요정 · 전투 버프) 칸. 계정 페이지의 "기본 정보" 묶음에 그린다 */
@@ -35,75 +39,79 @@ export default function AccountFields() {
 
   return (
     <Paper withBorder>
-        <Stack>
-          <Text fw={600}>{translate('account.title')}</Text>
+      <Stack>
+        <Text fw={600}>{translate('account.title')}</Text>
+        <Text size="xs" c="dimmed">
+          {translate('account.description')}
+        </Text>
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }}>
+          <NumberField storeKey={ACCOUNT_KEYS.userLevel} label={translate('account.userLevel')} min={0} />
+          <NumberField storeKey={ACCOUNT_KEYS.vipLevel} label={translate('account.vipLevel')} />
+          <NumberField storeKey={ACCOUNT_KEYS.guildLevel} label={translate('account.guildLevel')} />
+          <Stack gap={4}>
+            <NumberField storeKey={ACCOUNT_KEYS.fairyLevel} label={translate('account.fairyLevel')} />
+            <FairyFlag storeKey={ACCOUNT_KEYS.fairyOn} label={translate('account.fairyOn')} adRemoved={adRemoved} />
+          </Stack>
+        </SimpleGrid>
+        <Text fw={600} size="sm">
+          {translate('account.battleBuff')}
+        </Text>
+        <BattleBuffFields />
+        {/* 사냥 보상용 요정의 축복: 광고 제거면 경험치·골드 둘 다 상시 (스탯 축복도 상시), 아니면 칸마다 따로 켬 (정수는 요정 값 없음) */}
+        <Text fw={600} size="sm">
+          {translate('account.huntingFairy')}
+        </Text>
+        <SimpleGrid cols={{ base: 1, sm: 3 }}>
+          <FlagField
+            storeKey={ACCOUNT_KEYS.adRemoved}
+            label={translate('account.adRemoved')}
+            hint={translate('account.adRemovedHint')}
+          />
+          {HUNTING_FAIRY_RESOURCES.map((resource) => (
+            <FairyFlag
+              key={resource}
+              storeKey={ACCOUNT_KEYS.huntingFairyOn(resource)}
+              label={translate('account.huntingFairyOn', { resource: translate(`hunting.resource.${resource}`) })}
+              adRemoved={adRemoved}
+            />
+          ))}
+        </SimpleGrid>
+        <Text fw={600} size="sm">
+          {translate('account.guildSkill')}
+        </Text>
+        {unlockedSkills.length === 0 ? (
           <Text size="xs" c="dimmed">
-            {translate('account.description')}
+            {translate('account.guildSkillLocked', { level: FIRST_SKILL_UNLOCK })}
           </Text>
-          <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }}>
-            <NumberField storeKey={ACCOUNT_KEYS.userLevel} label={translate('account.userLevel')} min={0} />
-            <NumberField storeKey={ACCOUNT_KEYS.vipLevel} label={translate('account.vipLevel')} />
-            <NumberField storeKey={ACCOUNT_KEYS.guildLevel} label={translate('account.guildLevel')} />
-            <Stack gap={4}>
-              <NumberField storeKey={ACCOUNT_KEYS.fairyLevel} label={translate('account.fairyLevel')} />
-              <FairyFlag storeKey={ACCOUNT_KEYS.fairyOn} label={translate('account.fairyOn')} adRemoved={adRemoved} />
-            </Stack>
-          </SimpleGrid>
-          <Text fw={600} size="sm">
-            {translate('account.battleBuff')}
-          </Text>
-          <BattleBuffFields />
-          {/* 사냥 보상용 요정의 축복: 광고 제거면 경험치·골드 둘 다 상시 (스탯 축복도 상시), 아니면 칸마다 따로 켬 (정수는 요정 값 없음) */}
-          <Text fw={600} size="sm">
-            {translate('account.huntingFairy')}
-          </Text>
-          <SimpleGrid cols={{ base: 1, sm: 3 }}>
-            <FlagField storeKey={ACCOUNT_KEYS.adRemoved} label={translate('account.adRemoved')} hint={translate('account.adRemovedHint')} />
-            {HUNTING_FAIRY_RESOURCES.map((resource) => (
-              <FairyFlag
-                key={resource}
-                storeKey={ACCOUNT_KEYS.huntingFairyOn(resource)}
-                label={translate('account.huntingFairyOn', { resource: translate(`hunting.resource.${resource}`) })}
-                adRemoved={adRemoved}
-              />
-            ))}
-          </SimpleGrid>
-          <Text fw={600} size="sm">
-            {translate('account.guildSkill')}
-          </Text>
-          {unlockedSkills.length === 0 ? (
-            <Text size="xs" c="dimmed">
-              {translate('account.guildSkillLocked', { level: FIRST_SKILL_UNLOCK })}
-            </Text>
-          ) : (
-            <Stack gap="xs">
-              <SimpleGrid cols={3}>
-                {RESOURCES.map((resource) => (
-                  <Text key={resource} size="xs" c="dimmed" ta="center">
-                    {translate(`hunting.resource.${resource}`)}
-                  </Text>
-                ))}
-              </SimpleGrid>
-              {unlockedSkills.map(({ skill, index }) => (
-                <Stack key={skill.unlock} gap={2}>
-                  <Text size="xs">
-                    {translate('account.guildSkillRow', { number: index + 1, percent: skill.perLevel })}
-                  </Text>
-                  <SimpleGrid cols={3}>
-                    {RESOURCES.map((resource) => (
-                      <SelectField
-                        key={resource}
-                        storeKey={ACCOUNT_KEYS.guildSkill(resource, index)}
-                        label=""
-                        options={GUILD_LEVEL_OPTIONS}
-                      />
-                    ))}
-                  </SimpleGrid>
-                </Stack>
+        ) : (
+          <Stack gap="xs">
+            <SimpleGrid cols={3}>
+              {RESOURCES.map((resource) => (
+                <Text key={resource} size="xs" c="dimmed" ta="center">
+                  {translate(`hunting.resource.${resource}`)}
+                </Text>
               ))}
-            </Stack>
-          )}
-        </Stack>
+            </SimpleGrid>
+            {unlockedSkills.map(({ skill, index }) => (
+              <Stack key={skill.unlock} gap={2}>
+                <Text size="xs">
+                  {translate('account.guildSkillRow', { number: index + 1, percent: skill.perLevel })}
+                </Text>
+                <SimpleGrid cols={3}>
+                  {RESOURCES.map((resource) => (
+                    <SelectField
+                      key={resource}
+                      storeKey={ACCOUNT_KEYS.guildSkill(resource, index)}
+                      label=""
+                      options={GUILD_LEVEL_OPTIONS}
+                    />
+                  ))}
+                </SimpleGrid>
+              </Stack>
+            ))}
+          </Stack>
+        )}
+      </Stack>
     </Paper>
   );
 }

@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import monsterHp from '@public/data/monsterHp.json';
-import { attributeHeroHpLog, killFractions, stageMonsterHpLog, timelinePhases, type MonsterHpData } from '@/dpm/hpCondition';
+import {
+  attributeHeroHpLog,
+  killFractions,
+  stageMonsterHpLog,
+  timelinePhases,
+  type MonsterHpData,
+} from '@/dpm/hpCondition';
 
 const DATA = monsterHp as MonsterHpData;
 
@@ -20,7 +26,8 @@ describe('몬스터 체력 (log10)', () => {
     const heroFloor = DATA.attributeDungeon.kind.findIndex((kind) => kind === 3) + 1;
     const otherFloor = DATA.attributeDungeon.kind.findIndex((kind) => kind !== 3) + 1;
     const stage = DATA.attributeDungeon.stage[heroFloor - 1];
-    const expected = DATA.stage.monHp[stage - 1] + DATA.stage.bossHp[stage - 1] + DATA.attributeDungeon.hpMultiplier[heroFloor - 1];
+    const expected =
+      DATA.stage.monHp[stage - 1] + DATA.stage.bossHp[stage - 1] + DATA.attributeDungeon.hpMultiplier[heroFloor - 1];
     expect(attributeHeroHpLog(DATA, heroFloor)).toBeCloseTo(expected, 8);
     expect(attributeHeroHpLog(DATA, otherFloor)).toBeNull();
   });

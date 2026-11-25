@@ -22,7 +22,8 @@ const INPUTS: DamageInputs = {
   attributeDungeonFloor: null,
   monsterHp: monsterHp as MonsterHpData,
 };
-const damageOf = (values: CalcValues, target: DamageTarget, inputs: DamageInputs = INPUTS) => targetDamage(values, tables, target, inputs);
+const damageOf = (values: CalcValues, target: DamageTarget, inputs: DamageInputs = INPUTS) =>
+  targetDamage(values, tables, target, inputs);
 
 describe('10-18 계정 공격 한 번씩 대미지', () => {
   it('대상마다 값이 나온다 (평타 · 버프 4 · 액티브 화살 폭격 255 · 전용 12217)', () => {
@@ -30,7 +31,9 @@ describe('10-18 계정 공격 한 번씩 대미지', () => {
       const result = damageOf(VALUES, target);
       expect(isFinite(result.totalLog), target).toBe(true);
       const kinds = result.parts.map((part) => `${part.kind}:${part.skillId ?? ''}`).sort();
-      expect(kinds, target).toEqual(['active:255', 'buff:201', 'buff:202', 'buff:203', 'buff:204', 'char:12217', 'normal:'].sort());
+      expect(kinds, target).toEqual(
+        ['active:255', 'buff:201', 'buff:202', 'buff:203', 'buff:204', 'char:12217', 'normal:'].sort(),
+      );
       expect(result.missing, target).not.toContain('unsupportedSkill:255');
     }
   });
@@ -50,7 +53,8 @@ describe('10-18 계정 공격 한 번씩 대미지', () => {
 
   it('카드 전투 조건 (용암거미 R_15 의 주위 적 5마리 이하 줄) 은 대상별: 각성 (적 1마리) 에서 더 오른다', () => {
     const gain = (target: DamageTarget) =>
-      damageOf({ ...VALUES, cardSlot1: '27', cardSlotGrade1: 'R_15' }, target).totalLog - damageOf({ ...VALUES, cardSlot1: '', cardSlotGrade1: '' }, target).totalLog;
+      damageOf({ ...VALUES, cardSlot1: '27', cardSlotGrade1: 'R_15' }, target).totalLog -
+      damageOf({ ...VALUES, cardSlot1: '', cardSlotGrade1: '' }, target).totalLog;
     expect(gain('awaken')).toBeGreaterThan(gain('stage') + 0.5);
     const withCard = damageOf({ ...VALUES, cardSlot1: '27', cardSlotGrade1: 'R_15' }, 'stage');
     expect(withCard.missing.some((code) => code.startsWith('conditionStatsNotCounted:'))).toBe(false);
@@ -59,9 +63,17 @@ describe('10-18 계정 공격 한 번씩 대미지', () => {
   it('상태이상 수: 입력이 없으면 OPTIMIZER_RULES (4, PvP 0), 입력을 주면 그 값', () => {
     const { STATUS_COUNT } = CONSTS.dpm.OPTIMIZER_RULES;
     const ruled = damageOf(VALUES, 'stage').totalLog;
-    expect(damageOf(VALUES, 'stage', { ...INPUTS, targetStatusCount: { stage: STATUS_COUNT } }).totalLog).toBeCloseTo(ruled, 12);
-    expect(damageOf(VALUES, 'stage', { ...INPUTS, targetStatusCount: { stage: 0 } }).totalLog).toBeLessThanOrEqual(ruled + 1e-12);
-    expect(damageOf(VALUES, 'pvp').totalLog).toBeCloseTo(damageOf(VALUES, 'pvp', { ...INPUTS, targetStatusCount: { pvp: 0 } }).totalLog, 12);
+    expect(damageOf(VALUES, 'stage', { ...INPUTS, targetStatusCount: { stage: STATUS_COUNT } }).totalLog).toBeCloseTo(
+      ruled,
+      12,
+    );
+    expect(damageOf(VALUES, 'stage', { ...INPUTS, targetStatusCount: { stage: 0 } }).totalLog).toBeLessThanOrEqual(
+      ruled + 1e-12,
+    );
+    expect(damageOf(VALUES, 'pvp').totalLog).toBeCloseTo(
+      damageOf(VALUES, 'pvp', { ...INPUTS, targetStatusCount: { pvp: 0 } }).totalLog,
+      12,
+    );
   });
 
   it('체력이 늘 100% 인 대상 (체력 무한 · PvP) 만 체력 70% 이상 줄이 붙는다', () => {

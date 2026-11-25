@@ -95,7 +95,10 @@ export const CardSlotCard = memo(function CardSlotCard(props: CardSlotCardProps)
     ...splitFieldValues(marksText, cardMarkFields(slot)),
     [cardGradeField(slot)]: gradeChoice,
   };
-  const cardOptions = [{ value: '', label: translate('calc.card.none'), icon: EMPTY_CARD_ICON }, ...cardPickerOptions(tables, descriptions, translate, cardName)];
+  const cardOptions = [
+    { value: '', label: translate('calc.card.none'), icon: EMPTY_CARD_ICON },
+    ...cardPickerOptions(tables, descriptions, translate, cardName),
+  ];
   const cardId = values[cardSlotField(slot)];
   const row = selectedCardRow(values, tables, slot);
   const candidates = cardRowsOf(tables, cardId);
@@ -133,71 +136,80 @@ export const CardSlotCard = memo(function CardSlotCard(props: CardSlotCardProps)
           closeLabel={translate('calc.card.close')}
         />
         {cardId && (
-        <Stack gap="xs" w="100%">
-          <Group grow gap="xs">
-            {grades.length > 1 ? (
+          <Stack gap="xs" w="100%">
+            <Group grow gap="xs">
+              {grades.length > 1 ? (
+                <LazySelect
+                  aria-label={translate('calc.card.gradeLabel', { slot })}
+                  placeholder={translate('calc.card.gradePlaceholder')}
+                  data={grades}
+                  value={grade || null}
+                  onChange={(selected) => {
+                    // 등급 → 그 등급 첫 성
+                    const first = candidates.find((candidate) => candidate.grade === selected);
+                    if (first) setValue(cardGradeField(slot), gradeStarValue(first));
+                  }}
+                />
+              ) : (
+                <Text size="sm" ta="center" aria-label={translate('calc.card.gradeLabel', { slot })}>
+                  {grade}
+                </Text>
+              )}
               <LazySelect
-                aria-label={translate('calc.card.gradeLabel', { slot })}
-                placeholder={translate('calc.card.gradePlaceholder')}
-                data={grades}
-                value={grade || null}
-                onChange={(selected) => {
-                  // 등급 → 그 등급 첫 성
-                  const first = candidates.find((candidate) => candidate.grade === selected);
-                  if (first) setValue(cardGradeField(slot), gradeStarValue(first));
-                }}
+                aria-label={translate('calc.card.starLabel', { slot })}
+                placeholder={translate('calc.card.starPlaceholder')}
+                disabled={!grade}
+                data={candidates
+                  .filter((candidate) => candidate.grade === grade)
+                  .map((candidate) => ({
+                    value: candidate.star,
+                    label: translate('calc.card.starText', { star: cardDisplayStar(tables, candidate) }),
+                  }))}
+                value={row ? row.star : null}
+                onChange={(selected) =>
+                  selected && setValue(cardGradeField(slot), gradeStarValue({ grade, star: selected }))
+                }
               />
-            ) : (
-              <Text size="sm" ta="center" aria-label={translate('calc.card.gradeLabel', { slot })}>
-                {grade}
+            </Group>
+            {/* 고유 효과는 한 줄에 하나씩 */}
+            {row &&
+              cardPairs(row).map(([stat, value]) => (
+                <Text key={stat} size="sm">
+                  {lineText(descriptions, { source: '', stat, value })}
+                </Text>
+              ))}
+            {showMarks && usable > 0 && (
+              <Text size="sm" c="dimmed">
+                {translate('calc.card.setMarks')}
               </Text>
             )}
-            <LazySelect
-              aria-label={translate('calc.card.starLabel', { slot })}
-              placeholder={translate('calc.card.starPlaceholder')}
-              disabled={!grade}
-              data={candidates
-                .filter((candidate) => candidate.grade === grade)
-                .map((candidate) => ({
-                  value: candidate.star,
-                  label: translate('calc.card.starText', { star: cardDisplayStar(tables, candidate) }),
-                }))}
-              value={row ? row.star : null}
-              onChange={(selected) => selected && setValue(cardGradeField(slot), gradeStarValue({ grade, star: selected }))}
-            />
-          </Group>
-          {/* 고유 효과는 한 줄에 하나씩 */}
-          {row &&
-            cardPairs(row).map(([stat, value]) => (
-              <Text key={stat} size="sm">
-                {lineText(descriptions, { source: '', stat, value })}
-              </Text>
-            ))}
-          {showMarks && usable > 0 && <Text size="sm" c="dimmed">{translate('calc.card.setMarks')}</Text>}
-          {/* 마크 칸은 등급·성에 따라 열린 수만큼만 */}
-          {showMarks && CARD_MARK_NUMBERS.filter((mark) => mark <= usable).map((mark) => (
-            <Box key={mark} aria-label={translate('calc.card.markLabel', { slot, mark })}>
-              <ChoiceChips
-                value={values[cardSetPickField(slot, mark)]}
-                options={[
-                  { value: '', label: translate('calc.card.none') },
-                  ...setIdsForMark(tables, mark).map((setId) => ({ value: setId, label: setName(setId) })),
-                ]}
-                onChange={(selected) => setValue(cardSetPickField(slot, mark), selected)}
-              />
-            </Box>
-          ))}
-          {/* 아직 안 열린 마크 칸: 이 카드의 행 (등급·성 순) 중 slotCnt 가 그 번호 이상이 되는 첫 등급 */}
-          {showMarks &&
-            CARD_MARK_NUMBERS.filter((mark) => mark > usable).map((mark) => {
-              const opensAt = candidates.find((candidate) => Number(candidate.slotCnt) >= mark)?.grade;
-              return (
-                <Text key={`locked-${mark}`} size="sm" c="dimmed">
-                  {opensAt ? translate('calc.card.markOpensAt', { mark, grade: opensAt }) : translate('calc.card.markNeverOpens', { mark })}
-                </Text>
-              );
-            })}
-        </Stack>
+            {/* 마크 칸은 등급·성에 따라 열린 수만큼만 */}
+            {showMarks &&
+              CARD_MARK_NUMBERS.filter((mark) => mark <= usable).map((mark) => (
+                <Box key={mark} aria-label={translate('calc.card.markLabel', { slot, mark })}>
+                  <ChoiceChips
+                    value={values[cardSetPickField(slot, mark)]}
+                    options={[
+                      { value: '', label: translate('calc.card.none') },
+                      ...setIdsForMark(tables, mark).map((setId) => ({ value: setId, label: setName(setId) })),
+                    ]}
+                    onChange={(selected) => setValue(cardSetPickField(slot, mark), selected)}
+                  />
+                </Box>
+              ))}
+            {/* 아직 안 열린 마크 칸: 이 카드의 행 (등급·성 순) 중 slotCnt 가 그 번호 이상이 되는 첫 등급 */}
+            {showMarks &&
+              CARD_MARK_NUMBERS.filter((mark) => mark > usable).map((mark) => {
+                const opensAt = candidates.find((candidate) => Number(candidate.slotCnt) >= mark)?.grade;
+                return (
+                  <Text key={`locked-${mark}`} size="sm" c="dimmed">
+                    {opensAt
+                      ? translate('calc.card.markOpensAt', { mark, grade: opensAt })
+                      : translate('calc.card.markNeverOpens', { mark })}
+                  </Text>
+                );
+              })}
+          </Stack>
         )}
       </Stack>
     </Card>

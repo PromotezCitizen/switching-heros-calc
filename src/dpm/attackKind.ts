@@ -21,7 +21,11 @@ export interface KindModifiers {
 }
 
 /** 직업 변형 (_per_<직업>_<꼬리>) 과 속성 변형 (_per_<속성>Hero_<꼬리>) 이름. 히어로가 없으면 없음 */
-function kindVariantStats(stats: AttackStats, jobSuffixes: readonly string[], attributeSuffixes: readonly string[]): string[] {
+function kindVariantStats(
+  stats: AttackStats,
+  jobSuffixes: readonly string[],
+  attributeSuffixes: readonly string[],
+): string[] {
   const { hero } = stats;
   if (!hero) return [];
   return [
@@ -34,9 +38,15 @@ export function kindModifiers(stats: AttackStats, kind: AttackKind): KindModifie
   const { read, hero } = stats;
   const kindStats = kind === 'normal' ? undefined : KIND_STATS[kind];
   const attackStatNames = kindStats
-    ? [...kindStats.ATTACK, ...kindVariantStats(stats, kindStats.JOB_VARIANT_SUFFIXES, kindStats.ATTRIBUTE_VARIANT_SUFFIXES)]
+    ? [
+        ...kindStats.ATTACK,
+        ...kindVariantStats(stats, kindStats.JOB_VARIANT_SUFFIXES, kindStats.ATTRIBUTE_VARIANT_SUFFIXES),
+      ]
     : [];
-  const damageSum = [STATS.CRITICAL_DAMAGE_SUM, ...(kindStats?.CRITICAL_DAMAGE_SUM ?? [])].reduce((sum, stat) => sum + read.sum(stat), 0);
+  const damageSum = [STATS.CRITICAL_DAMAGE_SUM, ...(kindStats?.CRITICAL_DAMAGE_SUM ?? [])].reduce(
+    (sum, stat) => sum + read.sum(stat),
+    0,
+  );
   const multiplierLog = [...criticalDamageMultiplierStats(hero), ...(kindStats?.CRITICAL_DAMAGE_MULTIPLY ?? [])].reduce(
     (sum, stat) => sum + read.log(stat),
     0,

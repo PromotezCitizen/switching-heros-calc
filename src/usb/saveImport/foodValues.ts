@@ -29,7 +29,10 @@ export function foodValues(dispatch: FoodSave): SaveImportResult {
     if (!uses || !dispatch.st) return;
     const savedAt = timeOf(dispatch.st);
     const active = NORMAL_MONSTER_FOODS.filter((food) =>
-      uses.some((use) => use._itemType === food.itemId && timeOf(use._useDate) + NORMAL_MONSTER_FOOD_MINUTES * MS_PER_MINUTE > savedAt),
+      uses.some(
+        (use) =>
+          use._itemType === food.itemId && timeOf(use._useDate) + NORMAL_MONSTER_FOOD_MINUTES * MS_PER_MINUTE > savedAt,
+      ),
     );
     const strongest = active.reduce<(typeof NORMAL_MONSTER_FOODS)[number] | undefined>(
       (best, food) => (!best || food.percent > best.percent ? food : best),

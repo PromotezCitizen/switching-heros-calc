@@ -18,9 +18,22 @@ function dictionary<T>(entries: [number, T][]): { k: number[]; v: T[] } {
 function skillSave(perkSets: [number, [number, number[]][]][], presetPerks: [number, number][]): SkillSave {
   return {
     psSkillDic: dictionary([]),
-    eqPresetSkillDic: dictionary([[PRESET, dictionary([[SLOT1_HERO, { skillIds: [LASER_SHOT] }], [SLOT2_HERO, { skillIds: [5] }]])]]),
+    eqPresetSkillDic: dictionary([
+      [
+        PRESET,
+        dictionary([
+          [SLOT1_HERO, { skillIds: [LASER_SHOT] }],
+          [SLOT2_HERO, { skillIds: [5] }],
+        ]),
+      ],
+    ]),
     psSkillOptionDic: dictionary([]),
-    equipPerkOptionDic: dictionary(perkSets.map(([skillId, sets]) => [skillId, dictionary(sets.map(([setId, typeSlots]) => [setId, { typeSlots }] as [number, { typeSlots: number[] }]))])),
+    equipPerkOptionDic: dictionary(
+      perkSets.map(([skillId, sets]) => [
+        skillId,
+        dictionary(sets.map(([setId, typeSlots]) => [setId, { typeSlots }] as [number, { typeSlots: number[] }])),
+      ]),
+    ),
     presetPerkOptionDic: dictionary([[PRESET, dictionary(presetPerks)]]),
   };
 }
@@ -39,14 +52,27 @@ describe('스킬 문양 번호 표', () => {
 
 describe('스킬 문양 가져오기 (skillRuneValues)', () => {
   it('쓰는 프리셋의 문양 세트에서 해금 레벨 칸마다 문양 이름을 채우고, 안 고른 칸은 비운다', () => {
-    const result = skillRuneValues(skillSave([[LASER_SHOT, [[0, [5, 0, 0, 0, 0, 0, 0]]]]], [[LASER_SHOT, 0]]), RUNE, PRESET, SLOT1_HERO, SLOT2_HERO);
+    const result = skillRuneValues(
+      skillSave([[LASER_SHOT, [[0, [5, 0, 0, 0, 0, 0, 0]]]]], [[LASER_SHOT, 0]]),
+      RUNE,
+      PRESET,
+      SLOT1_HERO,
+      SLOT2_HERO,
+    );
     expect(result.values[`skillPerk_${LASER_SHOT}_60`]).toBe('ChangeCharSkillDmg');
-    for (const level of SKILL_PERK_TARGET_LEVELS.slice(1)) expect(result.values[`skillPerk_${LASER_SHOT}_${level}`]).toBe('');
+    for (const level of SKILL_PERK_TARGET_LEVELS.slice(1))
+      expect(result.values[`skillPerk_${LASER_SHOT}_${level}`]).toBe('');
     expect(result.notes.filter((note) => note.includes('문양'))).toEqual([]);
   });
 
   it('번호 1 은 발동 확률을 낮추는 문양으로 읽는다 (사용자가 장착을 바꿨을 때 저장 값)', () => {
-    const before = skillRuneValues(skillSave([[LASER_SHOT, [[0, [1, 0, 0, 0, 0, 0, 0]]]]], [[LASER_SHOT, 0]]), RUNE, PRESET, SLOT1_HERO, SLOT2_HERO);
+    const before = skillRuneValues(
+      skillSave([[LASER_SHOT, [[0, [1, 0, 0, 0, 0, 0, 0]]]]], [[LASER_SHOT, 0]]),
+      RUNE,
+      PRESET,
+      SLOT1_HERO,
+      SLOT2_HERO,
+    );
     expect(before.values[`skillPerk_${LASER_SHOT}_60`]).toBe('BuffPerDownAndSkillDmg');
   });
 
@@ -67,12 +93,24 @@ describe('스킬 문양 가져오기 (skillRuneValues)', () => {
   });
 
   it('프리셋이 문양 세트를 고르지 않은 스킬은 7칸 모두 비운다', () => {
-    const result = skillRuneValues(skillSave([[LASER_SHOT, [[0, [5, 0, 0, 0, 0, 0, 0]]]]], []), RUNE, PRESET, SLOT1_HERO, SLOT2_HERO);
+    const result = skillRuneValues(
+      skillSave([[LASER_SHOT, [[0, [5, 0, 0, 0, 0, 0, 0]]]]], []),
+      RUNE,
+      PRESET,
+      SLOT1_HERO,
+      SLOT2_HERO,
+    );
     for (const level of SKILL_PERK_TARGET_LEVELS) expect(result.values[`skillPerk_${LASER_SHOT}_${level}`]).toBe('');
   });
 
   it('표에 없는 번호는 칸을 비우고 알려 준다', () => {
-    const result = skillRuneValues(skillSave([[LASER_SHOT, [[0, [99, 0, 0, 0, 0, 0, 0]]]]], [[LASER_SHOT, 0]]), RUNE, PRESET, SLOT1_HERO, SLOT2_HERO);
+    const result = skillRuneValues(
+      skillSave([[LASER_SHOT, [[0, [99, 0, 0, 0, 0, 0, 0]]]]], [[LASER_SHOT, 0]]),
+      RUNE,
+      PRESET,
+      SLOT1_HERO,
+      SLOT2_HERO,
+    );
     expect(result.values[`skillPerk_${LASER_SHOT}_60`]).toBe('');
     expect(result.notes.some((note) => note.includes('계산기에 아직 없는 스킬 문양'))).toBe(true);
   });

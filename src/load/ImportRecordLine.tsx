@@ -6,7 +6,12 @@ import { useCalcStore } from '@/store/useCalcStore';
 
 const { IMPORTED_AT_KEY, IMPORT_NOTES_KEY } = CONSTS.load;
 /** 불러온 시각 표기: 월 · 일 · 시 · 분 */
-const TIME_FORMAT: Intl.DateTimeFormatOptions = { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+const TIME_FORMAT: Intl.DateTimeFormatOptions = {
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+};
 const NOTES_WIDTH = 420;
 
 /** 불러오기 창 안 한 줄: 마지막으로 불러온 시각과 그때 알림 (누르면 목록) */

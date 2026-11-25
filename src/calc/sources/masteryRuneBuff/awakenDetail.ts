@@ -23,8 +23,10 @@ export function awakenDetailLevelField(stat: string): string {
 
 /** 단계 행의 세부 스탯 [스탯, 레벨당 값] (빈 칸·명중 제외) */
 function stageStats(stage: AwakenStage): Array<{ stat: string; valuePerLevel: number }> {
-  return STAT_COLUMN_NUMBERS.map((number) => ({ stat: stage.row[`type${number}`], valuePerLevel: Number(stage.row[`val${number}`]) }))
-    .filter(({ stat }) => stat && !EXCLUDED.has(stat.toLowerCase()));
+  return STAT_COLUMN_NUMBERS.map((number) => ({
+    stat: stage.row[`type${number}`],
+    valuePerLevel: Number(stage.row[`val${number}`]),
+  })).filter(({ stat }) => stat && !EXCLUDED.has(stat.toLowerCase()));
 }
 
 export interface AwakenDetailStat {
@@ -63,5 +65,9 @@ export function awakenDetailStats(values: CalcValues, tables: StatTables): Awake
 export function awakenDetailLines(values: CalcValues, tables: StatTables, sourceLabel: SourceLabel): Line[] {
   return awakenDetailStats(values, tables)
     .filter((entry) => entry.percentLog !== null)
-    .map((entry) => ({ source: sourceLabel('calc.awakenDetail.lineSource'), stat: entry.stat, log: entry.percentLog as number }));
+    .map((entry) => ({
+      source: sourceLabel('calc.awakenDetail.lineSource'),
+      stat: entry.stat,
+      log: entry.percentLog as number,
+    }));
 }

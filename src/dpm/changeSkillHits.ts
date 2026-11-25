@@ -26,7 +26,11 @@ function values(row: TableRow): [number, number, number, number] {
 /** 판정 하나에 맞는 적 수가 targets 인 판정 n 번 */
 type HitRule = (row: TableRow, targets: number) => ChangeSkillHits;
 
-const found = (hits: number, estimates?: string[]): ChangeSkillHits => ({ supported: true, hits, ...(estimates ? { estimates } : {}) });
+const found = (hits: number, estimates?: string[]): ChangeSkillHits => ({
+  supported: true,
+  hits,
+  ...(estimates ? { estimates } : {}),
+});
 const estimated = (hits: number) => found(hits, [CHANGE_SKILL.ESTIMATE_CODE]);
 /** 정수 몫 int(a / b) (b 가 0 이면 0) */
 const intDiv = (a: number, b: number) => (b > 0 ? Math.floor(a / b + CHANGE_SKILL.FLOAT_EPSILON) : 0);
@@ -46,7 +50,9 @@ rule(['1001', '1002', '1003'], (row, targets) => {
 // 린: 수룡 value1 마리 (각성 11004 는 10마리), 자리마다 반지름 6 안 적 1번. 11005 는 10마리 + 거대 수룡 1번 (계수 × value1 / 100, 사실상 모든 적)
 rule(['1004', '1005', '1006'], (row, targets) => found(values(row)[0] * targets));
 rule(['11004'], (_row, targets) => found(CHANGE_SKILL.LIN_AWAKEN_DRAGONS * targets));
-rule(['11005'], (row, targets) => found((CHANGE_SKILL.LIN_AWAKEN_DRAGONS + values(row)[0] / CONSTS.dpm.PERCENT_DIVISOR) * targets));
+rule(['11005'], (row, targets) =>
+  found((CHANGE_SKILL.LIN_AWAKEN_DRAGONS + values(row)[0] / CONSTS.dpm.PERCENT_DIVISOR) * targets),
+);
 // 카이토: value1 방향, 방향마다 수룡 쌍 상자 (한 번만 모드) 가 한 적 1번 — 상자 수는 프리팹 값이라 1 로 추정
 rule(['1007', '1008', '1009'], (row, targets) => estimated(values(row)[0] * targets));
 // 라스칼: value1 번 타격, 타격마다 반지름 3.5 안 적 1번
@@ -71,7 +77,9 @@ rule(['1101', '1102', '1103'], (row, targets) => {
   return estimated(value2 * (CHANGE_SKILL.SHEN_MOVE_HITS + value1) * targets);
 });
 // 마리: 단계 수만큼 빔, 빔마다 약 10판정 (끝 시각을 못 읽어 9~11, 추정)
-rule(['1104', '1105', '1106'], (row, targets) => estimated((Number(row.coolTime) || 0) * CHANGE_SKILL.MARI_BEAM_HITS * targets));
+rule(['1104', '1105', '1106'], (row, targets) =>
+  estimated((Number(row.coolTime) || 0) * CHANGE_SKILL.MARI_BEAM_HITS * targets),
+);
 // 레이: 토네이도 value3 개, 토네이도마다 value2 초 동안 value1 초 간격 판정 (각성 그림자 몫은 못 넣음)
 rule(['1107', '1108', '1109'], (row, targets) => {
   const [value1, value2, value3] = values(row);

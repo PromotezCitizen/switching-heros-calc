@@ -18,8 +18,15 @@ import { statDescription } from '@/calc/statText';
 import type { TabPanelProps } from '@/calc/types';
 import { relicAllMaxed } from '@/calc/sources/trainingRelic/relic';
 
-const { CURRENT_CONST_FIELD, CURRENT_STEP_FIELD, PROGRESS_FIELD, NODE_COLUMN, MAX_LEVEL_COLUMN, STAT_COLUMN, LEVEL_INPUT_WIDTH } =
-  CONSTS.providers.ancientRelic;
+const {
+  CURRENT_CONST_FIELD,
+  CURRENT_STEP_FIELD,
+  PROGRESS_FIELD,
+  NODE_COLUMN,
+  MAX_LEVEL_COLUMN,
+  STAT_COLUMN,
+  LEVEL_INPUT_WIDTH,
+} = CONSTS.providers.ancientRelic;
 const PLACEHOLDER = '{0}';
 const PLACEHOLDER_SHOWN = 'N';
 /** 화면의 % = 줄을 곱한 배율 − 1 (× 100): log10(배율 − 1) + 2 */
@@ -106,7 +113,10 @@ export default function AncientRelicPanel({ values, setValue, tables, descriptio
               max={Number(row[MAX_LEVEL_COLUMN])}
               allowNegative={false}
               allowDecimal={false}
-              label={translate('calc.ancientRelic.levelForStat', { stat: statDescription(descriptions, row[STAT_COLUMN]).replace(PLACEHOLDER, PLACEHOLDER_SHOWN), max: row[MAX_LEVEL_COLUMN] })}
+              label={translate('calc.ancientRelic.levelForStat', {
+                stat: statDescription(descriptions, row[STAT_COLUMN]).replace(PLACEHOLDER, PLACEHOLDER_SHOWN),
+                max: row[MAX_LEVEL_COLUMN],
+              })}
               placeholder={`/ ${row[MAX_LEVEL_COLUMN]}`}
               value={current?.levels.get(row[NODE_COLUMN]) ?? ''}
               onChange={(next) => change(stepLevelField(row[NODE_COLUMN]), String(next))}
@@ -125,7 +135,10 @@ export default function AncientRelicPanel({ values, setValue, tables, descriptio
                     <Table.Tr key={stat}>
                       <Table.Td>{statDescription(descriptions, stat).replace(PLACEHOLDER, PLACEHOLDER_SHOWN)}</Table.Td>
                       <Table.Td ta="right">
-                        {formatLog(Math.log10(Math.max(Math.pow(10, entry.log) - 1, Number.MIN_VALUE)) + PERCENT_LOG_SHIFT)}%
+                        {formatLog(
+                          Math.log10(Math.max(Math.pow(10, entry.log) - 1, Number.MIN_VALUE)) + PERCENT_LOG_SHIFT,
+                        )}
+                        %
                       </Table.Td>
                     </Table.Tr>
                   ))}

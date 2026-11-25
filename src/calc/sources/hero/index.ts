@@ -11,7 +11,14 @@ import type { CalcTab } from '@/calc/types';
 import { HeroRosterPanel } from '@/calc/panels/RosterPanels';
 import HeroPanel from '@/calc/sources/hero/HeroPanel';
 
-export { awakenFinalCheck, awakenGradeChoices, awakenStages, awakenStarChoices, selectedAwakenChoice, selectedAwakenStage } from '@/calc/sources/hero/awaken';
+export {
+  awakenFinalCheck,
+  awakenGradeChoices,
+  awakenStages,
+  awakenStarChoices,
+  selectedAwakenChoice,
+  selectedAwakenStage,
+} from '@/calc/sources/hero/awaken';
 export type { AwakenFinalCheckRow, AwakenStage } from '@/calc/sources/hero/awaken';
 export { baseCheck } from '@/calc/sources/hero/baseCheck';
 export type { BaseCheckRow } from '@/calc/sources/hero/baseCheck';
@@ -34,7 +41,11 @@ export {
 export type { HeroBase, HeroSelection } from '@/calc/sources/hero/character';
 
 /** WeaponChar = 1슬롯 히어로에게 전용 무기가 있는지 (전용 무기 장착 켬/끔 칸) */
-const HERO_TABLE_NAMES: readonly string[] = [CONSTS.hero.TABLES.CHARACTER, CONSTS.hero.TABLES.HERO_AWAKEN, 'WeaponChar'];
+const HERO_TABLE_NAMES: readonly string[] = [
+  CONSTS.hero.TABLES.CHARACTER,
+  CONSTS.hero.TABLES.HERO_AWAKEN,
+  'WeaponChar',
+];
 
 export const heroTabs: CalcTab[] = [
   {

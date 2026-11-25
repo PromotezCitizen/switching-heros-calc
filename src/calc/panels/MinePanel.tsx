@@ -28,9 +28,7 @@ export default function MinePanel({ values, setValue }: TabPanelProps) {
         onChange={(next) => setValue(MINE_LEVEL_FIELD, String(next))}
       />
       <Text size="sm">{translate('calc.mine.awakenTotal', { total: mineAwakenTotal(values) })}</Text>
-      <Text size="sm">
-        {translate('calc.mine.blessing', { value: blessing ?? '-' })}
-      </Text>
+      <Text size="sm">{translate('calc.mine.blessing', { value: blessing ?? '-' })}</Text>
     </Stack>
   );
 }

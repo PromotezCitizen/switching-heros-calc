@@ -57,7 +57,18 @@ const expected: Record<string, string> = savedValues.values;
  * 저장 데이터에서 오지 않는 칸 (Python 이 따로 넣은 값): 전투 중 최대 상태 3개, 프로필 비교값 2개,
  * 영혼 연성 레벨 (잠김 여부를 저장 데이터로 못 가려 Python 도 빈칸), Python 판의 다발 화살 옵션 칸 (지금은 스킬마다 옵션 칸 skillOption_<스킬>_<칸>)
  */
-const NOT_FROM_SAVE = new Set(['summaryEnemyCountReached', 'berserkStacks', 'killerActive', 'atk', 'hp', 'soulForgeLevel', 'skillOption252', 'mineAwakenLevel', 'fairyBondLevel', 'fairyBlessingOn']);
+const NOT_FROM_SAVE = new Set([
+  'summaryEnemyCountReached',
+  'berserkStacks',
+  'killerActive',
+  'atk',
+  'hp',
+  'soulForgeLevel',
+  'skillOption252',
+  'mineAwakenLevel',
+  'fairyBondLevel',
+  'fairyBlessingOn',
+]);
 /** 기록 보관소 레벨은 저장 mainLv 를 그대로 (2026-11-07, 파이썬 변환에 없는 칸). 따로 대조 */
 const ARCHIVE_LEVEL_KEY = 'libraryArchiveLevel';
 /** 속성 던전 기록 · 모험 던전 진행도 (2026-11-07 추가, 파이썬 변환에 없는 칸). 따로 대조 */
@@ -73,8 +84,10 @@ const SKILL_OPTION_KEY = /^skillOption_\d+_\d+$/;
 /** 스킬 문양 칸: 이것도 Python 변환에는 없는 칸이라 skillRuneValues.test.ts 에서 따로 대조한다 */
 const SKILL_PERK_KEY = /^skillPerk_\d+_\d+$/;
 /** 2슬롯 히어로의 장착 스킬 · 전용 무기 장착 (교체 DPM 용): 이것도 Python 변환에는 없는 칸이라 swapDamage.test.ts 에서 따로 대조한다 */
-const SECOND_HERO_KEY = /^(contentPresets|presetOverrides|alchemySameGradeMax|weaponSssOptionCount2?|skillEquip2_\d+|exclusiveEquipped2|weaponOption2(Stat|Value)\d+|frameOwned_\d+|ancientMastered|ancientProgress|ancientCurrentConst|ancientCurrentStep|ancientStepLevel_d+|soulForgeLevel|soulForgeSlot_\d+|coreMasteryLevel|figureLevel_\d+|normalMonsterFood)$/;
-const NUMBER_KEY = /(^inheritValue|^weaponOptionValue|^petOption\d+_\d+Value|^artifactTotal(Smite|Barrier|DoubleAttack|SuperCritical|SwitchingBoost|SpearAttack|SkillCombo)$)/;
+const SECOND_HERO_KEY =
+  /^(contentPresets|presetOverrides|alchemySameGradeMax|weaponSssOptionCount2?|skillEquip2_\d+|exclusiveEquipped2|weaponOption2(Stat|Value)\d+|frameOwned_\d+|ancientMastered|ancientProgress|ancientCurrentConst|ancientCurrentStep|ancientStepLevel_d+|soulForgeLevel|soulForgeSlot_\d+|coreMasteryLevel|figureLevel_\d+|normalMonsterFood)$/;
+const NUMBER_KEY =
+  /(^inheritValue|^weaponOptionValue|^petOption\d+_\d+Value|^artifactTotal(Smite|Barrier|DoubleAttack|SuperCritical|SwitchingBoost|SpearAttack|SkillCombo)$)/;
 const LOG_TOLERANCE = 1e-6;
 const VIP_LEVEL_0154 = '11';
 const FAIRY_LEVEL_0154 = '648';
@@ -104,10 +117,20 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
   });
 
   it('Python 변환의 저장 데이터 칸을 빠짐없이 같은 값으로 낸다', () => {
-    const expectedKeys = Object.keys(expected).filter((key) => !NOT_FROM_SAVE.has(key) && !WEAPON_OPTION_KEY.test(key)).sort();
+    const expectedKeys = Object.keys(expected)
+      .filter((key) => !NOT_FROM_SAVE.has(key) && !WEAPON_OPTION_KEY.test(key))
+      .sort();
     // 비운 칸 ('' = 이 프리셋에서 레벨 없는 특성) 은 파이썬 변환에 없는 칸이라 뺀다
     const sameKeys = Object.keys(result.values).filter(
-      (key) => !SKILL_OPTION_KEY.test(key) && !SKILL_PERK_KEY.test(key) && !SECOND_HERO_KEY.test(key) && !WEAPON_OPTION_KEY.test(key) && key !== ARCHIVE_LEVEL_KEY && !NEW_DUNGEON_KEY.test(key) && !(key.startsWith('mastery_') && result.values[key] === '') && !((ZERO_AWAKEN_KEY.test(key) || ZERO_AFFINITY_KEY.test(key)) && result.values[key] === '0'),
+      (key) =>
+        !SKILL_OPTION_KEY.test(key) &&
+        !SKILL_PERK_KEY.test(key) &&
+        !SECOND_HERO_KEY.test(key) &&
+        !WEAPON_OPTION_KEY.test(key) &&
+        key !== ARCHIVE_LEVEL_KEY &&
+        !NEW_DUNGEON_KEY.test(key) &&
+        !(key.startsWith('mastery_') && result.values[key] === '') &&
+        !((ZERO_AWAKEN_KEY.test(key) || ZERO_AFFINITY_KEY.test(key)) && result.values[key] === '0'),
     );
     expect(sameKeys.sort()).toEqual(expectedKeys);
     for (const key of expectedKeys) {
@@ -124,11 +147,16 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
   });
 
   it('속성 던전 기록 (8 불 · 9 물 · 10 땅) 과 모험 던전 속성별 최고 기록 (불 · 물 · 땅) 을 읽는다', () => {
-    const progress = (raw.Progress as unknown as { dungeonAttDataDic: { k: number[]; v: { recordValue: { value: number; exponent: number } }[] }; petRescueDungeonData: { _bestLv: number[] } });
+    const progress = raw.Progress as unknown as {
+      dungeonAttDataDic: { k: number[]; v: { recordValue: { value: number; exponent: number } }[] };
+      petRescueDungeonData: { _bestLv: number[] };
+    };
     const fire = progress.dungeonAttDataDic.v[progress.dungeonAttDataDic.k.indexOf(8)].recordValue;
     expect(result.values.relicLink_dungeonFire).toBe(String(Math.round(fire.value * Math.pow(10, fire.exponent))));
     expect(result.values.relicLink_dungeonWater).toBeTruthy();
-    expect([1, 2, 3].map((attribute) => result.values[`petRescueBest_${attribute}`])).toEqual(progress.petRescueDungeonData._bestLv.map(String));
+    expect([1, 2, 3].map((attribute) => result.values[`petRescueBest_${attribute}`])).toEqual(
+      progress.petRescueDungeonData._bestLv.map(String),
+    );
   });
 
   it('기록 보관소 레벨: 저장 _libraryData.mainLv 그대로 (불러온 값이 책 레벨 식보다 먼저)', () => {
@@ -144,14 +172,20 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
       const oldStat = expected[`weaponOptionStat${index}`];
       if (oldStat === undefined) continue;
       expect(result.values[`exclusiveOptionStat_${weaponId}_${index}`], `칸 ${index}`).toBe(oldStat);
-      expect(Number(result.values[`exclusiveOptionValue_${weaponId}_${index}`])).toBeCloseTo(Number(expected[`weaponOptionValue${index}`]), 6);
+      expect(Number(result.values[`exclusiveOptionValue_${weaponId}_${index}`])).toBeCloseTo(
+        Number(expected[`weaponOptionValue${index}`]),
+        6,
+      );
       expect(result.values[`weaponOptionStat${index}`]).toBe('');
     }
   });
 
   it('스킬 옵션: 세트 1 의 옵션 번호 (rNo) 를 칸 순서대로 (다발 화살 252 = 320 · 319)', () => {
     const skillOptions = readDictionary(raw.Skill.psSkillOptionDic);
-    const savedCount = [...skillOptions.values()].reduce((sum, sets) => sum + (readDictionary(sets).get(1)?.diceOptions.length ?? 0), 0);
+    const savedCount = [...skillOptions.values()].reduce(
+      (sum, sets) => sum + (readDictionary(sets).get(1)?.diceOptions.length ?? 0),
+      0,
+    );
     expect(Object.keys(result.values).filter((key) => SKILL_OPTION_KEY.test(key))).toHaveLength(savedCount);
     expect(result.values.skillOption_252_1).toBe('320');
     expect(result.values.skillOption_252_2).toBe('319');
@@ -160,14 +194,21 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
   it('저장 구조가 바뀌어 키가 빠지면 그 항목만 건너뛰고 나머지는 채운다', () => {
     const { diaryData: _diaryData, ...charWithoutDiary } = raw.Char;
     void _diaryData;
-    const keysByKind = Object.fromEntries(Object.entries({ ...raw, Char: charWithoutDiary }).map(([kind, data]) => [kind, topKeys(data)]));
+    const keysByKind = Object.fromEntries(
+      Object.entries({ ...raw, Char: charWithoutDiary }).map(([kind, data]) => [kind, topKeys(data)]),
+    );
     expect(missingSaveKeys(keysByKind)).toEqual(['Default.diaryData / Char.diaryData']);
-    const partial = importSave({ ...raw, Char: charWithoutDiary as SaveFiles['Char'], Default: pickDefault(raw.Default) }, tables);
+    const partial = importSave(
+      { ...raw, Char: charWithoutDiary as SaveFiles['Char'], Default: pickDefault(raw.Default) },
+      tables,
+    );
     expect(partial.notes).toHaveLength(1);
     expect(partial.notes[0]).toMatch(/^일기장: /);
     expect(Object.keys(partial.values).some((key) => key.startsWith('diary'))).toBe(false);
     expect(partial.values.mineLevel).toBe(expected.mineLevel);
-    expect(Object.keys(partial.values)).toHaveLength(Object.keys(result.values).filter((key) => !key.startsWith('diary')).length);
+    expect(Object.keys(partial.values)).toHaveLength(
+      Object.keys(result.values).filter((key) => !key.startsWith('diary')).length,
+    );
   });
 
   it('키가 없어 값이 비면 "undefined" 를 칸에 쓰지 않는다 (파견 레벨 Dispatch.lv, 무기 링크 초월)', () => {
@@ -209,21 +250,43 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
         ...raw,
         Default: pickDefault({
           ...raw.Default,
-          _newNotInvenDic: { k: ['FragmentHat', 'FragmentCape'], v: [{ value: 7.2484378956376, exponent: 28 }, { value: 0, exponent: 0 }] },
+          _newNotInvenDic: {
+            k: ['FragmentHat', 'FragmentCape'],
+            v: [
+              { value: 7.2484378956376, exponent: 28 },
+              { value: 0, exponent: 0 },
+            ],
+          },
         }),
       },
       tables,
       false,
     );
-    expect(parseGameNumber(withFragments.accountValues[HELD_KEY_PREFIX + 'Hat'])!.log).toBeCloseTo(Math.log10(7.2484378956376) + 28, 2);
+    expect(parseGameNumber(withFragments.accountValues[HELD_KEY_PREFIX + 'Hat'])!.log).toBeCloseTo(
+      Math.log10(7.2484378956376) + 28,
+      2,
+    );
     expect(withFragments.accountValues[HELD_KEY_PREFIX + 'Cape']).toBe('0');
     expect(withFragments.accountValues[HELD_KEY_PREFIX + 'Ring']).toBe('');
   });
 
   it('사냥 계산기 오프라인 층은 최대층 (Default.maxStageNo), 없으면 칸을 건드리지 않는다', () => {
-    const withStage = importSave({ ...raw, Default: pickDefault({ ...raw.Default, maxStageNo: 7616, selectStageNo: 7000 } as Parameters<typeof pickDefault>[0]) }, tables, false);
+    const withStage = importSave(
+      {
+        ...raw,
+        Default: pickDefault({ ...raw.Default, maxStageNo: 7616, selectStageNo: 7000 } as Parameters<
+          typeof pickDefault
+        >[0]),
+      },
+      tables,
+      false,
+    );
     expect(withStage.accountValues[HUNTING_KEYS.offlineFloor]).toBe('7616');
-    const without = importSave({ ...raw, Default: pickDefault({ ...raw.Default, maxStageNo: undefined }) }, tables, false);
+    const without = importSave(
+      { ...raw, Default: pickDefault({ ...raw.Default, maxStageNo: undefined }) },
+      tables,
+      false,
+    );
     expect(HUNTING_KEYS.offlineFloor in without.accountValues).toBe(false);
   });
   it('공통 입력: 유저 레벨 (Default.userLv) 은 최적 특성의 유저 레벨 칸으로, 없으면 칸을 건드리지 않는다', () => {
@@ -251,8 +314,14 @@ describe('저장 데이터 → 입력 칸 (2026-10-18 새 저장 형식 layoutVe
   });
 
   it('옮겨진 일기장 · 광산 · 훈련 · 파견 레벨 칸이 옛 형식과 같은 이름으로 다 나온다', () => {
-    const oldKeys = Object.keys(expected).filter((key) => MOVED_SECTION_KEY.test(key) && !NOT_FROM_SAVE.has(key)).sort();
-    expect(Object.keys(result.values).filter((key) => MOVED_SECTION_KEY.test(key)).sort()).toEqual(oldKeys);
+    const oldKeys = Object.keys(expected)
+      .filter((key) => MOVED_SECTION_KEY.test(key) && !NOT_FROM_SAVE.has(key))
+      .sort();
+    expect(
+      Object.keys(result.values)
+        .filter((key) => MOVED_SECTION_KEY.test(key))
+        .sort(),
+    ).toEqual(oldKeys);
     expect(result.values.relicLink_dispatchLevel).toBe(DISPATCH_LEVEL_1018);
   });
 

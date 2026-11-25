@@ -3,8 +3,14 @@ import { Box, Image, Modal, Stack, Text, Title, Tooltip, UnstyledButton } from '
 import AutoGrid from '@/components/AutoGrid';
 import { CONSTS } from '@/CONSTS';
 
-const { PICKER_BUTTON_IMAGE_SIZE, PICKER_OPTION_IMAGE_SIZE, TYPE_ICON_SIZE, PICKER_OPTION_MIN_WIDTH, PICKER_HINT_MAX_WIDTH, UNUSED_OPACITY } =
-  CONSTS.heroWeaponCardPet.ui;
+const {
+  PICKER_BUTTON_IMAGE_SIZE,
+  PICKER_OPTION_IMAGE_SIZE,
+  TYPE_ICON_SIZE,
+  PICKER_OPTION_MIN_WIDTH,
+  PICKER_HINT_MAX_WIDTH,
+  UNUSED_OPACITY,
+} = CONSTS.heroWeaponCardPet.ui;
 
 /** public/icons/<경로>.png */
 export function iconUrl(path: string): string {
@@ -28,8 +34,15 @@ export function PickerImage({ path, size }: { path: string; size: number }) {
 
 /** 속성·직업 같은 작은 아이콘 (이름은 마우스를 올리면 보임) */
 export function TypeIcon({ path, name }: { path: string | undefined; name: string }) {
-  if (!path) return <Text span size="xs">{name}</Text>;
-  return <Image src={iconUrl(path)} w={TYPE_ICON_SIZE} h={TYPE_ICON_SIZE} alt={name} title={name} display="inline-block" />;
+  if (!path)
+    return (
+      <Text span size="xs">
+        {name}
+      </Text>
+    );
+  return (
+    <Image src={iconUrl(path)} w={TYPE_ICON_SIZE} h={TYPE_ICON_SIZE} alt={name} title={name} display="inline-block" />
+  );
 }
 
 export interface PickerOption {
@@ -83,7 +96,8 @@ export default function IconPicker({
   buttonContent,
   disabled,
 }: IconPickerProps) {
-  const isSelected = (optionValue: string) => (selectedValues ? selectedValues.includes(optionValue) : optionValue === value);
+  const isSelected = (optionValue: string) =>
+    selectedValues ? selectedValues.includes(optionValue) : optionValue === value;
   const [opened, setOpened] = useState(false);
   const picked = options.find((option) => option.value === value && option.value);
   const emptyIcon = options.find((option) => !option.value)?.icon ?? '';
@@ -122,7 +136,9 @@ export default function IconPicker({
       >
         <Stack gap={0} align="center">
           <PickerImage path={option.icon} size={PICKER_OPTION_IMAGE_SIZE} />
-          <Text size="xs" ta="center">{option.label}</Text>
+          <Text size="xs" ta="center">
+            {option.label}
+          </Text>
           {option.noteIcon && <TypeIcon path={option.noteIcon.path} name={option.noteIcon.name} />}
         </Stack>
       </UnstyledButton>
@@ -130,7 +146,13 @@ export default function IconPicker({
     if (!option.hint) return button;
     // 고를 수 없는 (disabled) 버튼은 마우스 이벤트가 안 와서 바깥 칸에 힌트를 단다
     return (
-      <Tooltip key={option.value || 'empty'} multiline maw={PICKER_HINT_MAX_WIDTH} events={{ hover: true, focus: true, touch: false }} label={option.hint}>
+      <Tooltip
+        key={option.value || 'empty'}
+        multiline
+        maw={PICKER_HINT_MAX_WIDTH}
+        events={{ hover: true, focus: true, touch: false }}
+        label={option.hint}
+      >
         <Box>{button}</Box>
       </Tooltip>
     );
@@ -145,7 +167,12 @@ export default function IconPicker({
           </Stack>
         )}
       </UnstyledButton>
-      <Modal opened={opened} onClose={() => setOpened(false)} title={title} closeButtonProps={{ 'aria-label': closeLabel }}>
+      <Modal
+        opened={opened}
+        onClose={() => setOpened(false)}
+        title={title}
+        closeButtonProps={{ 'aria-label': closeLabel }}
+      >
         <Stack gap="sm">
           {groups.map((group) => (
             <Stack key={group.name || 'ungrouped'} gap={4}>

@@ -25,17 +25,28 @@ export function levelExpLog(level: number): number {
   const inBundle = level % E.BUNDLE;
   if (level <= E.MID_END) return Math.log10(midBundleBase(bundle) + E.MID_PER_LEVEL * bundle * bundle * inBundle);
   if (level <= E.HIGH_END) {
-    const log = E.HIGH_BASE_LOG + (bundle - E.HIGH_BUNDLE_BASE) * E.BUNDLE_GROWTH_LOG + Math.log10(1 + E.PER_LEVEL_RATE * inBundle);
+    const log =
+      E.HIGH_BASE_LOG +
+      (bundle - E.HIGH_BUNDLE_BASE) * E.BUNDLE_GROWTH_LOG +
+      Math.log10(1 + E.PER_LEVEL_RATE * inBundle);
     if (level < E.ROUND_FROM) return log;
     // 가수를 소수 셋째 자리로 반올림, 지수는 그대로
     const exponent = Math.floor(log);
     return Math.log10(Math.round(Math.pow(10, log - exponent) * E.ROUND_DIGITS) / E.ROUND_DIGITS) + exponent;
   }
   if (level <= E.HIGHER_END) {
-    return E.HIGHER_BASE_LOG + (bundle - E.HIGHER_BUNDLE_BASE) * E.BUNDLE_GROWTH_LOG + Math.log10(1 + E.PER_LEVEL_RATE * inBundle);
+    return (
+      E.HIGHER_BASE_LOG +
+      (bundle - E.HIGHER_BUNDLE_BASE) * E.BUNDLE_GROWTH_LOG +
+      Math.log10(1 + E.PER_LEVEL_RATE * inBundle)
+    );
   }
   if (level <= E.TOP_END) {
-    return E.TOP_BASE_LOG + (bundle - E.TOP_BUNDLE_BASE) * E.TOP_BUNDLE_GROWTH_LOG + (inBundle / E.BUNDLE) * E.TOP_IN_BUNDLE_LOG;
+    return (
+      E.TOP_BASE_LOG +
+      (bundle - E.TOP_BUNDLE_BASE) * E.TOP_BUNDLE_GROWTH_LOG +
+      (inBundle / E.BUNDLE) * E.TOP_IN_BUNDLE_LOG
+    );
   }
   const past = level - E.TOP_END;
   const bundlesPast = Math.floor(past / E.BUNDLE);

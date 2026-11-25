@@ -73,7 +73,12 @@ export default function UsbImportSection() {
         (name) => readSaveFile(adb, name),
         tables.data,
       );
-      const importNotes = [...(outcome.missingKeys.length > 0 ? [translate('usb.missingKeys', { count: outcome.missingKeys.length })] : []), ...outcome.notes];
+      const importNotes = [
+        ...(outcome.missingKeys.length > 0
+          ? [translate('usb.missingKeys', { count: outcome.missingKeys.length })]
+          : []),
+        ...outcome.notes,
+      ];
       setValues({ ...outcome.storeValues, ...importRecordValues(importNotes) });
       setNotes(importNotes);
       setStep('done');

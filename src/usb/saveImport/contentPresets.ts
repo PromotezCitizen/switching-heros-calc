@@ -8,7 +8,15 @@
 import type { CalcValues } from '@/calc/types';
 
 /** 저장 presetData 에서 읽는 콘텐츠 프리셋 칸 */
-export const CONTENT_PRESET_KEYS = ['presetId', 'stageId', 'bossId', 'guildRaidId', 'guildRaidGlobalId', 'pveId', ...Array.from({ length: 11 }, (_, index) => `dungeonId${index + 1}`)] as const;
+export const CONTENT_PRESET_KEYS = [
+  'presetId',
+  'stageId',
+  'bossId',
+  'guildRaidId',
+  'guildRaidGlobalId',
+  'pveId',
+  ...Array.from({ length: 11 }, (_, index) => `dungeonId${index + 1}`),
+] as const;
 /** 입력 칸: 콘텐츠 프리셋 번호 (JSON {칸: 프리셋}) · 프리셋별로 현재와 다른 칸 (JSON {프리셋: {칸: 값}}) */
 export const CONTENT_PRESETS_FIELD = 'contentPresets';
 export const PRESET_OVERRIDES_FIELD = 'presetOverrides';

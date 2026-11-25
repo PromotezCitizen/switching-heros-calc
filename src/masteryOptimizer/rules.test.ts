@@ -22,7 +22,8 @@ describe('저장된 실제 배분은 규칙을 모두 통과한다 (규칙이 �
   for (const [presetKey, masteries] of presets) {
     it(`프리셋 ${presetKey}`, () => {
       const allocation: Allocation = {};
-      for (const [rNo, entry] of readDictionary(masteries)) allocation[String(rNo)] = typeof entry === 'number' ? entry : entry.lv;
+      for (const [rNo, entry] of readDictionary(masteries))
+        allocation[String(rNo)] = typeof entry === 'number' ? entry : entry.lv;
       expect(validateAllocation(traits, allocation, USER_LEVEL_1018, usedPoints(traits, allocation))).toEqual([]);
     });
   }
@@ -30,7 +31,9 @@ describe('저장된 실제 배분은 규칙을 모두 통과한다 (규칙이 �
 
 describe('규칙 하나씩', () => {
   const firstStep = traits.find((trait) => !trait.ultimate && trait.step === 1)!;
-  const secondStepSameGroup = traits.find((trait) => !trait.ultimate && trait.group === firstStep.group && trait.step === 2)!;
+  const secondStepSameGroup = traits.find(
+    (trait) => !trait.ultimate && trait.group === firstStep.group && trait.step === 2,
+  )!;
   const ultimate = traits.find((trait) => trait.ultimate)!;
 
   it('사용 포인트 = 필요 포인트 × 레벨 합', () => {
@@ -44,10 +47,12 @@ describe('규칙 하나씩', () => {
 
   it('유저 레벨이 모자라면 잠김', () => {
     expect(isUnlocked(traits, firstStep, {}, firstStep.unlockLevel - 1)).toBe(false);
-    expect(validateAllocation(traits, { [ultimate.rNo]: 1 }, ultimate.unlockLevel - 1, NO_BUDGET_LIMIT)).toContainEqual({
-      kind: 'userLevel',
-      rNo: ultimate.rNo,
-    });
+    expect(validateAllocation(traits, { [ultimate.rNo]: 1 }, ultimate.unlockLevel - 1, NO_BUDGET_LIMIT)).toContainEqual(
+      {
+        kind: 'userLevel',
+        rNo: ultimate.rNo,
+      },
+    );
   });
 
   it('앞 단계에 최대 레벨 특성이 없으면 잠김, 채우면 열림', () => {
@@ -55,13 +60,15 @@ describe('규칙 하나씩', () => {
     expect(isUnlocked(traits, secondStepSameGroup, {}, userLevel)).toBe(false);
     expect(isUnlocked(traits, secondStepSameGroup, { [firstStep.rNo]: firstStep.maxLevel - 1 }, userLevel)).toBe(false);
     expect(isUnlocked(traits, secondStepSameGroup, { [firstStep.rNo]: firstStep.maxLevel }, userLevel)).toBe(true);
-    expect(
-      validateAllocation(traits, { [secondStepSameGroup.rNo]: 1 }, userLevel, NO_BUDGET_LIMIT),
-    ).toEqual([{ kind: 'previousStep', rNo: secondStepSameGroup.rNo }]);
+    expect(validateAllocation(traits, { [secondStepSameGroup.rNo]: 1 }, userLevel, NO_BUDGET_LIMIT)).toEqual([
+      { kind: 'previousStep', rNo: secondStepSameGroup.rNo },
+    ]);
   });
 
   it('앞 단계는 같은 묶음만 본다 (다른 묶음의 최대 레벨은 소용없음)', () => {
-    const otherGroupFirst = traits.find((trait) => !trait.ultimate && trait.step === 1 && trait.group !== firstStep.group)!;
+    const otherGroupFirst = traits.find(
+      (trait) => !trait.ultimate && trait.step === 1 && trait.group !== firstStep.group,
+    )!;
     const allocation: Allocation = { [otherGroupFirst.rNo]: otherGroupFirst.maxLevel };
     expect(isUnlocked(traits, secondStepSameGroup, allocation, secondStepSameGroup.unlockLevel)).toBe(false);
   });
@@ -69,7 +76,9 @@ describe('규칙 하나씩', () => {
   describe('얼티밋: 유저 레벨 + 같은 묶음 18단계 특성 하나가 최대 레벨 (5000)', () => {
     const laterUltimate = traits.find((trait) => trait.ultimate && trait.step > 1)!;
     const gates = traits.filter((trait) => !trait.ultimate && trait.group === laterUltimate.group && trait.step === 18);
-    const otherGroupGate = traits.find((trait) => !trait.ultimate && trait.group !== laterUltimate.group && trait.step === 18)!;
+    const otherGroupGate = traits.find(
+      (trait) => !trait.ultimate && trait.group !== laterUltimate.group && trait.step === 18,
+    )!;
     const userLevel = laterUltimate.unlockLevel;
 
     it('18단계 특성이 최대가 아니면 잠김 (아무것도 없을 때, 4999 일 때)', () => {
@@ -82,15 +91,21 @@ describe('규칙 하나씩', () => {
       });
     });
     it('같은 묶음의 18단계 특성 하나만 최대여도 열린다 (직업은 상관없음)', () => {
-      for (const gate of gates) expect(isUnlocked(traits, laterUltimate, { [gate.rNo]: gate.maxLevel }, userLevel)).toBe(true);
+      for (const gate of gates)
+        expect(isUnlocked(traits, laterUltimate, { [gate.rNo]: gate.maxLevel }, userLevel)).toBe(true);
     });
     it('다른 묶음의 18단계 최대는 소용없고, 유저 레벨이 모자라면 최대여도 잠김', () => {
-      expect(isUnlocked(traits, laterUltimate, { [otherGroupGate.rNo]: otherGroupGate.maxLevel }, userLevel)).toBe(false);
+      expect(isUnlocked(traits, laterUltimate, { [otherGroupGate.rNo]: otherGroupGate.maxLevel }, userLevel)).toBe(
+        false,
+      );
       expect(isUnlocked(traits, laterUltimate, { [gates[0].rNo]: gates[0].maxLevel }, userLevel - 1)).toBe(false);
     });
     it('18단계가 최대가 아닌데 얼티밋이 있는 배분은 규칙 위반 (ultimateGate)', () => {
       const allocation: Allocation = { [gates[0].rNo]: gates[0].maxLevel - 1000, [laterUltimate.rNo]: 1 };
-      expect(validateAllocation(traits, allocation, userLevel, NO_BUDGET_LIMIT)).toContainEqual({ kind: 'ultimateGate', rNo: laterUltimate.rNo });
+      expect(validateAllocation(traits, allocation, userLevel, NO_BUDGET_LIMIT)).toContainEqual({
+        kind: 'ultimateGate',
+        rNo: laterUltimate.rNo,
+      });
     });
   });
 

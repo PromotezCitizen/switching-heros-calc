@@ -37,7 +37,12 @@ export function attributeRunes(table: RawTable): AttributeRune[] {
     const slot = row[slotColumn];
     let rune = runeBySlot.get(slot);
     if (!rune) {
-      rune = { key: slot === CORE_SLOT ? CORE_RUNE_KEY : slot, stat: row[statColumn], maxLevel: 0, valueByLevel: new Map() };
+      rune = {
+        key: slot === CORE_SLOT ? CORE_RUNE_KEY : slot,
+        stat: row[statColumn],
+        maxLevel: 0,
+        valueByLevel: new Map(),
+      };
       runeBySlot.set(slot, rune);
     }
     const level = Number(row[levelColumn]);
@@ -103,11 +108,16 @@ export function runeLabLines(values: CalcValues, tables: StatTables, sourceLabel
   for (const attribute of LAB.ATTRIBUTES) {
     const level = Math.floor(Number(values[runeLabField(attribute)]) || MIN_LEVEL);
     if (level < 1) continue;
-    const row = rows.find((record) => record[LAB.ATTRIBUTE_COLUMN] === attribute && Number(record[LAB.LEVEL_COLUMN]) === level);
+    const row = rows.find(
+      (record) => record[LAB.ATTRIBUTE_COLUMN] === attribute && Number(record[LAB.LEVEL_COLUMN]) === level,
+    );
     const value = row ? Number(row[LAB.VALUE_COLUMN]) : 0;
     if (!row || !row[LAB.STAT_COLUMN] || !value) continue;
     lines.push({
-      source: sourceLabel('calc.rune.labSource', { attribute: sourceLabel(`calc.rune.labAttributes.${attribute}`), level }),
+      source: sourceLabel('calc.rune.labSource', {
+        attribute: sourceLabel(`calc.rune.labAttributes.${attribute}`),
+        level,
+      }),
       stat: row[LAB.STAT_COLUMN],
       value,
     });

@@ -50,10 +50,18 @@ export default function CardSetCards({ setStates, descriptions }: CardSetCardsPr
                     </Text>
                   }
                 >
-                  <Text size="sm" ta="center" style={{ opacity: tier.reached ? undefined : UNUSED_OPACITY, cursor: 'help' }} tabIndex={0}>
+                  <Text
+                    size="sm"
+                    ta="center"
+                    style={{ opacity: tier.reached ? undefined : UNUSED_OPACITY, cursor: 'help' }}
+                    tabIndex={0}
+                  >
                     {translate('calc.card.setTier', {
                       count: tier.setCount,
-                      effect: lineText(descriptions, { source: '', stat: tier.stat, value: tier.value }).replace(TRAILING_INCREASE, ''),
+                      effect: lineText(descriptions, { source: '', stat: tier.stat, value: tier.value }).replace(
+                        TRAILING_INCREASE,
+                        '',
+                      ),
                     })}
                   </Text>
                 </Tooltip>

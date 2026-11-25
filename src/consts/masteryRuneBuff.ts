@@ -152,7 +152,15 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     _pow_attackDamage_ArtifactUniqueOptionOver120: 120,
   } as Record<string, number>,
   /** 확률 초과 개수 얼티밋이 세는 확률 7종 (chancesFromLines 이름) */
-  CHANCE_COUNT_NAMES: ['doubleAttack', 'superCritical', 'spearAttack', 'switchingBoost', 'skillCombo', 'smite', 'barrier'] as readonly string[],
+  CHANCE_COUNT_NAMES: [
+    'doubleAttack',
+    'superCritical',
+    'spearAttack',
+    'switchingBoost',
+    'skillCombo',
+    'smite',
+    'barrier',
+  ] as readonly string[],
   /** 교체가 있을 때만 발동하는 확률 (교체 켜짐 비율 칸이 0 이면 그 확률의 문턱 얼티밋 줄을 만들지 않는다) */
   SWAP_ONLY_CHANCE: 'switchingBoost',
   /**
@@ -220,7 +228,14 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
    * 확률을 100% 로 올리는 특성과 그 문턱 효과 특성을 따로 올리면 효율이 안 오른다 → 추천이 같은 묶음의 특성 둘을 동시에 올려 본다
    * (예: 무자비 306 + 307, 슈퍼 치명타 17 + 108, 매직 가드 전환율 61 · 311 + 312). 스위칭 부스트는 효과 식이 따로라 넣지 않음
    */
-  COMBO_FAMILIES: ['superCritical', 'spearAttack', 'doubleAttack', 'skillCombo', 'smite', 'barrier'] as readonly string[],
+  COMBO_FAMILIES: [
+    'superCritical',
+    'spearAttack',
+    'doubleAttack',
+    'skillCombo',
+    'smite',
+    'barrier',
+  ] as readonly string[],
   /**
    * 매직 가드 (게임 m2137 @32e1ae8, claude-docs/react-port/barrier-and-atk-gap.md 1절):
    * - 기본 항 BASE_STAT (0x105, 특성 60 · 연성 · 주사위) 이 0 이면 보호막 0 으로 두고 함수가 끝난다 (32e1cd8~32e1d5c 직접 확인)
@@ -364,18 +379,26 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
   ATTACK_EVENT_BUFF: { itemId: 15, stat: '_per_attackDamage', percent: 200 },
 
   /** 얼티밋 특성 "_pow_/_per_ 공격력·체력 _개수" 의 개수 이름 → 장착 펫 속성 (서버 표 Pet attribute) */
-  ULTIMATE_PET_COUNT_KEYS: { EqFirePetCnt: 'Fire', EqWaterPetCnt: 'Water', EqEarthPetCnt: 'Earth' } as Record<string, string>,
-  /** 얼티밋 "_pow_스탯_편성 히어로 속성 수" 의 개수 이름 → 1·2슬롯 히어로 속성 (Character 표 attribute) */
-  ULTIMATE_HERO_ATTRIBUTE_COUNT_KEYS: { EqFireHeroCnt: 'Fire', EqWaterHeroCnt: 'Water', EqEarthHeroCnt: 'Earth' } as Record<
+  ULTIMATE_PET_COUNT_KEYS: { EqFirePetCnt: 'Fire', EqWaterPetCnt: 'Water', EqEarthPetCnt: 'Earth' } as Record<
     string,
     string
   >,
+  /** 얼티밋 "_pow_스탯_편성 히어로 속성 수" 의 개수 이름 → 1·2슬롯 히어로 속성 (Character 표 attribute) */
+  ULTIMATE_HERO_ATTRIBUTE_COUNT_KEYS: {
+    EqFireHeroCnt: 'Fire',
+    EqWaterHeroCnt: 'Water',
+    EqEarthHeroCnt: 'Earth',
+  } as Record<string, string>,
   /**
    * 이름에 개수 꼬리말이 없지만 개수를 곱하는 얼티밋 (설명문 "활성화된 스킬 문양 개수 x {0}% 만큼 … 스킬 데미지 증가").
    * 개수 = 장착 5칸 스킬에 켜 둔 문양 수 (equippedSkillPerkCount). 값 × 개수 % 를 그 스킬 종류의 데미지 스탯에 넣는다
    * (직업 = 버프 · 액티브 스킬 데미지, 전용, 교체. 붙는 스탯은 설명문 기준 추정)
    */
-  ULTIMATE_HIDDEN_COUNT_STATS: ['_per_jobSkillRuneDamage', '_per_charSkillRuneDamage', '_per_swapSkillRuneDamage'] as readonly string[],
+  ULTIMATE_HIDDEN_COUNT_STATS: [
+    '_per_jobSkillRuneDamage',
+    '_per_charSkillRuneDamage',
+    '_per_swapSkillRuneDamage',
+  ] as readonly string[],
   ULTIMATE_PERK_COUNT_TARGETS: {
     _per_jobSkillRuneDamage: '_per_buffAndActiveDmg',
     _per_charSkillRuneDamage: '_per_CharSkillDamage',
@@ -415,7 +438,10 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
    * - EquipSSSOptionCnt (1020 · 1021): 히어로가 낀 **전용 무기** 옵션 중 SSS 이상 (등급 > SS) 개수. 직업 무기는 0. 1슬롯 칸 (2슬롯은 SWAP.SSS_OPTION_COUNT_FIELDS)
    * - EqSSS_StickerCnt (3019 · 3020): 편성 카드 6장에 붙인 SSS 이상 배지 수 (최대 24). 저장에 예시가 없어 직접 입력
    */
-  ULTIMATE_COUNT_FIELDS: { EquipSSSOptionCnt: 'weaponSssOptionCount', EqSSS_StickerCnt: 'sssStickerCount' } as Record<string, string>,
+  ULTIMATE_COUNT_FIELDS: { EquipSSSOptionCnt: 'weaponSssOptionCount', EqSSS_StickerCnt: 'sssStickerCount' } as Record<
+    string,
+    string
+  >,
   /**
    * 얼티밋 "_pow_스탯_EqStickerCnt<n>" (특성 2028~2033, 3028~3033, 배지 모양 n 컬렉션): 지금 프리셋 카드 6장에 붙은 모양 n 배지 수 N
    * (등급 무관, 두 히어로 공통) 으로 대상 스탯 × 값^N (게임 카드 수집기 m2688, claude-docs/react-port/mastery-wording-2026-11-18.md 5절).

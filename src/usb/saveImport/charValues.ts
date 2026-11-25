@@ -4,7 +4,13 @@
  */
 import { CONSTS } from '@/CONSTS';
 import { tableRows, type StatTables, type TableRow } from '@/data/statTables';
-import { groupBy, readDictionary, runSection, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
+import {
+  groupBy,
+  readDictionary,
+  runSection,
+  type SaveDictionary,
+  type SaveImportResult,
+} from '@/usb/saveImport/saveDictionary';
 import { multiplierLogFromPercent, percentTextFromMultiplierLog } from '@/usb/saveImport/saveText';
 
 const { LIBRARY_DICE_ID, LIBRARY_OPTION_KEY, PET_REGION_ATTRIBUTES } = CONSTS.usb;
@@ -31,7 +37,6 @@ export interface CharSave {
   iconIdList: number[];
   petRegionData: { regions: { attIdx?: number; lv: number }[] };
 }
-
 
 /** 누적 호감도 경험치 → 호감도 레벨 (레벨마다 그 레벨의 exp 를 다 채우면 다음 레벨) */
 function affinityLevel(rows: TableRow[], exp: number): number {
@@ -71,7 +76,9 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
       const id = String(hero.id);
       const row = rowsByHero.get(id)?.[hero.gradeLv - 1];
       if (!row) {
-        notes.push('계산기에 아직 없는 히어로가 있어서 그 히어로는 비워 뒀어요 (게임 업데이트로 새로 생긴 히어로로 보여요)');
+        notes.push(
+          '계산기에 아직 없는 히어로가 있어서 그 히어로는 비워 뒀어요 (게임 업데이트로 새로 생긴 히어로로 보여요)',
+        );
         continue;
       }
       values[`heroOwnedGrade_${id}`] = row.grade;
@@ -90,7 +97,8 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
       values[`library_${job}`] = String(Math.trunc(level));
     }
     // 기록 보관소 레벨은 저장값 그대로
-    values.libraryArchiveLevel = char._libraryData.mainLv === undefined ? '' : String(Math.trunc(char._libraryData.mainLv));
+    values.libraryArchiveLevel =
+      char._libraryData.mainLv === undefined ? '' : String(Math.trunc(char._libraryData.mainLv));
     const diceRows = tableRows(tables.DiceOption).filter((row) => row.diceId === LIBRARY_DICE_ID);
     const options = readDictionary(char._libraryData._optionDic).get(LIBRARY_OPTION_KEY)?.list ?? [];
     options.forEach((option, index) => {
@@ -98,7 +106,10 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
       values[`inheritStat${slot}`] = option.statType;
       const dice = diceRows.find((row) => row.statType === option.statType && row.grade === option.grade);
       // 값 = min(최소 + 단계 × 단위, 최대) (게임 m6053)
-      if (dice) values[`inheritValue${slot}`] = String(Math.min(Number(dice.statMin) + Number(dice.statUnit) * option.unitLv, Number(dice.statMax)));
+      if (dice)
+        values[`inheritValue${slot}`] = String(
+          Math.min(Number(dice.statMin) + Number(dice.statUnit) * option.unitLv, Number(dice.statMax)),
+        );
       else notes.push(`계산기에 아직 없는 전승 능력이 있어서 비워 뒀어요 (${option.grade} 등급)`);
     });
   });
@@ -106,7 +117,8 @@ export function charValues(char: CharSave, presetKey: number, tables: StatTables
   // 일기장
   runSection(notes, '일기장', () => {
     values.diaryBook = String(char.diaryData.tabIdx);
-    for (const [slot, level] of readDictionary(char.diaryData.levelBySlotId)) values[`diarySlotLevel${slot}`] = String(level);
+    for (const [slot, level] of readDictionary(char.diaryData.levelBySlotId))
+      values[`diarySlotLevel${slot}`] = String(level);
   });
 
   // 광산: 레벨만 (각성 총합은 히어로 탭 각성 레벨 합으로 계산, mine.ts)

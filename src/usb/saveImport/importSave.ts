@@ -8,7 +8,12 @@ import { HUNTING_KEYS } from '@/hunting/huntingKeys';
 import type { StatTables } from '@/data/statTables';
 import { formatLog } from '@/calc/gameNumber';
 import { charValues, type CharSave } from '@/usb/saveImport/charValues';
-import { CONTENT_PRESETS_FIELD, CONTENT_PRESET_KEYS, PRESET_OVERRIDES_FIELD, presetDiff } from '@/usb/saveImport/contentPresets';
+import {
+  CONTENT_PRESETS_FIELD,
+  CONTENT_PRESET_KEYS,
+  PRESET_OVERRIDES_FIELD,
+  presetDiff,
+} from '@/usb/saveImport/contentPresets';
 import { collectionValues, type AlchemySave, type CollectionProgress } from '@/usb/saveImport/collectionValues';
 import { equipValues, type EquipSave } from '@/usb/saveImport/equipValues';
 import { reinforceValues, type ReinforceSave } from '@/usb/saveImport/reinforceValues';
@@ -24,7 +29,7 @@ import {
   type SoulForgeSave,
 } from '@/usb/saveImport/progressValues';
 import { OWNED_CARDS_KEY, ownedCardsText } from '@/usb/saveImport/ownedCards';
-import { relicCardValues,type CardSave, type DungeonProgress, type RelicSave } from '@/usb/saveImport/relicCardValues';
+import { relicCardValues, type CardSave, type DungeonProgress, type RelicSave } from '@/usb/saveImport/relicCardValues';
 import { readDictionary, type SaveDictionary, type SaveImportResult } from '@/usb/saveImport/saveDictionary';
 import { skillRuneValues, type RuneSave, type SkillSave } from '@/usb/saveImport/skillRuneValues';
 
@@ -119,7 +124,16 @@ export const SAVE_FILE_KINDS = [
  */
 export const SAVE_TOP_KEYS: Record<SaveFileKind, readonly string[]> = {
   Char: ['_presetDic', 'charList', 'affinityExpDic', '_libraryData', '_cosDic', 'iconIdList', 'petRegionData'],
-  Equip: ['psCharWeaponDic', 'eqWeaponDic', 'petDataDic', 'equipPetDataDic', 'petOptionDic', 'weaponLinkData', 'psWeaponOptionDic', 'psJobWeaponDic'],
+  Equip: [
+    'psCharWeaponDic',
+    'eqWeaponDic',
+    'petDataDic',
+    'equipPetDataDic',
+    'petOptionDic',
+    'weaponLinkData',
+    'psWeaponOptionDic',
+    'psJobWeaponDic',
+  ],
   Reinforce: ['awakenDatas', 'masteryDatas'],
   Relic: ['relicData'],
   Card: ['cardDic'],
@@ -142,7 +156,9 @@ export const MOVED_SAVE_KEYS: readonly { newKey: string; oldKind: SaveFileKind; 
 /** 읽은 파일들의 최상위 키로 빠진 키를 찾는다 ("Char.diaryData" 형태, 옮겨진 키는 두 곳 모두 없을 때만) */
 export function missingSaveKeys(keysByKind: Partial<Record<SaveFileKind, readonly string[]>>): string[] {
   const has = (kind: SaveFileKind, key: string) => keysByKind[kind]?.includes(key) ?? false;
-  const missing = SAVE_FILE_KINDS.flatMap((kind) => SAVE_TOP_KEYS[kind].filter((key) => !has(kind, key)).map((key) => `${kind}.${key}`));
+  const missing = SAVE_FILE_KINDS.flatMap((kind) =>
+    SAVE_TOP_KEYS[kind].filter((key) => !has(kind, key)).map((key) => `${kind}.${key}`),
+  );
   for (const moved of MOVED_SAVE_KEYS) {
     if (!has('Default', moved.newKey) && !has(moved.oldKind, moved.oldKey)) {
       missing.push(`Default.${moved.newKey} / ${moved.oldKind}.${moved.oldKey}`);
@@ -174,7 +190,9 @@ export function pickDefault(raw: DefaultRaw): DefaultPicked {
     presetKey: attempt(() => raw.presetData.presetId),
     contentPresets: attempt(() =>
       Object.fromEntries(
-        CONTENT_PRESET_KEYS.map((key) => [key, raw.presetData[key]] as const).filter((entry): entry is readonly [string, number] => typeof entry[1] === 'number'),
+        CONTENT_PRESET_KEYS.map((key) => [key, raw.presetData[key]] as const).filter(
+          (entry): entry is readonly [string, number] => typeof entry[1] === 'number',
+        ),
       ),
     ),
     receivedMissionIds: attempt(() => [...raw.contentMissionData._receivedIds]),
@@ -182,7 +200,8 @@ export function pickDefault(raw: DefaultRaw): DefaultPicked {
     vipLevel: raw.vipLv,
     userLevel: raw.userLv,
     maxStage: raw.maxStageNo,
-    adsRemoved: attempt(() => readDictionary(raw._newNotInvenDic)) === undefined ? undefined : (adsRemove?.value ?? 0) > 0,
+    adsRemoved:
+      attempt(() => readDictionary(raw._newNotInvenDic)) === undefined ? undefined : (adsRemove?.value ?? 0) > 0,
     // 두 시각 모두 "YYYY-MM-DD HH:MM:SS" 라 글 순서 = 시간 순서
     attackBuffOn: raw.st === undefined ? undefined : (attackBuffEnd ?? '') > raw.st,
     diaryData: raw.diaryData,
@@ -245,7 +264,9 @@ export function importSave(files: SaveFiles, tables: StatTables, withPresets = t
   // 저장 구조가 바뀌어 값을 못 읽은 칸 (undefined · NaN 이 글이 된 것) 은 채우지 않고 기록으로 돌린다
   const values: Record<string, string> = {};
   const unreadable: string[] = [];
-  for (const [key, value] of Object.entries(Object.assign({}, ...parts.map((part) => part.values)) as Record<string, string>)) {
+  for (const [key, value] of Object.entries(
+    Object.assign({}, ...parts.map((part) => part.values)) as Record<string, string>,
+  )) {
     if (UNREADABLE_TEXT.test(value)) unreadable.push(key);
     else values[key] = value;
   }
@@ -256,7 +277,9 @@ export function importSave(files: SaveFiles, tables: StatTables, withPresets = t
     const overrides: Record<string, Record<string, string>> = {};
     for (const preset of new Set(Object.values(contentPresets))) {
       if (preset === presetKey) continue;
-      const other = attempt(() => importSave({ ...files, Default: { ...files.Default, presetKey: preset } }, tables, false));
+      const other = attempt(() =>
+        importSave({ ...files, Default: { ...files.Default, presetKey: preset } }, tables, false),
+      );
       if (other) overrides[preset] = presetDiff(values, other.values);
       else notes.push('콘텐츠별 프리셋 하나를 읽지 못해서, 그 콘텐츠는 지금 프리셋으로 계산해요');
     }
@@ -278,9 +301,12 @@ export function importSave(files: SaveFiles, tables: StatTables, withPresets = t
   // 자료 › 차원의 돌: 아티팩트 칸 레벨 (slotLvDic 칸 번호 1~10) 과 보유 파편. 저장에 없는 칸은 비운다
   const slotLevels = attempt(() => readDictionary(files.Alchemy.slotData.slotLvDic));
   DIMENSION_STONE.PARTS.forEach((part, index) => {
-    accountValues[DIMENSION_STONE.LEVEL_KEY_PREFIX + part] = String(slotLevels?.get(index + DIMENSION_STONE.SAVE_FIRST_PART_INDEX) ?? '');
+    accountValues[DIMENSION_STONE.LEVEL_KEY_PREFIX + part] = String(
+      slotLevels?.get(index + DIMENSION_STONE.SAVE_FIRST_PART_INDEX) ?? '',
+    );
     const heldLog = files.Default.fragmentLogs?.[part];
-    accountValues[DIMENSION_STONE.HELD_KEY_PREFIX + part] = heldLog === undefined ? '' : heldLog === -Infinity ? '0' : formatLog(heldLog);
+    accountValues[DIMENSION_STONE.HELD_KEY_PREFIX + part] =
+      heldLog === undefined ? '' : heldLog === -Infinity ? '0' : formatLog(heldLog);
   });
   // 보유 카드 (최적 카드 추천의 후보)
   accountValues[OWNED_CARDS_KEY] = attempt(() => ownedCardsText(files.Card)) ?? '';

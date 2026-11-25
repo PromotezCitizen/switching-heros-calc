@@ -32,7 +32,9 @@ const OLD_PATHS: readonly { from: string; to: string }[] = [
 ];
 /** Mantine 기본 탭 밑줄 두께 (px) */
 const TAB_LINE_WIDTH = 2;
-const HEADER_ROW_STYLE: CSSProperties = { borderBottom: `${TAB_LINE_WIDTH}px solid var(--mantine-color-default-border)` };
+const HEADER_ROW_STYLE: CSSProperties = {
+  borderBottom: `${TAB_LINE_WIDTH}px solid var(--mantine-color-default-border)`,
+};
 /** 탭 줄 자체의 밑줄은 지우고, 고른 탭 표시가 바깥 줄 위에 겹치게 아래로 붙인다 */
 const PAGE_TABS_STYLE = {
   flex: 1,
@@ -62,7 +64,12 @@ export default function App() {
         {/* page-header-row: 라이트 모드에서 아래 선 색 (global.css) */}
         <Group wrap="nowrap" align="center" gap="xs" style={HEADER_ROW_STYLE} className="page-header-row">
           {/* page-tabs: 고른 탭 · 마우스 올린 탭 모양 (global.css) */}
-          <Tabs value={pathname} onChange={(path) => path && navigate(path)} style={PAGE_TABS_STYLE} className="page-tabs">
+          <Tabs
+            value={pathname}
+            onChange={(path) => path && navigate(path)}
+            style={PAGE_TABS_STYLE}
+            className="page-tabs"
+          >
             <SlideTabsList>
               {PAGES.map((page) => (
                 <Tabs.Tab key={page.path} value={page.path} style={SLIDE_TAB_STYLE}>

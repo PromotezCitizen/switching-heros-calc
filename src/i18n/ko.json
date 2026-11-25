@@ -324,6 +324,10 @@
     "missingTitle": "계산에 넣지 못한 것 · 정확하지 않은 값",
     "missing": {
       "swordAuraNotCounted": "{{skill}}: 검기 옵션의 효과는 계산에 넣지 못했어요",
+      "hitsPerTargetGuessed": "{{skill}}: 한 적이 몇 번 맞는지는 짐작한 값이에요 (1번으로 계산)",
+      "stackPerkNotCounted": "{{skill}}: 연속으로 맞힐수록 커지는 문양 효과는 계산에 넣지 못했어요",
+      "explodeOptionNotCounted": "{{skill}}: 폭발 옵션의 효과는 계산에 넣지 못했어요",
+      "triggeredSkillNotCounted": "{{skill}}: 다른 스킬을 함께 발동하는 옵션의 효과는 계산에 넣지 못했어요",
       "burnOption": "{{skill}}: 화상 (지속 피해) 옵션의 효과는 계산에 넣지 못했어요",
       "unsupportedChangeSkill": "교체 스킬 {{skill}}: 몇 번 맞는지 몰라서 계산에서 뺐어요",
       "changeSkillHits": "교체 스킬 {{skill}}: 맞는 횟수 일부는 정확하지 않아요",

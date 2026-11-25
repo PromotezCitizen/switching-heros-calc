@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import '@/i18n';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
+import { skillEquipField, skillLevelField } from '@/calc/sources/skill/skill';
 import { dpmTiming } from '@/dpm/timing';
 import { loadTestTables } from '@/test/loadTestTables';
 import { importSave, pickDefault, type SaveFiles } from '@/usb/saveImport/importSave';
@@ -23,6 +24,13 @@ describe('10-18 계정 시간 주기 (실측: 평타 0.140게임초, 버프 4.94
   });
   it('버프 스킬 발동 간격은 켜짐 주기보다 짧다: 켜진 동안 평타 (0.14게임초) 마다 천분율 확률로 발동 (job-skills-buff-2026-11-05.md 1절)', () => {
     for (const skill of timing.buffSkills) expect(skill.gameSeconds).toBeLessThan(skill.cooldownGameSeconds ?? 0);
+  });
+  it('용의 가호 104 는 발동 판정 없이 켜질 때 1번: 간격 = max(쿨타임, 지속)', () => {
+    const with104 = dpmTiming({ ...values, [skillEquipField(1)]: '104', [skillLevelField('104')]: '1' }, tables);
+    const dragon = with104.buffSkills.find((skill) => skill.skillId === '104');
+    expect(dragon).toBeDefined();
+    const duration = Number(tables.Skill.rows.find((row) => row[0] === '104')?.[10]);
+    expect(dragon!.gameSeconds).toBeCloseTo(Math.max(dragon!.cooldownGameSeconds ?? 0, duration), 10);
   });
   it('전용 스킬 12217, 실제 약 1.077초 (실측 1.08, ±1%)', () => {
     expect(timing.charSkill?.skillId).toBe('12217');

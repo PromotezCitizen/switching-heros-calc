@@ -71,9 +71,38 @@ describe('화살 폭격 255: 묶음 value1 × 화살 9발 (문양 FocusShooting1
   });
 });
 
+describe('스탭 앤 샷 205: 유도 화살 value2 (3) × min(적 수, 관통 value1 (3)) (catalog-skill-hits.md 5-4)', () => {
+  it('적 2 → 6, 적 5 → 9', () => {
+    expect(hitsOf({ skillLevel_205: '37' }, '205', 2)).toEqual({ supported: true, hits: 6, coefficientFactor: 1 });
+    expect(hitsOf({ skillLevel_205: '37' }, '205', 5).hits).toBe(9);
+  });
+});
+
+describe('연속 화살 251: 화살 int(value1) (8) × min(적 수, 관통 value2 (5)) (catalog-skill-hits.md 5-1)', () => {
+  it('적 3 → 24, 적 10 → 40', () => {
+    expect(hitsOf({ skillLevel_251: '37' }, '251', 3)).toEqual({ supported: true, hits: 24, coefficientFactor: 1 });
+    expect(hitsOf({ skillLevel_251: '37' }, '251', 10).hits).toBe(40);
+  });
+});
+
+describe('피닉스 샷 253: 불사조 1마리 × 적 수, 한 적 1번은 추정 (job-skills-active-2026-11-05.md 3절)', () => {
+  it('적 4 → 4, 추정 표시', () => {
+    const result = hitsOf({ skillLevel_253: '37' }, '253', 4);
+    expect(result.hits).toBe(4);
+    expect(result.estimates).toContain('estimate:hitsPerTargetGuessed');
+  });
+});
+
+describe('나비 스텝 254: 화살 int(value1) (6) × min(적 수, 관통 value2 (5)) (catalog-skill-hits.md 5-3)', () => {
+  it('적 3 → 18, 적 10 → 30', () => {
+    expect(hitsOf({ skillLevel_254: '37' }, '254', 3)).toEqual({ supported: true, hits: 18, coefficientFactor: 1 });
+    expect(hitsOf({ skillLevel_254: '37' }, '254', 10).hits).toBe(30);
+  });
+});
+
 describe('다른 스킬', () => {
-  it('궁수 5개 밖 (스탭 앤 샷 205, 기습 1) → supported false, 적중 0', () => {
-    expect(hitsOf({ skillLevel_205: '37' }, '205', 3)).toEqual({ supported: false, hits: 0, coefficientFactor: 1 });
-    expect(hitsOf({ skillLevel_1: '37' }, '1', 3).supported).toBe(false);
+  it('궁수 밖 (기습 1, 지면 강타 101) → supported false, 적중 0', () => {
+    expect(hitsOf({ skillLevel_1: '37' }, '1', 3)).toEqual({ supported: false, hits: 0, coefficientFactor: 1 });
+    expect(hitsOf({ skillLevel_101: '37' }, '101', 3).supported).toBe(false);
   });
 });

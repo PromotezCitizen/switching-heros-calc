@@ -34,6 +34,11 @@ export const DPM_CONSTS = {
   BATCH: { MASTERY_LANES: 2, CARD_LANES: 3 },
   /** 버프 스킬 발동 판정 (m5433): 0 ~ 999 난수 (1000가지), 확률 c 는 천분율, 옵션 % 는 × 10 */
   BUFF_PROC: { ROLL_RANGE: 1000, ROLL_MAX: 999, OPTION_PERCENT_TO_PERMILLE: 10 },
+  /**
+   * 발동 판정 없이 켜질 때 1번 도는 버프 스킬 (104 용의 가호: 격투가 발동 함수 m5125 에 분기 없음, 켜질 때 m5045 가 지속 동안 반복 판정,
+   * claude-docs/react-port/job-skills-buff-2026-11-05.md 2절). 켜지는 간격 = max(쿨타임, 지속) (지속 중에는 다시 켜지지 않음, 같은 문서 1-3절)
+   */
+  ACTIVATION_ONLY_BUFF_SKILLS: ['104'] as readonly string[],
   /** 공격 종류 (대미지 정보 info[0], damage-formula.md 1절) */
   ATTACK_KIND: { NORMAL: 0, BUFF: 1, ACTIVE: 2, CHAR: 4 },
   /** 대상별로 최종 대미지에 따로 곱하는 배수 (묶음 F, damage-formula.md 2-2). 일반 몬스터는 없음 */
@@ -173,6 +178,32 @@ export const DPM_CONSTS = {
     SUMMON_ARROWS_PERK: 'SummonShot1',
     /** 확률 옵션의 "2배" */
     DOUBLE_FACTOR: 2,
+    /**
+     * 스탭 앤 샷 (catalog-skill-hits.md 5-4, job-skills-buff-2026-11-05.md 3절): 유도 화살 value2 개 × min(T, 관통 value1).
+     * 관통 안 함 대신 데미지 (2502), 확률로 데미지 2배 (2501), 문양 StepAndShot1 은 계수 val1 %
+     */
+    STEP_AND_SHOT: '205',
+    STEP_AND_SHOT_NO_PIERCE: '2502',
+    STEP_AND_SHOT_DOUBLE: '2501',
+    STEP_AND_SHOT_PERK: 'StepAndShot1',
+    /** 연속 화살 (catalog-skill-hits.md 5-1): 화살 int(value1) + int(2600) 발 × min(T, 관통 value2), 2601 이면 관통 1 + 데미지, 문양 MultiStraight1 은 계수 val2 % */
+    MULTI_STRAIGHT: '251',
+    MULTI_STRAIGHT_EXTRA_ARROWS: '2600',
+    MULTI_STRAIGHT_NO_PIERCE: '2601',
+    MULTI_STRAIGHT_PERK: 'MultiStraight1',
+    /**
+     * 피닉스 샷 (job-skills-active-2026-11-05.md 3절 253): 불사조 1마리, 관통 무제한, value1 은 같은 적 재타격 최소 간격이라
+     * 보통 크기 적은 1번 (추정: 불사조 반지름 2 이하 가정). 옵션 2800: 작은 불사조 3마리가 피닉스 샷의 {0}% 데미지 (catalog-skill-hits.md 5-2)
+     */
+    PHOENIX_SHOT: '253',
+    PHOENIX_SMALL_OPTION: '2800',
+    PHOENIX_SMALL_COUNT: 3,
+    PHOENIX_HITS_PER_TARGET: 1,
+    /** 나비 스텝 (catalog-skill-hits.md 5-3): 화살 int(value1) 발 × min(T, 관통 value2), 2903 이면 관통 1 + 데미지 */
+    BUTTERFLY_STEP: '254',
+    BUTTERFLY_NO_PIERCE: '2903',
+    /** 추정한 값의 표시 (결과 missing 에 `<코드>:<스킬 번호>` 로 남음): 한 적이 맞는 횟수를 짐작함 */
+    ESTIMATE_HITS_PER_TARGET: 'estimate:hitsPerTargetGuessed',
   },
   /**
    * 자동 교체 (2026-10-28 결정: 자동교체를 켠다): 1슬롯 · 2슬롯 히어로가 번갈아 필드에 선다.
@@ -256,6 +287,129 @@ export const DPM_CONSTS = {
     LETHAL_AURA_OPTION: '1001',
     /** 추정한 값 · 넣지 못한 몫의 표시 (결과 missing 에 `<코드>:<스킬 번호>` 로 남음) */
     ESTIMATE_AURA_NOT_COUNTED: 'estimate:swordAuraNotCounted',
+  },
+  /**
+   * 격투가 스킬 10개의 시전 (버프는 발동) 1번 적중 구조. 근거 식은 claude-docs/react-port/catalog-skill-hits.md 4절,
+   * 판정 반복과 한 번만 모드는 job-skills-active-2026-11-05.md 2절, job-skills-buff-2026-11-05.md 2~3절.
+   * 판정 한 번 = 타격 상자가 겹친 적 모두에게 같은 계수 1번씩. 반복 상자는 판정 floor((지속 − 첫 판정) / 간격) + 1 번
+   */
+  FIGHTER_SKILLS: {
+    GROUND_SMASH: '101',
+    RAGE: '102',
+    CLAW: '103',
+    DRAGON_WHEEL: '104',
+    DASH_PUNCH: '105',
+    MULTI_PUNCH: '151',
+    WIND_SPHERE: '152',
+    UPPERCUT: '153',
+    ONE_TWO_PUNCH: '154',
+    BODY_SLAM: '155',
+    /** 지면 강타: 확률로 0.3초 뒤 1번 더 (1101), 문양 GroundSmash1 은 상태이상인 적에게 계수 val1 % */
+    GROUND_SMASH_EXTRA_OPTION: '1101',
+    GROUND_SMASH_PERK: 'GroundSmash1',
+    /** 할퀴기: 판정 4번, 옵션 1300 이 확률로 3번 더, 문양 Claw1 은 계수 val3 % */
+    CLAW_HITS: 4,
+    CLAW_EXTRA_HITS: 3,
+    CLAW_EXTRA_OPTION: '1300',
+    CLAW_PERK: 'Claw1',
+    /**
+     * 용의 가호: 켜질 때 지속 (buffDuration + 버프 지속 옵션) 동안 간격 I 마다 판정 (첫 판정 0.02초).
+     * I = value1 / (1 + 문양 DragonWheel1 val1 / 100) / (1 + 옵션 1401 / 100). 계수는 DragonWheel1, DragonWheel2 의 val2 %
+     */
+    DRAGON_WHEEL_INTERVAL_OPTION: '1401',
+    DRAGON_WHEEL_INTERVAL_PERK: 'DragonWheel1',
+    DRAGON_WHEEL_DAMAGE_PERKS: ['DragonWheel1', 'DragonWheel2'],
+    DRAGON_WHEEL_FIRST_TICK_SECONDS: 0.02,
+    /** 돌진 펀치 문양 DashPunch1 (같은 대상 연속 적중마다 배수) 은 넣지 못함 */
+    DASH_PUNCH_PERK: 'DashPunch1',
+    /** 연속 펀치: 판정 int(value1) + int(옵션 1600) 번 */
+    MULTI_PUNCH_EXTRA_OPTION: '1600',
+    /**
+     * 기공장: 지속 D = (2.5 + 옵션 1700) × (옵션 1701 이면 0.5) × (문양 WindSphere1 이면 1 − val1 / 100),
+     * 간격 I = max(0.01, value1 / (1 + 옵션 1701 / 100)), 첫 판정 0.5초. 문양은 계수 val2 %. 옵션 1703 (폭발) 은 넣지 못함
+     */
+    WIND_SPHERE_BASE_SECONDS: 2.5,
+    WIND_SPHERE_FIRST_TICK_SECONDS: 0.5,
+    WIND_SPHERE_MIN_INTERVAL: 0.01,
+    WIND_SPHERE_DURATION_OPTION: '1700',
+    WIND_SPHERE_HALF_OPTION: '1701',
+    WIND_SPHERE_EXPLODE_OPTION: '1703',
+    WIND_SPHERE_PERK: 'WindSphere1',
+    /** 어퍼컷: 판정 int(value1) 번, 옵션 1800 이 있으면 2번 더, 문양 MultiHook1 은 계수 val2 % */
+    UPPERCUT_EXTRA_OPTION: '1800',
+    UPPERCUT_EXTRA_HITS: 2,
+    UPPERCUT_PERK: 'MultiHook1',
+    /** 원투 펀치: 판정 2번, 두 번째는 value1 배. 문양 PowerPunch1 은 계수 val2 % */
+    ONE_TWO_FIRST_HITS: 1,
+    ONE_TWO_PERK: 'PowerPunch1',
+    /**
+     * 몸통 박치기: 지속 D = value1 × (옵션 2000 이면 1 + v / 100) × (옵션 2004 이면 0.5) × (문양 BodySlam1 이면 1 − val1 / 100),
+     * 첫 판정 0.1초, 간격 value3. 옵션 2004 는 데미지 v %, 문양은 계수 val2 %
+     */
+    BODY_SLAM_FIRST_TICK_SECONDS: 0.1,
+    BODY_SLAM_DURATION_OPTION: '2000',
+    BODY_SLAM_HALF_OPTION: '2004',
+    BODY_SLAM_PERK: 'BodySlam1',
+    HALF_FACTOR: 0.5,
+    /** 추정한 값, 넣지 못한 몫의 표시 (결과 missing 에 `<코드>:<스킬 번호>` 로 남음) */
+    ESTIMATE_STACK_PERK_NOT_COUNTED: 'estimate:stackPerkNotCounted',
+    ESTIMATE_EXPLODE_OPTION_NOT_COUNTED: 'estimate:explodeOptionNotCounted',
+  },
+  /**
+   * 마법사 스킬 10개의 시전 (버프는 발동) 1번 적중 구조. 근거 식은 claude-docs/react-port/catalog-skill-hits.md 6절,
+   * 351 중력장 정정과 반복 상자 확인은 job-skills-active-2026-11-05.md 4절, 버프는 job-skills-buff-2026-11-05.md 3절
+   */
+  MAGE_SKILLS: {
+    FIRE_BALL: '301',
+    FROST_STRIKE: '302',
+    LIGHTNING_STRIKE: '303',
+    BLINK: '304',
+    CHAIN_LIGHTNING: '305',
+    GRAVITY: '351',
+    FIRE_WALL: '352',
+    LIGHTNING_SPEAR: '353',
+    BLIZZARD: '354',
+    ICE_SPEAR: '355',
+    /** 화염구: 확률로 2회 (3100), 폭발 판정 1번. 문양 FireBall1 은 계수 val1 % */
+    FIRE_BALL_TWICE_OPTION: '3100',
+    FIRE_BALL_PERK: 'FireBall1',
+    /** 서릿발 문양 FrostStrike1: 상태이상인 적에게 계수 val1 % */
+    FROST_STRIKE_PERK: 'FrostStrike1',
+    /** 낙뢰 문양 LightningStorm1 (연속 발동마다 배수) 은 넣지 못함 */
+    LIGHTNING_STRIKE_PERK: 'LightningStorm1',
+    /** 전류 이동 옵션 3400 (확률로 번개 사슬 305 발동, 305 계수) 은 넣지 못함 */
+    BLINK_CHAIN_OPTION: '3400',
+    /** 번개 사슬: 서로 다른 적 min(T, value1) 마리에 1번씩, 문양 ChainLightning1 이면 대상 수 절반 + 계수 val1 % */
+    CHAIN_LIGHTNING_PERK: 'ChainLightning1',
+    CHAIN_HALF_DIVISOR: 2,
+    /** 중력장: 폭발 판정 1번, 문양 Gravity1 은 val1 % 확률로 한 번 더 */
+    GRAVITY_PERK: 'Gravity1',
+    /** 불기둥: 판정 int(value2) 번, 옵션 3700 이 확률로 통째 2회 */
+    FIRE_WALL_TWICE_OPTION: '3700',
+    /**
+     * 번개창: 지속 D = (value1 + 옵션 3801) × (옵션 3802 이면 0.5), 간격 I = value2 / (1 + 옵션 3802 / 100), 첫 판정 0.02초.
+     * 문양 LightningBolt1 (번개 폭풍) 은 같은 시간, 같은 간격에 데미지 val1 배 (문구 기준)
+     */
+    LIGHTNING_SPEAR_DURATION_OPTION: '3801',
+    LIGHTNING_SPEAR_HALF_OPTION: '3802',
+    LIGHTNING_SPEAR_PERK: 'LightningBolt1',
+    /** 눈보라: 지속 D = value1 + 옵션 3901, 간격 I = value2 / (1 + 옵션 3902 / 100), 첫 판정 0.02초. 문양 Blizzard1 은 계수 val2 % */
+    BLIZZARD_DURATION_OPTION: '3901',
+    BLIZZARD_INTERVAL_OPTION: '3902',
+    BLIZZARD_PERK: 'Blizzard1',
+    TICK_FIRST_SECONDS: 0.02,
+    HALF_FACTOR: 0.5,
+    /**
+     * 얼음창: 큰 창 판정 1번 × T (옵션 4002 이면 없음) + 작은 유도 창 int(value1) (+ 옵션 4000 확률로 4) 개 × value2 배 × min(T, value3 + 옵션 4002).
+     * 문양 IceSpear1 은 계수 val2 %
+     */
+    ICE_SPEAR_EXTRA_OPTION: '4000',
+    ICE_SPEAR_EXTRA_COUNT: 4,
+    ICE_SPEAR_NO_BIG_OPTION: '4002',
+    ICE_SPEAR_PERK: 'IceSpear1',
+    /** 추정한 값, 넣지 못한 몫의 표시 (결과 missing 에 `<코드>:<스킬 번호>` 로 남음) */
+    ESTIMATE_STACK_PERK_NOT_COUNTED: 'estimate:stackPerkNotCounted',
+    ESTIMATE_TRIGGERED_SKILL_NOT_COUNTED: 'estimate:triggeredSkillNotCounted',
   },
   /**
    * 액티브 스킬 쿨타임 (damage-pipeline.md 7절, skill-gauge-accel-names.md): 작업량 W = (coolTime − 옵션 · 문양 초) × (1 − skillCoolReduction / 100),

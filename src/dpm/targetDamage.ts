@@ -337,7 +337,7 @@ export function prepareTargetDamage(values: CalcValues, tables: StatTables, targ
       const kind: AttackKind = isBuff ? 'buff' : 'active';
       const options = chosenSkillOptions(values, tables, skillId);
       if (options.some((option) => (BURN_OPTION_TYPES as readonly string[]).includes(option.type))) missing.push(`burnOption:${skillId}`);
-      const hits = jobSkillHits(values, tables, skillId, targets);
+      const hits = jobSkillHits(values, tables, skillId, targets, statusCount);
       if (!hits.supported) {
         missing.push(`unsupportedSkill:${skillId}`);
         continue;

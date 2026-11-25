@@ -192,3 +192,40 @@ export function makeJumpLevels(
     return null;
   };
 }
+
+/** 확률의 바탕 특성 statName → 확률 이름 (최대 1 특성) */
+const CHANCE_BASE_STAT: Record<string, string> = {
+  doubleAttack: 'doubleAttack',
+  superCritical: 'superCritical',
+  spearAttack: 'spearAttack',
+  switchingBoost: 'switchingBoost',
+  skillCombo: 'skillCombo',
+  smite: 'smite',
+  barrier: 'barrier',
+};
+
+/**
+ * 확률 특성 (candidates) 중 그 확률이 확률 특성을 모두 최대로 찍어도 100% 에 닿지 않는 것 (100% 미만이면 효과 0 이라 먼저 찍을 이유가 없음).
+ * 예: 매직 가드 10 + 마나 전도체 20 + 마나 전도체 2 20 = 50%
+ */
+export function unreachableChanceTraits(
+  values: CalcValues,
+  traits: MasteryTrait[],
+  tables: StatTables,
+  target: DamageTarget,
+  inputs: DamageInputs,
+  candidates: ReadonlySet<string>,
+  base: Allocation = {},
+): Set<string> {
+  // 계정 배분 (base) 위에 확률 특성만 최대로 올린다 (공격속도 특성 등 다른 특성이 확률에 주는 몫을 지우지 않게)
+  const maxed: Allocation = { ...base };
+  for (const trait of traits) if (candidates.has(trait.rNo)) maxed[trait.rNo] = trait.maxLevel;
+  const chances = chancesOfAllocation(values, traits, tables, maxed, target, inputs);
+  const unreachable = new Set<string>();
+  for (const trait of traits) {
+    if (!candidates.has(trait.rNo)) continue;
+    const chanceName = CHANCE_OF_STAT[trait.statName] ?? CHANCE_BASE_STAT[trait.statName];
+    if (chanceName && (chances[chanceName] ?? 0) < CONSTS.dpm.PROBABILITY_MAX) unreachable.add(trait.rNo);
+  }
+  return unreachable;
+}

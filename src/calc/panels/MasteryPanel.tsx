@@ -27,6 +27,7 @@ import {
 } from '@/calc/sources/masteryRuneBuff/mastery';
 import { skippedUltimateNames } from '@/calc/sources/masteryRuneBuff/ultimate';
 import { statLabel } from '@/calc/statText';
+import { previousStepCleared, ultimateGateCleared, type Allocation } from '@/masteryOptimizer/rules';
 import type { TabPanelProps } from '@/calc/types';
 
 const { MASTERY_GROUPS, ULTIMATE_ON_LEVEL, MIN_LEVEL, PANEL } = CONSTS.masteryRuneBuff;
@@ -54,6 +55,8 @@ interface TraitNodeProps {
   onChangeLevel: (trait: MasteryTrait, level: number) => void;
   /** true 면 값을 바꾸는 입력 (아이콘 클릭 · 레벨 칸 · 최대 버튼) 을 모두 보기 전용으로 만든다 (추천 결과 화면) */
   readOnly?: boolean;
+  /** 앞 단계 조건 (일반: 앞 단계 특성 하나가 최대, 얼티밋: 같은 종류 마지막 단계 특성 하나가 최대) 을 못 채움. 올리기는 막고 내리기만 된다 */
+  locked?: boolean;
 }
 
 /**
@@ -61,13 +64,16 @@ interface TraitNodeProps {
  * 일반 = 아이콘을 누르면 최대 (최대면 0) + 레벨 칸, 얼티밋 = 아이콘을 눌러 켬/끔.
  * memo: 특성 하나를 바꿀 때 나머지 100여 칸은 다시 그리지 않는다 (전에는 클릭마다 나무 전체를 다시 그려 0.7초)
  */
-const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnly }: TraitNodeProps) {
+const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnly, locked }: TraitNodeProps) {
   const { t: translate } = useTranslation();
   const name = translate(`calc.mastery.names.${trait.rNo}`, { defaultValue: trait.statName });
   const active = level > 0;
   // 일반 특성은 지금 레벨의 효과, 얼티밋은 켬/끔뿐이라 켰을 때 효과 (값이 하나)
   const effectText = traitEffectText(trait, trait.ultimate ? ULTIMATE_ON_LEVEL : level);
   const note = translate(`calc.mastery.notes.${trait.rNo}`, { defaultValue: '' });
+  const lockedText = locked ? translate(trait.ultimate ? 'calc.mastery.lockedUltimate' : 'calc.mastery.lockedPrevious') : '';
+  // 조건을 못 채웠으면 올리기는 막고 내리기만 받는다
+  const changeLevel = (next: number) => onChangeLevel(trait, locked ? Math.min(next, level) : next);
   const icon = (
     <Image
       src={traitIconPath(trait)}
@@ -94,6 +100,11 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
                 {note}
               </Text>
             )}
+            {lockedText && (
+              <Text size="xs" fw={700} mt={4}>
+                {lockedText}
+              </Text>
+            )}
           </>
         }
       >
@@ -103,7 +114,7 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
           <UnstyledButton
             aria-label={name}
             aria-pressed={active}
-            onClick={() => onChangeLevel(trait, active ? MIN_LEVEL : ULTIMATE_ON_LEVEL)}
+            onClick={() => changeLevel(active ? MIN_LEVEL : ULTIMATE_ON_LEVEL)}
           >
             {icon}
           </UnstyledButton>
@@ -111,7 +122,7 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
           <UnstyledButton
             aria-label={translate('calc.mastery.fillMax', { name })}
             // 누르면 최대 레벨, 이미 최대면 0
-            onClick={() => onChangeLevel(trait, level >= trait.maxLevel ? MIN_LEVEL : trait.maxLevel)}
+            onClick={() => changeLevel(level >= trait.maxLevel ? MIN_LEVEL : trait.maxLevel)}
           >
             {icon}
           </UnstyledButton>
@@ -140,7 +151,8 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
             aria-label={translate('calc.mastery.levelInput', { name })}
             value={level}
             readOnly={readOnly}
-            onChange={(next) => onChangeLevel(trait, Number(next) || MIN_LEVEL)}
+            error={locked && active}
+            onChange={(next) => changeLevel(Number(next) || MIN_LEVEL)}
           />
           {readOnly ? (
             <Text size={PANEL.NODE_SMALL_TEXT_SIZE} c="dimmed">
@@ -150,7 +162,7 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
             <UnstyledButton
               aria-label={translate('calc.mastery.levelMax')}
               title={translate('calc.mastery.levelMax')}
-              onClick={() => onChangeLevel(trait, trait.maxLevel)}
+              onClick={() => changeLevel(trait.maxLevel)}
             >
               <Text size={PANEL.NODE_SMALL_TEXT_SIZE} c="dimmed">
                 {translate('calc.mastery.maxLevel', { max: trait.maxLevel })}
@@ -178,6 +190,16 @@ export default function MasteryPanel({ values, setValue, tables, descriptions, r
 
   const traits = masteryTraits(masteryTable);
   const totals = masteryTotals(traits, values);
+  // 앞 단계 조건: 최적 추천과 같은 규칙 (masteryOptimizer/rules.ts)
+  const allocation: Allocation = Object.fromEntries(traits.map((trait) => [trait.rNo, masteryLevel(values, trait)]));
+  const lockedSet = new Set(
+    traits
+      .filter((trait) => !(trait.ultimate ? ultimateGateCleared(traits, trait, allocation) : previousStepCleared(traits, trait, allocation)))
+      .map((trait) => trait.rNo),
+  );
+  const violationNames = traits
+    .filter((trait) => lockedSet.has(trait.rNo) && (allocation[trait.rNo] ?? 0) > 0)
+    .map((trait) => translate(`calc.mastery.names.${trait.rNo}`, { defaultValue: trait.statName }));
   // 켠 얼티밋 중 계산하지 못하는 것 (특성 레벨 칸만 읽음)
   const skippedUltimates = skippedUltimateNames(values, masteryTable, (key, params) => translate(key, params ?? {}));
   const resetTraits = (targets: MasteryTrait[]) => {
@@ -207,6 +229,11 @@ export default function MasteryPanel({ values, setValue, tables, descriptions, r
       <Text size="xs" c="dimmed">
         {translate('calc.mastery.pointsHint')}
       </Text>
+      {!readOnly && violationNames.length > 0 && (
+        <Text size="xs" c="red">
+          {translate('calc.mastery.lockedViolations', { names: violationNames.join(', ') })}
+        </Text>
+      )}
       {skippedUltimates.length > 0 && (
         <Text size="xs" c="orange">
           {translate('calc.ultimate.skipped', { names: skippedUltimates.join(', ') })}
@@ -263,6 +290,7 @@ export default function MasteryPanel({ values, setValue, tables, descriptions, r
                           level={masteryLevel(values, trait)}
                           onChangeLevel={changeLevel}
                           readOnly={readOnly}
+                          locked={!readOnly && lockedSet.has(trait.rNo)}
                         />
                       ))}
                     </Group>

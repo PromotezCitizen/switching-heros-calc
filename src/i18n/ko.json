@@ -31,6 +31,7 @@
     "alchemyTitle": "연성 돌",
     "alchemyLevel": "연성 레벨",
     "buff": "버프 (확률 +100%)",
+    "gradeFixed": "돌 등급은 얻은 시점의 연성 레벨에서 확정.",
     "alchemyTooLow": "연성 레벨 {{level}} 부터 나옴.",
     "alchemyStone": "T{{grade}}",
     "alchemyAmount": "파편 {{total}} (칸당 {{part}})",

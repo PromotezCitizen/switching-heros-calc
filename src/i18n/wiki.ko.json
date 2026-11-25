@@ -1282,6 +1282,10 @@
         {
           "file": "rune",
           "caption": "룬 화면: 코어 룬, 속성 룬 6개"
+        },
+        {
+          "file": "rune-lab",
+          "caption": "룬 › 연구실: 작열, 파도, 대지의 룬 레벨과 다음 레벨 효과, 강화 비용"
         }
       ]
     },
@@ -1406,6 +1410,18 @@
         {
           "file": "artifact-set",
           "caption": "세트 효과 창"
+        },
+        {
+          "file": "dimension-stone-acquired",
+          "caption": "차원의 돌을 얻으면 하단 가운데 연성 버튼에 \"획득 완료\" 가 뜬다"
+        },
+        {
+          "file": "alchemy-info",
+          "caption": "연성 상세 정보: 연성 비용, 이 연성 레벨에서 나오는 차원의 돌 등급 (T 숫자) 과 획득 확률, 등급별 확률"
+        },
+        {
+          "file": "dimension-stone-bag",
+          "caption": "가방의 차원의 돌: T 숫자가 돌 등급. 등급은 얻은 시점의 연성 레벨에서 확정"
         }
       ]
     },

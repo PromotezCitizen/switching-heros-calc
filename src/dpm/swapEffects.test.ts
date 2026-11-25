@@ -6,8 +6,7 @@ import { ultimateLines } from '@/calc/sources/masteryRuneBuff/ultimate';
 import { equippedWeaponStarSum } from '@/calc/sources/masteryRuneBuff/weaponStarSum';
 import type { CalcValues } from '@/calc/types';
 import type { MonsterHpData } from '@/dpm/hpCondition';
-import { swapCycle } from '@/dpm/swapCycle';
-import { swapEffectUptimes, targetDamageWithSwap } from '@/dpm/swapDamage';
+import { targetDamageWithSwap } from '@/dpm/swapDamage';
 import type { DamageInputs } from '@/dpm/targetDamage';
 import { loadTestTables } from '@/test/loadTestTables';
 import { importSave, pickDefault, type SaveFiles } from '@/usb/saveImport/importSave';
@@ -89,37 +88,19 @@ describe('돌격 개시 (3009): 교체 등장 후 20초간 일반 몬스터 피�
   });
 });
 
-describe('교체 이후 조건: 켜진 시간 비율', () => {
-  const first = swapCycle(tables)!.firstSeconds;
-
-  it('스테이지 (긴 시간 평균) 는 두 히어로 모두 100%', () => {
-    expect(swapEffectUptimes(BASE, tables, 'stage')).toEqual({ first: 100, second: 100 });
-  });
-
-  it('시간이 정해진 대상: 교체해 나오는 히어로는 100%, 먼저 서 있는 히어로는 첫 교체 전 구간만큼 뺀다', () => {
-    const boss = swapEffectUptimes(BASE, tables, 'stageBoss');
-    expect(boss.second).toBe(100);
-    expect(boss.first).toBeLessThan(100);
-    expect(boss.first).toBeGreaterThan(0);
-    // 보스 제한 시간 W: 1슬롯 히어로가 서는 시간 W / 2 중 첫 교체 시각만큼이 빠진다
-    const windowSeconds = targetDamageWithSwap(BASE, tables, 'stageBoss', INPUTS).windowSeconds!;
-    expect(boss.first).toBeCloseTo(100 * (1 - first / (windowSeconds / 2)), 8);
-  });
-});
-
 describe('교체 효과가 대미지에 들어간다', () => {
   it('3009 를 켜면 교체 계산 (스테이지 · 일반 몬스터) 의 효율이 오르고, 교체를 끄면 오르지 않는다', () => {
-    const off = targetDamageWithSwap(BASE, tables, 'stage', INPUTS).perMinuteLog;
-    const on = targetDamageWithSwap({ ...BASE, mastery_3009: ON }, tables, 'stage', INPUTS).perMinuteLog;
+    const off = targetDamageWithSwap(BASE, tables, 'stage', INPUTS).totalLog;
+    const on = targetDamageWithSwap({ ...BASE, mastery_3009: ON }, tables, 'stage', INPUTS).totalLog;
     expect(on).toBeGreaterThan(off);
-    const noSwapOff = targetDamageWithSwap(BASE, tables, 'stage', { ...INPUTS, swap: false }).perMinuteLog;
-    const noSwapOn = targetDamageWithSwap({ ...BASE, mastery_3009: ON }, tables, 'stage', { ...INPUTS, swap: false }).perMinuteLog;
+    const noSwapOff = targetDamageWithSwap(BASE, tables, 'stage', { ...INPUTS, swap: false }).totalLog;
+    const noSwapOn = targetDamageWithSwap({ ...BASE, mastery_3009: ON }, tables, 'stage', { ...INPUTS, swap: false }).totalLog;
     expect(noSwapOn).toBe(noSwapOff);
   });
 
   it('보스 대상에서는 일반 몬스터 피해 (3009) 는 효과가 없고 보스 피해 (3010) 가 오른다', () => {
-    const base = targetDamageWithSwap(BASE, tables, 'stageBoss', INPUTS).windowTotalLog!;
-    expect(targetDamageWithSwap({ ...BASE, mastery_3009: ON }, tables, 'stageBoss', INPUTS).windowTotalLog).toBeCloseTo(base, 10);
-    expect(targetDamageWithSwap({ ...BASE, mastery_3010: ON }, tables, 'stageBoss', INPUTS).windowTotalLog!).toBeGreaterThan(base);
+    const base = targetDamageWithSwap(BASE, tables, 'stageBoss', INPUTS).totalLog;
+    expect(targetDamageWithSwap({ ...BASE, mastery_3009: ON }, tables, 'stageBoss', INPUTS).totalLog).toBeCloseTo(base, 10);
+    expect(targetDamageWithSwap({ ...BASE, mastery_3010: ON }, tables, 'stageBoss', INPUTS).totalLog).toBeGreaterThan(base);
   });
 });

@@ -8,7 +8,7 @@ import type { StatTables } from '@/data/statTables';
 import { targetDamageWithSwap } from '@/dpm/swapDamage';
 import type { DamageInputs, DamageTarget, TargetDamage } from '@/dpm/targetDamage';
 import { totalMasteryPoints } from '@/masteryOptimizer/budget';
-import { allocationFromValues, efficiencyLog } from '@/masteryOptimizer/evaluate';
+import { allocationFromValues } from '@/masteryOptimizer/evaluate';
 import { usedPoints, validateAllocation, type RuleViolation } from '@/masteryOptimizer/rules';
 
 export interface OptimizerInputs {
@@ -29,7 +29,7 @@ export interface OptimizerSnapshot {
   allocationSize: number;
   violations: RuleViolation[];
   result: TargetDamage;
-  /** 대상 효율 log10 (스테이지 = 분당, 나머지 = 누적). 계산 불가는 −Infinity */
+  /** 공격 한 번씩 대미지 합 log10. 계산 불가는 −Infinity */
   efficiency: number;
   /** 대상 대미지 계산 1회에 걸린 시간 (ms) */
   evaluateMs: number;
@@ -51,7 +51,7 @@ export function optimizerSnapshot(values: CalcValues, tables: StatTables, inputs
     allocationSize: Object.keys(allocation).length,
     violations: validateAllocation(traits, allocation, inputs.userLevel, totalPoints),
     result,
-    efficiency: efficiencyLog(result),
+    efficiency: result.totalLog,
     evaluateMs,
   };
 }

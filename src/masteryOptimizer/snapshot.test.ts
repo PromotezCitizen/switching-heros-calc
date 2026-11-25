@@ -67,6 +67,6 @@ describe('지금 상태 (10-18 계정)', () => {
   it('대상을 바꾸면 그 대상의 효율을 낸다', () => {
     const boss = optimizerSnapshot(VALUES, tables, { ...INPUTS, target: 'stageBoss' });
     expect(boss.result.target).toBe('stageBoss');
-    expect(boss.efficiency).toBe(boss.result.windowTotalLog);
+    expect(boss.efficiency).toBe(boss.result.totalLog);
   });
 });

@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Line } from '@/calc/combine';
 import { figureBattleLines } from '@/calc/sources/masteryRuneBuff/battleEffects';
-import { devilWinkSource, statusProbabilities } from '@/dpm/statusEffects';
 import { CONSTS } from '@/CONSTS';
 import { loadTestTables } from '@/test/loadTestTables';
 
@@ -47,21 +46,3 @@ describe('피규어 조건형 효과 (figure-special-effects-2026-11-07.md)', ()
   });
 });
 
-describe('데빌윙크 (전용 스킬 적중 10% · 6초)', () => {
-  it('피규어나 전용 스킬이 없으면 출처 없음', () => {
-    expect(devilWinkSource(null, 10, 100)).toBeNull();
-    expect(devilWinkSource(5, 10, 0)).toBeNull();
-  });
-
-  it('한 시전에 10번 맞으면 시전마다 1 − 0.9^10, 간격 3초면 6초 안 20번 → 걸려 있는 비율 1 − 0.9^20', () => {
-    const source = devilWinkSource(3, 10, 100)!;
-    expect(source.chance).toBeCloseTo(1 - Math.pow(0.9, 10), 10);
-    expect(source.durationSeconds).toBe(6);
-    expect(statusProbabilities([source]).devilWink).toBeCloseTo(1 - Math.pow(0.9, 20), 10);
-  });
-
-  it('간격이 6초보다 길면 (12초) 걸려 있는 비율은 시전 확률 × 6/12', () => {
-    const source = devilWinkSource(12, 10, 100)!;
-    expect(statusProbabilities([source]).devilWink).toBeCloseTo((1 - Math.pow(0.9, 10)) * 0.5, 10);
-  });
-});

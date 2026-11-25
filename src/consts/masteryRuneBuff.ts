@@ -370,8 +370,17 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     string,
     string
   >,
-  /** 이름에 개수 꼬리말이 없지만 개수를 곱하는 얼티밋 (설명문 "활성화된 스킬 문양 개수 x") — 개수를 몰라 줄을 만들지 않는다 */
+  /**
+   * 이름에 개수 꼬리말이 없지만 개수를 곱하는 얼티밋 (설명문 "활성화된 스킬 문양 개수 x {0}% 만큼 … 스킬 데미지 증가").
+   * 개수 = 장착 5칸 스킬에 켜 둔 문양 수 (equippedSkillPerkCount). 값 × 개수 % 를 그 스킬 종류의 데미지 스탯에 넣는다
+   * (직업 = 버프 · 액티브 스킬 데미지, 전용, 교체. 붙는 스탯은 설명문 기준 추정)
+   */
   ULTIMATE_HIDDEN_COUNT_STATS: ['_per_jobSkillRuneDamage', '_per_charSkillRuneDamage', '_per_swapSkillRuneDamage'] as readonly string[],
+  ULTIMATE_PERK_COUNT_TARGETS: {
+    _per_jobSkillRuneDamage: '_per_buffAndActiveDmg',
+    _per_charSkillRuneDamage: '_per_CharSkillDamage',
+    _per_swapSkillRuneDamage: '_per_ChangeSkillDamage',
+  } as Record<string, string>,
   /** 얼티밋 "_pow_스탯_장착 스킬 종류 수" 의 개수 이름 → 스킬 탭 장착 5칸의 Skill 표 skillType (특성 2010·2011) */
   ULTIMATE_SKILL_COUNT_KEYS: { EqActiveSkillCnt: 'ActiveSkill', EqBuffSkillCnt: 'BuffSkill' } as Record<string, string>,
   /** 얼티밋 "_per_스탯_던전 기록" 의 이름 → 유물 연동 칸 (relicLink_<이름>, 특성 2015~2017). 속성 던전 (2018~2020) 은 칸이 없다 */

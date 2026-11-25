@@ -26,6 +26,7 @@ const {
   CHANCE_ULTIMATES,
   CHANCE_COUNT_ULTIMATES,
   ULTIMATE_HIDDEN_COUNT_STATS,
+  ULTIMATE_PERK_COUNT_TARGETS,
   COSTUME_COUNT_KEY,
   COSTUME_COUNT_FIELD,
   PET_SLOT_FIELD_PREFIX,
@@ -112,6 +113,13 @@ export function formationHeroAttributes(values: CalcValues, tables: StatTables):
   );
 }
 
+/** 1·2슬롯 히어로의 전투 특화 (Character 표 targetUnit). 비었거나 히어로 표에서 보유가 아닌 슬롯은 뺀다 */
+export function formationHeroTargetUnits(values: CalcValues, tables: StatTables): string[] {
+  return HERO_FIELDS.map((field) => heroFirstRow(tables, slotHeroName(values, tables, field))?.targetUnit).filter(
+    (unit): unit is string => !!unit,
+  );
+}
+
 /** 1·2슬롯 두 히어로가 다 있을 때 값이 같은지 / 다른지 (한 명이면 둘 다 아님) */
 export function formationPair(formationValues: readonly string[]): { same: boolean; different: boolean } {
   const full = formationValues.length === HERO_FIELDS.length;
@@ -138,6 +146,8 @@ export interface UltimateContext {
   swapUptimePercent?: number;
   /** 모양 (stickerId) → 지금 프리셋 카드에 붙은 그 모양 배지 수 (stickerShapeCounts) */
   stickerCounts?: Record<string, number>;
+  /** 장착 5칸 스킬에 켜 둔 문양 수 (equippedSkillPerkCount) */
+  skillPerkCount?: number;
 }
 
 /**
@@ -146,6 +156,7 @@ export interface UltimateContext {
  */
 export function ultimateComputable(statName: string): boolean {
   if (CHANCE_ULTIMATES[statName] || CHANCE_COUNT_ULTIMATES[statName] !== undefined) return true;
+  if (ULTIMATE_HIDDEN_COUNT_STATS.includes(statName)) return true;
   if (GENDER_PAIR_PATTERN.test(statName) || ATTRIBUTE_PAIR_PATTERN.test(statName)) return true;
   const stickerMatch = ULTIMATE_STICKER_COUNT_PATTERN.exec(statName);
   if (stickerMatch) return ULTIMATE_STICKER_TARGETS[stickerMatch[1]] !== undefined;
@@ -230,6 +241,18 @@ export function ultimateLines(
           source: sourceLabel('calc.ultimate.stickerSource', { name, value, count }),
           stat: target.stat,
           log: multiplierPercentLog(count * Math.log10(value)),
+        });
+      }
+      continue;
+    }
+    // 스킬 문양 개수 × 값 %: 장착 5칸 스킬에 켜 둔 문양 수
+    if (ULTIMATE_HIDDEN_COUNT_STATS.includes(trait.statName)) {
+      const count = context.skillPerkCount ?? 0;
+      if (count) {
+        result.lines.push({
+          source: sourceLabel('calc.ultimate.perkSource', { name, count }),
+          stat: ULTIMATE_PERK_COUNT_TARGETS[trait.statName],
+          value: value * count,
         });
       }
       continue;

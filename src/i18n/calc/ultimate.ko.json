@@ -5,6 +5,7 @@
   "petCount": "{{name}} {{count}}마리",
   "skipped": "계산에 넣지 못한 얼티밋 특성: {{names}}",
   "costumeSource": "{{name}} (보유 코스튬 {{count}}개만큼)",
+  "perkSource": "{{name}} (장착 스킬에 켜 둔 문양 {{count}}개만큼)",
   "petSource": "{{name}} ({{value}}배를 장착 펫 {{count}}마리만큼 거듭 곱함)",
   "heroSource": "{{name}} ({{value}}배를 편성 히어로 {{count}}명만큼 거듭 곱함)",
   "skillSource": "{{name}} ({{value}}배를 장착 스킬 {{count}}개만큼 거듭 곱함)",

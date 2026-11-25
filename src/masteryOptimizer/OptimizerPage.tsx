@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Box, Button, Group, LoadingOverlay, Paper, Stack, Table, Text, Title } from '@mantine/core';
+import { Alert, Box, Button, Group, List, LoadingOverlay, Paper, Stack, Table, Text, Title } from '@mantine/core';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import { CONSTS } from '@/CONSTS';
 import MasteryPanel from '@/calc/panels/MasteryPanel';
@@ -17,7 +17,6 @@ import { useStatTables } from '@/data/statTables';
 import { OWNED_CARDS_KEY } from '@/usb/saveImport/ownedCards';
 import { bundleTarget, masteryBundleTarget } from '@/masteryOptimizer/targetBundles';
 import { useJsonData } from '@/data/useJsonData';
-import { swapCycle } from '@/dpm/swapCycle';
 import { DAMAGE_TARGETS, type DamageTarget } from '@/dpm/targetDamage';
 import type { MonsterHpData } from '@/dpm/hpCondition';
 import { valuesWithAllocation } from '@/masteryOptimizer/evaluate';
@@ -44,14 +43,12 @@ const STAGE_FLOOR_KEY = OPTIMIZER_KEYS.stageFloor;
 const AUTO_SWAP_KEY = OPTIMIZER_KEYS.autoSwap;
 /** 계산 중 덮개: 보여 줄 결과가 없을 때도 스피너가 보이는 최소 높이 (px) */
 const LOADING_MIN_HEIGHT = 120;
-const SECONDS_DECIMALS = 2;
 /** 추정한 값을 알리는 코드의 앞부분 (src/dpm: `estimate:<이름>:<스킬 번호>`) */
 const ESTIMATE_PREFIX = 'estimate';
 /** 일괄 계산 버튼 순서: 둘 다 · 특성만 · 몬스터 카드만 */
 const BATCH_PARTS: readonly BatchParts[] = ['all', 'mastery', 'cards'];
 /** 카드 조건부 효과 코드 (`conditionStatsNotCounted:<스탯>,<스탯>`, src/dpm/targetDamage.ts) */
 const CONDITION_STATS_KEY = 'conditionStatsNotCounted';
-const PERCENT = 100;
 /** 대미지 계산이 못 넣은 몫의 코드 중 "지원하지 않는 스킬" 앞부분 (src/dpm/targetDamage.ts) */
 const UNSUPPORTED_PREFIX = 'unsupported';
 /** 특성 화면 (MasteryPanel) 은 추천 결과를 보여 주기만 한다: 값을 바꾸는 입력은 무시 (늘 같은 함수여야 패널이 다시 그리지 않음) */
@@ -135,7 +132,6 @@ export default function OptimizerPage() {
     [masteryCalcValues, tables, masteryInputs],
   );
   const traits = useMemo(() => (tables.status === 'ready' ? masteryTraits(tables.data.Mastery) : []), [tables]);
-  const cycle = useMemo(() => (tables.status === 'ready' ? swapCycle(tables.data) : null), [tables]);
   /** 계산에 못 넣은 몫 · 추정한 값의 코드 (`<코드>:<스킬 번호>` 또는 `estimate:<코드>:<스킬 번호>`, src/dpm) → 한국어 문장 */
   const missingMessage = (code: string): string => {
     const [first, second, third] = code.split(':');
@@ -157,20 +153,6 @@ export default function OptimizerPage() {
     () => new Map<string, string>(tables.status === 'ready' ? skillRows(tables.data).map((row) => [row.skillId, row.name]) : []),
     [tables],
   );
-  const cycleTime = (gameSeconds: number): string => translate('optimizer.swapTime', { game: gameSeconds.toFixed(SECONDS_DECIMALS) });
-  const cycleRows: [string, string][] = cycle
-    ? [
-        [translate('optimizer.swapHeroes'), `${calcValues.charName || '-'} ⇄ ${calcValues.charName2 || '-'}`],
-        [
-          translate('optimizer.swapGauge'),
-          translate('optimizer.swapGaugeValue', { max: cycle.gaugeMax, start: cycle.gaugeStart, percent: cycle.gaugeStartPercent }),
-        ],
-        [translate('optimizer.swapFirst'), cycleTime(cycle.firstSeconds)],
-        [translate('optimizer.swapFull'), cycleTime(cycle.fullSeconds)],
-        [translate('optimizer.swapShare'), translate('optimizer.swapShareValue', { percent: CONSTS.dpm.SWAP.TIME_SHARE * PERCENT })],
-      ]
-    : [];
-
   const { state: recommendState } = recommendation;
   const running = recommendState.status === 'running';
   /** 카드 추천 계산이 도는 중인가 (카드 섹션이 알려 준다) */
@@ -213,10 +195,7 @@ export default function OptimizerPage() {
 
   const efficiencyText = (() => {
     if (!snapshot || !Number.isFinite(snapshot.efficiency)) return translate('optimizer.efficiencyNone');
-    const damage = formatLog(snapshot.efficiency);
-    return snapshot.result.windowSeconds === null
-      ? translate('optimizer.efficiencyStage', { damage })
-      : translate('optimizer.efficiencyWindow', { seconds: snapshot.result.windowSeconds, damage });
+    return translate('optimizer.efficiencyOneCast', { damage: formatLog(snapshot.efficiency) });
   })();
 
   /** 대미지는 log10 값이라 차이 = 몇 배인지 (게임 단위 표기) */
@@ -228,6 +207,17 @@ export default function OptimizerPage() {
       <Text size="sm" c="dimmed">
         {translate('optimizer.accountHint')}
       </Text>
+      {/* 계산에서 뺀 것과 그 이유 */}
+      <Paper withBorder p="md">
+        <Text size="sm" fw={600} mb={4}>
+          {translate('optimizer.excluded.title')}
+        </Text>
+        <List size="sm" spacing={2}>
+          {(translate('optimizer.excluded.items', { returnObjects: true }) as unknown as string[]).map((item) => (
+            <List.Item key={item}>{item}</List.Item>
+          ))}
+        </List>
+      </Paper>
 
       <Paper withBorder p="md">
         <Title order={3} mb="sm">{translate('optimizer.targetTitle')}</Title>
@@ -391,25 +381,6 @@ export default function OptimizerPage() {
             />
           )}
 
-          {cycle && (
-            <Paper withBorder p="md">
-              <Title order={3} mb="sm">{translate('optimizer.swapTitle')}</Title>
-              <Table>
-                <Table.Tbody>
-                  {cycleRows.map(([label, value]) => (
-                    <Table.Tr key={label}>
-                      <Table.Td>{label}</Table.Td>
-                      <Table.Td>{value}</Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-              <Text mt="sm" size="sm" c="dimmed">
-                {translate('optimizer.swapNote')}
-              </Text>
-            </Paper>
-          )}
-
           <Paper withBorder p="md">
             <Title order={3} mb="sm">{translate('optimizer.efficiencyTitle')}</Title>
             <Text fw={600}>{efficiencyText}</Text>
@@ -419,7 +390,7 @@ export default function OptimizerPage() {
                   <Table.Thead>
                     <Table.Tr>
                       <Table.Th>{translate('optimizer.partName')}</Table.Th>
-                      <Table.Th>{translate('optimizer.perMinuteLog')}</Table.Th>
+                      <Table.Th>{translate('optimizer.oneCastLog')}</Table.Th>
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>
@@ -430,7 +401,7 @@ export default function OptimizerPage() {
                           {translate(`optimizer.kind.${part.kind}`)}
                           {part.skillId && part.kind !== 'char' && part.kind !== 'swap' ? ` ${skillNames.get(part.skillId) ?? part.skillId}` : ''}
                         </Table.Td>
-                        <Table.Td>{formatLog(part.perMinuteLog)}</Table.Td>
+                        <Table.Td>{formatLog(part.damagePerCastLog)}</Table.Td>
                       </Table.Tr>
                     ))}
                   </Table.Tbody>

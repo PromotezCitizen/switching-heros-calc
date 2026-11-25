@@ -96,6 +96,16 @@ export function equippedSkillTypeCounts(values: CalcValues, tables: StatTables):
   return counts;
 }
 
+/** 장착 5칸 (레벨 1 이상) 스킬에 켜 둔 문양 수 합 (얼티밋 2012 · 2013 · 2014 의 "활성화된 스킬 문양 개수") */
+export function equippedSkillPerkCount(values: CalcValues, tables: StatTables): number {
+  let count = 0;
+  for (const skillId of equippedSkillIds(values)) {
+    if (skillLevel(values, skillId) < FIRST_LEVEL) continue;
+    count += chosenSkillPerks(values, tables, skillId).length;
+  }
+  return count;
+}
+
 /** 스킬 아이콘 경로 (icons/ 아래, 확장자 없음) */
 export function skillIconPath(skillId: string): string {
   return ((LOWER_CASE_ICON_IDS as readonly string[]).includes(skillId) ? LOWER_CASE_ICON_PREFIX : ICON_PREFIX) + skillId;

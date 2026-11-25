@@ -3,9 +3,9 @@ import '@/i18n';
 import monsterHp from '@public/data/monsterHp.json';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import { masteryLevelKey, masteryTraits } from '@/calc/sources/masteryRuneBuff/mastery';
-import { DAMAGE_TARGETS, targetDamage, type DamageInputs } from '@/dpm/targetDamage';
+import { DAMAGE_TARGETS, type DamageInputs } from '@/dpm/targetDamage';
 import type { MonsterHpData } from '@/dpm/hpCondition';
-import { allocationFromValues, efficiencyLog, evaluateAllocation, valuesWithAllocation } from '@/masteryOptimizer/evaluate';
+import { allocationFromValues, evaluateOneCastEach, valuesWithAllocation } from '@/masteryOptimizer/evaluate';
 import { loadTestTables } from '@/test/loadTestTables';
 import { importSave, pickDefault, type SaveFiles } from '@/usb/saveImport/importSave';
 import saveSubset1018 from '@/usb/saveImport/saveSubset1018.json';
@@ -46,15 +46,11 @@ describe('배분 ↔ 입력값', () => {
   });
 });
 
-describe('효율 (10-18 계정, 대상 넷)', () => {
+describe('효율 (10-18 계정, 대상 12개)', () => {
   const current = allocationFromValues(VALUES, traits);
 
-  it('지금 배분의 효율 = 대상 대미지 결과 그대로 (스테이지 DPM · 나머지 누적)', () => {
-    for (const target of DAMAGE_TARGETS) {
-      const direct = efficiencyLog(targetDamage(VALUES, tables, target, INPUTS));
-      expect(evaluateAllocation(VALUES, traits, tables, current, target, INPUTS), target).toBeCloseTo(direct, 10);
-      expect(isFinite(direct), target).toBe(true);
-    }
+  it('지금 배분의 효율이 대상마다 나온다', () => {
+    for (const target of DAMAGE_TARGETS) expect(isFinite(evaluateOneCastEach(VALUES, traits, tables, current, target, INPUTS)), target).toBe(true);
   });
 
   it('공격력 % 특성을 빼면 대상 넷 모두 효율이 내려간다', () => {
@@ -62,17 +58,17 @@ describe('효율 (10-18 계정, 대상 넷)', () => {
     const reduced = { ...current };
     for (const rNo of ATTACK_PERCENT_TRAITS) delete reduced[rNo];
     for (const target of DAMAGE_TARGETS) {
-      expect(evaluateAllocation(VALUES, traits, tables, reduced, target, INPUTS), target).toBeLessThan(
-        evaluateAllocation(VALUES, traits, tables, current, target, INPUTS),
+      expect(evaluateOneCastEach(VALUES, traits, tables, reduced, target, INPUTS), target).toBeLessThan(
+        evaluateOneCastEach(VALUES, traits, tables, current, target, INPUTS),
       );
     }
   });
 
   it('특성을 하나도 안 찍어도 값이 나오고 (탐색 시작점) 지금 배분보다 낮다', () => {
     for (const target of DAMAGE_TARGETS) {
-      const empty = evaluateAllocation(VALUES, traits, tables, {}, target, INPUTS);
+      const empty = evaluateOneCastEach(VALUES, traits, tables, {}, target, INPUTS);
       expect(isFinite(empty), target).toBe(true);
-      expect(empty, target).toBeLessThan(evaluateAllocation(VALUES, traits, tables, current, target, INPUTS));
+      expect(empty, target).toBeLessThan(evaluateOneCastEach(VALUES, traits, tables, current, target, INPUTS));
     }
   });
 });

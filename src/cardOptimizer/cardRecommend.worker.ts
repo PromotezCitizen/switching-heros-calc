@@ -14,8 +14,7 @@ import { ascendMarks, bestGroupLoadout, recommendMarks, startMarkLoadout } from 
 import { CARD_EXTRA_MARKS_FIELD, CARD_MARK_NUMBERS, CARD_SLOT_NUMBERS, setIdsForMark } from '@/calc/sources/heroWeaponCardPet/card';
 import { scanLockedGroups, type LockedMarkGroup } from '@/cardOptimizer/lockedMarkGroups';
 import { masteryTraits } from '@/calc/sources/masteryRuneBuff/mastery';
-import { efficiencyLog, valuesWithAllocation } from '@/masteryOptimizer/evaluate';
-import { targetDamageWithSwap } from '@/dpm/swapDamage';
+import { oneCastEachLog, valuesWithAllocation } from '@/masteryOptimizer/evaluate';
 
 /** 동시에 도는 하위 작업자 수 상한 (게임을 하면서 돌릴 수 있어 CPU 를 다 쓰지 않는다) */
 const MAX_SUB_WORKERS = 3;
@@ -71,7 +70,8 @@ scope.onmessage = async (event) => {
     // 특성은 비운 상태로 계산한다 (카드와 특성은 따로 추천한다. 지금 찍은 특성은 반영하지 않는다)
     const values = valuesWithAllocation(currentValues, masteryTraits(tables.Mastery), {});
     const owned = parseOwnedCards(ownedText);
-    const evaluate = (loadout: Loadout) => efficiencyLog(targetDamageWithSwap(valuesWithLoadout(values, tables, loadout), tables, inputs.target, inputs.damage));
+    // 비교 값은 공격마다 한 번씩 대미지 합 (특성 추천과 같은 기준, 쿨타임 · 시간은 보지 않음)
+    const evaluate = (loadout: Loadout) => oneCastEachLog(valuesWithLoadout(values, tables, loadout), tables, inputs.target, inputs.damage);
     const markCount = (card: OwnedCard) => markCountOf(tables, card);
     const onProgress = (progress: Parameters<NonNullable<Parameters<typeof recommendCards>[1]['onProgress']>>[0]) =>
       scope.postMessage({ type: 'progress', progress });
@@ -88,7 +88,7 @@ scope.onmessage = async (event) => {
     const lockedEvaluator = (loadout: Loadout) => {
       const recommendedValues = valuesWithLoadout(values, tables, loadout);
       return (extra: Record<string, number>) =>
-        efficiencyLog(targetDamageWithSwap({ ...recommendedValues, [CARD_EXTRA_MARKS_FIELD]: JSON.stringify(extra) }, tables, inputs.target, inputs.damage));
+        oneCastEachLog({ ...recommendedValues, [CARD_EXTRA_MARKS_FIELD]: JSON.stringify(extra) }, tables, inputs.target, inputs.damage);
     };
 
     if (mode === 'cards') {

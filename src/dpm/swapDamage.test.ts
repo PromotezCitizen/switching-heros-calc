@@ -5,8 +5,8 @@ import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import type { CalcValues } from '@/calc/types';
 import type { MonsterHpData } from '@/dpm/hpCondition';
 import { CONSTS } from '@/CONSTS';
-import { swapEffectUptimes, swappedHeroValues, targetDamageWithSwap } from '@/dpm/swapDamage';
-import { prepareTargetDamage, targetDamage, type DamageInputs } from '@/dpm/targetDamage';
+import { swappedHeroValues, targetDamageWithSwap } from '@/dpm/swapDamage';
+import { logSum, targetDamage, type DamageInputs } from '@/dpm/targetDamage';
 import { loadTestTables } from '@/test/loadTestTables';
 import { importSave, pickDefault, type SaveFiles } from '@/usb/saveImport/importSave';
 import saveSubset1018 from '@/usb/saveImport/saveSubset1018.json';
@@ -41,24 +41,6 @@ describe('저장 가져오기: 2슬롯 히어로', () => {
 
   it('2슬롯 히어로의 전용 무기 장착 칸이 생긴다', () => {
     expect(['true', 'false']).toContain(imported.values.exclusiveEquipped2);
-  });
-});
-
-describe('상태이상 수: 두 히어로 장착 스킬 합치기', () => {
-  it('준비 → 마무리는 한 번에 계산한 것과 같다 (자기 출처만 쓸 때)', () => {
-    const prepared = prepareTargetDamage(VALUES, tables, 'stageBoss', INPUTS);
-    expect(prepared.finish()).toEqual(targetDamage(VALUES, tables, 'stageBoss', INPUTS));
-  });
-  it('일반몹 대상 (3중첩 가정) 과 상태이상 수를 입력한 대상은 출처를 모으지 않는다', () => {
-    expect(prepareTargetDamage(VALUES, tables, 'stage', INPUTS).skillStatusSources).toEqual([]);
-    expect(prepareTargetDamage(VALUES, tables, 'stageBoss', { ...INPUTS, targetStatusCount: { stageBoss: 2 } }).skillStatusSources).toEqual([]);
-  });
-  it('다른 히어로 출처를 넘기면 상태이상 수에 들어간다 (늘 걸린 기절을 넘기면 대미지가 같거나 커진다)', () => {
-    const prepared = () => prepareTargetDamage(VALUES, tables, 'stageBoss', INPUTS);
-    const own = prepared().skillStatusSources;
-    const alwaysStun = { kind: 'stun', chance: 1, durationSeconds: 100, intervalSeconds: 1 };
-    const withStun = prepared().finish([...own, alwaysStun]);
-    expect(withStun.perMinuteLog).toBeGreaterThanOrEqual(prepared().finish(own).perMinuteLog);
   });
 });
 
@@ -108,43 +90,33 @@ describe('두 히어로 바꾸기', () => {
   });
 });
 
-describe('교체 계산 = 두 히어로 대미지의 평균 (필드에 서는 시간이 같다고 봄)', () => {
+describe('교체 계산 = 두 히어로 공격 한 번씩 대미지를 모두 더함', () => {
   const swapped = swappedHeroValues(VALUES)!;
-  /** 교체 등장 후 지속 효과 (얼티밋 · 일반 특성의 _HeroSwap) 는 히어로마다 켜진 시간 비율을 넣어 계산한다 (targetDamageWithSwap 과 같은 방식) */
-  const withUptime = (values: CalcValues, percent: number): CalcValues => ({ ...values, [CONSTS.masteryRuneBuff.SWAP_UPTIME_FIELD]: String(percent) });
+  /** 교체 등장 후 지속 효과는 최대 상태라 두 히어로 모두 늘 켜짐 (targetDamageWithSwap 과 같은 방식) */
+  const withUptime = (values: CalcValues): CalcValues => ({
+    ...values,
+    [CONSTS.masteryRuneBuff.SWAP_UPTIME_FIELD]: String(CONSTS.dpm.SWAP.HERO_SWAP_EFFECT_UPTIME_PERCENT),
+  });
 
-  it('스테이지: 분당 대미지 = log10 ((10^1슬롯 + 10^2슬롯) / 2), 내역에 두 히어로가 모두 나온다', () => {
-    const uptimes = swapEffectUptimes(VALUES, tables, 'stage');
-    const first = targetDamage(withUptime(VALUES, uptimes.first), tables, 'stage', INPUTS);
-    const second = targetDamage(withUptime(swapped, uptimes.second), tables, 'stage', INPUTS);
+  it('합 = log10 (10^1슬롯 + 10^2슬롯), 내역에 두 히어로가 모두 나온다', () => {
+    const first = targetDamage(withUptime(VALUES), tables, 'stage', INPUTS);
+    const second = targetDamage(withUptime(swapped), tables, 'stage', INPUTS);
     const result = targetDamageWithSwap(VALUES, tables, 'stage', INPUTS);
-    expect(result.perMinuteLog).toBeCloseTo(Math.log10((Math.pow(10, first.perMinuteLog - second.perMinuteLog) + 1) / 2) + second.perMinuteLog, 8);
+    expect(result.totalLog).toBeCloseTo(logSum([first.totalLog, second.totalLog]), 8);
     expect(new Set(result.parts.map((part) => part.hero))).toEqual(new Set([VALUES.charName, VALUES.charName2]));
-    // 교체 스킬은 이제 계산한다 (ChangeSkill 표 · changeSkillHits.ts): 두 히어로 몫에 교체 스킬이 들어 있다
-    expect(result.missing).not.toContain('swapSkillNotCounted');
+    // 두 히어로 몫에 교체 스킬이 들어 있다
     expect(result.parts.filter((part) => part.kind === 'swap').length).toBe(2);
   });
 
-  it('스테이지 보스 (누적): 두 히어로 누적 대미지의 평균 (에이카 무기 ★1 은 없는 값으로 본다)', () => {
-    const noStar = { ...VALUES, exclusiveOwnedStar_1021: '0' };
-    const noStarSwapped = swappedHeroValues(noStar)!;
-    const uptimes = swapEffectUptimes(noStar, tables, 'stageBoss');
-    const first = targetDamage(withUptime(noStar, uptimes.first), tables, 'stageBoss', INPUTS);
-    const second = targetDamage(withUptime(noStarSwapped, uptimes.second), tables, 'stageBoss', INPUTS);
-    const result = targetDamageWithSwap(noStar, tables, 'stageBoss', INPUTS);
-    const expected = Math.log10((Math.pow(10, first.windowTotalLog! - second.windowTotalLog!) + 1) / 2) + second.windowTotalLog!;
-    expect(result.windowTotalLog).toBeCloseTo(expected, 8);
-  });
-
   it('자동 교체를 끄면 1슬롯 결과 그대로', () => {
-    const plain = targetDamage(VALUES, tables, 'stage', INPUTS);
+    const plain = targetDamage(VALUES, tables, 'stage', { ...INPUTS, swap: false });
     const off = targetDamageWithSwap(VALUES, tables, 'stage', { ...INPUTS, swap: false });
-    expect(off.perMinuteLog).toBe(plain.perMinuteLog);
+    expect(off.totalLog).toBe(plain.totalLog);
     expect(off.parts.every((part) => part.hero === undefined)).toBe(true);
   });
 
   it('2슬롯 히어로가 없으면 1슬롯 결과 그대로', () => {
     const solo = { ...VALUES, charName2: '' };
-    expect(targetDamageWithSwap(solo, tables, 'stage', INPUTS).perMinuteLog).toBe(targetDamage(solo, tables, 'stage', INPUTS).perMinuteLog);
+    expect(targetDamageWithSwap(solo, tables, 'stage', INPUTS).totalLog).toBe(targetDamage(solo, tables, 'stage', INPUTS).totalLog);
   });
 });

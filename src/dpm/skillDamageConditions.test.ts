@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import '@/i18n';
-import monsterHp from '@public/data/monsterHp.json';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import type { CalcValues } from '@/calc/types';
-import type { MonsterHpData } from '@/dpm/hpCondition';
 import { targetDamage, type DamageInputs, type DamagePart } from '@/dpm/targetDamage';
 import { loadTestTables } from '@/test/loadTestTables';
 import { importSave, pickDefault, type SaveFiles } from '@/usb/saveImport/importSave';
@@ -17,9 +15,6 @@ const INPUTS: DamageInputs = {
   targetsPerSkill: 3,
   orbShardHits: {},
   targetStatusCount: {},
-  stageFloor: null,
-  attributeDungeonFloor: null,
-  monsterHp: monsterHp as MonsterHpData,
 };
 /** 얼티밋 켬/끔 값 (1 = 사용) */
 const ON = '1';

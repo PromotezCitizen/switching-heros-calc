@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import '@/i18n';
-import monsterHp from '@public/data/monsterHp.json';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import { masteryLevelKey, masteryTraits } from '@/calc/sources/masteryRuneBuff/mastery';
 import { DAMAGE_TARGETS, type DamageInputs } from '@/dpm/targetDamage';
-import type { MonsterHpData } from '@/dpm/hpCondition';
 import { allocationFromValues, evaluateOneCastEach, valuesWithAllocation } from '@/masteryOptimizer/evaluate';
 import { loadTestTables } from '@/test/loadTestTables';
 import { importSave, pickDefault, type SaveFiles } from '@/usb/saveImport/importSave';
@@ -15,14 +13,10 @@ const traits = masteryTraits(tables.Mastery);
 const raw = saveSubset1018 as unknown as Omit<SaveFiles, 'Default'> & { Default: Parameters<typeof pickDefault>[0] };
 const imported = importSave({ ...raw, Default: pickDefault(raw.Default) }, tables);
 const VALUES = { ...imported.values, [ACCOUNT_KEYS.vipLevel]: imported.accountValues[ACCOUNT_KEYS.vipLevel] };
-const HERO_FLOOR = (monsterHp as MonsterHpData).attributeDungeon.kind.findIndex((kind) => kind === 3) + 1;
 const INPUTS: DamageInputs = {
   targetsPerSkill: 3,
   orbShardHits: { stage: 2, stageBoss: 5, awaken: 5, attributeHero: 5 },
   targetStatusCount: {},
-  stageFloor: 9827,
-  attributeDungeonFloor: HERO_FLOOR,
-  monsterHp: monsterHp as MonsterHpData,
 };
 /** 최대 레벨 5000 인 공격력 % 특성 (`_per_attackDamage`, `_per_Archer_AttackDamage`) */
 const ATTACK_PERCENT_TRAITS = ['21', '118'];

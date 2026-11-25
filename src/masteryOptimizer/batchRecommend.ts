@@ -6,7 +6,6 @@
  */
 import { CONSTS } from '@/CONSTS';
 import type { StatTables } from '@/data/statTables';
-import type { MonsterHpData } from '@/dpm/hpCondition';
 import { DAMAGE_TARGETS, type DamageTarget } from '@/dpm/targetDamage';
 import type { CardRecommendMessage, CardRecommendRequest } from '@/cardOptimizer/cardWorkerTypes';
 import type { CardRecommendation } from '@/cardOptimizer/recommendCards';
@@ -44,7 +43,6 @@ export interface BatchOptions {
   /** 시작 때의 저장소 값 (입력 · 고정 카드 · 보유 카드) */
   storeValues: Record<string, string>;
   tables: StatTables;
-  monsterHp: MonsterHpData | null;
   /** 계산 범위 (기본 둘 다) */
   parts?: BatchParts;
   save: (key: string, value: string) => void;
@@ -69,14 +67,7 @@ export interface BatchHandle {
   stop: () => void;
 }
 
-export function startBatch({
-  storeValues,
-  tables,
-  monsterHp,
-  parts = 'all',
-  save,
-  onProgress,
-}: BatchOptions): BatchHandle {
+export function startBatch({ storeValues, tables, parts = 'all', save, onProgress }: BatchOptions): BatchHandle {
   const workers = new Set<Worker>();
   let stopped = false;
   const runsMastery = parts !== 'cards';
@@ -127,7 +118,7 @@ export function startBatch({
   const masteryWorker = () => new Worker(new URL('./recommend.worker.ts', import.meta.url), { type: 'module' });
   const cardWorker = () =>
     new Worker(new URL('/src/cardOptimizer/cardRecommend.worker.ts', import.meta.url), { type: 'module' });
-  const swap = optimizerInputsFor(storeValues, BATCH_MASTERY_TARGETS[0], monsterHp).damage.swap === true;
+  const swap = optimizerInputsFor(storeValues, BATCH_MASTERY_TARGETS[0]).damage.swap === true;
   const ownedText = storeValues[OWNED_CARDS_KEY] ?? '';
   const fixedCardIds = fixedCardIdsOf(storeValues[CARD_FIXED_KEY]);
 
@@ -151,7 +142,7 @@ export function startBatch({
         const request: RecommendRequest = {
           values: optimizerValuesFor(storeValues, target),
           tables,
-          inputs: optimizerInputsFor(storeValues, target, monsterHp),
+          inputs: optimizerInputsFor(storeValues, target),
         };
         const result = await runWorker<RecommendRequest, Recommendation>(masteryWorker, request, (message) =>
           (message as RecommendMessage).type === 'done'
@@ -176,7 +167,7 @@ export function startBatch({
         const base: CardRecommendRequest = {
           values: optimizerValuesFor(storeValues, target),
           tables,
-          inputs: optimizerInputsFor(storeValues, target, monsterHp),
+          inputs: optimizerInputsFor(storeValues, target),
           ownedText,
           mode: 'cards',
         };

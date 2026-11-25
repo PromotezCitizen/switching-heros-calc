@@ -7,8 +7,8 @@ describe('추천을 같이 계산하는 대상 (TARGET_BUNDLES, 프리셋은 보
     expect(bundleTarget('attributeBoss')).toBe('stageBoss');
     expect(bundleTarget('guildRaid')).toBe('awaken');
     expect(bundleTarget('globalRaidBoss')).toBe('awaken');
-    // 히어로: 처치 목표 (속성 던전 · PvP) / 체력 무한 (악몽 · 글로벌)
-    expect(bundleTarget('pvp')).toBe('attributeHero');
+    // 히어로: 체력 유한 (속성 던전) / 체력 무한 (악몽, 글로벌) / PvP 따로
+    expect(bundleTarget('pvp')).toBe('pvp');
     expect(bundleTarget('globalRaidHero')).toBe('nightmare');
   });
 
@@ -19,11 +19,12 @@ describe('추천을 같이 계산하는 대상 (TARGET_BUNDLES, 프리셋은 보
 });
 
 describe('특성 추천 묶음 (MASTERY_BUNDLES): 보스끼리 · 히어로끼리 하나', () => {
-  it('보스 5개 → 스테이지 보스, 히어로 4개 → 속성 히어로, 일반은 카드 묶음과 같음', () => {
+  it('보스 5개 → 스테이지 보스, 히어로 3개 → 속성 히어로, PvP 는 따로, 일반은 카드 묶음과 같음', () => {
     for (const target of ['attributeBoss', 'awaken', 'guildRaid', 'globalRaidBoss'] as const)
       expect(masteryBundleTarget(target)).toBe('stageBoss');
-    for (const target of ['pvp', 'nightmare', 'globalRaidHero'] as const)
+    for (const target of ['nightmare', 'globalRaidHero'] as const)
       expect(masteryBundleTarget(target)).toBe('attributeHero');
+    expect(masteryBundleTarget('pvp')).toBe('pvp');
     expect(masteryBundleTarget('attributeNormal')).toBe('stage');
     expect(masteryBundleTarget('globalRaidNormal')).toBe('globalRaidNormal');
   });

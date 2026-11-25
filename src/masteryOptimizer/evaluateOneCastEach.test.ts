@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import '@/i18n';
-import monsterHp from '@public/data/monsterHp.json';
 import { ACCOUNT_KEYS } from '@/account/accountKeys';
 import { masteryTraits } from '@/calc/sources/masteryRuneBuff/mastery';
-import type { MonsterHpData } from '@/dpm/hpCondition';
 import type { DamageInputs } from '@/dpm/targetDamage';
 import { allocationFromValues, evaluateOneCastEach } from '@/masteryOptimizer/evaluate';
 import { loadTestTables } from '@/test/loadTestTables';
@@ -15,14 +13,10 @@ const traits = masteryTraits(tables.Mastery);
 const raw = saveSubset1018 as unknown as Omit<SaveFiles, 'Default'> & { Default: Parameters<typeof pickDefault>[0] };
 const imported = importSave({ ...raw, Default: pickDefault(raw.Default) }, tables);
 const VALUES = { ...imported.values, [ACCOUNT_KEYS.vipLevel]: imported.accountValues[ACCOUNT_KEYS.vipLevel] };
-const HERO_FLOOR = (monsterHp as MonsterHpData).attributeDungeon.kind.findIndex((kind) => kind === 3) + 1;
 const INPUTS: DamageInputs = {
   targetsPerSkill: 3,
   orbShardHits: { stage: 2, stageBoss: 5, awaken: 5, attributeHero: 5 },
   targetStatusCount: {},
-  stageFloor: 9827,
-  attributeDungeonFloor: HERO_FLOOR,
-  monsterHp: monsterHp as MonsterHpData,
 };
 
 describe('특성 추천 비교 값 (공격마다 한 번씩 대미지 합)', () => {

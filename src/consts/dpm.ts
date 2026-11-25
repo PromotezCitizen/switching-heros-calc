@@ -533,28 +533,8 @@ export const DPM_CONSTS = {
     LIN_DRAGON_WAVE_SKILL: '12004',
     LIN_WAVE_PIERCE: 99,
   },
-  /**
-   * 대상 체력 조건 피해 (묶음 A 0x40 / 0x41, 스킬 옵션 종류 10 / 11): 맞는 순간 남은 체력 비율이 70% 이상 / 30% 이하일 때.
-   * 몬스터 체력 = public/data/monsterHp.json (scripts/export_monster_hp.py)
-   */
-  HP_CONDITION: {
-    HIGH_FROM: 0.7,
-    LOW_UNTIL: 0.3,
-    HIGH_STAT: '_per_hp70UpDamage',
-    LOW_STAT: '_per_hp30DownDamage',
-    HIGH_OPTION_TYPE: '10',
-    LOW_OPTION_TYPE: '11',
-    /** 한 마리 체력이 한 대 대미지의 이 배수를 넘으면 적중 비율을 극한값 (0.3 · 0.3) 으로 */
-    CONTINUOUS_FROM_HITS: 1e9,
-    /** 경계 비교 여유 (0.1 을 여러 번 더한 부동소수 오차로 70% 가 69.99…% 가 되는 것 방지) */
-    BOUNDARY_EPSILON: 1e-9,
-    DATA_FILE: 'monsterHp.json',
-    /** 속성 던전 층 종류 (DungeonReward dungeonVal3): 3 = 히어로 층 */
-    ATTRIBUTE_HERO_KIND: 3,
-    /** 속성 던전 일반 층 · 보스 층 (dungeonVal3) */
-    ATTRIBUTE_NORMAL_KIND: 1,
-    ATTRIBUTE_BOSS_KIND: 2,
-  },
+  /** 대상 체력 70% 이상 피해 (묶음 A 0x40, 스킬 옵션 종류 10): 체력이 늘 100% 인 대상에만 붙인다 (targetDamage.ts) */
+  HP_CONDITION: { HIGH_STAT: '_per_hp70UpDamage', HIGH_OPTION_TYPE: '10' },
   /**
    * 대상 넷 (claude-docs/mastery-optimizer-design.md 8절 표): 대미지 식의 대상 종류 (종합 탭 대상 칸) 와 시간.
    * 스테이지 = DPM, 나머지 = 정해진 시간 동안 누적 (보스 = Option stage_clear_boss_timer + VIP bossTimeUp 합, 각성 = DungeonAwaken_Time, 속성 = 코드 상수 60)
@@ -605,13 +585,13 @@ export const DPM_CONSTS = {
   MASTERY_BUNDLES: [
     ['stage', 'attributeNormal'],
     ['stageBoss', 'attributeBoss', 'awaken', 'guildRaid', 'globalRaidBoss'],
-    ['attributeHero', 'pvp', 'nightmare', 'globalRaidHero'],
+    ['attributeHero', 'nightmare', 'globalRaidHero'],
   ] as readonly (readonly string[])[],
   TARGET_BUNDLES: [
     ['stage', 'attributeNormal'],
     ['stageBoss', 'attributeBoss'],
     ['awaken', 'guildRaid', 'globalRaidBoss'],
-    ['attributeHero', 'pvp'],
+    ['attributeHero'],
     ['nightmare', 'globalRaidHero'],
   ] as readonly (readonly string[])[],
   /** 체력이 무한 (BigDouble.MaxValue 등) 인 대상 */

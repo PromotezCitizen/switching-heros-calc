@@ -11,7 +11,7 @@ import type { RawTable, StatTables } from '@/data/statTables';
 import { equippedExclusiveStar } from '@/calc/sources/heroWeaponCardPet/weapon';
 import { rowsOf } from '@/calc/sources/heroWeaponCardPet/shared';
 import type { Chances } from '@/calc/sources/masteryRuneBuff/chances';
-import { learnedTraitValue, masteryTraits, plainNumber } from '@/calc/sources/masteryRuneBuff/mastery';
+import { learnedTraitValue, masteryTraits, plainNumber, rushChanceCounts } from '@/calc/sources/masteryRuneBuff/mastery';
 import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 import { summaryTarget } from '@/calc/sources/summary/summary';
 import { swapCycle } from '@/dpm/swapCycle';
@@ -88,7 +88,7 @@ export function figureBattleLines(
   return lines;
 }
 
-/** 스위칭 부스트 발동 버프 · 과잉 전환 줄 */
+/** 스위칭 부스트 발동 버프 · 과잉 전환 206 · 스위칭 폭주 207 줄 */
 export function switchingBoostLines(
   values: CalcValues,
   tables: StatTables,
@@ -117,6 +117,15 @@ export function switchingBoostLines(
       source: sourceLabel('calc.buff.battle.switchingOverSource', { chance: plainNumber(chance), percent: plainNumber(uptime * PERCENT) }),
       stat: STATS.ATTACK_PERCENT,
       value: over * uptime,
+    });
+  }
+  const rushSteps = Math.floor((chance - PROBABILITY_MAX) / SWITCHING_BOOST.RUSH_STEP);
+  const rush = learnedTraitValue(traits, values, SWITCHING_BOOST.RUSH_STAT);
+  if (rush > 0 && rushSteps > 0 && rushChanceCounts(values, chance)) {
+    lines.push({
+      source: sourceLabel('calc.buff.battle.switchingRushSource', { chance: plainNumber(chance), steps: rushSteps, percent: plainNumber(uptime * PERCENT) }),
+      stat: STATS.ATTACK_PERCENT,
+      value: rush * rushSteps * uptime,
     });
   }
   return lines;

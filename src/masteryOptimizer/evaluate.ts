@@ -5,8 +5,9 @@
 import { masteryLevel, masteryLevelKey, type MasteryTrait } from '@/calc/sources/masteryRuneBuff/mastery';
 import type { CalcValues } from '@/calc/types';
 import type { StatTables } from '@/data/statTables';
-import { targetDamageWithSwap } from '@/dpm/swapDamage';
-import type { DamageInputs, DamageTarget, TargetDamage } from '@/dpm/targetDamage';
+import { CONSTS } from '@/CONSTS';
+import { swappedHeroValues, targetDamageWithSwap } from '@/dpm/swapDamage';
+import { logSum, maxNormalHitLog, type DamageInputs, type DamageTarget, type TargetDamage } from '@/dpm/targetDamage';
 import type { Allocation } from '@/masteryOptimizer/rules';
 
 /** 입력값의 특성 레벨 칸 → 배분 (레벨 0 은 뺀다) */
@@ -45,4 +46,26 @@ export function evaluateAllocation(
   inputs: DamageInputs,
 ): number {
   return efficiencyLog(targetDamageWithSwap(valuesWithAllocation(values, traits, allocation), tables, target, inputs));
+}
+
+/**
+ * 특성 추천의 비교 값: 최대 상태의 평타 한 번 대미지 (log10, maxNormalHitLog). 초과분 10% 마다 붙는 특성은
+ * 확률이 OPTIMIZER_RULES.RUSH_MIN_CHANCE 를 넘어야 센다. 교체가 켜져 있으면 두 히어로 값의 평균
+ */
+export function evaluateMaxHit(
+  values: CalcValues,
+  traits: MasteryTrait[],
+  tables: StatTables,
+  allocation: Allocation,
+  target: DamageTarget,
+  inputs: DamageInputs,
+): number {
+  const { RUSH_MIN_CHANCE, RUSH_MIN_CHANCE_FIELD } = CONSTS.dpm.OPTIMIZER_RULES;
+  const allocated = { ...valuesWithAllocation(values, traits, allocation), [RUSH_MIN_CHANCE_FIELD]: String(RUSH_MIN_CHANCE) };
+  const first = maxNormalHitLog(allocated, tables, target, inputs);
+  const swapped = inputs.swap ? swappedHeroValues(allocated) : null;
+  if (!swapped) return first;
+  const second = maxNormalHitLog(swapped, tables, target, inputs);
+  if (second === -Infinity) return first;
+  return logSum([first, second]) - Math.log10(2);
 }

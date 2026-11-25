@@ -32,6 +32,8 @@ const {
   KILL_STAT,
   KILL_MAX_STACKS,
   KILL_STACK_TARGET,
+  KILL_ATTACK_SPEED_STAT,
+  ATTACK_SPEED_STAT,
   USE_SKILL_STAT,
   USE_SKILL_MAX_STACKS,
   BUFF_ATTACK_STAT,
@@ -419,6 +421,16 @@ export function countExpandedLines(
     return item;
   });
   return { lines: expanded, skippedStats: [...skipped] };
+}
+
+/** 카드 처치 공격속도 줄 (최대 중첩, 처치가 일어나는 대상만). 연타 확률 계산 전에 들어가야 해서 cardStackLines 와 따로 둔다 */
+export function cardKillSpeedLines(otherLines: Line[], label: SourceLabel, target: string = KILL_STACK_TARGET): Line[] {
+  if (target !== KILL_STACK_TARGET) return [];
+  const sum = otherLines
+    .filter((item) => item.stat === KILL_ATTACK_SPEED_STAT)
+    .reduce((total, item) => total + Number(item.value || 0), 0);
+  if (!sum) return [];
+  return [{ source: label('calc.card.sources.killSpeedStacks', { stacks: KILL_MAX_STACKS }), stat: ATTACK_SPEED_STAT, value: sum * KILL_MAX_STACKS }];
 }
 
 /**

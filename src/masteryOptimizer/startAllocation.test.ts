@@ -56,3 +56,20 @@ describe('특성 추천 출발 배분 (빈 상태에서 뼈대 + 얼티밋)', ()
     expect(result.stopped).toBe(true);
   });
 });
+
+describe('고정 · 무시 규칙 (policy)', () => {
+  const traits = [trait('a', 'Stat', 1, 4), trait('b', 'Stat', 1, 4), trait('c', 'Stat', 2, 4), trait('d', 'Stat', 2, 4)];
+
+  it('고정 특성이 있는 단계는 효율과 상관없이 그 특성을 최대로, 무시 특성은 다른 특성이 있으면 고르지 않는다', () => {
+    const policy = { fixed: new Set(['a']), ignored: new Set(['d']) };
+    const result = buildStartAllocation(traits, { evaluate: weighted({ a: 1, b: 9, c: 1, d: 9 }), userLevel: USER_LEVEL, totalPoints: 100, policy });
+    expect(result.allocation).toEqual({ a: 4, c: 4 });
+  });
+
+  it('단계에 무시 특성만 있으면 다음 단계를 열려고 그것을 고른다', () => {
+    const only = [trait('a', 'Stat', 1, 4), trait('c', 'Stat', 2, 4)];
+    const policy = { fixed: new Set<string>(), ignored: new Set(['a']) };
+    const result = buildStartAllocation(only, { evaluate: weighted({ a: 0, c: 5 }), userLevel: USER_LEVEL, totalPoints: 100, policy });
+    expect(result.allocation).toEqual({ a: 4, c: 4 });
+  });
+});

@@ -11,6 +11,7 @@
  */
 import type { MasteryTrait } from '@/calc/sources/masteryRuneBuff/mastery';
 import { isUnlocked, levelOf, usedPoints, validateAllocation, type Allocation } from '@/masteryOptimizer/rules';
+import type { TraitPolicy } from '@/masteryOptimizer/traitPolicy';
 
 /** 한 번에 옮겨 보는 포인트 묶음 (큰 것부터) */
 export const DEFAULT_BLOCK_SIZES = [1000, 100, 10, 1];
@@ -39,6 +40,8 @@ export interface RecommendOptions {
   evaluationsBefore?: number;
   /** 특성 → 확률 묶음 이름 (없으면 null). 있으면 같은 묶음의 특성 둘을 동시에 올리는 이동도 시도한다 */
   comboFamily?: (trait: MasteryTrait) => string | null;
+  /** 고정 특성은 빼지 않고, 무시 특성은 넣지 않는다 */
+  policy?: TraitPolicy;
 }
 
 export interface RecommendProgress {
@@ -89,7 +92,9 @@ function levelsFor(trait: MasteryTrait, block: number): number {
 }
 
 export function recommendAllocation(traits: MasteryTrait[], current: Allocation, options: RecommendOptions): Recommendation {
-  const { evaluate, userLevel, totalPoints, blockSizes = DEFAULT_BLOCK_SIZES, shouldStop, onProgress, comboFamily } = options;
+  const { evaluate, userLevel, totalPoints, blockSizes = DEFAULT_BLOCK_SIZES, shouldStop, onProgress, comboFamily, policy } = options;
+  const canAdd = (trait: MasteryTrait) => !policy?.ignored.has(trait.rNo) && !policy?.fixed.has(trait.rNo);
+  const canRemove = (trait: MasteryTrait) => !policy?.fixed.has(trait.rNo);
   let evaluations = options.evaluationsBefore ?? 0;
   const measure = (allocation: Allocation): number => {
     evaluations += 1;
@@ -114,7 +119,7 @@ export function recommendAllocation(traits: MasteryTrait[], current: Allocation,
       const adds: AddCandidate[] = [];
       for (const trait of traits) {
         const level = levelOf(allocation, trait);
-        if (level >= trait.maxLevel || !isUnlocked(traits, trait, allocation, userLevel)) continue;
+        if (!canAdd(trait) || level >= trait.maxLevel || !isUnlocked(traits, trait, allocation, userLevel)) continue;
         const added = Math.min(levelsFor(trait, block), trait.maxLevel - level);
         const gain = measure(withLevel(allocation, trait.rNo, level + added)) - best;
         if (gain > IMPROVEMENT_EPSILON) adds.push({ trait, rate: gain / (added * trait.needPoint) });
@@ -125,7 +130,7 @@ export function recommendAllocation(traits: MasteryTrait[], current: Allocation,
       const removes: RemoveCandidate[] = free > 0 ? [{ trait: null, rate: 0, points: free }] : [];
       for (const trait of traits) {
         const level = levelOf(allocation, trait);
-        if (level <= 0) continue;
+        if (level <= 0 || !canRemove(trait)) continue;
         const removed = Math.min(levelsFor(trait, block), level);
         const reduced = withLevel(allocation, trait.rNo, level - removed);
         // 빼면 규칙이 깨지는 특성 (뒤 단계의 앞 단계 조건 등) 은 후보가 아니다 — 후보 수를 헛되이 차지하지 않게 미리 거른다
@@ -156,7 +161,8 @@ export function recommendAllocation(traits: MasteryTrait[], current: Allocation,
       // 일반 이동이 하나도 안 오르면: 확률 문턱 (100% 미만은 효과 0) 때문에 하나씩 올려서는 안 보이는 쌍을 동시에 올려 본다
       if (!improved && comboFamily && comboAttempts < MAX_COMBO_ATTEMPTS_PER_BLOCK) {
         comboAttempts += 1;
-        const combo = bestPairMove(traits, allocation, comboFamily, removes, block, free, userLevel, totalPoints, measure, best);
+        const pairFamily = (trait: MasteryTrait) => (canAdd(trait) ? comboFamily(trait) : null);
+        const combo = bestPairMove(traits, allocation, pairFamily, removes, block, free, userLevel, totalPoints, measure, best);
         if (combo) {
           allocation = combo.allocation;
           best = combo.value;

@@ -119,3 +119,14 @@ describe('추천 배분 탐색', () => {
     expect(validateAllocation(traits, result.allocation, USER_LEVEL, 10)).toEqual([]);
   });
 });
+
+describe('고정 · 무시 규칙 (policy)', () => {
+  const traits = [trait('1', 1, 6), trait('2', 1, 6), trait('3', 1, 6)];
+  const evaluate = concave({ '1': 5, '2': 9, '3': 0.1 });
+
+  it('무시 특성에는 넣지 않고, 고정 특성에서는 빼지 않는다', () => {
+    const policy = { fixed: new Set(['3']), ignored: new Set(['2']) };
+    const result = recommendAllocation(traits, { '3': 6 }, { evaluate, userLevel: USER_LEVEL, totalPoints: 12, blockSizes: [4, 2, 1], policy });
+    expect(result.allocation).toEqual({ '1': 6, '3': 6 });
+  });
+});

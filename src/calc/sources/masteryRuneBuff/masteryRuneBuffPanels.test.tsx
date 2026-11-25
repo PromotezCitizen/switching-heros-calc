@@ -50,6 +50,8 @@ describe('특성·룬·버프 화면', () => {
   });
 
   it('특성: 레벨 칸 입력은 칸 mastery_<번호> 에 저장하고, 최대를 넘지 않는다', () => {
+    // 완력 강화 (2단계) 는 1단계 특성 0 이 최대여야 올릴 수 있다
+    useCalcStore.getState().setValue('calc.mastery_0', '1');
     renderTab('mastery');
     fireEvent.change(screen.getByLabelText('완력 강화 레벨'), { target: { value: '5' } });
     expect(useCalcStore.getState().values['calc.mastery_1']).toBe('5');
@@ -61,6 +63,8 @@ describe('특성·룬·버프 화면', () => {
   }, MASTERY_FIRST_RENDER_TIMEOUT_MS);
 
   it('특성: 얼티밋은 켜면 레벨 1', () => {
+    // 스탯 얼티밋은 스탯 18단계 특성 하나가 최대 (5000) 여야 켤 수 있다
+    useCalcStore.getState().setValue('calc.mastery_116', '5000');
     renderTab('mastery');
     fireEvent.click(screen.getByLabelText('화염의 동반자'));
     expect(useCalcStore.getState().values['calc.mastery_1000']).toBe('1');
@@ -119,7 +123,14 @@ describe('특성·룬·버프 화면', () => {
     expect(screen.getByText('계산에 넣지 못한 얼티밋 특성: 문양 집중')).toBeTruthy();
   });
 
+  it('특성: 앞 단계 조건을 못 채운 특성은 올라가지 않는다', () => {
+    renderTab('mastery');
+    fireEvent.change(screen.getByLabelText('완력 강화 레벨'), { target: { value: '5' } });
+    expect(useCalcStore.getState().values['calc.mastery_1'] ?? '0').toBe('0');
+  });
+
   it('특성: 일반 특성 아이콘을 누르면 최대, 최대에서 한 번 더 누르면 0', () => {
+    useCalcStore.getState().setValue('calc.mastery_0', '1');
     renderTab('mastery');
     fireEvent.click(screen.getByLabelText('완력 강화 최대 레벨로 채우기'));
     expect(useCalcStore.getState().values['calc.mastery_1']).toBe('20');

@@ -238,6 +238,20 @@ export function targetDamage(values: CalcValues, tables: StatTables, target: Dam
   return prepareTargetDamage(values, tables, target, inputs).finish();
 }
 
+/**
+ * 최대 상태의 평타 한 번 대미지 (log10, 특성 추천의 비교 값). 쿨타임 · 시전 간격 · 시간은 보지 않고,
+ * 대상 상태이상 수는 OPTIMIZER_RULES.STATUS_COUNT 로 둔다. 히어로가 없으면 −Infinity
+ */
+export function maxNormalHitLog(values: CalcValues, tables: StatTables, target: DamageTarget, inputs: DamageInputs): number {
+  const unit = TARGETS[target].UNIT;
+  const maxTargets = CONSTS.dpm.MAX_TARGETS[target] ?? Infinity;
+  const targets = unit === 'normal' ? Math.min(Math.max(inputs.targetsPerSkill, 1), maxTargets) : 1;
+  const battleValues = { ...values, [DAMAGE_TARGET_FIELD]: target, [TARGETS_PER_SKILL_FIELD]: String(targets) };
+  const stats = attackStats(battleValues, tables, unit);
+  if (stats.targetFinalAttackLog === null) return -Infinity;
+  return kindHitLog(stats, 'normal', CONSTS.dpm.OPTIMIZER_RULES.STATUS_COUNT);
+}
+
 export function prepareTargetDamage(values: CalcValues, tables: StatTables, target: DamageTarget, inputs: DamageInputs): PreparedTargetDamage {
   const unit = TARGETS[target].UNIT;
   const targetValues = withTarget(values, unit);

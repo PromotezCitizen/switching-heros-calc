@@ -9,6 +9,7 @@
  * (효율 손실이 작은 특성부터 빼서 포인트를 댄다), 오르면 받아들인다. 남는 포인트는 이어지는 일반 이동이 정리한다.
  * 한계: 아직 안 열린 특성은 후보가 아니다 (앞 단계를 최대 레벨까지 채워야 열리는 경우는 따라가지 못함). 쌍만 시도한다 (셋 이상 필요한 문턱은 못 찾음).
  */
+import { CONSTS } from '@/CONSTS';
 import type { MasteryTrait } from '@/calc/sources/masteryRuneBuff/mastery';
 import { isUnlocked, levelOf, usedPoints, validateAllocation, type Allocation } from '@/masteryOptimizer/rules';
 import type { TraitPolicy } from '@/masteryOptimizer/traitPolicy';
@@ -16,7 +17,7 @@ import type { TraitPolicy } from '@/masteryOptimizer/traitPolicy';
 /** 한 번에 옮겨 보는 포인트 묶음 (큰 것부터) */
 export const DEFAULT_BLOCK_SIZES = [1000, 100, 10, 1];
 /** 한 묶음 크기에서 더 오르지 않을 때까지 돌리는 판 수의 상한 */
-const MAX_PASSES_PER_BLOCK = 200;
+const MAX_PASSES_PER_BLOCK = 2000;
 /** 넣을 곳 · 뺄 곳 후보를 각각 앞에서 이만큼 짝지어 실제로 옮겨 본다 */
 const TOP_CANDIDATES = 5;
 /** 한 묶음 크기에서 쌍 이동을 시도하는 횟수의 상한 (쌍마다 효율을 한 번씩 계산하므로 느리다) */
@@ -42,6 +43,12 @@ export interface RecommendOptions {
   comboFamily?: (trait: MasteryTrait) => string | null;
   /** 고정 특성은 빼지 않고, 무시 특성은 넣지 않는다 */
   policy?: TraitPolicy;
+  /** 확률 바닥 검사 (makeChanceGuard): 거짓이면 그 이동을 받지 않는다 */
+  chanceGuard?: (from: Allocation, trial: Allocation) => boolean;
+  /** 탐색 끝에 다시 켜 볼 얼티밋 (확률 관련). 없으면 모든 얼티밋 */
+  retryUltimates?: ReadonlySet<string>;
+  /** 확률 특성을 다음 계단까지 올리는 데 필요한 레벨 수 (makeJumpLevels). 일반 이동이 안 오를 때 한 번에 올려 본다 */
+  jumpLevels?: (allocation: Allocation, trait: MasteryTrait) => number | null;
 }
 
 export interface RecommendProgress {
@@ -88,6 +95,8 @@ function withLevel(allocation: Allocation, rNo: string, level: number): Allocati
 
 /** 묶음 포인트로 살 수 있는 레벨 수 (한 레벨은 최소 1) */
 function levelsFor(trait: MasteryTrait, block: number): number {
+  // 최대가 큰 특성 (5000) 은 한 번에 최대로
+  if (trait.maxLevel >= CONSTS.dpm.OPTIMIZER_RULES.BULK_MAX_LEVEL) return trait.maxLevel;
   return Math.max(1, Math.floor(block / trait.needPoint));
 }
 
@@ -105,9 +114,18 @@ export function recommendAllocation(
     onProgress,
     comboFamily,
     policy,
+    chanceGuard,
+    retryUltimates,
+    jumpLevels,
   } = options;
+  const allowed = (from: Allocation, trial: Allocation) => !chanceGuard || chanceGuard(from, trial);
   const canAdd = (trait: MasteryTrait) => !policy?.ignored.has(trait.rNo) && !policy?.fixed.has(trait.rNo);
-  const canRemove = (trait: MasteryTrait) => !policy?.fixed.has(trait.rNo);
+  // 고정 특성과 최대가 큰 특성 (5000) 은 빼지 않는다
+  // 고정 특성, 최대가 큰 특성 (5000), 최대가 1 인 일반 특성 (얼티밋 빼고) 은 찍은 뒤 빼지 않는다
+  const canRemove = (trait: MasteryTrait) =>
+    !policy?.fixed.has(trait.rNo) &&
+    trait.maxLevel < CONSTS.dpm.OPTIMIZER_RULES.BULK_MAX_LEVEL &&
+    (trait.ultimate || trait.maxLevel > 1);
   let evaluations = options.evaluationsBefore ?? 0;
   const measure = (allocation: Allocation): number => {
     evaluations += 1;
@@ -147,7 +165,8 @@ export function recommendAllocation(
         const removed = Math.min(levelsFor(trait, block), level);
         const reduced = withLevel(allocation, trait.rNo, level - removed);
         // 빼면 규칙이 깨지는 특성 (뒤 단계의 앞 단계 조건 등) 은 후보가 아니다 — 후보 수를 헛되이 차지하지 않게 미리 거른다
-        if (validateAllocation(traits, reduced, userLevel, totalPoints).length > 0) continue;
+        if (validateAllocation(traits, reduced, userLevel, totalPoints).length > 0 || !allowed(allocation, reduced))
+          continue;
         const loss = best - measure(reduced);
         removes.push({
           trait,
@@ -167,7 +186,12 @@ export function recommendAllocation(
         for (const remove of affordable.slice(0, TOP_CANDIDATES)) {
           if (remove.trait?.rNo === add.trait.rNo || add.rate <= remove.rate) continue;
           const trial = transfer(traits, allocation, add.trait, remove.trait, block, free);
-          if (!trial || validateAllocation(traits, trial, userLevel, totalPoints).length > 0) continue;
+          if (
+            !trial ||
+            validateAllocation(traits, trial, userLevel, totalPoints).length > 0 ||
+            !allowed(allocation, trial)
+          )
+            continue;
           const value = measure(trial);
           if (value > best + IMPROVEMENT_EPSILON) {
             allocation = trial;
@@ -175,6 +199,29 @@ export function recommendAllocation(
             improved = true;
             break search;
           }
+        }
+      }
+      // 마지막 (1레벨) 단계에서 일반 이동이 안 오르면: 확률 특성 하나를 다음 계단 (10% 단위, 120 · 150 · 200) 까지 한 번에 올려 본다
+      if (!improved && jumpLevels && block === blockSizes[blockSizes.length - 1]) {
+        let found: { allocation: Allocation; value: number } | null = null;
+        for (const trait of traits) {
+          if (!canAdd(trait) || !isUnlocked(traits, trait, allocation, userLevel)) continue;
+          const levels = jumpLevels(allocation, trait);
+          if (!levels || levels <= 1) continue;
+          const trial = fundedSet(traits, allocation, trait, levelOf(allocation, trait) + levels, removes, block, free);
+          if (
+            !trial ||
+            validateAllocation(traits, trial, userLevel, totalPoints).length > 0 ||
+            !allowed(allocation, trial)
+          )
+            continue;
+          const value = measure(trial);
+          if (value > (found?.value ?? best) + IMPROVEMENT_EPSILON) found = { allocation: trial, value };
+        }
+        if (found) {
+          allocation = found.allocation;
+          best = found.value;
+          improved = true;
         }
       }
       // 일반 이동이 하나도 안 오르면: 확률 문턱 (100% 미만은 효과 0) 때문에 하나씩 올려서는 안 보이는 쌍을 동시에 올려 본다
@@ -192,6 +239,7 @@ export function recommendAllocation(
           totalPoints,
           measure,
           best,
+          allowed,
         );
         if (combo) {
           allocation = combo.allocation;
@@ -206,13 +254,14 @@ export function recommendAllocation(
   // 빠진 얼티밋 다시 켜 보기: 출발 배분에서 확률이 덜 올라 낮게 평가돼 빠진 얼티밋을 되살린다
   if (!stopped) {
     const ultimates = traits.filter((trait) => trait.ultimate);
+    const retryable = ultimates.filter((trait) => !retryUltimates || retryUltimates.has(trait.rNo));
     for (let round = 0; round < ultimates.length; round += 1) {
       if (shouldStop?.()) {
         stopped = true;
         break;
       }
       let found: { allocation: Allocation; value: number } | null = null;
-      for (const add of ultimates) {
+      for (const add of retryable) {
         if (levelOf(allocation, add) > 0 || !canAdd(add) || !isUnlocked(traits, add, allocation, userLevel)) continue;
         const added = withLevel(allocation, add.rNo, add.maxLevel);
         // 남은 포인트로 켜거나, 켜진 얼티밋 하나를 끄고 켠다
@@ -223,7 +272,8 @@ export function recommendAllocation(
             .map((off) => withLevel(added, off.rNo, 0)),
         ];
         for (const trial of trials) {
-          if (validateAllocation(traits, trial, userLevel, totalPoints).length > 0) continue;
+          if (validateAllocation(traits, trial, userLevel, totalPoints).length > 0 || !allowed(allocation, trial))
+            continue;
           const value = measure(trial);
           if (value > (found?.value ?? best) + IMPROVEMENT_EPSILON) found = { allocation: trial, value };
         }
@@ -251,6 +301,7 @@ function bestPairMove(
   totalPoints: number,
   measure: (allocation: Allocation) => number,
   best: number,
+  allowed: (from: Allocation, trial: Allocation) => boolean,
 ): { allocation: Allocation; value: number } | null {
   const open = traits.filter((trait) => levelOf(allocation, trait) < trait.maxLevel && comboFamily(trait) !== null);
   let found: { allocation: Allocation; value: number } | null = null;
@@ -259,7 +310,8 @@ function bestPairMove(
     for (let second = first + 1; second < open.length; second += 1) {
       if (comboFamily(open[first]) !== comboFamily(open[second])) continue;
       const trial = fundedAdd(traits, allocation, [open[first], open[second]], removes, block, free);
-      if (!trial || validateAllocation(traits, trial, userLevel, totalPoints).length > 0) continue;
+      if (!trial || validateAllocation(traits, trial, userLevel, totalPoints).length > 0 || !allowed(allocation, trial))
+        continue;
       const value = measure(trial);
       if (value > foundValue) {
         found = { allocation: trial, value };
@@ -299,6 +351,35 @@ function fundedAdd(
   }
   if (budget < cost) return null;
   for (const trait of add) next = withLevel(next, trait.rNo, trait.maxLevel);
+  return usedPoints(traits, next) <= usedPoints(traits, allocation) + free ? next : null;
+}
+
+/** add 특성을 level 로 올린 배분. 포인트는 안 쓴 포인트로 대고, 모자라면 removes 를 앞에서부터 묶음만큼씩 빼서 댄다. 대지 못하면 null */
+function fundedSet(
+  traits: MasteryTrait[],
+  allocation: Allocation,
+  add: MasteryTrait,
+  level: number,
+  removes: RemoveCandidate[],
+  block: number,
+  free: number,
+): Allocation | null {
+  const cost = (level - levelOf(allocation, add)) * add.needPoint;
+  let next = allocation;
+  let budget = free;
+  for (const remove of removes) {
+    const trait = remove.trait;
+    if (!trait || trait.rNo === add.rNo) continue;
+    while (budget < cost) {
+      const removed = Math.min(levelsFor(trait, block), levelOf(next, trait));
+      if (removed <= 0) break;
+      next = withLevel(next, trait.rNo, levelOf(next, trait) - removed);
+      budget += removed * trait.needPoint;
+    }
+    if (budget >= cost) break;
+  }
+  if (budget < cost) return null;
+  next = withLevel(next, add.rNo, level);
   return usedPoints(traits, next) <= usedPoints(traits, allocation) + free ? next : null;
 }
 

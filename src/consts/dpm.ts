@@ -109,6 +109,11 @@ export const DPM_CONSTS = {
       hero: ['50', '304'],
     } as Record<string, readonly string[]>,
     RUSH_MIN_CHANCE: 120,
+    /**
+     * 이 레벨 이상이 최대인 특성 (5000: 11단계 전투광 · 예지몽 · 자연 회복, 18단계 직업 특성) 은 한 번에 최대로 찍고, 찍은 뒤에는 빼지 않는다
+     * (다음 단계와 얼티밋을 여는 조건이라 줄이면 잠김). 나머지 특성은 1레벨씩 움직인다
+     */
+    BULK_MAX_LEVEL: 5000,
     RUSH_MIN_CHANCE_FIELD: 'optimizer.rushMinChance',
     STATUS_COUNT: 4,
     STATUS_COUNT_BY_TARGET: { pvp: 0 } as Record<string, number>,

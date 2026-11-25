@@ -381,10 +381,11 @@
     "recommendRunning": "계산 중… 한 번에 옮기는 포인트 {{block}} · 계산해 본 배분 {{evaluations}}개 · 지금까지 찾은 가장 높은 대미지 {{damage}}",
     "phase": {
       "skeleton": "단계마다 특성을 하나씩 최대로 찍는 중 · 계산 {{evaluations}}개 · 가장 높은 대미지 {{damage}}",
-      "ultimates": "얼티밋 특성 포인트를 줄여 보는 중 · 계산 {{evaluations}}개 · 가장 높은 대미지 {{damage}}"
+      "ultimates": "얼티밋 특성을 계정 기준 순서대로 켜는 중 · 계산 {{evaluations}}개 · 가장 높은 대미지 {{damage}}"
     },
     "recommendFailed": "계산하지 못했어요. (오류 내용: {{message}})",
     "recommendDone": "대미지 {{before}} → {{after}} ({{gain}}배)",
+    "recommendWorse": "지금 배분이 더 높아요: 지금 {{before}}, 추천 {{after}}",
     "recommendPoints": "사용 포인트 {{used}} / 총 {{total}} / 남음 {{remaining}}",
     "recommendNoChange": "지금 배분이 이미 가장 좋아요.",
     "cards": {

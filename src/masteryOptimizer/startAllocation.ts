@@ -74,8 +74,8 @@ export function buildStartAllocation(traits: MasteryTrait[], options: StartOptio
       const open = inStep.filter(
         (trait) => isUnlocked(traits, trait, allocation, userLevel) && trait.maxLevel * trait.needPoint <= free,
       );
-      // 고정 특성이 있는 단계는 고르지 않고 그 특성을 최대 레벨로 (같은 단계에 둘 이상이면 예산 안에서 모두)
-      const fixedHere = open.filter((trait) => policy?.fixed.has(trait.rNo));
+      // 고정 특성 · 확률 특성이 있는 단계는 고르지 않고 그 특성들을 최대 레벨로 (같은 단계에 둘 이상이면 예산 안에서 모두)
+      const fixedHere = open.filter((trait) => policy?.fixed.has(trait.rNo) || policy?.chanceFirst?.has(trait.rNo));
       if (fixedHere.length > 0) {
         for (const trait of fixedHere) {
           if (usedPoints(traits, allocation) + trait.maxLevel * trait.needPoint <= totalPoints)

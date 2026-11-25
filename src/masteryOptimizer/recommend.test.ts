@@ -204,3 +204,20 @@ describe('고정 · 무시 규칙 (policy)', () => {
     expect(result.allocation).toEqual({ '1': 6, '3': 6 });
   });
 });
+
+describe('빠진 얼티밋 다시 켜 보기', () => {
+  it('켜진 얼티밋보다 나은 얼티밋이 있으면 바꾼다', () => {
+    const traits = [
+      trait('g', 1, 1, 1),
+      trait('u1', 1, 1, 5, { ultimate: true }),
+      trait('u2', 1, 1, 5, { ultimate: true }),
+    ];
+    const evaluate = (allocation: Allocation) => (allocation.u1 ?? 0) * 1 + (allocation.u2 ?? 0) * 9;
+    const result = recommendAllocation(
+      traits,
+      { g: 1, u1: 1 },
+      { evaluate, userLevel: USER_LEVEL, totalPoints: 6, blockSizes: [1] },
+    );
+    expect(result.allocation).toEqual({ g: 1, u2: 1 });
+  });
+});

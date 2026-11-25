@@ -203,6 +203,36 @@ export function recommendAllocation(
     }
     if (stopped) break;
   }
+  // 빠진 얼티밋 다시 켜 보기: 출발 배분에서 확률이 덜 올라 낮게 평가돼 빠진 얼티밋을 되살린다
+  if (!stopped) {
+    const ultimates = traits.filter((trait) => trait.ultimate);
+    for (let round = 0; round < ultimates.length; round += 1) {
+      if (shouldStop?.()) {
+        stopped = true;
+        break;
+      }
+      let found: { allocation: Allocation; value: number } | null = null;
+      for (const add of ultimates) {
+        if (levelOf(allocation, add) > 0 || !canAdd(add) || !isUnlocked(traits, add, allocation, userLevel)) continue;
+        const added = withLevel(allocation, add.rNo, add.maxLevel);
+        // 남은 포인트로 켜거나, 켜진 얼티밋 하나를 끄고 켠다
+        const trials = [
+          added,
+          ...ultimates
+            .filter((off) => levelOf(allocation, off) > 0 && canRemove(off))
+            .map((off) => withLevel(added, off.rNo, 0)),
+        ];
+        for (const trial of trials) {
+          if (validateAllocation(traits, trial, userLevel, totalPoints).length > 0) continue;
+          const value = measure(trial);
+          if (value > (found?.value ?? best) + IMPROVEMENT_EPSILON) found = { allocation: trial, value };
+        }
+      }
+      if (!found) break;
+      allocation = found.allocation;
+      best = found.value;
+    }
+  }
   return { allocation, baseEfficiency, efficiency: best, evaluations, stopped };
 }
 

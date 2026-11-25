@@ -128,3 +128,17 @@ describe('고정 · 무시 규칙 (policy)', () => {
     expect(result.allocation).toEqual({ a: 4, c: 4 });
   });
 });
+
+describe('확률 특성 먼저 (policy.chanceFirst)', () => {
+  it('확률 특성이 있는 단계는 효율과 상관없이 그 특성을 최대로', () => {
+    const traits = [trait('a', 'Stat', 1, 4), trait('b', 'Stat', 1, 4)];
+    const policy = { fixed: new Set<string>(), ignored: new Set<string>(), chanceFirst: new Set(['a']) };
+    const result = buildStartAllocation(traits, {
+      evaluate: weighted({ a: 0, b: 9 }),
+      userLevel: USER_LEVEL,
+      totalPoints: 100,
+      policy,
+    });
+    expect(result.allocation).toEqual({ a: 4 });
+  });
+});

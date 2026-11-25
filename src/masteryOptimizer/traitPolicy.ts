@@ -12,6 +12,8 @@ const { OPTIMIZER_RULES, TARGETS } = CONSTS.dpm;
 export interface TraitPolicy {
   fixed: ReadonlySet<string>;
   ignored: ReadonlySet<string>;
+  /** 출발 배분에서 먼저 최대로 찍는 확률 특성 (무시 특성은 뺀 뒤) */
+  chanceFirst?: ReadonlySet<string>;
 }
 
 /** 체력 스탯 (statName 에 hp 마디가 있는 것: _per_hp_…, _pow_hp_…) */
@@ -59,25 +61,27 @@ export function traitPolicyFor(target: DamageTarget, traits: MasteryTrait[] = []
   const hpUltimates = traits
     .filter((trait) => trait.ultimate && HP_STAT.test(trait.statName))
     .map((trait) => trait.rNo);
+  const ignored = new Set([
+    ...OPTIMIZER_RULES.IGNORED,
+    ...(OPTIMIZER_RULES.IGNORED_BY_UNIT[unit] ?? []),
+    ...(target === 'pvp' ? [] : OPTIMIZER_RULES.IGNORED_OUTSIDE_PVP),
+    ...otherDefense,
+    ...Object.entries(OPTIMIZER_RULES.UNIT_DAMAGE)
+      .filter(([kind]) => kind !== unit)
+      .flatMap(([, rNos]) => rNos),
+    ...(formation
+      ? [
+          ...offFormation('attribute', formation.attributes),
+          ...offFormation('gender', formation.genders),
+          ...offTargetUnit(formation.targetUnits),
+          ...offPetMaster(formation.petCounts),
+        ]
+      : []),
+    ...hpUltimates,
+  ]);
   return {
     fixed: new Set(OPTIMIZER_RULES.FIXED),
-    ignored: new Set([
-      ...OPTIMIZER_RULES.IGNORED,
-      ...(OPTIMIZER_RULES.IGNORED_BY_UNIT[unit] ?? []),
-      ...(target === 'pvp' ? [] : OPTIMIZER_RULES.IGNORED_OUTSIDE_PVP),
-      ...otherDefense,
-      ...Object.entries(OPTIMIZER_RULES.UNIT_DAMAGE)
-        .filter(([kind]) => kind !== unit)
-        .flatMap(([, rNos]) => rNos),
-      ...(formation
-        ? [
-            ...offFormation('attribute', formation.attributes),
-            ...offFormation('gender', formation.genders),
-            ...offTargetUnit(formation.targetUnits),
-            ...offPetMaster(formation.petCounts),
-          ]
-        : []),
-      ...hpUltimates,
-    ]),
+    ignored,
+    chanceFirst: new Set(OPTIMIZER_RULES.CHANCE_FIRST.filter((rNo) => !ignored.has(rNo))),
   };
 }

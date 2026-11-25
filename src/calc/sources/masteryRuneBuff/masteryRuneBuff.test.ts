@@ -35,7 +35,7 @@ import {
   superCriticalStrikeLines,
 } from '@/calc/sources/masteryRuneBuff/buff';
 import { battleDamageLines, battleStatLines, chancesWithBattleState, compoundPercent } from '@/calc/sources/masteryRuneBuff/battleState';
-import { magicGuardLines } from '@/calc/sources/masteryRuneBuff/battleEffects';
+import { magicGuardLines, switchingBoostLines } from '@/calc/sources/masteryRuneBuff/battleEffects';
 import { chancesFromLines, chanceUltimateLines } from '@/calc/sources/masteryRuneBuff/chances';
 import { masteryRuneBuffTabs } from '@/calc/sources/masteryRuneBuff/index';
 import { masteryTotals, masteryTraits, plainNumber } from '@/calc/sources/masteryRuneBuff/mastery';
@@ -803,6 +803,40 @@ describe('전투 중 최대 상태 몫 (battleState.ts)', () => {
 
   it('매직 가드 기본 항이 0 이면 (magicGuardOn false) 흘러넘치는 체력도 꺼진다 (게임 m2137 이 32e1d5c 에서 끝남)', () => {
     expect(battleDamageLines(level20(63), tables.Mastery, label, {}, false)).toEqual([]);
+  });
+
+  it('폭주 203 · 213 · 308 은 100% 초과분 10% 마다 값 50, 212 는 넘으면 400 (212 · 213 은 액티브 스킬이 있을 때만)', () => {
+    const values = level20(203, 212, 213, 308);
+    const chances = { spearAttack: 135, skillCombo: 127, smite: 109 };
+    const lines = battleDamageLines(values, tables.Mastery, label, chances, true, true);
+    expect(lines.map((line) => [line.source, line.value])).toEqual([
+      ['calc.buff.battle.spearRushSource', 150],
+      ['calc.buff.battle.skillComboOverSource', 400],
+      ['calc.buff.battle.skillComboRushSource', 100],
+    ]);
+    // 무자비 109 는 한 단계도 안 됨, 액티브 스킬이 없으면 212 · 213 없음
+    const noActive = battleDamageLines(values, tables.Mastery, label, chances, true, false);
+    expect(noActive.map((line) => line.source)).toEqual(['calc.buff.battle.spearRushSource']);
+    const smite = battleDamageLines(values, tables.Mastery, label, { smite: 120 }, true, true);
+    expect(smite.map((line) => [line.source, line.value])).toEqual([['calc.buff.battle.smiteRushSource', 100]]);
+  });
+
+  it('추천용 칸 (RUSH_MIN_CHANCE_FIELD 120) 이 있으면 폭주 · 돌파는 확률이 120 을 넘어야 센다', () => {
+    const field = CONSTS.dpm.OPTIMIZER_RULES.RUSH_MIN_CHANCE_FIELD;
+    const values = { ...level20(203, 108), [field]: '120' };
+    expect(battleDamageLines(values, tables.Mastery, label, { spearAttack: 115, superCritical: 120 })).toEqual([]);
+    const over = battleDamageLines(values, tables.Mastery, label, { spearAttack: 135, superCritical: 135 });
+    expect(over.map((line) => line.source)).toEqual(['calc.buff.battle.superCriticalOverSource', 'calc.buff.battle.spearRushSource']);
+  });
+
+  it('207 스위칭 폭주: 스위칭 부스트 135 → 3단계 × 50 × 교체 켜짐 50% = 75', () => {
+    const values = { ...level20(207), [CONSTS.masteryRuneBuff.SWAP_UPTIME_FIELD]: '50' };
+    const lines = switchingBoostLines(values, loadTestTables(), tables.Mastery, { switchingBoost: 135 }, label);
+    const rush = lines.find((line) => line.source === 'calc.buff.battle.switchingRushSource');
+    expect(rush?.value).toBeCloseTo(75, 9);
+    // 100% 를 넘은 몫이 10 미만이면 없음
+    const low = switchingBoostLines(values, loadTestTables(), tables.Mastery, { switchingBoost: 109 }, label);
+    expect(low.some((line) => line.source === 'calc.buff.battle.switchingRushSource')).toBe(false);
   });
 
   it('매직 가드 312 · 313 · 314 (consts MAGIC_GUARD): 전환율 135 → 312 400, 313 3단계 × 50, 314 500 × (5초 / 필드 18초 × 교체 켜짐 100%)', () => {

@@ -196,6 +196,9 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     ADD_DAMAGE_STAT: 'switchingBoostAddDmg',
     ADD_DURATION_STAT: 'switchingBoostAddDuration',
     OVER_STAT: 'switchingBoostToDmgUp1',
+    /** 특성 207 스위칭 폭주: 확률 100% 초과분 RUSH_STEP 마다 공격력 % (교체 등장 때, 게임 m2274) */
+    RUSH_STAT: 'switchingBoostToDmgUp2',
+    RUSH_STEP: 10,
   },
   /**
    * 에이카 전용 무기 (1021) 전투 효과 (WeaponTranscend 표 행, 게임 코드 확정 — battle-missing-effects-2026-11-01.md 2-2절, current-hp-damage-2026-11-01.md):
@@ -291,6 +294,14 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     SPEAR_ATTACK_OVER_DAMAGE: 'spearAttackToDmgUp1',
     /** 특성 307 무자비 폭주: 무자비 100% 초과 시 공격력 % (대상 상태이상 조건은 넣지 않음) */
     SMITE_OVER_DAMAGE: 'smiteToDmgUp1',
+    /** 특성 203 관통 폭주: 관통 100% 초과분 10% 마다 공격력 % (게임 m2711) */
+    SPEAR_ATTACK_RUSH: 'spearAttackToDmgUp2',
+    /** 특성 308 무자비의 분노: 무자비 100% 초과분 10% 마다 공격력 % (게임 m2712, 대상 상태이상 조건은 넣지 않음) */
+    SMITE_RUSH: 'smiteToDmgUp2',
+    /** 특성 212 콤보 과열: 스킬 콤보 100% 초과 시 공격력 % (액티브 스킬 시전 때, 게임 m2136) */
+    SKILL_COMBO_OVER_DAMAGE: 'skillComboToDmgUp1',
+    /** 특성 213 콤보의 정점: 스킬 콤보 100% 초과분 10% 마다 공격력 % (액티브 스킬 시전 때, 게임 m2136) */
+    SKILL_COMBO_RUSH: 'skillComboToDmgUp2',
   },
   /**
    * 전투 중 최대 상태 몫 (: 중첩·켜짐은 최대 상태, 입력 칸 없음).
@@ -308,6 +319,10 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
     /** 슈퍼 치명타가 이 % 를 넘은 만큼, 넘은 이 % 마다 한계 돌파 108 한 단계 */
     SUPER_CRITICAL_OVER_THRESHOLD: 100,
     SUPER_CRITICAL_OVER_STEP: 10,
+    /** 스킬 콤보가 이 % 를 넘으면 콤보 과열 212 · 콤보의 정점 213 */
+    SKILL_COMBO_THRESHOLD: 100,
+    /** 관통 폭주 203 · 무자비의 분노 308 · 콤보의 정점 213: 문턱을 넘은 이 % 마다 한 단계 */
+    RUSH_STEP: 10,
   },
   /** 직업·속성 공격속도 스탯 = 직업 + 이 글, 속성 + 이 글 (예: Archer_AttackSpeed, WaterHero_AttackSpeed) */
   JOB_ATTACK_SPEED_SUFFIX: '_AttackSpeed',

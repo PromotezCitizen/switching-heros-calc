@@ -3,7 +3,8 @@
  * claude-docs/react-port/x10101-1057-gamecode.md 2절, crit-dmg-atkspeed-gamecode.md), 화면 4시점 일치 확인.
  * 두 줄 묶음 모두 버프 탭 줄이다 (전투 밖 프로필 대조에서는 버프 탭을 빼므로 이 몫이 같이 빠진다):
  * - battleStatLines: 공격속도 204·13·9·58, 치명타 확률 309, 치명타 데미지 연쇄 작렬 109 — 합 계열. 확률 계산 (chancesWithBattleState) 이 먼저 읽는다
- * - battleDamageLines: 흘러넘치는 체력 63, 과충전 연타 102, 한계 돌파 108, 초과된 힘 202, 무자비 폭주 307 — 확률이 문턱을 넘어야 하므로
+ * - battleDamageLines: 흘러넘치는 체력 63, 과충전 연타 102, 한계 돌파 108, 초과된 힘 202, 관통 폭주 203, 콤보 과열 212, 콤보의 정점 213,
+ *   무자비 폭주 307, 무자비의 분노 308 — 확률이 문턱을 넘어야 하므로
  *   확률 (chances) 을 받아 공격력 % 줄을 만든다
  */
 import { CONSTS } from '@/CONSTS';
@@ -11,8 +12,10 @@ import type { RawTable, StatTables } from '@/data/statTables';
 import type { Line } from '@/calc/combine';
 import type { CalcValues } from '@/calc/types';
 import { chancesFromLines, type Chances } from '@/calc/sources/masteryRuneBuff/chances';
-import { learnedTraitValue, masteryTraits, plainNumber } from '@/calc/sources/masteryRuneBuff/mastery';
+import { learnedTraitValue, masteryTraits, plainNumber, rushChanceCounts } from '@/calc/sources/masteryRuneBuff/mastery';
 import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
+import { cardKillSpeedLines } from '@/calc/sources/heroWeaponCardPet/card';
+import { summaryTarget } from '@/calc/sources/summary/summary';
 
 const { STATS, BATTLE, DOUBLE_ATTACK_THRESHOLD } = CONSTS.masteryRuneBuff;
 const PERCENT_DIVISOR = CONSTS.common.PERCENT_DIVISOR;
@@ -76,7 +79,8 @@ export function chancesWithBattleState(
   masteryTable: RawTable,
   sourceLabel: SourceLabel,
 ): { chances: Chances; battleLines: Line[] } {
-  const battleLines = battleStatLines(values, masteryTable, sourceLabel);
+  // 카드 처치 공격속도도 연타 확률에 들어가므로 여기서 같이 넣는다
+  const battleLines = [...battleStatLines(values, masteryTable, sourceLabel), ...cardKillSpeedLines(otherLines, sourceLabel, summaryTarget(values))];
   return { chances: chancesFromLines([...otherLines, ...battleLines], values, tables), battleLines };
 }
 
@@ -94,11 +98,18 @@ export function battleDamageLines(
   sourceLabel: SourceLabel,
   chances: Chances,
   magicGuardOn = true,
+  activeSkillOn = false,
 ): Line[] {
   const traits = masteryTraits(masteryTable);
   const lines: Line[] = [];
   const add = (value: number, sourceKey: string, params: Record<string, string | number> = {}) => {
     if (value) lines.push({ source: sourceLabel(sourceKey, params), stat: STATS.ATTACK_PERCENT, value });
+  };
+  // 문턱을 넘은 RUSH_STEP 개수 × 특성 값 (연타 폭주 103 과 같은 꼴)
+  const addRush = (stat: string, chance: number, threshold: number, sourceKey: string) => {
+    if (!rushChanceCounts(values, chance)) return;
+    const steps = Math.floor((chance - threshold) / BATTLE.RUSH_STEP);
+    if (steps > 0) add(learnedTraitValue(traits, values, stat) * steps, sourceKey, { chance: plainNumber(chance), steps });
   };
   if (magicGuardOn) add(learnedTraitValue(traits, values, STATS.BARRIER_FULL_DAMAGE), 'calc.buff.battle.barrierFullSource');
   const doubleAttack = chances.doubleAttack ?? 0;
@@ -112,7 +123,7 @@ export function battleDamageLines(
   const overSteps = Math.floor(
     (superCritical - BATTLE.SUPER_CRITICAL_OVER_THRESHOLD) / BATTLE.SUPER_CRITICAL_OVER_STEP,
   );
-  if (overSteps > 0) {
+  if (overSteps > 0 && rushChanceCounts(values, superCritical)) {
     add(
       learnedTraitValue(traits, values, STATS.SUPER_CRITICAL_OVER_DAMAGE) * overSteps,
       'calc.buff.battle.superCriticalOverSource',
@@ -126,6 +137,16 @@ export function battleDamageLines(
       threshold: BATTLE.SPEAR_ATTACK_THRESHOLD,
     });
   }
+  addRush(STATS.SPEAR_ATTACK_RUSH, spearAttack, BATTLE.SPEAR_ATTACK_THRESHOLD, 'calc.buff.battle.spearRushSource');
+  // 212 · 213 은 액티브 스킬을 쓸 때 걸린다
+  const skillCombo = chances.skillCombo ?? 0;
+  if (activeSkillOn && skillCombo > BATTLE.SKILL_COMBO_THRESHOLD) {
+    add(learnedTraitValue(traits, values, STATS.SKILL_COMBO_OVER_DAMAGE), 'calc.buff.battle.skillComboOverSource', {
+      chance: plainNumber(skillCombo),
+      threshold: BATTLE.SKILL_COMBO_THRESHOLD,
+    });
+    addRush(STATS.SKILL_COMBO_RUSH, skillCombo, BATTLE.SKILL_COMBO_THRESHOLD, 'calc.buff.battle.skillComboRushSource');
+  }
   const smite = chances.smite ?? 0;
   if (smite > BATTLE.SMITE_THRESHOLD) {
     add(learnedTraitValue(traits, values, STATS.SMITE_OVER_DAMAGE), 'calc.buff.battle.smiteOverSource', {
@@ -133,5 +154,6 @@ export function battleDamageLines(
       threshold: BATTLE.SMITE_THRESHOLD,
     });
   }
+  addRush(STATS.SMITE_RUSH, smite, BATTLE.SMITE_THRESHOLD, 'calc.buff.battle.smiteRushSource');
   return lines;
 }

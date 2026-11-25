@@ -117,6 +117,7 @@
     "useSkillSkillStacks": "카드: 스킬을 쓸 때마다 오르는 스킬 데미지 {{stacks}}중첩 (최대)",
     "gradeExpanded": "{{source}} ({{grade}} 등급 이상 {{count}}장만큼)",
     "killStacks": "카드: 적을 처치할 때마다 오르는 효과 {{stacks}}중첩 (최대)",
+    "killSpeedStacks": "카드: 적을 처치할 때마다 오르는 공격속도 {{stacks}}중첩 (최대)",
     "useSkillStacks": "카드: 스킬을 쓸 때마다 오르는 효과 {{stacks}}중첩 (최대)",
     "buffAttackStacks": "카드: 버프 스킬을 쓸 때마다 오르는 효과 {{stacks}}중첩 (최대)"
   },

@@ -8,6 +8,7 @@
  */
 import type { MasteryTrait } from '@/calc/sources/masteryRuneBuff/mastery';
 import { isUnlocked, levelOf, usedPoints, type Allocation } from '@/masteryOptimizer/rules';
+import type { TraitPolicy } from '@/masteryOptimizer/traitPolicy';
 
 export type StartPhase = 'skeleton' | 'ultimates';
 
@@ -18,6 +19,8 @@ export interface StartOptions {
   totalPoints: number;
   shouldStop?: () => boolean;
   onProgress?: (progress: { phase: StartPhase; efficiency: number; evaluations: number; allocation: Allocation }) => void;
+  /** 고정 (그 단계에서 고르지 않고 최대 레벨) · 무시 (다른 특성이 없을 때만 고름) 규칙 */
+  policy?: TraitPolicy;
 }
 
 export interface StartResult {
@@ -38,7 +41,7 @@ function withoutTrait(allocation: Allocation, rNo: string): Allocation {
 }
 
 export function buildStartAllocation(traits: MasteryTrait[], options: StartOptions): StartResult {
-  const { evaluate, userLevel, totalPoints, shouldStop, onProgress } = options;
+  const { evaluate, userLevel, totalPoints, shouldStop, onProgress, policy } = options;
   let evaluations = 0;
   const measure = (allocation: Allocation): number => {
     evaluations += 1;
@@ -63,9 +66,22 @@ export function buildStartAllocation(traits: MasteryTrait[], options: StartOptio
       const inStep = traits.filter((trait) => !trait.ultimate && trait.group === group && trait.step === step);
       if (inStep.some((trait) => levelOf(allocation, trait) >= trait.maxLevel)) continue;
       const free = totalPoints - usedPoints(traits, allocation);
-      const candidates = inStep.filter(
+      const open = inStep.filter(
         (trait) => isUnlocked(traits, trait, allocation, userLevel) && trait.maxLevel * trait.needPoint <= free,
       );
+      // 고정 특성이 있는 단계는 고르지 않고 그 특성을 최대 레벨로 (같은 단계에 둘 이상이면 예산 안에서 모두)
+      const fixedHere = open.filter((trait) => policy?.fixed.has(trait.rNo));
+      if (fixedHere.length > 0) {
+        for (const trait of fixedHere) {
+          if (usedPoints(traits, allocation) + trait.maxLevel * trait.needPoint <= totalPoints) allocation = withLevel(allocation, trait.rNo, trait.maxLevel);
+        }
+        efficiency = measure(allocation);
+        report('skeleton');
+        continue;
+      }
+      // 무시 특성은 그 단계에 다른 특성이 없을 때만 (다음 단계를 열려고) 고른다
+      const preferred = open.filter((trait) => !policy?.ignored.has(trait.rNo));
+      const candidates = preferred.length > 0 ? preferred : open;
       if (candidates.length === 0) break; // 이 묶음은 여기까지 (레벨이 모자라거나 포인트가 모자람)
       let bestTrial: Allocation | null = null;
       let bestValue = -Infinity;

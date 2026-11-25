@@ -13,7 +13,7 @@ import type { StatTables } from '@/data/statTables';
 import { combineLines, type Line } from '@/calc/combine';
 import type { CalcTab, CalcValues, TabPanelProps } from '@/calc/types';
 import { cardStackLines, stickerShapeCounts } from '@/calc/sources/heroWeaponCardPet/card';
-import { equippedSkillTypeCounts, skillOptionLines } from '@/calc/sources/skill/skill';
+import { equippedSkillTypeCounts, hasEquippedActiveSkill, skillOptionLines } from '@/calc/sources/skill/skill';
 import { awakenDetailLines } from '@/calc/sources/masteryRuneBuff/awakenDetail';
 import { battleDamageLines, chancesWithBattleState } from '@/calc/sources/masteryRuneBuff/battleState';
 import { summaryTarget } from '@/calc/sources/summary/summary';
@@ -141,7 +141,7 @@ export const masteryRuneBuffTabs = (otherTabLines: OtherTabLines, otherTableName
           ...battleLines,
           ...buffLines(values, tables.Mastery, translateSource, chances.doubleAttack),
           ...stackLines(values, tables.Mastery, translateSource, chances.doubleAttack, chances.skillCombo),
-          ...battleDamageLines(values, tables.Mastery, translateSource, chances, magicGuardOn),
+          ...battleDamageLines(values, tables.Mastery, translateSource, chances, magicGuardOn, hasEquippedActiveSkill(values, tables)),
           // 카드 2번·3번 전투 중 중첩 (최대 5중첩): 다른 탭 줄에 남아 있는 카드 줄에서 읽는다. 처치 중첩은 일반 몬스터 대상에서만 쌓인다
           ...cardStackLines(otherLines, translateSource, summaryTarget(values)),
           ...chanceUltimateLines(values, tables.Mastery, chances, translateSource, magicGuardOn),

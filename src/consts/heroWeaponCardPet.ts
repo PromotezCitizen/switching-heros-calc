@@ -105,8 +105,8 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
       _LRMonsterCardCnt: 'LR',
     } as Record<string, string>,
     /**
-     * 스탯 꼬리말: 전투 조건 효과 — 합산에서 뺌 (처치 중첩 `_per_attackDamage_Kill` 은 아래 KILL_STAT 으로 따로 합산).
-     * 그 밖의 조건 이름 (_MonsterCntShort·_BossTimeShort·_NearSingleEnemy·_StageBoss, attackSpeed_Kill·criticalRate_Kill)
+     * 스탯 꼬리말: 전투 조건 효과 — 합산에서 뺌 (처치 중첩 `_per_attackDamage_Kill` 은 KILL_STAT, 처치 공격속도 `attackSpeed_Kill` 은 KILL_ATTACK_SPEED_STAT 으로 따로 합산).
+     * 그 밖의 조건 이름 (_MonsterCntShort·_BossTimeShort·_NearSingleEnemy·_StageBoss, criticalRate_Kill)
      * 은 기계어 정리 문서에 식이 없어 읽지 않은 코드로 남김 (합산에서 뺀 채).
      * _HeroSwap 은 교체 켜짐 비율로 (countExpandedLines), 공격력 · 스킬 데미지의 _MyHp70Long 은 MY_HP_70_STATS 로 바꿔 합산한다
      */
@@ -117,6 +117,12 @@ export const HERO_WEAPON_CARD_PET_CONSTS = {
      */
     KILL_STAT: '_per_attackDamage_Kill',
     KILL_MAX_STACKS: 5,
+    /**
+     * 카드 6번 처치 공격속도 `attackSpeed_Kill` ("적 처치 시 3초간 공격속도 +v% (최대 5회 중첩)", 게임 m2276 0x2c 3초 최대 5):
+     * 값 합 × KILL_MAX_STACKS 를 공격속도 % 에 (최대 상태). 처치 중첩과 같은 대상 (KILL_STACK_TARGET) 에서만
+     */
+    KILL_ATTACK_SPEED_STAT: 'attackSpeed_Kill',
+    ATTACK_SPEED_STAT: 'attackSpeed',
     /**
      * 처치 중첩이 쌓이는 공격 대상: 일반 몬스터뿐이다 (계속 잡으며 나아감).
      * 보스 · 히어로 몬스터는 한 마리를 잡으면 전투가 거기서 끝나서 전투 중에 처치가 일어나지 않고, 각성 던전 보스는 체력이 무한이라 못 잡는다.

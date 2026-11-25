@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Line } from '@/calc/combine';
-import { cardStackLines } from '@/calc/sources/heroWeaponCardPet/card';
+import { cardKillSpeedLines, cardStackLines } from '@/calc/sources/heroWeaponCardPet/card';
 
 const label = (key: string, params?: Record<string, unknown>) => `${key}${params ? JSON.stringify(params) : ''}`;
 
@@ -36,5 +36,21 @@ describe('카드 처치 중첩 (적 처치 시 N초간 공격력, 최대 5중첩
     const stacks = cardStackLines([...kill, ...useSkill], label, 'boss');
     expect(stacks).toHaveLength(1);
     expect(stacks[0].value).toBeCloseTo(160 * 5, 9);
+  });
+});
+
+describe('카드 처치 공격속도 (적 처치 시 3초간 공격속도, 최대 5중첩): 일반 몬스터 대상에서만', () => {
+  const speed: Line[] = [{ source: '카드 6번', stat: 'attackSpeed_Kill', value: 42 }];
+
+  it('일반 몬스터는 값 42 × 5 = 210 을 공격속도에', () => {
+    const lines = cardKillSpeedLines(speed, label);
+    expect(lines).toHaveLength(1);
+    expect(lines[0].stat).toBe('attackSpeed');
+    expect(lines[0].value).toBeCloseTo(210, 9);
+  });
+
+  it('보스 대상이거나 값이 없으면 줄이 없다', () => {
+    expect(cardKillSpeedLines(speed, label, 'boss')).toEqual([]);
+    expect(cardKillSpeedLines([{ source: '카드', stat: 'attackSpeed', value: 10 }], label)).toEqual([]);
   });
 });

@@ -32,6 +32,26 @@ export const DPM_CONSTS = {
   },
   /** 일괄 계산 (batchRecommend.ts): 특성 추천은 2개씩, 카드 추천은 3개씩 동시에 */
   BATCH: { MASTERY_LANES: 2, CARD_LANES: 3 },
+  /**
+   * 특성 추천 규칙 (쿨타임 · 시간은 빼고 최대 상태의 평타 한 번 대미지로만 비교):
+   * - FIXED: 늘 최대 레벨로 찍는 특성 (광폭화 7, 이성 유지 8, 마나 체인 23)
+   * - IGNORED: 추천이 찍지 않는 특성 (레벨 0)
+   * - DEFENSE: 대상 종류마다 찍어도 되는 방어 특성. 다른 종류의 방어 특성은 찍지 않는다
+   * - RUSH_MIN_CHANCE: 확률 100% 초과분 10% 마다 붙는 특성 (103 · 108 · 203 · 207 · 213 · 308) 은 확률이 이 값을 넘어야 센다
+   * - STATUS_COUNT: 대상 상태이상 수 (최대 상태)
+   */
+  OPTIMIZER_RULES: {
+    FIXED: ['7', '8', '23'] as readonly string[],
+    IGNORED: ['2', '4', '24', '37', '40', '41', '42', '46', '62', '64', '214'] as readonly string[],
+    DEFENSE: {
+      normal: ['48', '302'],
+      boss: ['49', '303'],
+      hero: ['50', '304'],
+    } as Record<string, readonly string[]>,
+    RUSH_MIN_CHANCE: 120,
+    RUSH_MIN_CHANCE_FIELD: 'optimizer.rushMinChance',
+    STATUS_COUNT: 3,
+  },
   /** 버프 스킬 발동 판정 (m5433): 0 ~ 999 난수 (1000가지), 확률 c 는 천분율, 옵션 % 는 × 10 */
   BUFF_PROC: { ROLL_RANGE: 1000, ROLL_MAX: 999, OPTION_PERCENT_TO_PERMILLE: 10 },
   /** 공격 종류 (대미지 정보 info[0], damage-formula.md 1절) */

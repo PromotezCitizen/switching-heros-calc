@@ -54,10 +54,15 @@
       "barrier": "매직 가드"
     },
     "switchingOverSource": "과잉 전환 (스위칭 부스트 확률 {{chance}}% 가 100% 를 넘음, 전체 시간의 {{percent}}% 동안 켜짐)",
+    "switchingRushSource": "스위칭 폭주 (스위칭 부스트 확률 {{chance}}% 라서 {{steps}}단계, 전체 시간의 {{percent}}% 동안 켜짐)",
     "exclusiveBossHitSource": "에이카 전용 무기 ★{{star}} 보스 적중 시 공격력",
     "exclusiveTakenSource": "에이카 전용 무기 ★{{star}} 보스가 받는 피해 증가 (전체 시간의 {{percent}}% 동안 켜짐)",
     "superCriticalOverSource": "한계 돌파 (슈퍼 치명타 확률 {{chance}}% 라서 {{steps}}단계)",
     "spearOverSource": "초과된 힘 (관통 {{chance}}%, {{threshold}}% 초과)",
-    "smiteOverSource": "무자비 폭주 (무자비 {{chance}}%, {{threshold}}% 초과)"
+    "smiteOverSource": "무자비 폭주 (무자비 {{chance}}%, {{threshold}}% 초과)",
+    "spearRushSource": "관통 폭주 (관통 {{chance}}% 라서 {{steps}}단계)",
+    "skillComboOverSource": "콤보 과열 (스킬 콤보 {{chance}}%, {{threshold}}% 초과)",
+    "skillComboRushSource": "콤보의 정점 (스킬 콤보 {{chance}}% 라서 {{steps}}단계)",
+    "smiteRushSource": "무자비의 분노 (무자비 {{chance}}% 라서 {{steps}}단계)"
   }
 }

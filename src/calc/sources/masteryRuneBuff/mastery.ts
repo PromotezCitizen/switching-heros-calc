@@ -66,6 +66,14 @@ export function masteryTraits(table: RawTable): MasteryTrait[] {
   return traits;
 }
 
+/**
+ * 초과분 10% 마다 붙는 특성 (103 · 108 · 203 · 207 · 213 · 308) 을 셀지: 칸 OPTIMIZER_RULES.RUSH_MIN_CHANCE_FIELD 에 값이 있으면
+ * 확률이 그 값을 넘어야 센다 (특성 추천이 넣는 칸, 화면 계산에는 없음)
+ */
+export function rushChanceCounts(values: CalcValues, chance: number): boolean {
+  return chance > (Number(values[CONSTS.dpm.OPTIMIZER_RULES.RUSH_MIN_CHANCE_FIELD]) || 0);
+}
+
 export function masteryLevelKey(rNo: string): string {
   return MASTERY_KEY_PREFIX + rNo;
 }

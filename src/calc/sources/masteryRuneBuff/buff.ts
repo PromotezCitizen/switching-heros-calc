@@ -13,7 +13,7 @@ import type { CalcValues } from '@/calc/types';
 import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
 import { equippedExclusiveStar } from '@/calc/sources/heroWeaponCardPet/weapon';
 import { hasEquippedActiveSkill } from '@/calc/sources/skill/skill';
-import { learnedTraitValue, masteryLevel, masteryTraits, plainNumber } from '@/calc/sources/masteryRuneBuff/mastery';
+import { learnedTraitValue, masteryLevel, masteryTraits, plainNumber, rushChanceCounts } from '@/calc/sources/masteryRuneBuff/mastery';
 import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 import { summaryTarget } from '@/calc/sources/summary/summary';
 
@@ -145,7 +145,7 @@ export function overchargeLog(masteryTable: RawTable, values: CalcValues, double
 /** 연타 폭주 %: 100% 를 넘은 연타의 10% 단위 개수 × 특성 값 */
 export function doubleAttackRushPercent(masteryTable: RawTable, values: CalcValues, doubleAttack: number): number {
   const over = doubleAttack - DOUBLE_ATTACK_THRESHOLD;
-  return over > 0
+  return over > 0 && rushChanceCounts(values, doubleAttack)
     ? Math.floor(over / DOUBLE_ATTACK_RUSH_STEP) *
         learnedTraitValue(masteryTraits(masteryTable), values, STATS.DOUBLE_ATTACK_RUSH)
     : 0;

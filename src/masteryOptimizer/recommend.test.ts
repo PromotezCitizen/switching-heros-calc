@@ -135,7 +135,8 @@ describe('추천 배분 탐색', () => {
   it('포인트당 손실이 작은 후보가 많아도, 비용을 댈 수 있는 후보 (한 번에 5 확보) 로 교환한다', () => {
     // 작은 특성 6개 (필요 포인트 1, 묶음 4 로는 4 밖에 못 빼서 5 짜리를 살 수 없음) 가 손실이 가장 작아 후보 상위를 채운다
     const cheap = ['b1', 'b2', 'b3', 'b4', 'b5', 'b6'].map((rNo) => trait(rNo, 1, 100, 1));
-    const swapTraits = [...cheap, trait('c', 1, 1, 5), trait('a', 1, 1, 5)];
+    // 최대 1 인 일반 특성은 찍은 뒤 빼지 않으므로 최대 2 로 둔다
+    const swapTraits = [...cheap, trait('c', 1, 2, 5), trait('a', 1, 2, 5)];
     const swapEvaluate = (allocation: Allocation): number =>
       cheap.reduce((sum, item) => sum + 0.001 * Math.log(1 + (allocation[item.rNo] ?? 0)), 0) +
       2 * (allocation.c ?? 0) +

@@ -69,11 +69,29 @@ describe('특성 추천 출발 배분 (빈 상태에서 뼈대 + 얼티밋)', ()
     expect(usedPoints(withUltimates, result.allocation)).toBeLessThanOrEqual(25);
   });
 
-  it('예산이 충분하면 얼티밋을 전부 남긴다', () => {
+  it('예산이 충분하면 값이 있는 얼티밋은 모두 켜고, 값이 없는 얼티밋은 켜지 않는다', () => {
     const withUltimates = [...traits, ultimate('u1', 5), ultimate('u2', 5)];
-    const result = buildStartAllocation(withUltimates, { evaluate, userLevel: USER_LEVEL, totalPoints: 100 });
+    const result = buildStartAllocation(withUltimates, {
+      evaluate: weighted({ b: 3, d: 2, e: 1, u1: 2 }),
+      userLevel: USER_LEVEL,
+      totalPoints: 100,
+    });
     expect(result.allocation.u1).toBe(1);
-    expect(result.allocation.u2).toBe(1);
+    expect(result.allocation.u2).toBeUndefined();
+  });
+
+  it('얼티밋은 계정 배분 (rankFrom) 에서 잰 값 순서로 켠다', () => {
+    const withUltimates = [...traits, ultimate('u1', 5), ultimate('u2', 5)];
+    // 뼈대 12 + 얼티밋 하나 5 = 17: 하나만 켤 수 있다. 계정 배분에서는 u1 이 더 크다고 잰다
+    const evaluateWith = (allocation: Allocation) => weighted({ b: 3, d: 2, e: 1, u1: 4, u2: 3 })(allocation);
+    const result = buildStartAllocation(withUltimates, {
+      evaluate: evaluateWith,
+      userLevel: USER_LEVEL,
+      totalPoints: 17,
+      rankFrom: { u1: 1, u2: 1 },
+    });
+    expect(result.allocation.u1).toBe(1);
+    expect(result.allocation.u2).toBeUndefined();
   });
 
   it('유저 레벨이 모자란 단계는 열지 않는다', () => {

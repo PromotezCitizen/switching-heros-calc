@@ -5,10 +5,17 @@ import { masteryTraits } from '@/calc/sources/masteryRuneBuff/mastery';
 import { valuesWithLoadout } from '@/cardOptimizer/loadout';
 import { totalMasteryPoints } from '@/masteryOptimizer/budget';
 import { comboFamilyOf } from '@/masteryOptimizer/comboFamily';
-import { allocationFromValues, evaluateOneCastEach } from '@/masteryOptimizer/evaluate';
+import {
+  allocationFromValues,
+  evaluateOneCastEach,
+  makeChanceGuard,
+  makeJumpLevels,
+} from '@/masteryOptimizer/evaluate';
+import { CONSTS } from '@/CONSTS';
 import { recommendAllocation } from '@/masteryOptimizer/recommend';
 import type { RecommendMessage, RecommendRequest } from '@/masteryOptimizer/recommendWorkerTypes';
 import { buildStartAllocation } from '@/masteryOptimizer/startAllocation';
+import { isUnlocked, validateAllocation } from '@/masteryOptimizer/rules';
 import { traitPolicyFor } from '@/masteryOptimizer/traitPolicy';
 import {
   equippedPetCounts,
@@ -41,26 +48,62 @@ scope.onmessage = (event) => {
       petCounts: equippedPetCounts(equippedPetIds(noCardValues), tables.Pet),
     });
     const totalPoints = totalMasteryPoints(tables, inputs.userLevel, inputs.vipLevel);
-    // 지금 프리셋은 비교 기준으로만 쓴다. 추천은 아무것도 없는 상태에서 시작한다
-    const baseEfficiency = evaluate(allocationFromValues(noCardValues, traits));
+    // 확률 바닥: 100% 이상이던 확률, 켜진 얼티밋이 넘고 있던 문턱 아래로 내리지 않는다
+    const chanceGuard = makeChanceGuard(noCardValues, traits, tables, inputs.target, inputs.damage);
+    // 확률 특성을 다음 계단 (10% 단위, 120 · 150 · 200) 까지 한 번에 올리는 레벨 수
+    const jumpLevels = makeJumpLevels(noCardValues, traits, tables, inputs.target, inputs.damage);
+    // 탐색 끝에 다시 켜 볼 얼티밋: 확률 관련 (80% · 120% 초과 개수, 150% · 200% 문턱)
+    const { CHANCE_ULTIMATES, CHANCE_COUNT_ULTIMATES } = CONSTS.masteryRuneBuff;
+    const retryUltimates = new Set(
+      traits
+        .filter(
+          (trait) =>
+            trait.ultimate &&
+            (CHANCE_ULTIMATES[trait.statName] || CHANCE_COUNT_ULTIMATES[trait.statName] !== undefined),
+        )
+        .map((trait) => trait.rNo),
+    );
+    // 지금 프리셋은 비교 기준이자 두 번째 출발점이다
+    const current = allocationFromValues(noCardValues, traits);
+    const baseEfficiency = evaluate(current);
     scope.postMessage({ type: 'base', efficiency: baseEfficiency });
     const start = buildStartAllocation(traits, {
       evaluate,
       userLevel: inputs.userLevel,
       totalPoints,
       policy,
+      rankFrom: current,
       onProgress: (progress) => scope.postMessage({ type: 'progress', progress: { block: 0, pass: 0, ...progress } }),
     });
-    const result = recommendAllocation(traits, start.allocation, {
-      evaluate,
-      userLevel: inputs.userLevel,
-      totalPoints,
-      baseEfficiency,
-      evaluationsBefore: start.evaluations,
-      comboFamily: comboFamilyOf,
-      policy,
-      onProgress: (progress) => scope.postMessage({ type: 'progress', progress }),
-    });
+    const search = (from: Record<string, number>, evaluationsBefore: number) =>
+      recommendAllocation(traits, from, {
+        evaluate,
+        userLevel: inputs.userLevel,
+        totalPoints,
+        baseEfficiency,
+        evaluationsBefore,
+        comboFamily: comboFamilyOf,
+        policy,
+        chanceGuard,
+        retryUltimates,
+        jumpLevels,
+        onProgress: (progress) => scope.postMessage({ type: 'progress', progress }),
+      });
+    const fromEmpty = search(start.allocation, start.evaluations);
+    // 지금 배분에서도 한 번 더 찾는다 (고정 특성은 최대로 채워서). 규칙에 맞지 않으면 건너뛴다
+    let result = fromEmpty;
+    const seeded = { ...current };
+    for (const trait of traits) {
+      if (policy.fixed.has(trait.rNo) && isUnlocked(traits, trait, seeded, inputs.userLevel))
+        seeded[trait.rNo] = trait.maxLevel;
+    }
+    if (!fromEmpty.stopped && validateAllocation(traits, seeded, inputs.userLevel, totalPoints).length === 0) {
+      const fromCurrent = search(seeded, fromEmpty.evaluations);
+      result =
+        fromCurrent.efficiency > fromEmpty.efficiency
+          ? { ...fromCurrent, baseEfficiency }
+          : { ...fromEmpty, evaluations: fromCurrent.evaluations, stopped: fromCurrent.stopped };
+    }
     scope.postMessage({ type: 'done', result });
   } catch (error) {
     scope.postMessage({ type: 'failed', message: String(error) });

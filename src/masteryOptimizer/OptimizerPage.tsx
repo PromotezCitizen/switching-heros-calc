@@ -388,11 +388,16 @@ export default function OptimizerPage() {
               {shown && (
                 <Stack gap="xs">
                   <Text fw={600}>
-                    {translate('optimizer.recommendDone', {
-                      before: formatLog(shown.baseEfficiency ?? snapshot.efficiency),
-                      after: formatLog(shown.efficiency),
-                      gain: gainText(shown.efficiency - (shown.baseEfficiency ?? snapshot.efficiency)),
-                    })}
+                    {shown.efficiency < (shown.baseEfficiency ?? snapshot.efficiency)
+                      ? translate('optimizer.recommendWorse', {
+                          before: formatLog(shown.baseEfficiency ?? snapshot.efficiency),
+                          after: formatLog(shown.efficiency),
+                        })
+                      : translate('optimizer.recommendDone', {
+                          before: formatLog(shown.baseEfficiency ?? snapshot.efficiency),
+                          after: formatLog(shown.efficiency),
+                          gain: gainText(shown.efficiency - (shown.baseEfficiency ?? snapshot.efficiency)),
+                        })}
                   </Text>
                   <Text>
                     {translate('optimizer.recommendPoints', {

@@ -8,6 +8,8 @@ import { CONSTS } from '@/CONSTS';
 import { targetDamageWithSwap } from '@/dpm/swapDamage';
 import type { DamageInputs, DamageTarget } from '@/dpm/targetDamage';
 import type { Allocation } from '@/masteryOptimizer/rules';
+import { chancesFromLines, type Chances } from '@/calc/sources/masteryRuneBuff/chances';
+import { attackStats } from '@/dpm/attackStats';
 
 /** 입력값의 특성 레벨 칸 → 배분 (레벨 0 은 뺀다) */
 export function allocationFromValues(values: CalcValues, traits: MasteryTrait[]): Allocation {
@@ -61,4 +63,132 @@ export function evaluateOneCastEach(
     [RUSH_MIN_CHANCE_FIELD]: String(RUSH_MIN_CHANCE),
   };
   return oneCastEachLog(allocated, tables, target, inputs);
+}
+
+/** 배분을 넣은 1슬롯 히어로의 확률 (연타, 슈퍼 치명타, 관통, 스위칭 부스트, 스킬 콤보, 무자비, 매직 가드) */
+export function chancesOfAllocation(
+  values: CalcValues,
+  traits: MasteryTrait[],
+  tables: StatTables,
+  allocation: Allocation,
+  target: DamageTarget,
+  inputs: DamageInputs,
+): Chances {
+  const { TARGETS, MAX_TARGETS, DAMAGE_TARGET_FIELD, TARGETS_PER_SKILL_FIELD } = CONSTS.dpm;
+  const unit = TARGETS[target].UNIT;
+  const targets =
+    unit === 'normal' ? Math.min(Math.max(inputs.targetsPerSkill, 1), MAX_TARGETS[target] ?? Infinity) : 1;
+  const battleValues = {
+    ...valuesWithAllocation(values, traits, allocation),
+    [DAMAGE_TARGET_FIELD]: target,
+    [TARGETS_PER_SKILL_FIELD]: String(targets),
+  };
+  return chancesFromLines(attackStats(battleValues, tables, unit).lines, battleValues, tables);
+}
+
+/**
+ * 확률 바닥 검사 (from → trial 이동이 받아들여지는가). 확률 특성 (OPTIMIZER_RULES.CHANCE_FIRST) 레벨이 줄어드는 이동만 본다:
+ * - 100% 이상이던 확률은 100% 미만으로 내리지 않는다 (100% 미만이면 옵션 발동 0)
+ * - trial 에서 켜진 확률 문턱 얼티밋 (150% · 200%) 이 넘고 있던 확률은 그 문턱 이하로 내리지 않는다
+ * - trial 에서 켜진 확률 초과 개수 얼티밋 (80% · 120%) 이 세고 있던 확률은 그 문턱 이하로 내리지 않는다
+ */
+export function makeChanceGuard(
+  values: CalcValues,
+  traits: MasteryTrait[],
+  tables: StatTables,
+  target: DamageTarget,
+  inputs: DamageInputs,
+): (from: Allocation, trial: Allocation) => boolean {
+  const { CHANCE_FIRST } = CONSTS.dpm.OPTIMIZER_RULES;
+  const { CHANCE_ULTIMATES, CHANCE_COUNT_ULTIMATES, CHANCE_COUNT_NAMES } = CONSTS.masteryRuneBuff;
+  const { PROBABILITY_MAX } = CONSTS.dpm;
+  const chanceTraits = traits.filter((trait) => CHANCE_FIRST.includes(trait.rNo));
+  const ultimates = traits.filter(
+    (trait) =>
+      trait.ultimate && (CHANCE_ULTIMATES[trait.statName] || CHANCE_COUNT_ULTIMATES[trait.statName] !== undefined),
+  );
+  const cache = new Map<string, Chances>();
+  const chancesOf = (allocation: Allocation): Chances => {
+    const key = JSON.stringify(Object.entries(allocation).sort(([left], [right]) => left.localeCompare(right)));
+    let chances = cache.get(key);
+    if (!chances) {
+      chances = chancesOfAllocation(values, traits, tables, allocation, target, inputs);
+      cache.set(key, chances);
+    }
+    return chances;
+  };
+  return (from, trial) => {
+    if (!chanceTraits.some((trait) => (trial[trait.rNo] ?? 0) < (from[trait.rNo] ?? 0))) return true;
+    const before = chancesOf(from);
+    const after = chancesOf(trial);
+    for (const name of CHANCE_COUNT_NAMES) {
+      if ((before[name] ?? 0) >= PROBABILITY_MAX && (after[name] ?? 0) < PROBABILITY_MAX) return false;
+    }
+    for (const trait of ultimates) {
+      if (!((trial[trait.rNo] ?? 0) > 0)) continue;
+      const rule = CHANCE_ULTIMATES[trait.statName];
+      if (rule) {
+        if ((before[rule.chance] ?? 0) > rule.threshold && !((after[rule.chance] ?? 0) > rule.threshold)) return false;
+        continue;
+      }
+      const threshold = CHANCE_COUNT_ULTIMATES[trait.statName];
+      for (const name of CHANCE_COUNT_NAMES) {
+        if ((before[name] ?? 0) > threshold && !((after[name] ?? 0) > threshold)) return false;
+      }
+    }
+    return true;
+  };
+}
+
+/** 확률 특성 statName → 그 특성이 올리는 확률 이름 (값이 확률 % 에 그대로 더해지는 특성만) */
+const CHANCE_OF_STAT: Record<string, string> = {
+  doubleAttackAddPer: 'doubleAttack',
+  superCriticalAddPer: 'superCritical',
+  spearAttackAddPer: 'spearAttack',
+  switchingBoostAddPer: 'switchingBoost',
+  equipHeroToSwitchingBoostUp1: 'switchingBoost',
+  equipHeroToSwitchingBoostUp2: 'switchingBoost',
+  skillComboAddPer: 'skillCombo',
+  smiteAddPer: 'smite',
+  barrierAddVal: 'barrier',
+};
+
+/**
+ * 확률 특성을 한 번에 몇 레벨 올려야 그 확률이 다음 계단을 넘는지 (1레벨씩으로는 계단을 넘기 전까지 이득이 0 이라 못 찾는 이동).
+ * 계단 = 100%, 100% 넘은 뒤 10% 마다, 120 · 150 · 200 문턱 중 지금 확률보다 큰 가장 가까운 것. 확률 특성이 아니거나 최대면 null
+ */
+export function makeJumpLevels(
+  values: CalcValues,
+  traits: MasteryTrait[],
+  tables: StatTables,
+  target: DamageTarget,
+  inputs: DamageInputs,
+): (allocation: Allocation, trait: MasteryTrait) => number | null {
+  const { PROBABILITY_MAX } = CONSTS.dpm;
+  const STEP = CONSTS.masteryRuneBuff.BATTLE.RUSH_STEP;
+  const THRESHOLDS = [120, 150, 200];
+  const EPSILON = 1e-6;
+  const cache = new Map<string, Chances>();
+  return (allocation, trait) => {
+    const chanceName = CHANCE_OF_STAT[trait.statName];
+    const level = allocation[trait.rNo] ?? 0;
+    if (!chanceName || level >= trait.maxLevel) return null;
+    const key = JSON.stringify(Object.entries(allocation).sort(([left], [right]) => left.localeCompare(right)));
+    let chances = cache.get(key);
+    if (!chances) {
+      chances = chancesOfAllocation(values, traits, tables, allocation, target, inputs);
+      cache.set(key, chances);
+    }
+    const chance = chances[chanceName] ?? 0;
+    const stepBoundary =
+      chance < PROBABILITY_MAX
+        ? PROBABILITY_MAX
+        : PROBABILITY_MAX + (Math.floor((chance - PROBABILITY_MAX) / STEP) + 1) * STEP;
+    const boundary = Math.min(stepBoundary, ...THRESHOLDS.filter((threshold) => threshold > chance));
+    const valueAt = (lv: number) => (lv > 0 ? trait.statValue + trait.statUpValue * (lv - 1) : 0);
+    for (let next = level + 1; next <= trait.maxLevel; next += 1) {
+      if (chance + valueAt(next) - valueAt(level) >= boundary + EPSILON) return next - level;
+    }
+    return null;
+  };
 }

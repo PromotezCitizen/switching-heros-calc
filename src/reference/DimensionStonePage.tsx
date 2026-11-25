@@ -216,6 +216,9 @@ function AlchemySection() {
           onChange={(event) => setBuffText(event.currentTarget.checked ? TRUE_TEXT : '')}
         />
       </Group>
+      <Text size="xs" c="dimmed">
+        {translate('dimStone.gradeFixed')}
+      </Text>
       {levelText && Number.isFinite(level) && !stone && (
         <Text size="sm" c="dimmed">
           {translate('dimStone.alchemyTooLow', { level: DS.ALCHEMY_STONE_START_LEVEL })}

@@ -136,12 +136,13 @@ describe('검사 스킬 적중 수 (옵션 · 문양 없음, 맞는 적 3마리)
   });
 });
 
-describe('직업 스킬 분배: 궁수 → 검사', () => {
-  it('궁수 스킬 (멀티샷 201) 도 검사 스킬 (기습 1) 도 지원, 격투가 (101) 는 아직', () => {
-    const values = setupValues({ equip: ['201', '1', '101'] });
-    expect(jobSkillHits(values, tables, '201', TARGETS).supported).toBe(true);
-    expect(jobSkillHits(values, tables, '1', TARGETS).supported).toBe(true);
-    expect(jobSkillHits(values, tables, '101', TARGETS).supported).toBe(false);
+describe('직업 스킬 분배: 궁수 → 검사 → 격투가 → 마법사', () => {
+  it('직업 스킬 40개 모두 지원, 표에 없는 번호는 지원하지 않음', () => {
+    const values = setupValues({ equip: ['201', '1', '101', '301'] });
+    const jobSkillIds = skillRows(tables).map((row) => row.skillId);
+    expect(jobSkillIds).toHaveLength(40);
+    for (const skillId of jobSkillIds) expect(jobSkillHits(values, tables, skillId, TARGETS).supported, skillId).toBe(true);
+    expect(jobSkillHits(values, tables, '999999', TARGETS).supported).toBe(false);
   });
 });
 

@@ -27,7 +27,7 @@ import { gameSpeedMultiplier } from '@/dpm/gameSpeed';
 const SKILL_COOL_REDUCTION_STAT = 'skillCoolReduction';
 const BUFF_SKILL_TYPE = 'BuffSkill';
 const { BUFF_DURATION_OPTION_TYPE, PROC_CHANCE_OPTION_TYPE } = CONSTS.skill;
-const { BUFF_PROC } = CONSTS.dpm;
+const { BUFF_PROC, ACTIVATION_ONLY_BUFF_SKILLS } = CONSTS.dpm;
 
 export interface SkillTiming {
   skillId: string;
@@ -67,9 +67,15 @@ export function dpmTiming(values: CalcValues, tables: StatTables): DpmTiming {
         optionSeconds: skillCoolOptionSeconds(values, tables, skillId) + skillPerkCoolSeconds(values, tables, skillId),
         coolReductionPercent: coolReduction,
       });
+      const durationGameSeconds = (Number(row!.buffDuration) || 0) + skillOptionSum(values, tables, skillId, BUFF_DURATION_OPTION_TYPE);
+      // 켜질 때 1번 도는 스킬은 발동 판정이 없다: 켜지는 간격마다 1번
+      if (ACTIVATION_ONLY_BUFF_SKILLS.includes(skillId)) {
+        const activationSeconds = Math.max(cooldownGameSeconds, durationGameSeconds);
+        return activationSeconds > 0 ? [{ skillId, gameSeconds: activationSeconds, realSeconds: activationSeconds / gameSpeed, cooldownGameSeconds }] : [];
+      }
       const gameSeconds = buffProcGameSeconds({
         cooldownGameSeconds,
-        durationGameSeconds: (Number(row!.buffDuration) || 0) + skillOptionSum(values, tables, skillId, BUFF_DURATION_OPTION_TYPE),
+        durationGameSeconds,
         chancePermille: (Number(row!.buffPer) || 0) + BUFF_PROC.OPTION_PERCENT_TO_PERMILLE * skillOptionSum(values, tables, skillId, PROC_CHANCE_OPTION_TYPE),
         normalAttackGameSeconds: normalAttack,
       });

@@ -1,5 +1,6 @@
 /**
- * 궁수 스킬 5개 (멀티샷 · 유도 샷 · 화살비 · 레이저 샷 · 다발 화살) 의 시전 1번 적중 구조 (스킬 · 옵션 · 문양 문구 기준, 유력).
+ * 궁수 스킬 10개 (멀티샷, 유도 샷, 화살비, 레이저 샷, 다발 화살, 화살 폭격, 스탭 앤 샷, 연속 화살, 피닉스 샷, 나비 스텝) 의 시전 1번 적중 구조 (스킬, 옵션, 문양 문구 기준, 유력).
+ * 스탭 앤 샷, 연속 화살, 피닉스 샷, 나비 스텝은 claude-docs/react-port/catalog-skill-hits.md 5절과 job-skills-active-2026-11-05.md 3절.
  * hits = 한 발 계수가 곱해지는 횟수의 기대값 (발 수 × 맞는 적 수), coefficientFactor = 이 스킬 전용 옵션 · 문양이 계수에 더 곱하는 배수.
  * 확률 옵션은 기대값 (최고 등급 값 / 100). 관통 대상 = min(맞는 적 수, 관통 횟수 + PIERCE_EXTRA_TARGETS)
  */
@@ -104,6 +105,45 @@ export function archerSkillHits(values: CalcValues, tables: StatTables, skillId:
         supported: true,
         hits: Math.floor(value1) * arrows * Math.min(targets, ARCHER.ARROW_BARRAGE_MAX_TARGETS),
         coefficientFactor: perk ? percentFactor(perkNumber(perk, 'val2')) : 1,
+      };
+    }
+    case ARCHER.STEP_AND_SHOT: {
+      // 유도 화살 value2 개 × 관통 value1 (개수와 관통의 대응은 문구 기준)
+      const noPierce = optionValue(options, ARCHER.STEP_AND_SHOT_NO_PIERCE);
+      const double = optionValue(options, ARCHER.STEP_AND_SHOT_DOUBLE);
+      const perk = perkOf(perks, ARCHER.STEP_AND_SHOT_PERK);
+      let factor = noPierce === undefined ? 1 : percentFactor(noPierce);
+      if (double !== undefined) factor *= 1 + (ARCHER.DOUBLE_FACTOR - 1) * chanceOf(double);
+      if (perk) factor *= percentFactor(perkNumber(perk, 'val1'));
+      return { supported: true, hits: Math.floor(value2) * (noPierce === undefined ? pierceTargets(Math.floor(value1)) : 1), coefficientFactor: factor };
+    }
+    case ARCHER.MULTI_STRAIGHT: {
+      // 화살 int(value1) + int(옵션 2600) 발 × 관통 value2
+      const arrows = Math.floor(value1) + Math.floor(optionValue(options, ARCHER.MULTI_STRAIGHT_EXTRA_ARROWS) ?? 0);
+      const noPierce = optionValue(options, ARCHER.MULTI_STRAIGHT_NO_PIERCE);
+      const perk = perkOf(perks, ARCHER.MULTI_STRAIGHT_PERK);
+      let factor = noPierce === undefined ? 1 : percentFactor(noPierce);
+      if (perk) factor *= percentFactor(perkNumber(perk, 'val2'));
+      return { supported: true, hits: arrows * (noPierce === undefined ? pierceTargets(Math.floor(value2)) : 1), coefficientFactor: factor };
+    }
+    case ARCHER.PHOENIX_SHOT: {
+      // 불사조 1마리 (관통 무제한) + 옵션 2800 작은 불사조 3마리 (각 피닉스 샷의 v %), 한 적 1번 (추정)
+      const small = optionValue(options, ARCHER.PHOENIX_SMALL_OPTION);
+      const phoenixes = 1 + (small === undefined ? 0 : (ARCHER.PHOENIX_SMALL_COUNT * small) / PERCENT_DIVISOR);
+      return {
+        supported: true,
+        hits: phoenixes * ARCHER.PHOENIX_HITS_PER_TARGET * targets,
+        coefficientFactor: 1,
+        estimates: [ARCHER.ESTIMATE_HITS_PER_TARGET],
+      };
+    }
+    case ARCHER.BUTTERFLY_STEP: {
+      // 화살 int(value1) 발 × 관통 value2
+      const noPierce = optionValue(options, ARCHER.BUTTERFLY_NO_PIERCE);
+      return {
+        supported: true,
+        hits: Math.floor(value1) * (noPierce === undefined ? pierceTargets(Math.floor(value2)) : 1),
+        coefficientFactor: noPierce === undefined ? 1 : percentFactor(noPierce),
       };
     }
     default:

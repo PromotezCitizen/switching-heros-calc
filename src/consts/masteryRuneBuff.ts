@@ -498,12 +498,6 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
 
   /** 특성·룬 카드 화면 */
   PANEL: {
-    /** 설명이 배수 단위인 특성 (현재 값을 배수로 보인다) */
-    MULTIPLIER_UNIT: '배',
-    /** 설명에서 값이 배수인 자리 ({0}배 또는 단독 n배) */
-    MULTIPLIER_DESC: /(\{0\}|(^|[^a-zA-Z])n)배/,
-    /** 이보다 큰 % (log10) 는 1 + % / 100 을 % / 100 으로 본다 */
-    LARGE_LOG: 15,
     /** 현재 값을 쉼표 숫자로 쓰는 한도 (log10). 넘으면 게임 단위 글자 */
     PLAIN_NUMBER_MAX_LOG: 15,
     /** 현재 값을 버리기 전에 맞추는 유효 숫자 수 (log 로 되돌린 값의 부동소수 오차 정리) */
@@ -523,6 +517,26 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
       doubleAttackOverPer: 'doubleAttack',
       superCriticalOverPer: 'superCritical',
     } as Record<string, string>,
+    /**
+     * 1슬롯, 2슬롯 히어로에 따라 현재 값이 달라지는 특성 (툴팁에 두 값을 나눠 보인다).
+     * 확률 중 히어로마다 다른 것은 연타 (히어로 기본 공격속도, 직업, 속성 공격속도, 전용 무기 옵션, 초월적 기량) 와
+     * 슈퍼 치명타 (직업, 속성 치명타 확률, 전용 무기 옵션) 뿐이다. 관통, 스위칭 부스트, 스킬 콤보, 무자비, 매직 가드는 출처가 계정 공통
+     */
+    HERO_DEPENDENT_TRAIT_STATS: [
+      'doubleAttackDmgUp',
+      'doubleAttackOverPer',
+      'superCriticalOverPer',
+      '_per_superCriticalAddDmg',
+      'doubleAttackToDmgUp2',
+      'superCriticalToDmgUp1',
+      'superCriticalToDmgUp2',
+    ] as readonly string[],
+    /** 히어로마다 세는 개수 얼티밋 (장착 스킬 종류 수, SSS 옵션 수, 전용 무기 미션 수, 전투 특화) 과 직업, 속성이 걸린 스탯 */
+    HERO_DEPENDENT_STAT:
+      /EqActiveSkillCnt|EqBuffSkillCnt|EquipSSSOptionCnt|EquipTransMissionCnt|TargetUnit|LibLv|(Swordsman|Fighter|Archer|Mage)_|(Fire|Water|Earth)Hero_/,
+    /** 스탯 이름의 직업, 속성 조건: 그 직업, 속성 히어로에게만 붙는다 */
+    JOB_STAT_PATTERN: /(Swordsman|Fighter|Archer|Mage)_/,
+    ATTRIBUTE_STAT_PATTERN: /(Fire|Water|Earth)Hero_/,
     /** 계산 줄로 바로 들어가는 스탯 이름 앞부분 (그 밖의 특성 줄은 다른 계산이 읽는 계수) */
     DIRECT_STAT_PREFIX: /^_(per|pow|down)_/,
     /** 위 특성의 확률 한 단계 (%) */

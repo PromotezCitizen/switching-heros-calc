@@ -42,6 +42,8 @@ function currentNumber(log: number): string {
     : formatLog(log);
 }
 import { chancesFromLines, type Chances } from '@/calc/sources/masteryRuneBuff/chances';
+import { swappedHeroValues } from '@/dpm/swappedHeroValues';
+import { heroFirstRow, slotHeroName } from '@/calc/sources/hero/character';
 
 const { MASTERY_GROUPS, ULTIMATE_ON_LEVEL, MIN_LEVEL, PANEL } = CONSTS.masteryRuneBuff;
 
@@ -50,8 +52,10 @@ function traitIconPath(trait: MasteryTrait): string {
   return `${import.meta.env.BASE_URL}icons/Atlas_Characteristics/${trait.ultimate ? 'UT_' : 'A_'}${trait.rNo}.png`;
 }
 
-/** 히어로마다 따로 세는 개수 얼티밋의 스탯 이름 끝 (전용 무기 클리어 미션 수) */
-const TRANS_MISSION_SUFFIX = `_${CONSTS.masteryRuneBuff.ULTIMATE_TRANS_MISSION_KEY}`;
+/** 늘어난 % (log10) → % 글 */
+function percentText(percentLog: number): string {
+  return `${currentNumber(percentLog)}%`;
+}
 
 /** 줄 하나의 % 값 (log10). 0 이하면 null */
 function linePercentLog(line: Line): number | null {
@@ -60,7 +64,7 @@ function linePercentLog(line: Line): number | null {
 }
 
 /**
- * 지금 들어간 값 글: 특성 줄 % 의 합. 설명이 "배" 단위면 배수 (1 + % / 100), 아니면 %. 줄이 없으면 0
+ * 지금 들어간 값 글: 특성 줄 % 의 합 (늘어난 양). 줄이 없으면 0%
  */
 function currentValueText(trait: MasteryTrait, allLines: readonly Line[]): string {
   // 스탯 이름이 계산 줄 꼴이 아니면 그 특성 이름 그대로의 줄은 계수 (다른 계산이 읽음) 라 빼고, 실제 효과 줄 (중첩, 초과 단계) 만 더한다
@@ -73,13 +77,7 @@ function currentValueText(trait: MasteryTrait, allLines: readonly Line[]): strin
   const percentLog = isFinite(top)
     ? top + Math.log10(logs.reduce((sum, log) => sum + Math.pow(10, log - top), 0))
     : -Infinity;
-  if (PANEL.MULTIPLIER_DESC.test(trait.desc)) {
-    // 1 + % / 100 (아주 큰 값은 % / 100 과 같다)
-    const multiplierLog =
-      percentLog > PANEL.LARGE_LOG ? percentLog - 2 : Math.log10(1 + Math.pow(10, percentLog) / 100);
-    return `${currentNumber(multiplierLog)}${PANEL.MULTIPLIER_UNIT}`;
-  }
-  return `${currentNumber(percentLog)}%`;
+  return percentText(percentLog);
 }
 
 /** "~마다" · "~당" 쌓이는 특성의 쌓임 방식: _pow_ 는 값^개수 (곱연산), 그 밖은 값 × 개수 (합연산). 쌓이지 않으면 null */
@@ -88,6 +86,74 @@ function stackKindKey(trait: MasteryTrait): string | null {
   return trait.statName.startsWith(PANEL.POW_PREFIX) || PANEL.STEP_POWER_STATS[trait.statName]
     ? 'calc.mastery.stackMultiply'
     : 'calc.mastery.stackSum';
+}
+
+/** 슬롯 하나 (1슬롯 또는 바꾼 입력값의 2슬롯) 의 현재 값 계산 재료 */
+interface SlotState {
+  values: CalcValues;
+  /** 이 슬롯 히어로의 직업, 속성 (직업, 속성이 걸린 줄을 고른다) */
+  job?: string;
+  attribute?: string;
+  lines: Line[];
+  linesByTrait: Map<string, Line[]>;
+  chances: Chances;
+}
+
+function slotStateOf(values: CalcValues, lines: Line[], tables: StatTables): SlotState {
+  const linesByTrait = new Map<string, Line[]>();
+  for (const line of lines) {
+    if (!line.traitNo) continue;
+    const list = linesByTrait.get(line.traitNo) ?? [];
+    list.push(line);
+    linesByTrait.set(line.traitNo, list);
+  }
+  const hero = heroFirstRow(tables, slotHeroName(values, tables));
+  return {
+    values,
+    job: hero?.job,
+    attribute: hero?.attribute,
+    lines,
+    linesByTrait,
+    chances: chancesFromLines(lines, values, tables),
+  };
+}
+
+/** 특성 하나의 현재 값 글 (슬롯 하나 기준) */
+function currentValueOf(trait: MasteryTrait, state: SlotState, tables: StatTables): string {
+  // 확률 계산 안에서 더해지는 특성: 이 특성 줄이 있을 때와 없을 때의 확률 차이
+  const gainedChance = PANEL.CHANCE_GAIN_STATS[trait.statName];
+  if (gainedChance) {
+    const without = chancesFromLines(
+      state.lines.filter((line) => line.traitNo !== trait.rNo),
+      state.values,
+      tables,
+    );
+    const gain = (state.chances[gainedChance] ?? 0) - (without[gainedChance] ?? 0);
+    return percentText(gain > 0 ? Math.log10(gain) : -Infinity);
+  }
+  const chanceName = PANEL.STEP_POWER_STATS[trait.statName];
+  if (chanceName) {
+    // (1 + 값 / 100)^floor(확률 / 10) 의 늘어난 양 (%)
+    const steps = Math.floor(Math.trunc(state.chances[chanceName] ?? 0) / PANEL.STEP_POWER_CHANCE_STEP);
+    const multiplier = Math.pow(1 + traitValue(trait, masteryLevel(state.values, trait)) / 100, steps);
+    return percentText(Math.log10((multiplier - 1) * 100));
+  }
+  // 직업, 속성이 걸린 줄은 이 슬롯 히어로의 직업, 속성이 맞을 때만 센다
+  const own = (state.linesByTrait.get(trait.rNo) ?? []).filter((line) => {
+    const job = PANEL.JOB_STAT_PATTERN.exec(line.stat)?.[1];
+    const attribute = PANEL.ATTRIBUTE_STAT_PATTERN.exec(line.stat)?.[1];
+    return (!job || job === state.job) && (!attribute || attribute === state.attribute);
+  });
+  return currentValueText(trait, own);
+}
+
+/** 1슬롯, 2슬롯 히어로에 따라 현재 값이 달라지는 특성인가 */
+function heroDependent(trait: MasteryTrait): boolean {
+  return (
+    PANEL.HERO_DEPENDENT_TRAIT_STATS.includes(trait.statName) ||
+    PANEL.HERO_DEPENDENT_STAT.test(trait.statName) ||
+    CONSTS.masteryRuneBuff.ULTIMATE_HIDDEN_COUNT_STATS.includes(trait.statName)
+  );
 }
 
 /** 같은 단계끼리 묶는다 (특성은 이미 단계 순으로 정렬되어 있음). 열리는 레벨은 단계 안에서 같다 */
@@ -266,56 +332,25 @@ export default function MasteryPanel({
   if (!masteryTable) return null;
 
   const traits = masteryTraits(masteryTable);
-  // 특성 번호 → 그 특성에서 나온 줄
-  // 지금 계정에 붙을 수 있는 값: 설명과 같은 기준 (얼티밋은 켠 것으로, 일반 특성은 지금 레벨) 으로 지금 계정의 개수, 확률로 계산한다
-  const linesByTrait = new Map<string, Line[]>();
-  let chances: Chances = {};
-  let potential: CalcValues = values;
-  let allLines: Line[] = [];
-  let levelOf = (trait: MasteryTrait) => masteryLevel(values, trait);
+  // 지금 계정에 붙을 수 있는 값: 설명과 같은 기준 (얼티밋은 켠 것으로, 일반 특성은 지금 레벨) 으로 지금 계정의 개수, 확률로 계산한다.
+  // 2슬롯 히어로가 있으면 1슬롯, 2슬롯을 바꾼 입력값으로 한 번 더 계산해 두 값을 같이 보인다
+  const slotStates: SlotState[] = [];
   if (traitLines) {
-    potential = { ...values };
+    const potential: CalcValues = { ...values };
     for (const trait of traits) {
       if (trait.ultimate) potential[masteryLevelKey(trait.rNo)] = String(ULTIMATE_ON_LEVEL);
     }
-    levelOf = (trait) => masteryLevel(potential, trait);
-    allLines = traitLines(potential, tables);
-    chances = chancesFromLines(allLines, potential, tables);
-    for (const line of allLines) {
-      if (!line.traitNo) continue;
-      const list = linesByTrait.get(line.traitNo) ?? [];
-      list.push(line);
-      linesByTrait.set(line.traitNo, list);
+    const swapped = swappedHeroValues(potential);
+    for (const slotValues of swapped ? [potential, swapped] : [potential]) {
+      slotStates.push(slotStateOf(slotValues, traitLines(slotValues, tables), tables));
     }
   }
   const currentOf = (trait: MasteryTrait) => {
-    if (!traitLines) return undefined;
-    // 히어로마다 따로 세는 개수 (전용 무기 클리어 미션 수): 1슬롯, 2슬롯 칸 값 × 특성 값
-    if (trait.statName.endsWith(TRANS_MISSION_SUFFIX)) {
-      const [first, second] = CONSTS.masteryRuneBuff.TRANS_MISSION_FIELDS.map((field) =>
-        currentNumber(Math.log10(traitValue(trait, ULTIMATE_ON_LEVEL) * Math.max(Number(values[field]) || 0, 0))),
-      );
-      return translate('calc.mastery.currentSlots', { first: `${first}%`, second: `${second}%` });
-    }
-    // 확률 계산 안에서 더해지는 특성: 이 특성 줄이 있을 때와 없을 때의 확률 차이
-    const gainedChance = PANEL.CHANCE_GAIN_STATS[trait.statName];
-    if (gainedChance) {
-      const without = chancesFromLines(
-        allLines.filter((line) => line.traitNo !== trait.rNo),
-        potential,
-        tables,
-      );
-      const gain = (chances[gainedChance] ?? 0) - (without[gainedChance] ?? 0);
-      return `${gain > 0 ? currentNumber(Math.log10(gain)) : 0}%`;
-    }
-    const chanceName = PANEL.STEP_POWER_STATS[trait.statName];
-    if (chanceName) {
-      // (1 + 값 / 100)^floor(확률 / 10) 의 늘어난 양 (%): 설명이 % 단위
-      const steps = Math.floor(Math.trunc(chances[chanceName] ?? 0) / PANEL.STEP_POWER_CHANCE_STEP);
-      const multiplier = Math.pow(1 + traitValue(trait, levelOf(trait)) / 100, steps);
-      return `${currentNumber(Math.log10((multiplier - 1) * 100))}%`;
-    }
-    return currentValueText(trait, linesByTrait.get(trait.rNo) ?? []);
+    if (!slotStates.length) return undefined;
+    // 히어로에 따라 달라지는 특성만 1슬롯, 2슬롯을 나눠 보인다
+    const states = heroDependent(trait) ? slotStates : slotStates.slice(0, 1);
+    const [first, second] = states.map((state) => currentValueOf(trait, state, tables));
+    return second === undefined ? first : translate('calc.mastery.currentSlots', { first, second });
   };
   const totals = masteryTotals(traits, values);
   // 앞 단계 조건: 최적 추천과 같은 규칙 (masteryOptimizer/rules.ts)

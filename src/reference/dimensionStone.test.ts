@@ -72,9 +72,10 @@ describe('세트', () => {
     expect(result.steps[0].slotLevel).toBe(175);
     expect(result.steps[0].neededLog).toBeCloseTo(fragmentsNeededLog(costs, 170, 175, -Infinity)!, 12);
     expect(result.steps[0].totalNeededLog).toBeCloseTo(result.steps[0].neededLog! + 1, 9);
-    // 세트 35 (홀수) = 공격력 +900%, 36 = 체력 +900%
+    // 공격력 세트 (홀수) 만 5개: 35, 37, 39, 41, 43 (체력 세트 36 등은 건너뜀)
+    expect(result.steps.map((step) => step.target)).toEqual([35, 37, 39, 41, 43]);
+    expect(result.steps.every((step) => step.stat === '_per_attackDamage')).toBe(true);
     expect(result.steps[0]).toMatchObject({ stat: '_per_attackDamage', percent: 900 });
-    expect(result.steps[1]).toMatchObject({ stat: '_per_hp', percent: 900 });
   });
 
   it('비운 칸은 넣은 칸 중 가장 낮은 레벨, 보유 0', () => {

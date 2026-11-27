@@ -12,18 +12,20 @@ import SlideTabsList from '@/components/SlideTabsList';
 import OptimizerPage from '@/masteryOptimizer/OptimizerPage';
 import MasteryLevelPage from '@/masteryDebug/MasteryLevelPage';
 import ReferencePage from '@/reference/ReferencePage';
+import DimensionStonePage from '@/reference/DimensionStonePage';
 import { useStickyHeaderHeight } from '@/useStickyHeaderHeight';
 
-/** 페이지 순서: 추천 (첫 화면) · 사냥 · 계정 · 자료 */
+/** 페이지 순서: 추천 (첫 화면), 차원의 돌, 사냥, 계정, 자료 */
 const PAGES = [
   { path: '/', labelKey: 'page.optimizer' },
+  { path: '/dimension-stone', labelKey: 'page.dimensionStone' },
   { path: '/hunting', labelKey: 'page.hunting' },
   { path: '/values', labelKey: 'page.calc' },
   { path: '/data', labelKey: 'page.reference' },
 ] as const;
 
 /** 내용을 만든 페이지 (나머지는 제목만 있는 자리) */
-const IMPLEMENTED_PATHS: readonly string[] = ['/', '/hunting', '/values', '/data'];
+const IMPLEMENTED_PATHS: readonly string[] = ['/', '/hunting', '/values', '/dimension-stone', '/data'];
 /** 예전 주소 → 지금 주소 (추천이 첫 화면이 되기 전 /optimizer, 자료 페이지로 옮기기 전 스탯 모아 보기 /viewer · 값 찾는 법 /guide) */
 const OLD_PATHS: readonly { from: string; to: string }[] = [
   { from: '/optimizer', to: '/' },
@@ -88,6 +90,7 @@ export default function App() {
         <Route path="/" element={<OptimizerPage />} />
         <Route path="/hunting" element={<HuntingPage />} />
         <Route path="/values" element={<CalcPage />} />
+        <Route path="/dimension-stone" element={<DimensionStonePage />} />
         <Route path="/data" element={<ReferencePage />} />
         {OLD_PATHS.map(({ from, to }) => (
           <Route key={from} path={from} element={<Navigate to={to} replace />} />

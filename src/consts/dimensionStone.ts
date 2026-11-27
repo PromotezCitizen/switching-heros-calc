@@ -29,8 +29,10 @@ export const DIMENSION_STONE_CONSTS = {
   PART_SHARE: 10,
   /** 한 부위가 받는 양의 흔들림 (80000번 무작위 배분의 표준편차 / 평균, 계산값 %) */
   SPREAD_PERCENT: 1.06,
-  /** 다음 몇 단계까지 보일지 */
-  STEPS_AHEAD: 3,
+  /** 다음 공격력 세트를 몇 개까지 보일지 */
+  STEPS_AHEAD: 5,
+  /** 보여 줄 세트 효과 스탯 (공격력 세트만) */
+  SHOWN_SET_STAT: '_per_attackDamage',
   /** 연성 레벨 → 돌: 200 부터 3레벨마다 등급 +1, 확률 (%) 은 0.001, 0.002, 0.004 반복, 마지막 2819 는 0.001 (AlchemyLevel) */
   ALCHEMY_STONE_START_LEVEL: 200,
   ALCHEMY_LEVELS_PER_GRADE: 3,

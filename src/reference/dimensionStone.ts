@@ -118,7 +118,7 @@ export function currentSetLevel(costs: SlotCosts, minLevel: number): number {
 }
 
 /**
- * 10부위 모두: 다음 STEPS_AHEAD 세트 단계. 돌 1개는 10부위에 평균 1/10 씩 들어가므로
+ * 10부위 모두: 다음 공격력 세트 (SHOWN_SET_STAT) STEPS_AHEAD 개. 돌 1개는 10부위에 평균 1/10 씩 들어가므로
  * 가장 많이 필요한 부위가 돌 등급을 정한다
  */
 export function setSteps(
@@ -127,8 +127,17 @@ export function setSteps(
 ): { setLevel: number; minLevel: number; steps: StepResult[] } {
   const minLevel = Math.min(...parts.map((part) => part.level));
   const setLevel = currentSetLevel(costs, minLevel);
-  const steps = Array.from({ length: DS.STEPS_AHEAD }, (_, index) => {
-    const target = setLevel + index + 1;
+  // 지금 세트 다음부터 공격력 세트만 골라 STEPS_AHEAD 개 (표 끝이면 끝 다음 단계 하나로 끝냄)
+  const targets: number[] = [];
+  for (let target = setLevel + 1; targets.length < DS.STEPS_AHEAD; target += 1) {
+    const entry = costs.setStats[target - 1];
+    if (!entry) {
+      targets.push(target);
+      break;
+    }
+    if (entry.stat === DS.SHOWN_SET_STAT) targets.push(target);
+  }
+  const steps = targets.map((target) => {
     const slotLevel = costs.setLevels[target - 1];
     const { stat, percent } = costs.setStats[target - 1] ?? {};
     if (slotLevel === undefined) return { target, slotLevel: NaN, neededLog: null, totalNeededLog: null, grade: null };

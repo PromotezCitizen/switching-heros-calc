@@ -67,7 +67,7 @@ export default function LoadDialog() {
       <Modal opened={opened} onClose={onClose} title={translate('load.title')}>
         <Stack gap="md">
           <Stack gap={4}>
-            <Text size="sm" c="dimmed">
+            <Text size="sm">
               {gameVersion
                 ? translate('load.gameVersion', { version: gameVersion })
                 : translate('load.gameVersionUnknown')}
@@ -93,9 +93,7 @@ export default function LoadDialog() {
                 onChange={(event) => void onImportFile(event)}
               />
             </Group>
-            <Text size="xs" c="dimmed">
-              {translate('load.importWarning')}
-            </Text>
+            <Text size="xs">{translate('load.importWarning')}</Text>
             {message && <Text size="sm">{message}</Text>}
           </Stack>
 

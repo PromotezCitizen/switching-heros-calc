@@ -92,11 +92,7 @@ export default function UsbImportSection() {
   };
 
   if (availability !== 'available') {
-    return (
-      <Text size="sm" c="dimmed">
-        {translate(`usb.hint.${availability}`)}
-      </Text>
-    );
+    return <Text size="sm">{translate(`usb.hint.${availability}`)}</Text>;
   }
 
   return (
@@ -126,12 +122,8 @@ export default function UsbImportSection() {
       )}
       {message && <Text size="sm">{message}</Text>}
       <SaveImportNotes notes={notes} />
-      <Text size="xs" c="dimmed">
-        {translate('usb.privacy')}
-      </Text>
-      <Text size="xs" c="dimmed">
-        {translate('usb.troubleshoot')}
-      </Text>
+      <Text size="xs">{translate('usb.privacy')}</Text>
+      <Text size="xs">{translate('usb.troubleshoot')}</Text>
     </Stack>
   );
 }

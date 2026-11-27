@@ -222,10 +222,8 @@ export default function OptimizerPage() {
 
   return (
     <Stack mt="lg" gap="md">
-      <Text c="dimmed">{translate('optimizer.intro')}</Text>
-      <Text size="sm" c="dimmed">
-        {translate('optimizer.accountHint')}
-      </Text>
+      <Text>{translate('optimizer.intro')}</Text>
+      <Text size="sm">{translate('optimizer.accountHint')}</Text>
       {/* 계산에서 뺀 것과 그 이유 */}
       <Paper withBorder p="md">
         <Text size="sm" fw={600} mb={4}>
@@ -251,13 +249,9 @@ export default function OptimizerPage() {
             defaultChecked
             disabled={locked}
           />
-          {locked && (
-            <Text size="sm" c="dimmed">
-              {translate('optimizer.lockedWhileRunning')}
-            </Text>
-          )}
+          {locked && <Text size="sm">{translate('optimizer.lockedWhileRunning')}</Text>}
           {/* 계산 설정 (유저 레벨 · 맞는 적 수) 은 계정 › 계산 설정에서 넣고 여기는 요약만 */}
-          <Text size="sm" c="dimmed">
+          <Text size="sm">
             {translate('optimizer.settingsSummary', {
               level: userLevel > 0 ? formatCount(userLevel) : '-',
               targets: readNumber(storeValues, TARGETS_PER_SKILL_KEY, DEFAULT_TARGETS_PER_SKILL),
@@ -293,7 +287,7 @@ export default function OptimizerPage() {
               );
             })}
           </Group>
-          <Text size="sm" c="dimmed">
+          <Text size="sm">
             {translate('optimizer.batch.help', {
               mastery: BATCH_MASTERY_TARGETS.length,
               cards: BATCH_CARD_TARGETS.length,
@@ -337,7 +331,7 @@ export default function OptimizerPage() {
             <Title order={3} mb="sm">
               {translate('optimizer.recommendTitle')}
             </Title>
-            <Text size="sm" c="dimmed" mb="sm">
+            <Text size="sm" mb="sm">
               {translate('optimizer.recommendHelp')}
             </Text>
             {unsupportedSkills && (
@@ -356,7 +350,7 @@ export default function OptimizerPage() {
               </Button>
             </Group>
             {userLevel <= 0 && (
-              <Text size="sm" c="dimmed" mt="xs">
+              <Text size="sm" mt="xs">
                 {translate('optimizer.userLevelNeeded')}
               </Text>
             )}
@@ -409,9 +403,7 @@ export default function OptimizerPage() {
                   <Title order={4} mt="md">
                     {translate('optimizer.treeTitle')}
                   </Title>
-                  <Text size="sm" c="dimmed">
-                    {translate('optimizer.treeHelp')}
-                  </Text>
+                  <Text size="sm">{translate('optimizer.treeHelp')}</Text>
                   {recommendedValues && tables.status === 'ready' && (
                     <MasteryPanel
                       values={recommendedValues}
@@ -475,7 +467,7 @@ export default function OptimizerPage() {
                   {translate('optimizer.missingTitle')}
                 </Text>
                 {snapshot.result.missing.map((code) => (
-                  <Text key={code} size="sm" c="dimmed">
+                  <Text key={code} size="sm">
                     · {missingMessage(code)}
                   </Text>
                 ))}

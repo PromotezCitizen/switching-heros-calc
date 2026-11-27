@@ -41,11 +41,7 @@ export default function AncientRelicPanel({ values, setValue, tables, descriptio
   const combined = Object.entries(combineLines(ancientRelicLines(values, tables, (key) => key)));
   // 안 열렸으면 언제 열리는지만 (유물을 끝까지 모으면 열림)
   if (!relicAllMaxed(values, tables)) {
-    return (
-      <Text size="sm" c="dimmed">
-        {translate('calc.ancientRelic.locked')}
-      </Text>
-    );
+    return <Text size="sm">{translate('calc.ancientRelic.locked')}</Text>;
   }
   // 새 칸이 비었으면 예전 진행 글에서 읽은 값을 보여 준다
   const current = ancientCurrent(values, tables);
@@ -74,9 +70,7 @@ export default function AncientRelicPanel({ values, setValue, tables, descriptio
   };
   return (
     <Stack gap="xs">
-      <Text size="sm" c="dimmed">
-        {translate('calc.ancientRelic.help')}
-      </Text>
+      <Text size="sm">{translate('calc.ancientRelic.help')}</Text>
       <Group gap="sm" align="flex-start">
         {/* 이름으로 고른다 (번호로는 알 수 없음) */}
         {/* 드롭다운은 공통 테마에 작은 크기 기본값이 없어 옆 숫자 칸 (테마 xs) 과 같은 크기를 직접 준다 */}

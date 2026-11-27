@@ -40,7 +40,7 @@ export default function OwnedCardsTable({ tables }: { tables: StatTables }) {
       <Accordion.Item value="owned">
         <Accordion.Control>{translate('calc.card.ownedTitle', { count: owned.length })}</Accordion.Control>
         <Accordion.Panel>
-          <Text size="xs" c="dimmed" mb="xs">
+          <Text size="xs" mb="xs">
             {translate('calc.card.ownedHelp')}
           </Text>
           <Box style={{ overflow: 'auto', maxHeight: TABLE_MAX_HEIGHT }}>

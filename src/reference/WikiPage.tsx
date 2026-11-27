@@ -156,7 +156,7 @@ function PendingMark({ pending }: { pending: boolean }) {
   const { t: translate } = useTranslation();
   if (!pending) return null;
   return (
-    <Text span size="xs" c="dimmed" ml={4}>
+    <Text span size="xs" ml={4}>
       ({translate('wiki.pending')})
     </Text>
   );
@@ -195,7 +195,7 @@ function Field({
 }) {
   return (
     <Stack gap={2}>
-      <Text size="xs" c="dimmed" fw={700}>
+      <Text size="xs" fw={700}>
         {label}
       </Text>
       {/* 글의 줄바꿈 (해금 조건은 한 줄에 메뉴 하나) 을 그대로 */}
@@ -270,7 +270,7 @@ function RelatedTerms({ names }: { names: string[] }) {
   if (!nav || targets.length === 0) return null;
   return (
     <Stack gap={4}>
-      <Text size="xs" c="dimmed" fw={700}>
+      <Text size="xs" fw={700}>
         {translate('wiki.related')}
       </Text>
       <Group gap="xs">
@@ -288,7 +288,7 @@ function RelatedTerms({ names }: { names: string[] }) {
 function TermTable({ table }: { table: WikiTable }) {
   return (
     <Stack gap={4}>
-      <Text size="xs" c="dimmed" fw={700}>
+      <Text size="xs" fw={700}>
         {table.title}
       </Text>
       <Table.ScrollContainer minWidth={0}>
@@ -355,9 +355,7 @@ function TermShots({ shots }: { shots: WikiShot[] }) {
               radius="sm"
               bd="1px solid var(--mantine-color-default-border)"
             />
-            <Text size="xs" c="dimmed">
-              {shot.caption}
-            </Text>
+            <Text size="xs">{shot.caption}</Text>
           </Stack>
         );
       })}
@@ -379,11 +377,7 @@ function TermDetail({ term, onSelect }: { term: WikiTerm; onSelect: (id: string)
             <Title order={3}>
               <TermName term={term} />
             </Title>
-            {term.note && (
-              <Text size="sm" c="dimmed">
-                {term.note}
-              </Text>
-            )}
+            {term.note && <Text size="sm">{term.note}</Text>}
           </Stack>
         </Group>
         <TermBody part={term} concept={term.group === CONCEPT_GROUP} />
@@ -512,7 +506,7 @@ export default function WikiPage() {
     />
   );
   const noResult = (
-    <Text size="sm" c="dimmed" mt="xs">
+    <Text size="sm" mt="xs">
       {translate('wiki.noSearchResult')}
     </Text>
   );
@@ -544,7 +538,7 @@ export default function WikiPage() {
             {groups.length
               ? groups.map(({ groupId, terms }) => (
                   <Box key={groupId} mb="xs">
-                    <Text size="xs" c="dimmed" fw={700} px="sm" py={4}>
+                    <Text size="xs" fw={700} px="sm" py={4}>
                       {GROUP_LABELS[groupId]}
                     </Text>
                     {terms.map((term) => (

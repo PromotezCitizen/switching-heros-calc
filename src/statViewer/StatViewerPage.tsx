@@ -261,7 +261,7 @@ function SourceGroup({
       <Text size="sm" fw={500} ff={MONO}>
         {(first.ratio ? RATIO_PREFIX : '') + formatRange(low, high)}
       </Text>
-      <Text size="xs" c="dimmed">
+      <Text size="xs">
         {allSame
           ? same?.type === 'levels'
             ? translate('viewer.sameLevels', { from: same.from, to: same.to })
@@ -284,9 +284,7 @@ function SourceGroup({
     <Box style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
       <UnstyledButton w="100%" py="xs" onClick={() => setOpened((value) => !value)} aria-expanded={opened}>
         <Group gap="xs" wrap="nowrap" align="baseline">
-          <Text size="xs" c="dimmed">
-            {opened ? '▾' : '▸'}
-          </Text>
+          <Text size="xs">{opened ? '▾' : '▸'}</Text>
           {heading}
         </Group>
       </UnstyledButton>
@@ -335,7 +333,7 @@ function FamilySources({
         }}
       >
         <Group gap="xs">
-          <Text size="xs" c="dimmed" miw="5rem">
+          <Text size="xs" miw="5rem">
             {translate('viewer.kindFilter')}
           </Text>
           <Chip.Group multiple value={kinds} onChange={setKinds}>
@@ -347,7 +345,7 @@ function FamilySources({
           </Chip.Group>
         </Group>
         <Group gap="xs">
-          <Text size="xs" c="dimmed" miw="5rem">
+          <Text size="xs" miw="5rem">
             {translate('viewer.tagFilter')}
           </Text>
           <Chip.Group multiple value={tagTypes} onChange={setTagTypes}>
@@ -366,9 +364,7 @@ function FamilySources({
             <SourceGroup key={key} meta={meta} tables={tables} groupKey={key} list={list} />
           ))
         ) : (
-          <Text size="sm" c="dimmed">
-            {translate('viewer.noSources')}
-          </Text>
+          <Text size="sm">{translate('viewer.noSources')}</Text>
         )}
       </Box>
     </Stack>
@@ -502,9 +498,7 @@ export default function StatViewerPage() {
       />
     ))
   ) : (
-    <Text size="sm" c="dimmed">
-      {translate('viewer.noSearchResult')}
-    </Text>
+    <Text size="sm">{translate('viewer.noSearchResult')}</Text>
   );
   const searchInput = (
     <TextInput
@@ -528,9 +522,7 @@ export default function StatViewerPage() {
   ) : (
     // 칸 가운데 (넓은 화면은 칸 높이가 화면 바닥까지라 위아래로도 가운데)
     <Center h="100%">
-      <Text size="sm" c="dimmed">
-        {translate('viewer.pickFamily')}
-      </Text>
+      <Text size="sm">{translate('viewer.pickFamily')}</Text>
     </Center>
   );
 
@@ -592,7 +584,7 @@ export default function StatViewerPage() {
                 </SlideTabsList>
               </Tabs>
             ) : (
-              <Text size="sm" c="dimmed" mt="xs">
+              <Text size="sm" mt="xs">
                 {translate('viewer.noSearchResult')}
               </Text>
             )}

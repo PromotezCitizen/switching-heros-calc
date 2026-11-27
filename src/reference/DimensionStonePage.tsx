@@ -106,19 +106,13 @@ function SetSection({ costs }: { costs: Costs }) {
     <Stack gap={4}>
       <Title order={4}>{translate('dimStone.setTitle')}</Title>
       {!result ? (
-        <Text size="sm" c="dimmed">
-          {translate('dimStone.setNeedsInput')}
-        </Text>
+        <Text size="sm">{translate('dimStone.setNeedsInput')}</Text>
       ) : (
         <>
           <Text size="sm" fw={700}>
             {translate('dimStone.setNow', { set: result.setLevel, min: result.minLevel })}
           </Text>
-          {filledCount < DS.PARTS.length && (
-            <Text size="xs" c="dimmed">
-              {translate('dimStone.setPartial')}
-            </Text>
-          )}
+          {filledCount < DS.PARTS.length && <Text size="xs">{translate('dimStone.setPartial')}</Text>}
           <Table.ScrollContainer minWidth={TABLE_MIN_WIDTH}>
             <Table verticalSpacing="xs">
               <Table.Thead>
@@ -209,9 +203,7 @@ function PartTable() {
   return (
     <Stack gap={4}>
       <Title order={4}>{translate('dimStone.partTitle')}</Title>
-      <Text size="sm" c="dimmed">
-        {translate('dimStone.partHelp')}
-      </Text>
+      <Text size="sm">{translate('dimStone.partHelp')}</Text>
       <SimpleGrid cols={PART_GRID_COLUMNS} spacing="xs">
         {DS.PARTS.map((part) => (
           <PartCard key={part} part={part} />
@@ -246,9 +238,7 @@ function AlchemySection() {
         />
       </Group>
       {levelText && Number.isFinite(level) && !stone && (
-        <Text size="sm" c="dimmed">
-          {translate('dimStone.alchemyTooLow', { level: DS.ALCHEMY_STONE_START_LEVEL })}
-        </Text>
+        <Text size="sm">{translate('dimStone.alchemyTooLow', { level: DS.ALCHEMY_STONE_START_LEVEL })}</Text>
       )}
       {stone && (
         <Stack gap={2}>

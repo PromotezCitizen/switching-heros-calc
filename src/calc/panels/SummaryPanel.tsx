@@ -88,9 +88,7 @@ export default function SummaryPanel({ values, setValue, tables }: TabPanelProps
 
   return (
     <Stack gap="md">
-      <Text size="sm" c="dimmed">
-        {translate('calc.summary.help')}
-      </Text>
+      <Text size="sm">{translate('calc.summary.help')}</Text>
       <Stack gap={4}>
         <ChoiceChips
           label={translate('calc.summary.target.label')}
@@ -98,9 +96,7 @@ export default function SummaryPanel({ values, setValue, tables }: TabPanelProps
           options={TARGET_KINDS.map((kind) => ({ value: kind, label: translate(`calc.summary.target.kinds.${kind}`) }))}
           onChange={(selected) => setValue(TARGET_FIELD, selected)}
         />
-        <Text size="xs" c="dimmed">
-          {translate('calc.summary.target.help')}
-        </Text>
+        <Text size="xs">{translate('calc.summary.target.help')}</Text>
         {target !== DEFAULT_TARGET && (
           <Text size="xs" c="orange">
             {translate('calc.summary.target.screenCompareNote')}
@@ -117,9 +113,7 @@ export default function SummaryPanel({ values, setValue, tables }: TabPanelProps
           ]}
           onChange={(selected) => setValue(ENEMY_COUNT_FIELD, String(selected === 'on'))}
         />
-        <Text size="xs" c="dimmed">
-          {translate('calc.summary.enemyCount.help', { threshold: ENEMY_COUNT_THRESHOLD })}
-        </Text>
+        <Text size="xs">{translate('calc.summary.enemyCount.help', { threshold: ENEMY_COUNT_THRESHOLD })}</Text>
       </Stack>
       <Table.ScrollContainer minWidth={TABLE_MIN_WIDTH}>
         <Table verticalSpacing={4}>
@@ -180,16 +174,10 @@ export default function SummaryPanel({ values, setValue, tables }: TabPanelProps
           </Table.Tbody>
         </Table>
       </Table.ScrollContainer>
-      {rows.some((row) => row.estimated) && (
-        <Text size="xs" c="dimmed">
-          {translate('calc.summary.estimatedHelp')}
-        </Text>
-      )}
+      {rows.some((row) => row.estimated) && <Text size="xs">{translate('calc.summary.estimatedHelp')}</Text>}
 
       <SectionTitle>{translate('calc.summary.subtotal.title')}</SectionTitle>
-      <Text size="sm" c="dimmed">
-        {translate('calc.summary.subtotal.help')}
-      </Text>
+      <Text size="sm">{translate('calc.summary.subtotal.help')}</Text>
       <Table.ScrollContainer minWidth={SUBTOTAL_TABLE_MIN_WIDTH}>
         <Table verticalSpacing={4}>
           <Table.Thead>

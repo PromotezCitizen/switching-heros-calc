@@ -142,18 +142,14 @@ export default function HeroPicker({ fieldId, value, picked, listHeroes, onPick 
         <Group gap="xs" wrap="nowrap">
           <HeroImage hero={picked} size={PICKER_BUTTON_IMAGE_SIZE} />
           <Stack gap={0}>
-            <Text size="xs" c="dimmed">
-              {slotName}
-            </Text>
+            <Text size="xs">{slotName}</Text>
             <Text size="sm" fw={600}>
               {picked ? picked.name : translate('calc.hero.pickEmpty')}
             </Text>
             {picked && (
               <Group gap={4} wrap="nowrap">
                 <HeroTypeIcons hero={picked} />
-                <Text size="xs" c="dimmed">
-                  {translate('calc.hero.gender', { gender: picked.gender })}
-                </Text>
+                <Text size="xs">{translate('calc.hero.gender', { gender: picked.gender })}</Text>
               </Group>
             )}
           </Stack>
@@ -223,11 +219,7 @@ export default function HeroPicker({ fieldId, value, picked, listHeroes, onPick 
               </UnstyledButton>
             ))}
           </SimpleGrid>
-          {!shown.length && (
-            <Text size="sm" c="dimmed">
-              {translate('calc.hero.filter.noMatch')}
-            </Text>
-          )}
+          {!shown.length && <Text size="sm">{translate('calc.hero.filter.noMatch')}</Text>}
         </Stack>
       </Modal>
     </>

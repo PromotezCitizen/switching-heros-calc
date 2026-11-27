@@ -16,9 +16,7 @@ export default function CoinPowerPanel({ values, setValue, tables }: TabPanelPro
   const shown = (column: string) => (row ? formatLog(tableValueLog(row[column])) : '-');
   return (
     <Stack gap="xs">
-      <Text size="sm" c="dimmed">
-        {translate('calc.coinPower.help')}
-      </Text>
+      <Text size="sm">{translate('calc.coinPower.help')}</Text>
       <NumberInput
         w={LEVEL_INPUT_WIDTH}
         label={translate('calc.coinPower.level')}

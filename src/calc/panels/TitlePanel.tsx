@@ -9,9 +9,7 @@ export default function TitlePanel({ values, setValue }: TabPanelProps) {
   const { t: translate } = useTranslation();
   return (
     <Stack gap="xs">
-      <Text size="sm" c="dimmed">
-        {translate('calc.title.help')}
-      </Text>
+      <Text size="sm">{translate('calc.title.help')}</Text>
       {TITLE_FIELDS.map((field) => (
         <ScreenValueInput
           key={field.id}

@@ -276,7 +276,7 @@ export default function CardRecommendSection({
       <Title order={3} mb="sm">
         {translate('optimizer.cards.title')}
       </Title>
-      <Text size="sm" c="dimmed" mb="sm">
+      <Text size="sm" mb="sm">
         {translate('optimizer.cards.help')}
       </Text>
       {owned.length === 0 ? (
@@ -303,7 +303,7 @@ export default function CardRecommendSection({
                   {shownFixed.map((cardId) => (
                     <PickerImage key={cardId} path={CARD_ICON_PREFIX + cardId} size={FIXED_ICON_SIZE} />
                   ))}
-                  <Text size="sm" c="dimmed">
+                  <Text size="sm">
                     {shownFixed.length > 0
                       ? translate('optimizer.cards.fixedCount', { count: shownFixed.length })
                       : translate('optimizer.cards.fixedNone')}
@@ -311,9 +311,7 @@ export default function CardRecommendSection({
                 </Group>
               }
             />
-            <Text size="xs" c="dimmed">
-              {translate('optimizer.cards.fixedHelp', { max: MAX_FIXED })}
-            </Text>
+            <Text size="xs">{translate('optimizer.cards.fixedHelp', { max: MAX_FIXED })}</Text>
           </Stack>
           {/* 버튼 하나: 계산 중에는 멈추기로 바뀐다 */}
           <Button
@@ -342,9 +340,7 @@ export default function CardRecommendSection({
         {shownValues && (
           <Stack gap="xs">
             <Title order={4}>{translate('optimizer.cards.shownTitle')}</Title>
-            <Text size="sm" c="dimmed">
-              {translate('optimizer.cards.shownHelp')}
-            </Text>
+            <Text size="sm">{translate('optimizer.cards.shownHelp')}</Text>
             <HorizontalScrollRow itemWidth={CARD_SLOT_WIDTH}>
               {CARD_SLOT_NUMBERS.map((slot) => (
                 <Box key={slot} pos="relative">
@@ -369,7 +365,7 @@ export default function CardRecommendSection({
             </HorizontalScrollRow>
             {/* 세트 레벨 = 추천 카드 6장의 세트 점수 합: 모든 세트 효과 (말풍선 계산식) 에 같은 값이라 한 번만 */}
             {setStates[0] && setStates[0].tiers[0] && (
-              <Text size="sm" c="dimmed">
+              <Text size="sm">
                 {translate('calc.card.setLevelFormula', {
                   level: setStates[0].tiers[0].level.toLocaleString('ko-KR'),
                   parts: setStates[0].levelParts.length
@@ -395,7 +391,7 @@ export default function CardRecommendSection({
             ))}
             {lockedGroups.map((group) => (
               <Stack key={group.mark} gap={2}>
-                <Text fw={700} c="dimmed">
+                <Text fw={700}>
                   {translate('optimizer.cards.markGroupLocked', { mark: group.mark, grade: group.grade })}
                 </Text>
                 {/* 열렸다면: 0 · 2 · 4 · 6장 버튼으로 골라, 그 장수의 최선 세트를 세트 카드 (효과 줄) 로 본다 */}
@@ -463,7 +459,7 @@ function LockedGroupPicker({
         }))}
         onChange={setSelected}
       />
-      <Text size="sm" c="dimmed">
+      <Text size="sm">
         {option && option.count > 0
           ? translate('optimizer.cards.lockedGain', {
               count: option.count,

@@ -139,7 +139,7 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
         {name}
       </Text>
       {trait.ultimate ? (
-        <Text size={PANEL.NODE_SMALL_TEXT_SIZE} c="dimmed">
+        <Text size={PANEL.NODE_SMALL_TEXT_SIZE}>
           {active
             ? translate('calc.mastery.ultimateOn', { defaultValue: '사용' })
             : translate('calc.mastery.ultimateOff', { defaultValue: '미사용' })}
@@ -162,16 +162,14 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
             onChange={(next) => changeLevel(Number(next) || MIN_LEVEL)}
           />
           {readOnly ? (
-            <Text size={PANEL.NODE_SMALL_TEXT_SIZE} c="dimmed">
-              {translate('calc.mastery.maxLevel', { max: trait.maxLevel })}
-            </Text>
+            <Text size={PANEL.NODE_SMALL_TEXT_SIZE}>{translate('calc.mastery.maxLevel', { max: trait.maxLevel })}</Text>
           ) : (
             <UnstyledButton
               aria-label={translate('calc.mastery.levelMax')}
               title={translate('calc.mastery.levelMax')}
               onClick={() => changeLevel(trait.maxLevel)}
             >
-              <Text size={PANEL.NODE_SMALL_TEXT_SIZE} c="dimmed">
+              <Text size={PANEL.NODE_SMALL_TEXT_SIZE}>
                 {translate('calc.mastery.maxLevel', { max: trait.maxLevel })}
               </Text>
             </UnstyledButton>
@@ -235,7 +233,7 @@ export default function MasteryPanel({
           {translate('calc.mastery.pointsTotal')} {plainNumber(totals.points)}
         </Text>
         {MASTERY_GROUPS.map((group) => (
-          <Text key={group} size="sm" c="dimmed">
+          <Text key={group} size="sm">
             {translate(`calc.mastery.groups.${group}`)} {plainNumber(totals.pointsByGroup[group] ?? 0)}
           </Text>
         ))}
@@ -245,9 +243,7 @@ export default function MasteryPanel({
           </Button>
         )}
       </Group>
-      <Text size="xs" c="dimmed">
-        {translate('calc.mastery.pointsHint')}
-      </Text>
+      <Text size="xs">{translate('calc.mastery.pointsHint')}</Text>
       {!readOnly && violationNames.length > 0 && (
         <Text size="xs" c="red">
           {translate('calc.mastery.lockedViolations', { names: violationNames.join(', ') })}
@@ -298,10 +294,8 @@ export default function MasteryPanel({
                       pt={PANEL.STAGE_LABEL_TOP_OFFSET}
                       style={{ whiteSpace: 'nowrap' }}
                     >
-                      <Text size="xs" c="dimmed">
-                        {translate('calc.mastery.step', { step })}
-                      </Text>
-                      <Text size="xs" c="dimmed">
+                      <Text size="xs">{translate('calc.mastery.step', { step })}</Text>
+                      <Text size="xs">
                         {translate('calc.mastery.unlockLevel', { level: unlockLevel.toLocaleString('ko-KR') })}
                       </Text>
                     </Stack>
@@ -356,9 +350,7 @@ export default function MasteryPanel({
                 </Table>
               </Table.ScrollContainer>
             ) : (
-              <Text size="sm" c="dimmed">
-                {translate('calc.mastery.totalsEmpty')}
-              </Text>
+              <Text size="sm">{translate('calc.mastery.totalsEmpty')}</Text>
             )}
           </Accordion.Panel>
         </Accordion.Item>

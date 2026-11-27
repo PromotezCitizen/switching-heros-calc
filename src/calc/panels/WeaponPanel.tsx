@@ -71,7 +71,7 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
                   value={values[linkLevelField(job)] ?? ''}
                   onChange={(next) => setValue(linkLevelField(job), String(next))}
                 />
-                <Text size="xs" c="dimmed">
+                <Text size="xs">
                   {linkLog === null ? '-' : translate('calc.weapon.linkValue', { value: formatLog(linkLog) })}
                 </Text>
               </Stack>
@@ -93,9 +93,7 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
           value={values[LINK_STAR_FIELD] ?? ''}
           onChange={(next) => setValue(LINK_STAR_FIELD, String(next))}
         />
-        <Text size="xs" c="dimmed">
-          / {linkStarMax(tables)}
-        </Text>
+        <Text size="xs">/ {linkStarMax(tables)}</Text>
       </Group>
 
       <SectionTitle>{translate('calc.weapon.totalTitle')}</SectionTitle>
@@ -106,9 +104,7 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
           {totalAtk ? `${formatLog(totalAtk.percentLog)}%` : translate('calc.weapon.totalZero')}
         </Text>
       </Group>
-      <Text size="xs" c="dimmed">
-        {translate('calc.weapon.totalFromStars')}
-      </Text>
+      <Text size="xs">{translate('calc.weapon.totalFromStars')}</Text>
 
       <SectionTitle>{translate('calc.weapon.normalTitle')}</SectionTitle>
       {/* 장착 효과는 1슬롯 히어로가 전용 무기를 끼지 않았을 때만 쓰이므로 그때만 칸을 보인다 */}
@@ -131,9 +127,7 @@ export default function WeaponPanel({ values, setValue, tables }: TabPanelProps)
             <Accordion.Control>{translate('calc.weapon.normalLevelsOpen')}</Accordion.Control>
             <Accordion.Panel>
               <Stack gap="sm">
-                <Text size="xs" c="dimmed">
-                  {translate('calc.weapon.normalLevelsHint')}
-                </Text>
+                <Text size="xs">{translate('calc.weapon.normalLevelsHint')}</Text>
                 {JOBS.map((job) => {
                   const jobRows = normalWeaponRows.filter((row) => row.job === job);
                   return (

@@ -28,9 +28,7 @@ export default function ImportRecordLine() {
 
   return (
     <Group gap="xs" wrap="wrap">
-      <Text size="sm" c="dimmed">
-        {importedText}
-      </Text>
+      <Text size="sm">{importedText}</Text>
       {notes.length > 0 && (
         <Popover width={NOTES_WIDTH} position="bottom-start" withArrow>
           <Popover.Target>

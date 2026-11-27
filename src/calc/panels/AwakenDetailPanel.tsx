@@ -75,7 +75,7 @@ export default function AwakenDetailPanel({ values, setValue, tables, descriptio
               value={values[awakenDetailLevelField(entry.stat)] ?? ''}
               onChange={(next) => setValue(awakenDetailLevelField(entry.stat), String(next))}
             />
-            <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>
+            <Text size="xs" style={{ flexShrink: 0 }}>
               / {entry.maxLevel}
             </Text>
             <Text size="sm" ta="right" style={{ flexShrink: 0 }}>
@@ -84,9 +84,7 @@ export default function AwakenDetailPanel({ values, setValue, tables, descriptio
           </Group>
         );
       })}
-      <Text size="xs" c="dimmed">
-        {translate('calc.awakenDetail.hitExcluded')}
-      </Text>
+      <Text size="xs">{translate('calc.awakenDetail.hitExcluded')}</Text>
     </Stack>
   );
 }

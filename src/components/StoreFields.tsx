@@ -165,7 +165,7 @@ export function GroupedSelectField({ storeKey, label, hint, groups, disabled }: 
         {groups.map((group) => (
           // 버튼이 여러 줄로 넘어가도 묶음 이름은 첫 줄 옆에 (이름 칸 높이 = 버튼 한 줄 높이)
           <Group key={group.label} gap="sm" wrap="nowrap" align="flex-start">
-            <Text size="xs" c="dimmed" w={GROUP_LABEL_WIDTH} component="div" style={{ whiteSpace: 'nowrap' }}>
+            <Text size="xs" w={GROUP_LABEL_WIDTH} component="div" style={{ whiteSpace: 'nowrap' }}>
               {labelWithHint(group.label, group.hint)}
             </Text>
             <ChoiceChips

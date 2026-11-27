@@ -9,9 +9,7 @@ export default function CollectionPanel({ values, setValue }: TabPanelProps) {
   const { t: translate } = useTranslation();
   return (
     <Stack gap="xs">
-      <Text size="sm" c="dimmed">
-        {translate('calc.collection.help')}
-      </Text>
+      <Text size="sm">{translate('calc.collection.help')}</Text>
       {ENCYCLOPEDIA_FIELDS.map((field) => (
         <ScreenValueInput
           key={field.id}

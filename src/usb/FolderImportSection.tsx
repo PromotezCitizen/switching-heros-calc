@@ -96,12 +96,8 @@ export default function FolderImportSection() {
       <Text size="sm">{translate('usb.folder.overwriteWarning')}</Text>
       {message && <Text size="sm">{message}</Text>}
       <SaveImportNotes notes={notes} />
-      <Text size="xs" c="dimmed">
-        {translate('usb.folder.privacy')}
-      </Text>
-      <Text size="xs" c="dimmed">
-        {translate('usb.folder.troubleshoot')}
-      </Text>
+      <Text size="xs">{translate('usb.folder.privacy')}</Text>
+      <Text size="xs">{translate('usb.folder.troubleshoot')}</Text>
     </Stack>
   );
 }

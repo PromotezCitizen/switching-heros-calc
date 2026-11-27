@@ -178,11 +178,7 @@ export const CardSlotCard = memo(function CardSlotCard(props: CardSlotCardProps)
                   {lineText(descriptions, { source: '', stat, value })}
                 </Text>
               ))}
-            {showMarks && usable > 0 && (
-              <Text size="sm" c="dimmed">
-                {translate('calc.card.setMarks')}
-              </Text>
-            )}
+            {showMarks && usable > 0 && <Text size="sm">{translate('calc.card.setMarks')}</Text>}
             {/* 마크 칸은 등급·성에 따라 열린 수만큼만 */}
             {showMarks &&
               CARD_MARK_NUMBERS.filter((mark) => mark <= usable).map((mark) => (
@@ -202,7 +198,7 @@ export const CardSlotCard = memo(function CardSlotCard(props: CardSlotCardProps)
               CARD_MARK_NUMBERS.filter((mark) => mark > usable).map((mark) => {
                 const opensAt = candidates.find((candidate) => Number(candidate.slotCnt) >= mark)?.grade;
                 return (
-                  <Text key={`locked-${mark}`} size="sm" c="dimmed">
+                  <Text key={`locked-${mark}`} size="sm">
                     {opensAt
                       ? translate('calc.card.markOpensAt', { mark, grade: opensAt })
                       : translate('calc.card.markNeverOpens', { mark })}

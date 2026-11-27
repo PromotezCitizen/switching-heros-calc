@@ -25,9 +25,7 @@ export default function ProfilePanel({ values, setValue }: TabPanelProps) {
           />
         ))}
       </HorizontalScrollRow>
-      <Text size="sm" c="dimmed">
-        {translate('calc.profile.help')}
-      </Text>
+      <Text size="sm">{translate('calc.profile.help')}</Text>
     </Stack>
   );
 }

@@ -23,18 +23,71 @@ import {
   masteryTraits,
   plainNumber,
   traitEffectText,
+  traitValue,
   type MasteryTrait,
 } from '@/calc/sources/masteryRuneBuff/mastery';
 import { skippedUltimateNames } from '@/calc/sources/masteryRuneBuff/ultimate';
 import { statLabel } from '@/calc/statText';
 import { previousStepCleared, ultimateGateCleared, type Allocation } from '@/masteryOptimizer/rules';
-import type { TabPanelProps } from '@/calc/types';
+import type { CalcValues, TabPanelProps } from '@/calc/types';
+import type { StatTables } from '@/data/statTables';
+import type { Line } from '@/calc/combine';
+import { formatLog } from '@/calc/gameNumber';
+
+/** 현재 값 글: 소수점 버린 쉼표 숫자 (버리기 전에 부동소수 오차를 유효 숫자로 정리, 7.9999… → 8). 아주 큰 값만 게임 단위 글자 */
+function currentNumber(log: number): string {
+  if (!isFinite(log)) return '0';
+  return log < PANEL.PLAIN_NUMBER_MAX_LOG
+    ? plainNumber(Math.trunc(Number(Math.pow(10, log).toPrecision(PANEL.CURRENT_PRECISION))))
+    : formatLog(log);
+}
+import { chancesFromLines, type Chances } from '@/calc/sources/masteryRuneBuff/chances';
 
 const { MASTERY_GROUPS, ULTIMATE_ON_LEVEL, MIN_LEVEL, PANEL } = CONSTS.masteryRuneBuff;
 
 /** 특성 아이콘: 일반 A_<번호>, 얼티밋 UT_<번호> (게임 그림 묶음 Atlas_Characteristics) */
 function traitIconPath(trait: MasteryTrait): string {
   return `${import.meta.env.BASE_URL}icons/Atlas_Characteristics/${trait.ultimate ? 'UT_' : 'A_'}${trait.rNo}.png`;
+}
+
+/** 히어로마다 따로 세는 개수 얼티밋의 스탯 이름 끝 (전용 무기 클리어 미션 수) */
+const TRANS_MISSION_SUFFIX = `_${CONSTS.masteryRuneBuff.ULTIMATE_TRANS_MISSION_KEY}`;
+
+/** 줄 하나의 % 값 (log10). 0 이하면 null */
+function linePercentLog(line: Line): number | null {
+  if (line.log !== undefined && line.log !== null) return line.log;
+  return line.value && line.value > 0 ? Math.log10(line.value) : null;
+}
+
+/**
+ * 지금 들어간 값 글: 특성 줄 % 의 합. 설명이 "배" 단위면 배수 (1 + % / 100), 아니면 %. 줄이 없으면 0
+ */
+function currentValueText(trait: MasteryTrait, allLines: readonly Line[]): string {
+  // 스탯 이름이 계산 줄 꼴이 아니면 그 특성 이름 그대로의 줄은 계수 (다른 계산이 읽음) 라 빼고, 실제 효과 줄 (중첩, 초과 단계) 만 더한다
+  const lines = PANEL.DIRECT_STAT_PREFIX.test(trait.statName)
+    ? allLines
+    : allLines.filter((line) => line.stat !== trait.statName);
+  const logs = lines.map(linePercentLog).filter((log): log is number => log !== null);
+  // 줄 % 의 합 (log10). 가장 큰 값 기준으로 더해 아주 큰 값도 넘치지 않게
+  const top = logs.length ? Math.max(...logs) : -Infinity;
+  const percentLog = isFinite(top)
+    ? top + Math.log10(logs.reduce((sum, log) => sum + Math.pow(10, log - top), 0))
+    : -Infinity;
+  if (PANEL.MULTIPLIER_DESC.test(trait.desc)) {
+    // 1 + % / 100 (아주 큰 값은 % / 100 과 같다)
+    const multiplierLog =
+      percentLog > PANEL.LARGE_LOG ? percentLog - 2 : Math.log10(1 + Math.pow(10, percentLog) / 100);
+    return `${currentNumber(multiplierLog)}${PANEL.MULTIPLIER_UNIT}`;
+  }
+  return `${currentNumber(percentLog)}%`;
+}
+
+/** "~마다" · "~당" 쌓이는 특성의 쌓임 방식: _pow_ 는 값^개수 (곱연산), 그 밖은 값 × 개수 (합연산). 쌓이지 않으면 null */
+function stackKindKey(trait: MasteryTrait): string | null {
+  if (!PANEL.STACKING_DESC.test(trait.desc)) return null;
+  return trait.statName.startsWith(PANEL.POW_PREFIX) || PANEL.STEP_POWER_STATS[trait.statName]
+    ? 'calc.mastery.stackMultiply'
+    : 'calc.mastery.stackSum';
 }
 
 /** 같은 단계끼리 묶는다 (특성은 이미 단계 순으로 정렬되어 있음). 열리는 레벨은 단계 안에서 같다 */
@@ -57,6 +110,8 @@ interface TraitNodeProps {
   readOnly?: boolean;
   /** 앞 단계 조건 (일반: 앞 단계 특성 하나가 최대, 얼티밋: 같은 종류 마지막 단계 특성 하나가 최대) 을 못 채움. 올리기는 막고 내리기만 된다 */
   locked?: boolean;
+  /** 지금 들어간 값 글 (모든 탭 줄을 받은 경우만, 쌓이는 특성에만 보인다) */
+  current?: string;
 }
 
 /**
@@ -64,12 +119,13 @@ interface TraitNodeProps {
  * 일반 = 아이콘을 누르면 최대 (최대면 0) + 레벨 칸, 얼티밋 = 아이콘을 눌러 켬/끔.
  * memo: 특성 하나를 바꿀 때 나머지 100여 칸은 다시 그리지 않는다 (전에는 클릭마다 나무 전체를 다시 그려 0.7초)
  */
-const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnly, locked }: TraitNodeProps) {
+const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnly, locked, current }: TraitNodeProps) {
   const { t: translate } = useTranslation();
   const name = translate(`calc.mastery.names.${trait.rNo}`, { defaultValue: trait.statName });
   const active = level > 0;
   // 일반 특성은 지금 레벨의 효과, 얼티밋은 켬/끔뿐이라 켰을 때 효과 (값이 하나)
   const effectText = traitEffectText(trait, trait.ultimate ? ULTIMATE_ON_LEVEL : level);
+  const stackKey = stackKindKey(trait);
   const note = translate(`calc.mastery.notes.${trait.rNo}`, { defaultValue: '' });
   // 추천 계산에서 뺀 이유는 넣는 법 안내와 따로 보인다
   const excludedReason = translate(`calc.mastery.excludedReasons.${trait.rNo}`, { defaultValue: '' });
@@ -94,8 +150,12 @@ const TraitNode = memo(function TraitNode({ trait, level, onChangeLevel, readOnl
         <HoverCard.Dropdown p="xs">
           <Text size="xs" fw={700}>
             {name}
+            {stackKey && ` (${translate(stackKey)})`}
           </Text>
-          <Text size="xs">{effectText}</Text>
+          <Text size="xs">
+            {effectText}
+            {stackKey && current !== undefined && ` ${translate('calc.mastery.current', { value: current })}`}
+          </Text>
           {/* 특성별 안내 (예: 같은 등급 연성장비 조건에서 GR · GR+ 는 다른 등급) */}
           {note && (
             <Text size="xs" mt={4}>
@@ -190,7 +250,12 @@ export default function MasteryPanel({
   tables,
   descriptions,
   readOnly,
-}: TabPanelProps & { readOnly?: boolean }) {
+  traitLines,
+}: TabPanelProps & {
+  readOnly?: boolean;
+  /** 모든 탭 줄 (있으면 툴팁에 특성마다 지금 들어간 값) */
+  traitLines?: (values: CalcValues, tables: StatTables) => Line[];
+}) {
   const { t: translate } = useTranslation();
   const changeLevel = useCallback(
     (trait: MasteryTrait, level: number) =>
@@ -201,6 +266,57 @@ export default function MasteryPanel({
   if (!masteryTable) return null;
 
   const traits = masteryTraits(masteryTable);
+  // 특성 번호 → 그 특성에서 나온 줄
+  // 지금 계정에 붙을 수 있는 값: 설명과 같은 기준 (얼티밋은 켠 것으로, 일반 특성은 지금 레벨) 으로 지금 계정의 개수, 확률로 계산한다
+  const linesByTrait = new Map<string, Line[]>();
+  let chances: Chances = {};
+  let potential: CalcValues = values;
+  let allLines: Line[] = [];
+  let levelOf = (trait: MasteryTrait) => masteryLevel(values, trait);
+  if (traitLines) {
+    potential = { ...values };
+    for (const trait of traits) {
+      if (trait.ultimate) potential[masteryLevelKey(trait.rNo)] = String(ULTIMATE_ON_LEVEL);
+    }
+    levelOf = (trait) => masteryLevel(potential, trait);
+    allLines = traitLines(potential, tables);
+    chances = chancesFromLines(allLines, potential, tables);
+    for (const line of allLines) {
+      if (!line.traitNo) continue;
+      const list = linesByTrait.get(line.traitNo) ?? [];
+      list.push(line);
+      linesByTrait.set(line.traitNo, list);
+    }
+  }
+  const currentOf = (trait: MasteryTrait) => {
+    if (!traitLines) return undefined;
+    // 히어로마다 따로 세는 개수 (전용 무기 클리어 미션 수): 1슬롯, 2슬롯 칸 값 × 특성 값
+    if (trait.statName.endsWith(TRANS_MISSION_SUFFIX)) {
+      const [first, second] = CONSTS.masteryRuneBuff.TRANS_MISSION_FIELDS.map((field) =>
+        currentNumber(Math.log10(traitValue(trait, ULTIMATE_ON_LEVEL) * Math.max(Number(values[field]) || 0, 0))),
+      );
+      return translate('calc.mastery.currentSlots', { first: `${first}%`, second: `${second}%` });
+    }
+    // 확률 계산 안에서 더해지는 특성: 이 특성 줄이 있을 때와 없을 때의 확률 차이
+    const gainedChance = PANEL.CHANCE_GAIN_STATS[trait.statName];
+    if (gainedChance) {
+      const without = chancesFromLines(
+        allLines.filter((line) => line.traitNo !== trait.rNo),
+        potential,
+        tables,
+      );
+      const gain = (chances[gainedChance] ?? 0) - (without[gainedChance] ?? 0);
+      return `${gain > 0 ? currentNumber(Math.log10(gain)) : 0}%`;
+    }
+    const chanceName = PANEL.STEP_POWER_STATS[trait.statName];
+    if (chanceName) {
+      // (1 + 값 / 100)^floor(확률 / 10) 의 늘어난 양 (%): 설명이 % 단위
+      const steps = Math.floor(Math.trunc(chances[chanceName] ?? 0) / PANEL.STEP_POWER_CHANCE_STEP);
+      const multiplier = Math.pow(1 + traitValue(trait, levelOf(trait)) / 100, steps);
+      return `${currentNumber(Math.log10((multiplier - 1) * 100))}%`;
+    }
+    return currentValueText(trait, linesByTrait.get(trait.rNo) ?? []);
+  };
   const totals = masteryTotals(traits, values);
   // 앞 단계 조건: 최적 추천과 같은 규칙 (masteryOptimizer/rules.ts)
   const allocation: Allocation = Object.fromEntries(traits.map((trait) => [trait.rNo, masteryLevel(values, trait)]));
@@ -315,6 +431,7 @@ export default function MasteryPanel({
                           onChangeLevel={changeLevel}
                           readOnly={readOnly}
                           locked={!readOnly && lockedSet.has(trait.rNo)}
+                          current={currentOf(trait)}
                         />
                       ))}
                     </Group>

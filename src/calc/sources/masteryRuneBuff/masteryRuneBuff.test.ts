@@ -217,10 +217,17 @@ function simplify(lines: Line[]): ExpectedLine[] {
   );
 }
 
+/** 줄 비교에서 특성 번호 (툴팁용 표시) 는 뺀다 */
+function withoutTraitNo(lines: Line[]): Line[] {
+  return lines.map(({ traitNo: _traitNo, ...rest }) => rest);
+}
+
 describe('탭 목록', () => {
   it('탭 id 와 쓰는 표', () => {
-    expect(masteryRuneBuffTabs(() => []).map((tab) => [tab.id, tab.tableNames])).toEqual([
-      ['mastery', ['Mastery', 'Pet', 'Character', 'Skill', 'WeaponChar', 'Card', 'CardStickerSet']],
+    const tabs = masteryRuneBuffTabs(() => []);
+    // 특성 탭은 툴팁의 현재 값 때문에 버프 탭과 같은 표를 불러온다
+    expect(tabs[0].tableNames).toEqual(tabs[3].tableNames);
+    expect(tabs.slice(1).map((tab) => [tab.id, tab.tableNames])).toEqual([
       ['rune', ['AttributeRune', 'AttributeRuneLab']],
       ['awakenDetail', ['Awaken']],
       [
@@ -478,7 +485,9 @@ describe('연타 계산', () => {
     const spedUp: Line[] = [...eikaLines, { source: '전투 중 공격속도 몫', stat: 'attackSpeed', value: 289 }];
     const tab = masteryRuneBuffTabs(() => spedUp).find((item) => item.id === 'buff')!;
     const lines = tab.lines({ ...eika, ...masteryValues({ 103: 1 }) }, tables);
-    expect(lines).toEqual([{ source: '연타 폭주 (공격력 증가 %)', stat: '_per_attackDamage', value: 2.5 * 11 }]);
+    expect(withoutTraitNo(lines)).toEqual([
+      { source: '연타 폭주 (공격력 증가 %)', stat: '_per_attackDamage', value: 2.5 * 11 },
+    ]);
   });
 });
 
@@ -507,7 +516,9 @@ describe('얼티밋: 단순 스탯·편성 히어로 속성', () => {
   });
   it('개수 조건 없는 _per_ 스탯은 그 스탯 줄 (2001 전용 스킬 데미지 6000%)', () => {
     const result = ultimateLines(masteryValues({ 2001: 1 }), tables.Mastery, tables.Pet, [], label);
-    expect(result.lines).toEqual([{ source: 'calc.mastery.names.2001', stat: '_per_CharSkillDamage', value: 6000 }]);
+    expect(withoutTraitNo(result.lines)).toEqual([
+      { source: 'calc.mastery.names.2001', stat: '_per_CharSkillDamage', value: 6000 },
+    ]);
     expect(result.skipped).toEqual([]);
   });
 
@@ -524,7 +535,7 @@ describe('얼티밋: 단순 스탯·편성 히어로 속성', () => {
 
   it('같은 속성 히어로 장착 (2006): 두 명이 같은 속성일 때만', () => {
     const values = masteryValues({ 2006: 1 });
-    expect(ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], waterPair).lines).toEqual([
+    expect(withoutTraitNo(ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], waterPair).lines)).toEqual([
       { source: 'calc.mastery.names.2006', stat: '_per_skillDamage', value: 7500 },
     ]);
     expect(ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], ['Water', 'Fire']).lines).toEqual([]);
@@ -576,7 +587,9 @@ describe('얼티밋: 장착 스킬 수·던전 기록·전투 특화', () => {
   it('던전 클리어 단계 × 값 %: 보물 던전 (2015) 120 → 600%, 불 속성 던전 (2018) 은 불 던전 칸으로 (칸이 비면 줄 없음)', () => {
     const values = { ...masteryValues({ 2015: 1, 2016: 1, 2018: 1 }), relicLink_dungeonGold: '120' };
     const result = ultimateLines(values, tables.Mastery, tables.Pet, [], label);
-    expect(result.lines).toEqual([{ source: 'calc.ultimate.dungeonSource', stat: '_per_skillDamage', value: 600 }]);
+    expect(withoutTraitNo(result.lines)).toEqual([
+      { source: 'calc.ultimate.dungeonSource', stat: '_per_skillDamage', value: 600 },
+    ]);
     expect(result.skipped).toEqual([]);
     const withFire = ultimateLines({ ...values, relicLink_dungeonFire: '1198' }, tables.Mastery, tables.Pet, [], label);
     expect(withFire.lines).toHaveLength(2);
@@ -587,7 +600,11 @@ describe('얼티밋: 장착 스킬 수·던전 기록·전투 특화', () => {
     expect(slotHeroTargetUnit({ charName: '에이카' }, tables)).toBe('Boss');
     expect(slotHeroTargetUnit({ charName: '린' }, tables)).toBe('Hero');
     const values = masteryValues({ 1012: 1, 1015: 1 });
-    expect(ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], [], { targetUnit: 'Boss' }).lines).toEqual([
+    expect(
+      withoutTraitNo(
+        ultimateLines(values, tables.Mastery, tables.Pet, [], label, [], [], { targetUnit: 'Boss' }).lines,
+      ),
+    ).toEqual([
       { source: 'calc.ultimate.targetUnitSource', stat: '_per_hp', value: 50000 },
       { source: 'calc.ultimate.targetUnitSource', stat: '_per_attackDamage', value: 20000 },
     ]);
@@ -655,7 +672,7 @@ describe('확률 계산·확률 문턱 얼티밋·중첩', () => {
   it('확률 문턱 얼티밋: 연타 217 → 150% 초과 (3015) · 200% 초과 (3024), 스킬 콤보 38.37 → 문턱 못 넘음 (3013)', () => {
     const chances = chancesFromLines(chanceLines, formation, tables);
     const values = masteryValues({ 3015: 1, 3024: 1, 3013: 1 });
-    expect(chanceUltimateLines(values, tables.Mastery, chances, (key) => key)).toEqual([
+    expect(withoutTraitNo(chanceUltimateLines(values, tables.Mastery, chances, (key) => key))).toEqual([
       { source: 'calc.ultimate.chanceSource', stat: '_per_attackDamage', value: 12000 },
       { source: 'calc.ultimate.chanceSource', stat: '_per_attackDamage', value: 20000 },
     ]);
@@ -705,7 +722,7 @@ describe('확률 계산·확률 문턱 얼티밋·중첩', () => {
   it('연타·스킬 콤보 중첩은 늘 최대: 가속 Lv20 60% × 10, 연타의 분노 Lv20 500%, 스킬 콤보 액티브 최종 × 8', () => {
     const values = masteryValues({ 14: 20, 104: 20 });
     const lines = stackLines(values, tables.Mastery, (key) => key, 217, 100);
-    expect(lines.slice(0, 2)).toEqual([
+    expect(withoutTraitNo(lines.slice(0, 2))).toEqual([
       { source: 'calc.buff.doubleAttackStackSource', stat: '_per_attackDamage', value: 600 },
       { source: 'calc.buff.doubleAttackFullStackSource', stat: '_per_attackDamage', value: 500 },
     ]);
@@ -733,7 +750,9 @@ describe('전투 버프 줄: 초월의 일격 · 최종 공격력 ×5', () => {
     expect(superCriticalStrikeLines(values, tables.Mastery, label, 100)).toEqual([]);
     expect(superCriticalStrikeLines(masteryValues({}), tables.Mastery, label, 130.91)).toEqual([]);
     const lines = superCriticalStrikeLines(values, tables.Mastery, label, 130.91);
-    expect(lines).toEqual([{ source: 'calc.buff.superCriticalStrikeSource', stat: '_per_criticalDmg', value: 200 }]);
+    expect(withoutTraitNo(lines)).toEqual([
+      { source: 'calc.buff.superCriticalStrikeSource', stat: '_per_criticalDmg', value: 200 },
+    ]);
     expect(Math.pow(10, combineLines(lines)._per_criticalDmg.log)).toBeCloseTo(3, 12);
   });
 
@@ -799,7 +818,7 @@ describe('전투 버프 줄: 초월의 일격 · 최종 공격력 ×5', () => {
       { source: '전용 무기 초월 ★7 공격력 10중첩 (최대)', stat: '_per_attackDamage', value: 50 },
       { source: '전용 무기 초월 ★10 최대 중첩 공격력 5배', stat: '_multiply_AttackDamage', value: 5 },
     ];
-    expect(tab.lines(values, weaponTables)).toEqual([
+    expect(withoutTraitNo(tab.lines(values, weaponTables))).toEqual([
       { source: '초월의 일격 (슈퍼 치명타 확률 130.91% 가 기준 100% 를 넘음)', stat: '_per_criticalDmg', value: 200 },
       ...exclusiveLines,
     ]);
@@ -939,7 +958,9 @@ describe('전투 중 최대 상태 몫 (battleState.ts)', () => {
 
   it('63 흘러넘치는 체력 값 50 → 공격력 ×1.5 (확률과 상관없이 항상 켜짐)', () => {
     const lines = battleDamageLines(level20(63), tables.Mastery, label, {});
-    expect(lines).toEqual([{ source: 'calc.buff.battle.barrierFullSource', stat: '_per_attackDamage', value: 50 }]);
+    expect(withoutTraitNo(lines)).toEqual([
+      { source: 'calc.buff.battle.barrierFullSource', stat: '_per_attackDamage', value: 50 },
+    ]);
     expect(Math.pow(10, combineLines(lines)._per_attackDamage.log)).toBeCloseTo(1.5, 12);
   });
 

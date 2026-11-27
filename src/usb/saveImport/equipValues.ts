@@ -51,6 +51,8 @@ export interface EquipContext {
   /** 2슬롯 히어로 (교체 DPM 용, 없으면 -1) */
   slot2HeroId?: number;
   receivedMissionIds: number[];
+  /** 미션 묶음 (전용 무기 번호) → 다음에 깰 순번 (클리어 수 + 1) */
+  clearedMissionOrders?: Record<number, number>;
 }
 
 /** 주사위 표 값 = min(최소 + 단계 × 단위, 최대) (게임 m6053 과 같이 statMax 에서 자름, 표에 없으면 undefined) */
@@ -123,6 +125,14 @@ export function equipValues(equip: EquipSave, context: EquipContext, tables: Sta
         isExclusive ? optionsOf(weaponId).filter((option) => option.grade > SSS_OPTION.GRADE_ABOVE).length : 0,
       );
     };
+    // 얼티밋 1022, 1023: 낀 전용 무기의 클리어한 미션 수 = 다음 순번 − 1 (없으면 0, 일반 무기 0). 1슬롯, 2슬롯 칸
+    const clearedCount = (weaponId: number | undefined) =>
+      weaponId !== undefined && weaponId >= SSS_OPTION.EXCLUSIVE_WEAPON_MIN_ID
+        ? Math.max((context.clearedMissionOrders?.[weaponId] ?? 1) - 1, 0)
+        : 0;
+    const [firstMissionField, secondMissionField] = CONSTS.masteryRuneBuff.TRANS_MISSION_FIELDS;
+    values[firstMissionField] = String(clearedCount(equippedWeapon));
+    values[secondMissionField] = String(clearedCount(secondEquippedWeapon));
     const [firstSssField, secondSssField] = CONSTS.dpm.SWAP.SSS_OPTION_COUNT_FIELDS;
     values[firstSssField] = sssCount(equippedWeapon);
     values[secondSssField] = sssCount(secondEquippedWeapon);

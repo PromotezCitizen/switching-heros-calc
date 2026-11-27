@@ -438,6 +438,23 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
    * - EquipSSSOptionCnt (1020 · 1021): 히어로가 낀 **전용 무기** 옵션 중 SSS 이상 (등급 > SS) 개수. 직업 무기는 0. 1슬롯 칸 (2슬롯은 SWAP.SSS_OPTION_COUNT_FIELDS)
    * - EqSSS_StickerCnt (3019 · 3020): 편성 카드 6장에 붙인 SSS 이상 배지 수 (최대 24). 저장에 예시가 없어 직접 입력
    */
+  /**
+   * 게임 코드 기준 개수 (claude-docs/react-port/ultimate-counts-2026-11-27.md):
+   * - ArtifactSetCnt (1018, 1019): 아티팩트 10칸 슬롯 레벨의 합 (차원의 돌 칸 레벨, 계정 공통)
+   * - EquipTransMissionCnt (1022, 1023): 히어로가 낀 전용 무기의 클리어한 미션 수 (일반 무기 0). 1슬롯, 2슬롯 칸 (TRANS_MISSION_FIELDS, 교체 계산은 두 칸을 바꾼다)
+   * - PetRegionLv<속성> (1024~1029): 그 속성 펫 지역 레벨 (펫 지역이 열렸을 때만)
+   * - labLevel (2021~2023): 룬 미지의 비석 레벨 (룬 연구소가 열렸을 때만, 입력칸 RUNE_STONE_LEVEL_FIELD)
+   * - LibLv<직업> (2024~2027): 그 직업 책 레벨, 스탯은 _per_<직업>_SkillDamage
+   */
+  ULTIMATE_ARTIFACT_SLOT_SUM_KEY: 'ArtifactSetCnt',
+  ULTIMATE_TRANS_MISSION_KEY: 'EquipTransMissionCnt',
+  TRANS_MISSION_FIELDS: ['weaponTransMissionCount', 'weaponTransMissionCount2'] as readonly string[],
+  ULTIMATE_PET_REGION_PREFIX: 'PetRegionLv',
+  ULTIMATE_LAB_LEVEL_KEY: 'labLevel',
+  RUNE_STONE_LEVEL_FIELD: 'runeStoneLevel',
+  /** 미지의 비석 레벨이 저장에 없을 때 (한 번도 안 올림) */
+  RUNE_STONE_DEFAULT_LEVEL: 1,
+  ULTIMATE_LIBRARY_PATTERN: /^_per_(\w+_SkillDamage)_LibLv(\w+)$/,
   ULTIMATE_COUNT_FIELDS: { EquipSSSOptionCnt: 'weaponSssOptionCount', EqSSS_StickerCnt: 'sssStickerCount' } as Record<
     string,
     string
@@ -481,6 +498,37 @@ export const MASTERY_RUNE_BUFF_CONSTS = {
 
   /** 특성·룬 카드 화면 */
   PANEL: {
+    /** 설명이 배수 단위인 특성 (현재 값을 배수로 보인다) */
+    MULTIPLIER_UNIT: '배',
+    /** 설명에서 값이 배수인 자리 ({0}배 또는 단독 n배) */
+    MULTIPLIER_DESC: /(\{0\}|(^|[^a-zA-Z])n)배/,
+    /** 이보다 큰 % (log10) 는 1 + % / 100 을 % / 100 으로 본다 */
+    LARGE_LOG: 15,
+    /** 현재 값을 쉼표 숫자로 쓰는 한도 (log10). 넘으면 게임 단위 글자 */
+    PLAIN_NUMBER_MAX_LOG: 15,
+    /** 현재 값을 버리기 전에 맞추는 유효 숫자 수 (log 로 되돌린 값의 부동소수 오차 정리) */
+    CURRENT_PRECISION: 12,
+    /** 쌓임 방식 (곱연산, 합연산) 과 현재 값을 붙이는 설명: ~할 때마다, ~될 때마다, 초과된 확률 10%당, 개수 x 값, 레벨 × 값 */
+    STACKING_DESC: /때마다|\d+%\s*당|\s[x×]\s/,
+    /** 확률 전체 10% 마다 (1 + 값 / 100) 을 거듭 곱하는 특성 스탯 → 그 확률 (게임 m2710, hitMultipliers stepPower) */
+    STEP_POWER_STATS: {
+      _per_superCriticalAddDmg: 'superCritical',
+      spearAttackAddDmg: 'spearAttack',
+      skillComboAddDmg: 'skillCombo',
+      // 공명: 스위칭 부스트 버프 증가량 × (1 + 값 / 100)^floor(확률 / 10) (switchingBoostLines)
+      switchingBoostAddDmg: 'switchingBoost',
+    } as Record<string, string>,
+    /** 초과분 10% 마다 다른 확률에 더하는 특성 스탯 → 그 확률 (값은 확률 계산 안에서 더해져 줄이 없다) */
+    CHANCE_GAIN_STATS: {
+      doubleAttackOverPer: 'doubleAttack',
+      superCriticalOverPer: 'superCritical',
+    } as Record<string, string>,
+    /** 계산 줄로 바로 들어가는 스탯 이름 앞부분 (그 밖의 특성 줄은 다른 계산이 읽는 계수) */
+    DIRECT_STAT_PREFIX: /^_(per|pow|down)_/,
+    /** 위 특성의 확률 한 단계 (%) */
+    STEP_POWER_CHANCE_STEP: 10,
+    /** 값^개수 로 쌓이는 스탯 이름 앞부분 */
+    POW_PREFIX: '_pow_',
     ICON_SIZE: 40,
     LEVEL_INPUT_WIDTH: 80,
     /** 꺼진 얼티밋 아이콘 흐리게 (기존 HTML css) */

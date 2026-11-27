@@ -11,6 +11,8 @@ export interface Line {
   stat: string;
   value?: number;
   log?: number;
+  /** 이 줄을 만든 특성 번호 (특성 툴팁의 "현재" 값용, 특성에서 나온 줄만) */
+  traitNo?: string;
 }
 
 export type CombineKind = 'multiply' | 'down' | 'pow' | 'sum';

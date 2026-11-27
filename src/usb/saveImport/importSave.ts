@@ -43,7 +43,7 @@ const UNREADABLE_TEXT = /undefined|NaN/;
 interface DefaultRaw {
   /** presetId = 지금 프리셋, 그 밖 bossId · dungeonId1~11 · guildRaidId · guildRaidGlobalId · pveId · stageId = 콘텐츠별 프리셋 */
   presetData: { presetId: number } & Record<string, unknown>;
-  contentMissionData: { _receivedIds: number[] };
+  contentMissionData: { _receivedIds: number[]; _clearedOrderByGroupId?: SaveDictionary<number, number> };
   adsBuffData: { lv: number };
   vipLv: number;
   /** 유저 레벨 (11-02 저장 96052) */
@@ -71,6 +71,8 @@ export interface DefaultPicked {
   /** 콘텐츠별 프리셋 번호 (presetData 의 CONTENT_PRESET_KEYS 칸) */
   contentPresets?: Record<string, number>;
   receivedMissionIds?: number[];
+  /** 미션 묶음 (전용 무기 번호) → 다음에 깰 순번 (클리어 수 + 1, 없으면 1) */
+  clearedMissionOrders?: Record<number, number>;
   fairyLevel?: number;
   vipLevel?: number;
   userLevel?: number;
@@ -138,7 +140,7 @@ export const SAVE_TOP_KEYS: Record<SaveFileKind, readonly string[]> = {
   Relic: ['relicData'],
   Card: ['cardDic'],
   Skill: ['psSkillDic', 'eqPresetSkillDic', 'psSkillOptionDic'],
-  Dispatch: ['attributeData'],
+  Dispatch: ['attributeData', 'labData'],
   Progress: ['dungeonDataDic', 'dungeonAttDataDic', 'petRescueDungeonData', 'collectionDic', 'titleData'],
   Alchemy: ['equipItemDic', 'slotData'],
   Default: ['presetData', 'contentMissionData', 'adsBuffData', 'vipLv', 'st', '_newNotInvenDic', 'buffItemDic'],
@@ -196,6 +198,9 @@ export function pickDefault(raw: DefaultRaw): DefaultPicked {
       ),
     ),
     receivedMissionIds: attempt(() => [...raw.contentMissionData._receivedIds]),
+    clearedMissionOrders: attempt(() =>
+      Object.fromEntries(readDictionary(raw.contentMissionData._clearedOrderByGroupId!)),
+    ),
     fairyLevel: attempt(() => raw.adsBuffData.lv),
     vipLevel: raw.vipLv,
     userLevel: raw.userLv,
@@ -235,7 +240,7 @@ function putDefined(target: Record<string, string>, key: string, value: number |
  * (최적화 대상마다 그 콘텐츠 프리셋으로 계산, contentPresets.ts). 다시 읽을 때는 false 로 불러 반복하지 않는다
  */
 export function importSave(files: SaveFiles, tables: StatTables, withPresets = true): SaveImport {
-  const { presetKey = -1, receivedMissionIds = [] } = files.Default;
+  const { presetKey = -1, receivedMissionIds = [], clearedMissionOrders = {} } = files.Default;
   const slot1HeroId = attempt(() => readDictionary(files.Char._presetDic).get(presetKey)?.slot1) ?? -1;
   const slot2HeroId = attempt(() => readDictionary(files.Char._presetDic).get(presetKey)?.slot2) ?? -1;
   // 새 저장 형식은 일기장 · 광산 · 훈련 · 파견을 Default 로 옮겼다: 새 위치를 먼저, 없으면 옛 위치
@@ -248,7 +253,7 @@ export function importSave(files: SaveFiles, tables: StatTables, withPresets = t
   const dispatchLevel = files.Default.dispatchLevel ?? files.Dispatch.lv;
   const parts = [
     charValues(char, presetKey, tables),
-    equipValues(files.Equip, { presetKey, slot1HeroId, slot2HeroId, receivedMissionIds }, tables),
+    equipValues(files.Equip, { presetKey, slot1HeroId, slot2HeroId, receivedMissionIds, clearedMissionOrders }, tables),
     reinforceValues(reinforce, presetKey, tables),
     relicCardValues(files.Relic, files.Card, dispatchLevel, files.Progress, presetKey, tables),
     frameValues(files.Relic as RelicSave & FrameSave, tables),

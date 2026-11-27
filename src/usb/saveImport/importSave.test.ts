@@ -72,6 +72,10 @@ const NOT_FROM_SAVE = new Set([
 /** 기록 보관소 레벨은 저장 mainLv 를 그대로 (2026-11-07, 파이썬 변환에 없는 칸). 따로 대조 */
 const ARCHIVE_LEVEL_KEY = 'libraryArchiveLevel';
 /** 속성 던전 기록 · 모험 던전 진행도 (2026-11-07 추가, 파이썬 변환에 없는 칸). 따로 대조 */
+/** 얼티밋 개수용으로 나중에 넣은 칸 (파이썬 변환에 없는 칸): 전용 무기 클리어 미션 수, 미지의 비석 레벨 */
+const NEW_ULTIMATE_COUNT_KEY = /^(weaponTransMissionCount2?|runeStoneLevel)$/;
+/** 이 시험 저장들보다 뒤에 생긴 저장 키 (빠진 키로 알린다) */
+const LATER_SAVE_KEYS = ['Dispatch.labData'];
 const NEW_DUNGEON_KEY = /^(relicLink_dungeon(Fire|Water|Earth)|petRescueBest_[123])$/;
 /** 호감도 0 도 칸에 적는다 (2026-11-07, 파이썬 변환에 없는 칸) */
 const ZERO_AFFINITY_KEY = /^heroOwnedAffinity_/;
@@ -129,6 +133,7 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
         !WEAPON_OPTION_KEY.test(key) &&
         key !== ARCHIVE_LEVEL_KEY &&
         !NEW_DUNGEON_KEY.test(key) &&
+        !NEW_ULTIMATE_COUNT_KEY.test(key) &&
         !(key.startsWith('mastery_') && result.values[key] === '') &&
         !((ZERO_AWAKEN_KEY.test(key) || ZERO_AFFINITY_KEY.test(key)) && result.values[key] === '0'),
     );
@@ -197,7 +202,7 @@ describe('저장 데이터 → 입력 칸 (저장 파일 10종)', () => {
     const keysByKind = Object.fromEntries(
       Object.entries({ ...raw, Char: charWithoutDiary }).map(([kind, data]) => [kind, topKeys(data)]),
     );
-    expect(missingSaveKeys(keysByKind)).toEqual(['Default.diaryData / Char.diaryData']);
+    expect(missingSaveKeys(keysByKind)).toEqual([...LATER_SAVE_KEYS, 'Default.diaryData / Char.diaryData']);
     const partial = importSave(
       { ...raw, Char: charWithoutDiary as SaveFiles['Char'], Default: pickDefault(raw.Default) },
       tables,
@@ -306,7 +311,7 @@ describe('저장 데이터 → 입력 칸 (2026-10-18 새 저장 형식 layoutVe
 
   it('옮겨진 키를 빠진 키로 알리지 않는다', () => {
     const keysByKind = Object.fromEntries(Object.entries(raw).map(([kind, data]) => [kind, topKeys(data)]));
-    expect(missingSaveKeys(keysByKind)).toEqual([]);
+    expect(missingSaveKeys(keysByKind)).toEqual(LATER_SAVE_KEYS);
   });
 
   it('표에서 못 찾은 항목 · 못 읽은 칸 없음', () => {

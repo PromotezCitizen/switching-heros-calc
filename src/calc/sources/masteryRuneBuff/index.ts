@@ -51,6 +51,34 @@ import {
   ultimateLines,
 } from '@/calc/sources/masteryRuneBuff/ultimate';
 import { equippedWeaponStarSum } from '@/calc/sources/masteryRuneBuff/weaponStarSum';
+import { petRegionLevelField, petRegionUnlocked } from '@/calc/sources/heroWeaponCardPet/pet';
+import { bookLevelField } from '@/calc/sources/heroWeaponCardPet/library';
+import { runeLabUnlocked } from '@/calc/sources/masteryRuneBuff/rune';
+
+/** 개수 얼티밋 (아티팩트 칸 레벨 합, 전용 무기 클리어 미션 수, 펫 지역 레벨, 룬 미지의 비석 레벨, 책 레벨) 에 넘기는 값 */
+function ultimateCountContext(values: CalcValues, tables: StatTables) {
+  const { TRANS_MISSION_FIELDS, RUNE_STONE_LEVEL_FIELD } = CONSTS.masteryRuneBuff;
+  const numberOf = (field: string) => Math.max(Number(values[field]) || 0, 0);
+  const regionOpen = petRegionUnlocked(values, tables);
+  return {
+    artifactSlotLevelSum: CONSTS.dimensionStone.PARTS.reduce(
+      (sum, part) => sum + numberOf(CONSTS.dimensionStone.LEVEL_KEY_PREFIX + part),
+      0,
+    ),
+    // 계산하는 히어로 (1슬롯 칸, 교체 계산은 2슬롯 값이 1슬롯 칸으로 바뀌어 들어온다)
+    transMissionCount: numberOf(TRANS_MISSION_FIELDS[0]),
+    petRegionLevels: regionOpen
+      ? Object.fromEntries(
+          CONSTS.heroWeaponCardPet.pet.REGION.ATTRIBUTES.map((attribute: string) => [
+            attribute,
+            numberOf(petRegionLevelField(attribute)),
+          ]),
+        )
+      : {},
+    runeStoneLevel: runeLabUnlocked(values, tables) ? numberOf(RUNE_STONE_LEVEL_FIELD) : 0,
+    libraryLevels: Object.fromEntries(CONSTS.heroWeaponCardPet.JOBS.map((job) => [job, numberOf(bookLevelField(job))])),
+  };
+}
 
 const translateSource: SourceLabel = (translationKey, params) => i18next.t(translationKey, params ?? {});
 
@@ -61,6 +89,13 @@ export type OtherTabLines = (values: CalcValues, tables: StatTables) => Line[];
 function buffPanelWith(otherTabLines: OtherTabLines): ComponentType<TabPanelProps> {
   return function BuffTabPanel(props: TabPanelProps) {
     return createElement(BuffPanel, { ...props, otherTabLines });
+  };
+}
+
+/** 특성 패널에 모든 탭 줄을 모으는 함수를 넘긴다 (툴팁의 "현재" 값용, 패널이 탭 목록을 import 하면 고리가 생김) */
+function masteryPanelWith(allLines: OtherTabLines): ComponentType<TabPanelProps> {
+  return function MasteryTabPanel(props: TabPanelProps) {
+    return createElement(MasteryPanel, { ...props, traitLines: allLines });
   };
 }
 
@@ -77,7 +112,8 @@ export const masteryRuneBuffTabs = (
       id: 'mastery',
       // 얼티밋 특성 줄도 특성 탭에서 만든다 (얼티밋은 특성 나무에서 켜고 끔, 따로 칸 없음). 펫·히어로·스킬 표는 얼티밋 개수용
       tableNames: ['Mastery', 'Pet', 'Character', CONSTS.skill.TABLE, 'WeaponChar', 'Card', 'CardStickerSet'],
-      Panel: MasteryPanel,
+      // 버프 탭 줄 (전투 조건 특성) 까지 모아 특성마다 지금 들어간 값을 보인다
+      Panel: masteryPanelWith((values, tables) => [...otherTabLines(values, tables), ...buffTab.lines(values, tables)]),
       lines: (values, tables) => [
         ...(tables.Mastery
           ? masteryLines(
@@ -104,6 +140,7 @@ export const masteryRuneBuffTabs = (
                 swapUptimePercent: Number(values[CONSTS.masteryRuneBuff.SWAP_UPTIME_FIELD]) || 0,
                 stickerCounts: stickerShapeCounts(values, tables),
                 skillPerkCount: equippedSkillPerkCount(values, tables),
+                ...ultimateCountContext(values, tables),
               },
             ).lines
           : []),
@@ -135,63 +172,63 @@ export const masteryRuneBuffTabs = (
       ...otherTableNames,
     ]),
   ];
-  return [
-    ...ownTabs,
-    {
-      id: 'buff',
-      tableNames: buffTableNames,
-      Panel: buffPanelWith(otherTabLines),
-      lines: (values, tables) => {
-        // 음식 효과·공격력 이벤트 버프·최종 공격력 ×5 는 특성 표 없이도 줄이 된다
-        const foodLines = [
-          ...normalMonsterFoodLines(values, translateSource),
-          ...attackEventBuffLines(values, translateSource),
-        ];
-        const multiplierLines = [
-          ...exclusiveStackBuffLines(values, translateSource, tables),
-          ...finalAttackMultiplierLines(values, translateSource, tables),
-        ];
-        // 다발 화살 252 등 스킬 옵션의 공격력 % (고른 옵션, 장착했을 때 최고 값 × 최대 중첩) 도 전투 중 몫이라 버프 탭 줄이다
-        const optionLines = skillOptionLines(values, tables, translateSource);
-        if (!tables.Mastery) return [...foodLines, ...multiplierLines, ...optionLines];
-        const otherLines = otherTabLines(values, tables);
-        // 전투 중 최대 상태 공격속도·치명타 확률·치명타 데미지 줄이 연타·슈퍼 치명타 단계 계산에 먼저 들어간다
-        const { chances, battleLines } = chancesWithBattleState(
-          otherLines,
+  const buffTab: CalcTab = {
+    id: 'buff',
+    tableNames: buffTableNames,
+    Panel: buffPanelWith(otherTabLines),
+    lines: (values, tables) => {
+      // 음식 효과·공격력 이벤트 버프·최종 공격력 ×5 는 특성 표 없이도 줄이 된다
+      const foodLines = [
+        ...normalMonsterFoodLines(values, translateSource),
+        ...attackEventBuffLines(values, translateSource),
+      ];
+      const multiplierLines = [
+        ...exclusiveStackBuffLines(values, translateSource, tables),
+        ...finalAttackMultiplierLines(values, translateSource, tables),
+      ];
+      // 다발 화살 252 등 스킬 옵션의 공격력 % (고른 옵션, 장착했을 때 최고 값 × 최대 중첩) 도 전투 중 몫이라 버프 탭 줄이다
+      const optionLines = skillOptionLines(values, tables, translateSource);
+      if (!tables.Mastery) return [...foodLines, ...multiplierLines, ...optionLines];
+      const otherLines = otherTabLines(values, tables);
+      // 전투 중 최대 상태 공격속도·치명타 확률·치명타 데미지 줄이 연타·슈퍼 치명타 단계 계산에 먼저 들어간다
+      const { chances, battleLines } = chancesWithBattleState(
+        otherLines,
+        values,
+        tables,
+        tables.Mastery,
+        translateSource,
+      );
+      // 매직 가드 기본 항 (0x105) 이 0 이면 게임은 보호막을 만들지 않고 매직 가드 효과를 모두 건너뛴다 (consts MAGIC_GUARD)
+      const magicGuardOn = combinedSum(combineLines(otherLines), CONSTS.masteryRuneBuff.MAGIC_GUARD.BASE_STAT) !== 0;
+      return [
+        ...battleLines,
+        ...buffLines(values, tables.Mastery, translateSource, chances.doubleAttack),
+        ...stackLines(values, tables.Mastery, translateSource, chances.doubleAttack, chances.skillCombo),
+        ...battleDamageLines(
           values,
-          tables,
           tables.Mastery,
           translateSource,
-        );
-        // 매직 가드 기본 항 (0x105) 이 0 이면 게임은 보호막을 만들지 않고 매직 가드 효과를 모두 건너뛴다 (consts MAGIC_GUARD)
-        const magicGuardOn = combinedSum(combineLines(otherLines), CONSTS.masteryRuneBuff.MAGIC_GUARD.BASE_STAT) !== 0;
-        return [
-          ...battleLines,
-          ...buffLines(values, tables.Mastery, translateSource, chances.doubleAttack),
-          ...stackLines(values, tables.Mastery, translateSource, chances.doubleAttack, chances.skillCombo),
-          ...battleDamageLines(
-            values,
-            tables.Mastery,
-            translateSource,
-            chances,
-            magicGuardOn,
-            hasEquippedActiveSkill(values, tables),
-          ),
-          // 카드 2번·3번 전투 중 중첩 (최대 5중첩): 다른 탭 줄에 남아 있는 카드 줄에서 읽는다. 처치 중첩은 일반 몬스터 대상에서만 쌓인다
-          ...cardStackLines(otherLines, translateSource, summaryTarget(values)),
-          ...chanceUltimateLines(values, tables.Mastery, chances, translateSource, magicGuardOn),
-          ...magicGuardLines(values, tables, tables.Mastery, chances, magicGuardOn, translateSource),
-          ...switchingBoostLines(values, tables, tables.Mastery, chances, translateSource),
-          // 피규어 조건형 효과 (확률 200% 초과 · 교체 등장 10초 · 기본 공격): 다른 탭 줄에 남은 피규어 원래 이름 줄에서 읽는다
-          ...figureBattleLines(otherLines, values, tables, chances, magicGuardOn, translateSource),
-          ...exclusiveBattleLines(values, tables, translateSource),
-          ...superCriticalStrikeLines(values, tables.Mastery, translateSource, chances.superCritical),
-          ...onAttackBuffLines(otherLines, summaryTarget(values), translateSource),
-          ...optionLines,
-          ...multiplierLines,
-          ...foodLines,
-        ];
-      },
+          chances,
+          magicGuardOn,
+          hasEquippedActiveSkill(values, tables),
+        ),
+        // 카드 2번·3번 전투 중 중첩 (최대 5중첩): 다른 탭 줄에 남아 있는 카드 줄에서 읽는다. 처치 중첩은 일반 몬스터 대상에서만 쌓인다
+        ...cardStackLines(otherLines, translateSource, summaryTarget(values)),
+        ...chanceUltimateLines(values, tables.Mastery, chances, translateSource, magicGuardOn),
+        ...magicGuardLines(values, tables, tables.Mastery, chances, magicGuardOn, translateSource),
+        ...switchingBoostLines(values, tables, tables.Mastery, chances, translateSource),
+        // 피규어 조건형 효과 (확률 200% 초과 · 교체 등장 10초 · 기본 공격): 다른 탭 줄에 남은 피규어 원래 이름 줄에서 읽는다
+        ...figureBattleLines(otherLines, values, tables, chances, magicGuardOn, translateSource),
+        ...exclusiveBattleLines(values, tables, translateSource),
+        ...superCriticalStrikeLines(values, tables.Mastery, translateSource, chances.superCritical),
+        ...onAttackBuffLines(otherLines, summaryTarget(values), translateSource),
+        ...optionLines,
+        ...multiplierLines,
+        ...foodLines,
+      ];
     },
-  ];
+  };
+  // 특성 패널은 버프 탭 줄도 계산하므로 버프 탭과 같은 표를 불러온다
+  const [masteryTab, ...restTabs] = ownTabs;
+  return [{ ...masteryTab, tableNames: buffTableNames }, ...restTabs, buffTab];
 };

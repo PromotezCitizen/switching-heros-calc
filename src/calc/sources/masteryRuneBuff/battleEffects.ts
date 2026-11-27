@@ -13,6 +13,7 @@ import { rowsOf } from '@/calc/sources/heroWeaponCardPet/shared';
 import type { Chances } from '@/calc/sources/masteryRuneBuff/chances';
 import {
   learnedTraitValue,
+  traitNoOfStat,
   masteryTraits,
   plainNumber,
   rushChanceCounts,
@@ -148,6 +149,7 @@ export function switchingBoostLines(
       }),
       stat: STATS.ATTACK_PERCENT,
       value: over * uptime,
+      traitNo: traitNoOfStat(traits, SWITCHING_BOOST.OVER_STAT),
     });
   }
   const rushSteps = Math.floor((chance - PROBABILITY_MAX) / SWITCHING_BOOST.RUSH_STEP);
@@ -161,6 +163,7 @@ export function switchingBoostLines(
       }),
       stat: STATS.ATTACK_PERCENT,
       value: rush * rushSteps * uptime,
+      traitNo: traitNoOfStat(traits, SWITCHING_BOOST.RUSH_STAT),
     });
   }
   return lines;
@@ -192,6 +195,7 @@ export function magicGuardLines(
         }),
         stat: STATS.ATTACK_PERCENT,
         value: over,
+        traitNo: traitNoOfStat(traits, MAGIC_GUARD.OVER_DAMAGE_STAT),
       });
     }
     const steps = Math.floor((rate - MAGIC_GUARD.OVER_THRESHOLD) / MAGIC_GUARD.OVER_STEP);
@@ -201,6 +205,7 @@ export function magicGuardLines(
         source: sourceLabel('calc.buff.battle.magicGuardStepSource', { chance: plainNumber(rate), steps }),
         stat: STATS.ATTACK_PERCENT,
         value: perStep * steps,
+        traitNo: traitNoOfStat(traits, MAGIC_GUARD.OVER_STEP_DAMAGE_STAT),
       });
     }
   }
@@ -215,6 +220,7 @@ export function magicGuardLines(
       }),
       stat: STATS.ATTACK_PERCENT,
       value: burst * share,
+      traitNo: traitNoOfStat(traits, MAGIC_GUARD.BURST_DAMAGE_STAT),
     });
   }
   return lines;

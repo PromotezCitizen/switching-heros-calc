@@ -13,7 +13,9 @@ import { calcValuesOf } from '@/calc/storeKeys';
 import type { CalcValues } from '@/calc/types';
 import { FlagField, GroupedSelectField } from '@/components/StoreFields';
 import CardRecommendSection from '@/cardOptimizer/CardRecommendSection';
-import { useStatTables } from '@/data/statTables';
+import { useStatTables, type StatTables } from '@/data/statTables';
+import { expandedTabLines } from '@/calc/tabLines';
+import { CALC_TABS } from '@/calc/tabs';
 import { OWNED_CARDS_KEY } from '@/usb/saveImport/ownedCards';
 import { bundleTarget, masteryBundleTarget } from '@/masteryOptimizer/targetBundles';
 import { useJsonData } from '@/data/useJsonData';
@@ -56,6 +58,9 @@ const NO_DESCRIPTIONS: StatDescriptions = {};
 function formatCount(value: number): string {
   return value.toLocaleString('ko-KR');
 }
+
+/** 특성 나무 툴팁의 "현재" 값용: 모든 탭 줄 */
+const allTabLines = (values: CalcValues, tables: StatTables) => expandedTabLines(CALC_TABS, values, tables);
 
 export default function OptimizerPage() {
   const { t: translate } = useTranslation();
@@ -409,6 +414,7 @@ export default function OptimizerPage() {
                       values={recommendedValues}
                       setValue={IGNORE_CHANGE}
                       readOnly
+                      traitLines={allTabLines}
                       tables={tables.data}
                       descriptions={descriptions.status === 'ready' ? descriptions.data : NO_DESCRIPTIONS}
                     />

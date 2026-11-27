@@ -10,8 +10,8 @@
   },
   "dimStone": {
     "title": "차원의 돌",
-    "help": "돌 N 등급 = 파편 8^(N − 1) 개, 10칸에 무작위로 나뉨 (칸당 평균 1/10). 계산은 평균 기준.",
     "loadFailed": "슬롯 표를 불러오지 못했어요.",
+    "loading": "슬롯 표를 불러오는 중이에요.",
     "partTitle": "칸 레벨, 보유 파편",
     "partHelp": "불러오기로 채워짐. 파편은 게임 표기 (예: 1.23AB).",
     "partColumn": "칸",
@@ -31,7 +31,6 @@
     "alchemyTitle": "연성 돌",
     "alchemyLevel": "연성 레벨",
     "buff": "버프 (확률 +100%)",
-    "gradeFixed": "돌 등급은 얻은 시점의 연성 레벨에서 확정.",
     "alchemyTooLow": "연성 레벨 {{level}} 부터 나옴.",
     "alchemyStone": "T{{grade}}",
     "alchemyAmount": "파편 {{total}} (칸당 {{part}})",

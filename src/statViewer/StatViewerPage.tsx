@@ -472,11 +472,13 @@ export default function StatViewerPage() {
   }
   if (!meta || filesState.status !== 'ready') {
     return (
-      // 불러오는 동안 칸 가운데에
-      <Group mt="md" gap="xs" justify="center">
-        <Loader size="sm" />
-        <Text size="sm">{translate('viewer.loading')}</Text>
-      </Group>
+      // 불러오는 동안 화면 한가운데에
+      <Center pos="fixed" inset={0} style={{ pointerEvents: 'none' }}>
+        <Group gap="xs">
+          <Loader size="sm" />
+          <Text size="sm">{translate('viewer.loading')}</Text>
+        </Group>
+      </Center>
     );
   }
   const tables: ViewerTables = Object.fromEntries(

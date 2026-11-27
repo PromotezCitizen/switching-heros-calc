@@ -1,6 +1,19 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Checkbox, Group, Loader, Paper, SimpleGrid, Stack, Table, Text, TextInput, Title } from '@mantine/core';
+import {
+  Alert,
+  Center,
+  Checkbox,
+  Group,
+  Loader,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  Title,
+} from '@mantine/core';
 import { CONSTS } from '@/CONSTS';
 import { formatLog, parseGameNumber } from '@/calc/gameNumber';
 import { useStatTables } from '@/data/statTables';
@@ -47,7 +60,7 @@ function readHeldLog(text: string | undefined): number | null {
 }
 
 /**
- * 자료 › 차원의 돌: 아티팩트 10칸 레벨과 보유 파편으로 다음 세트 단계에 몇 등급 돌이 필요한지와 그 단계에 붙는 값,
+ * 차원의 돌 탭: 아티팩트 10칸 레벨과 보유 파편으로 다음 세트 단계에 몇 등급 돌이 필요한지와 그 단계에 붙는 값,
  * 연성 레벨에서 어떤 돌이 얼마나 나오는지 보여 준다. 칸 값은 계산기 저장소 (불러오기가 채움), 연성 칸은 이 기기에 기억
  */
 export default function DimensionStonePage() {
@@ -56,16 +69,20 @@ export default function DimensionStonePage() {
   const costs = useMemo(() => (tables.status === 'ready' ? slotCosts(tables.data) : null), [tables]);
 
   if (tables.status === 'failed') return <Alert color="red">{translate('dimStone.loadFailed')}</Alert>;
-  if (!costs) return <Loader />;
+  if (!costs)
+    return (
+      // 불러오는 동안 화면 한가운데에
+      <Center pos="fixed" inset={0} style={{ pointerEvents: 'none' }}>
+        <Group gap="xs">
+          <Loader size="sm" />
+          <Text size="sm">{translate('dimStone.loading')}</Text>
+        </Group>
+      </Center>
+    );
 
   return (
     <Stack mt="md" gap="lg">
-      <Stack gap={4}>
-        <Title order={3}>{translate('dimStone.title')}</Title>
-        <Text size="sm" c="dimmed" style={{ whiteSpace: 'pre-line' }}>
-          {translate('dimStone.help')}
-        </Text>
-      </Stack>
+      <Title order={3}>{translate('dimStone.title')}</Title>
       <SetSection costs={costs} />
       <PartTable />
       <AlchemySection />
@@ -228,9 +245,6 @@ function AlchemySection() {
           onChange={(event) => setBuffText(event.currentTarget.checked ? TRUE_TEXT : '')}
         />
       </Group>
-      <Text size="xs" c="dimmed">
-        {translate('dimStone.gradeFixed')}
-      </Text>
       {levelText && Number.isFinite(level) && !stone && (
         <Text size="sm" c="dimmed">
           {translate('dimStone.alchemyTooLow', { level: DS.ALCHEMY_STONE_START_LEVEL })}

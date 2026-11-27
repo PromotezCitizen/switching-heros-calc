@@ -349,7 +349,8 @@ export default function OptimizerPage() {
               <Button
                 variant={running ? 'default' : 'filled'}
                 onClick={running ? recommendation.stop : startRecommendation}
-                disabled={!running && (userLevel <= 0 || batch.running || cardRunning)}
+                // 카드 추천과는 따로 돌 수 있다 (서로의 결과를 읽지 않음), 일괄 계산 중에만 막는다
+                disabled={!running && (userLevel <= 0 || batch.running)}
               >
                 {translate(running ? 'optimizer.recommendStop' : 'optimizer.recommendStart')}
               </Button>
@@ -432,7 +433,7 @@ export default function OptimizerPage() {
               inputs={inputs}
               ownedText={storeValues[OWNED_CARDS_KEY] ?? ''}
               onRunningChange={setCardRunning}
-              externalLocked={batch.running || running}
+              externalLocked={batch.running}
             />
           )}
 

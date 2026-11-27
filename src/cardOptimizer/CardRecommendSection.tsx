@@ -56,7 +56,7 @@ interface Props {
   ownedText: string;
   /** 카드 · 세트 마크 계산이 돌기 시작하거나 끝날 때 알린다 (계산 중에는 최적화 대상을 못 바꾸게 하려고) */
   onRunningChange?: (running: boolean) => void;
-  /** 다른 계산 (특성 추천 · 일괄 계산) 이 도는 중이면 시작 버튼 · 고정 카드 고르기를 잠근다 */
+  /** 일괄 계산이 도는 중이면 시작 버튼, 고정 카드 고르기를 잠근다 (특성 추천과는 따로 돌 수 있다) */
   externalLocked?: boolean;
 }
 

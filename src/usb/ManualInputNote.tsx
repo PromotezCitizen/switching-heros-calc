@@ -12,9 +12,7 @@ export default function ManualInputNote() {
       <Text size="sm" fw={600}>
         {translate('usb.manualTitle')}
       </Text>
-      <Text size="xs" c="dimmed">
-        {translate('usb.manualHelp')}
-      </Text>
+      <Text size="xs">{translate('usb.manualHelp')}</Text>
       <List size="sm" spacing={2}>
         {MANUAL_INPUT_ITEMS.map((item) => (
           <List.Item key={item}>{translate(`usb.manualItems.${item}`)}</List.Item>

@@ -10,7 +10,7 @@ export default function ArtifactPanel() {
   const { t: translate } = useTranslation();
   return (
     <Stack gap="xs">
-      <Text size="sm" c="dimmed" mb="xs">
+      <Text size="sm" mb="xs">
         {translate('calc.artifact.help')}
       </Text>
       {ARTIFACT_TOTAL_FIELDS.map((field) => (

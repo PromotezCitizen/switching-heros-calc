@@ -9,9 +9,7 @@ export default function CostumePanel({ values, setValue }: TabPanelProps) {
   const { t: translate } = useTranslation();
   return (
     <Stack gap="xs">
-      <Text size="sm" c="dimmed">
-        {translate('calc.costume.help')}
-      </Text>
+      <Text size="sm">{translate('calc.costume.help')}</Text>
       {COSTUME_FIELDS.map((field) => (
         <ScreenValueInput
           key={field.id}

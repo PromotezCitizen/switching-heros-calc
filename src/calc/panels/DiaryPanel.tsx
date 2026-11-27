@@ -44,7 +44,7 @@ const DiarySlotCard = memo(function DiarySlotCard({ slot, icon, percentText }: D
               hideLabel
               min={0}
             />
-            <Text size="xs" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+            <Text size="xs" style={{ whiteSpace: 'nowrap' }}>
               {percentText}
             </Text>
           </Group>
@@ -59,9 +59,7 @@ export default function DiaryPanel({ values, tables }: TabPanelProps) {
   const results = diarySlotResults(values, tables);
   return (
     <Stack gap="xs">
-      <Text size="xs" c="dimmed">
-        {translate('calc.diary.help')}
-      </Text>
+      <Text size="xs">{translate('calc.diary.help')}</Text>
       <Group maw={CONSTS.display.LIST_INPUT_WIDTH * 2}>
         <NumberField
           storeKey={CALC_KEY_PREFIX + DIARY_BOOK_FIELD}

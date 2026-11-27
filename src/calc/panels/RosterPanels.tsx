@@ -79,9 +79,7 @@ function ExclusiveWeaponCells({
   if (!weapon) {
     return (
       <Table.Td colSpan={WEAPON_COLUMN_COUNT}>
-        <Text size="xs" c="dimmed">
-          {translate('calc.heroRoster.noWeapon')}
-        </Text>
+        <Text size="xs">{translate('calc.heroRoster.noWeapon')}</Text>
       </Table.Td>
     );
   }
@@ -402,7 +400,7 @@ function ExclusiveOptionModal({
     >
       {weaponId && (
         <Stack gap="xs">
-          <Text size="xs" c="dimmed">
+          <Text size="xs">
             {open < OPTION_ROWS
               ? translate('calc.exclusiveWeapon.optionOpen', { star: star ?? 0, open, next: nextStar ?? '-' })
               : translate('calc.exclusiveWeapon.optionAllOpen', { star, count: OPTION_ROWS })}

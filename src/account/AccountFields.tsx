@@ -41,9 +41,7 @@ export default function AccountFields() {
     <Paper withBorder>
       <Stack>
         <Text fw={600}>{translate('account.title')}</Text>
-        <Text size="xs" c="dimmed">
-          {translate('account.description')}
-        </Text>
+        <Text size="xs">{translate('account.description')}</Text>
         <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }}>
           <NumberField storeKey={ACCOUNT_KEYS.userLevel} label={translate('account.userLevel')} min={0} />
           <NumberField storeKey={ACCOUNT_KEYS.vipLevel} label={translate('account.vipLevel')} />
@@ -80,14 +78,12 @@ export default function AccountFields() {
           {translate('account.guildSkill')}
         </Text>
         {unlockedSkills.length === 0 ? (
-          <Text size="xs" c="dimmed">
-            {translate('account.guildSkillLocked', { level: FIRST_SKILL_UNLOCK })}
-          </Text>
+          <Text size="xs">{translate('account.guildSkillLocked', { level: FIRST_SKILL_UNLOCK })}</Text>
         ) : (
           <Stack gap="xs">
             <SimpleGrid cols={3}>
               {RESOURCES.map((resource) => (
-                <Text key={resource} size="xs" c="dimmed" ta="center">
+                <Text key={resource} size="xs" ta="center">
                   {translate(`hunting.resource.${resource}`)}
                 </Text>
               ))}

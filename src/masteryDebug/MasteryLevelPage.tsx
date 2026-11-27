@@ -73,9 +73,7 @@ export default function MasteryLevelPage() {
   return (
     <Stack mt="md" gap="sm">
       <Title order={3}>{translate('masteryDebug.title')}</Title>
-      <Text size="sm" c="dimmed">
-        {translate('masteryDebug.help')}
-      </Text>
+      <Text size="sm">{translate('masteryDebug.help')}</Text>
       <Group gap="md" align="flex-end">
         <Text fw={700} size="lg">
           {translate('masteryDebug.required', { level: result.required.toLocaleString('ko-KR') })}

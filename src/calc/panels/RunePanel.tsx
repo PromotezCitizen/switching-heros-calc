@@ -62,7 +62,7 @@ function RuneCard({ rune, values, setValue, descriptions }: RuneCardProps) {
           <Text fw={600} size="sm">
             {name}
           </Text>
-          <Text size="xs" c="dimmed">
+          <Text size="xs">
             {descriptions[rune.stat] !== undefined ? statLabel(descriptions, rune.stat) : rune.stat}
           </Text>
         </Stack>
@@ -80,9 +80,7 @@ function RuneCard({ rune, values, setValue, descriptions }: RuneCardProps) {
           value={values[fieldKey] ?? ''}
           onChange={(next) => setValue(fieldKey, String(next))}
         />
-        <Text size="xs" c="dimmed">
-          {translate('calc.rune.maxLevel', { max: runeLevelLimit(rune, values) })}
-        </Text>
+        <Text size="xs">{translate('calc.rune.maxLevel', { max: runeLevelLimit(rune, values) })}</Text>
       </Group>
       <Text size="xs" mt="xs">
         {value
@@ -142,17 +140,13 @@ export default function RunePanel({ values, setValue, tables, descriptions }: Ta
           </SimpleGrid>
         )}
       </Box>
-      <Text size="sm" c="dimmed">
-        {translate('calc.rune.hint')}
-      </Text>
+      <Text size="sm">{translate('calc.rune.hint')}</Text>
 
       {/* 속성 룬 연구소: 열렸으면 입력, 안 열렸으면 언제 열리는지 (속성 룬 6개 모두 최대 레벨) */}
       <SectionTitle>{translate('calc.rune.labTitle')}</SectionTitle>
       {labUnlocked ? (
         <>
-          <Text size="sm" c="dimmed">
-            {translate('calc.rune.labHint')}
-          </Text>
+          <Text size="sm">{translate('calc.rune.labHint')}</Text>
           {/* 속성 3개 한 줄 (좁으면 가로 스크롤): 연구실 레벨, 비워 두면 입력 전 */}
           <HorizontalScrollRow itemWidth={LAB.INPUT_WIDTH}>
             {LAB.ATTRIBUTES.map((attribute) => (
@@ -173,9 +167,7 @@ export default function RunePanel({ values, setValue, tables, descriptions }: Ta
           </HorizontalScrollRow>
         </>
       ) : (
-        <Text size="sm" c="dimmed">
-          {translate('calc.rune.labLocked')}
-        </Text>
+        <Text size="sm">{translate('calc.rune.labLocked')}</Text>
       )}
     </Stack>
   );

@@ -86,9 +86,7 @@ const FigureCard = memo(function FigureCard({ view, level, setValue }: FigureCar
           <Text size="sm" fw={700}>
             {name}
           </Text>
-          <Text size="xs" c="dimmed">
-            {translate('calc.figure.idGrade', { figure: figure.figureId, grade: figure.grade })}
-          </Text>
+          <Text size="xs">{translate('calc.figure.idGrade', { figure: figure.figureId, grade: figure.grade })}</Text>
           <Text size="xs">{effect}</Text>
           <NumberInput
             size="xs"
@@ -128,9 +126,7 @@ export default function FigurePanel({ values, setValue, tables, descriptions }: 
   ];
   return (
     <Stack gap="md">
-      <Text size="sm" c="dimmed">
-        {translate('calc.figure.help')}
-      </Text>
+      <Text size="sm">{translate('calc.figure.help')}</Text>
       {groups.map((group) => (
         <Stack key={group.key} gap="xs">
           <Title order={5}>{translate(`calc.figure.groups.${group.key}`, { count: group.items.length })}</Title>

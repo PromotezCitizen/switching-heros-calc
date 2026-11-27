@@ -97,9 +97,7 @@ function EquipRow({
         ];
         return (
           <Stack key={slot} gap={2} align="center">
-            <Text size="xs" c="dimmed">
-              {slotLabel}
-            </Text>
+            <Text size="xs">{slotLabel}</Text>
             <IconPicker
               label={slotLabel}
               title={pickTitle(slot)}
@@ -155,15 +153,11 @@ export default function SkillPanel({ values, setValue, tables }: TabPanelProps) 
           </Text>
         </>
       ) : (
-        <Text size="xs" c="dimmed">
-          {translate('calc.skill.secondHeroHelp')}
-        </Text>
+        <Text size="xs">{translate('calc.skill.secondHeroHelp')}</Text>
       )}
 
       <SectionTitle>{translate('calc.skill.ownedTitle')}</SectionTitle>
-      <Text size="xs" c="dimmed">
-        {translate('calc.skill.ownedHelp')}
-      </Text>
+      <Text size="xs">{translate('calc.skill.ownedHelp')}</Text>
       {/* 직업 카드 4장: 영역이 넓으면 한 줄 4개, 좁으면 2 × 2, 더 좁으면 한 줄에 1개 (카드 최소 300px) */}
       <SimpleGrid type="container" cols={JOB_CARD_COLUMNS} spacing="md">
         {JOBS.map((job) => (
@@ -290,11 +284,7 @@ const OwnedSkillRow = memo(function OwnedSkillRow({ row, fieldValues, tables, se
                     data={optionChoicesFor(slot)}
                     allowDeselect={false}
                     maxDropdownHeight={OPTION_DROPDOWN_MAX_HEIGHT}
-                    leftSection={
-                      <Text size="xs" c="dimmed">
-                        {slot}
-                      </Text>
-                    }
+                    leftSection={<Text size="xs">{slot}</Text>}
                     aria-label={translate('calc.skill.optionLabel', { name: row.name, slot })}
                     value={values[skillOptionField(row.skillId, slot)] ?? NO_OPTION}
                     onChange={(picked) => setValue(skillOptionField(row.skillId, slot), picked ?? NO_OPTION)}
@@ -314,11 +304,7 @@ const OwnedSkillRow = memo(function OwnedSkillRow({ row, fieldValues, tables, se
                     allowDeselect={false}
                     maxDropdownHeight={OPTION_DROPDOWN_MAX_HEIGHT}
                     leftSectionWidth={PERK_LEVEL_LABEL_WIDTH}
-                    leftSection={
-                      <Text size="xs" c="dimmed">
-                        {translate('calc.skill.perkLevel', { level: targetLevel })}
-                      </Text>
-                    }
+                    leftSection={<Text size="xs">{translate('calc.skill.perkLevel', { level: targetLevel })}</Text>}
                     aria-label={translate('calc.skill.perkLabel', { name: row.name, level: targetLevel })}
                     value={values[skillPerkField(row.skillId, targetLevel)] ?? NO_OPTION}
                     onChange={(picked) => setValue(skillPerkField(row.skillId, targetLevel), picked ?? NO_OPTION)}

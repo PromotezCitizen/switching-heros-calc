@@ -40,9 +40,7 @@ function ScreenFieldsPanel({
           translationPrefix={`calc.other.fields.${fieldId}`}
         />
       ))}
-      <Text size="xs" c="dimmed">
-        {translate(helpKey)}
-      </Text>
+      <Text size="xs">{translate(helpKey)}</Text>
     </Stack>
   );
 }
@@ -72,9 +70,7 @@ export function AffinityPanel({ values, tables }: TabPanelProps) {
           </Text>
         </Group>
       ))}
-      <Text size="xs" c="dimmed">
-        {translate('calc.affinity.help')}
-      </Text>
+      <Text size="xs">{translate('calc.affinity.help')}</Text>
     </Stack>
   );
 }
@@ -97,9 +93,7 @@ export function FairyPanel({ values, tables }: TabPanelProps) {
               : translate('calc.fairy.percent', { value: Number(percent) })}
         </Text>
       </Group>
-      <Text size="xs" c="dimmed">
-        {translate('calc.fairy.help')}
-      </Text>
+      <Text size="xs">{translate('calc.fairy.help')}</Text>
     </Stack>
   );
 }

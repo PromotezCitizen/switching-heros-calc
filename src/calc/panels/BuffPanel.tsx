@@ -34,9 +34,7 @@ export default function BuffPanel({ values, tables, otherTabLines }: BuffPanelPr
 
   return (
     <Stack gap="xs">
-      <Text size="sm" c="dimmed">
-        {translate('calc.buff.inputsMoved')}
-      </Text>
+      <Text size="sm">{translate('calc.buff.inputsMoved')}</Text>
       {masteryTable && (
         <Text size="sm">
           {translate('calc.buff.status', {
@@ -51,9 +49,7 @@ export default function BuffPanel({ values, tables, otherTabLines }: BuffPanelPr
           skillCombo: plainNumber(chances.skillCombo),
         })}
       </Text>
-      <Text size="xs" c="dimmed">
-        {translate('calc.buff.chancesHint')}
-      </Text>
+      <Text size="xs">{translate('calc.buff.chancesHint')}</Text>
     </Stack>
   );
 }

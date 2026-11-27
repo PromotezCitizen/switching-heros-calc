@@ -39,15 +39,13 @@ export default function SoulForgePanel({ values, setValue, tables, descriptions 
           value={values[SOUL_FORGE_FIELD] ?? ''}
           onChange={(next) => setValue(SOUL_FORGE_FIELD, String(next))}
         />
-        <Text size="sm" c="dimmed" pb={6}>
+        <Text size="sm" pb={6}>
           / {maxLevel}
         </Text>
       </Group>
       {slotRows.length > 0 && (
         <>
-          <Text size="sm" c="dimmed">
-            {translate('calc.soulForge.slotHelp', { level })}
-          </Text>
+          <Text size="sm">{translate('calc.soulForge.slotHelp', { level })}</Text>
           {slotRows.map((row) => (
             <FlagField
               key={row.statIdx}

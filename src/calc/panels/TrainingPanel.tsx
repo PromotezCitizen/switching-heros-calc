@@ -36,9 +36,7 @@ export default function TrainingPanel({ values, setValue, tables, descriptions }
           value={values[TRAINING_STAGE_FIELD] ?? ''}
           onChange={(event) => setValue(TRAINING_STAGE_FIELD, event.currentTarget.value)}
         />
-        <Text size="sm" c="dimmed">
-          {translate('calc.training.stageHelp')}
-        </Text>
+        <Text size="sm">{translate('calc.training.stageHelp')}</Text>
       </Stack>
 
       <Stack gap="xs">
@@ -69,9 +67,7 @@ export default function TrainingPanel({ values, setValue, tables, descriptions }
             );
           })}
         </Stack>
-        <Text size="sm" c="dimmed">
-          {translate('calc.training.levelsHelp')}
-        </Text>
+        <Text size="sm">{translate('calc.training.levelsHelp')}</Text>
       </Stack>
     </Stack>
   );

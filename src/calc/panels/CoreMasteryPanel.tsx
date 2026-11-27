@@ -33,7 +33,7 @@ export default function CoreMasteryPanel({ values, setValue, tables, description
   const row = coreMasteryRow(tables, level);
   if (userLevel < unlockLevel) {
     return (
-      <Text size="sm" c="dimmed">
+      <Text size="sm">
         {translate('calc.coreMastery.locked', {
           level: unlockLevel.toLocaleString('ko-KR'),
           current: userLevel.toLocaleString('ko-KR'),
@@ -55,13 +55,11 @@ export default function CoreMasteryPanel({ values, setValue, tables, description
           value={values[LEVEL_FIELD] ?? ''}
           onChange={(next) => setValue(LEVEL_FIELD, String(next))}
         />
-        <Text size="sm" c="dimmed" pb={6}>
+        <Text size="sm" pb={6}>
           / {maxLevel}
         </Text>
       </Group>
-      <Text size="sm" c="dimmed">
-        {translate('calc.coreMastery.help')}
-      </Text>
+      <Text size="sm">{translate('calc.coreMastery.help')}</Text>
       {row && (
         <AutoGrid minItemWidth={SELECT_MIN_WIDTH}>
           {CORE_MASTERY_SLOT_NUMBERS.map((slot) => {

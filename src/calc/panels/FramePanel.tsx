@@ -25,9 +25,7 @@ export default function FramePanel({ values, setValue, tables, descriptions }: T
   const ownedCount = rows.filter((row) => values[frameOwnedField(row[ID_COLUMN])] === CHECKED_TEXT).length;
   return (
     <Stack gap="xs">
-      <Text size="sm" c="dimmed">
-        {translate('calc.frame.help')}
-      </Text>
+      <Text size="sm">{translate('calc.frame.help')}</Text>
       <Text size="sm">{translate('calc.frame.ownedCount', { count: ownedCount, total: rows.length })}</Text>
       <AutoGrid minItemWidth={TILE_MIN_WIDTH}>
         {rows.map((row) => {

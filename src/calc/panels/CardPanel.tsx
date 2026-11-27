@@ -100,11 +100,7 @@ export default function CardPanel({ values, setValue, tables, descriptions }: Ta
           <CardSetCards setStates={group.sets} descriptions={descriptions} />
         </Stack>
       ))}
-      {!hasMarks && (
-        <Text size="sm" c="dimmed">
-          {translate('calc.card.setNone')}
-        </Text>
-      )}
+      {!hasMarks && <Text size="sm">{translate('calc.card.setNone')}</Text>}
 
       {/* 스티커 (배지): 열렸을 때만 (장착 카드에 배지 칸이 있을 때) */}
       {stickerOpen && (
@@ -114,9 +110,7 @@ export default function CardPanel({ values, setValue, tables, descriptions }: Ta
             <Text c="blue">{translate('calc.card.stickerExpand')}</Text>
           </UnstyledButton>
           <Collapse expanded={stickersOpened}>
-            <Text size="xs" c="dimmed">
-              {translate('calc.card.stickerLevelHelp')}
-            </Text>
+            <Text size="xs">{translate('calc.card.stickerLevelHelp')}</Text>
             <AutoGrid minItemWidth={CARD_MIN_WIDTH.large} gap="var(--mantine-spacing-sm)">
               {stickerGroups.map((group) => (
                 <StickerRow

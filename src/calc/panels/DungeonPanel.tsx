@@ -16,9 +16,7 @@ export default function DungeonPanel({ values, setValue }: TabPanelProps) {
   const { t: translate } = useTranslation();
   return (
     <Stack gap="xs">
-      <Text size="sm" c="dimmed">
-        {translate('calc.dungeon.help')}
-      </Text>
+      <Text size="sm">{translate('calc.dungeon.help')}</Text>
       <SimpleGrid cols={{ base: 1, sm: 3 }}>
         {DUNGEON_LINKS.map((field) => {
           const fieldId = relicLinkFieldId(field);

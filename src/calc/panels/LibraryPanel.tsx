@@ -33,7 +33,7 @@ export default function LibraryPanel({ values, setValue, tables, descriptions }:
     <Stack gap="xs">
       <Group gap="xs">
         <SectionTitle>{translate('calc.library.archiveTitle')}</SectionTitle>
-        <Text size="sm" c="dimmed">
+        <Text size="sm">
           {translate(values[ARCHIVE_LEVEL_FIELD] ? 'calc.library.archiveLevelImported' : 'calc.library.archiveLevel', {
             level: archiveLevel,
           })}
@@ -68,7 +68,7 @@ export default function LibraryPanel({ values, setValue, tables, descriptions }:
                     if (values[ARCHIVE_LEVEL_FIELD]) setValue(ARCHIVE_LEVEL_FIELD, '');
                   }}
                 />
-                <Text size="xs" c="dimmed" ta="center">
+                <Text size="xs" ta="center">
                   {sum ? lineText(descriptions, { source: book, stat: bookStat(job), value: sum }) : '-'}
                 </Text>
               </Stack>
@@ -92,9 +92,7 @@ export default function LibraryPanel({ values, setValue, tables, descriptions }:
           valuePlaceholder={translate('calc.library.valuePlaceholder')}
         />
       ) : (
-        <Text size="xs" c="dimmed">
-          {translate('calc.library.inheritLocked')}
-        </Text>
+        <Text size="xs">{translate('calc.library.inheritLocked')}</Text>
       )}
     </Stack>
   );

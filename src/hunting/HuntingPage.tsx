@@ -186,10 +186,8 @@ export default function HuntingPage() {
 
   return (
     <Stack mt="lg" gap="md">
-      <Text c="dimmed">{translate('hunting.intro')}</Text>
-      <Text size="sm" c="dimmed">
-        {translate('hunting.accountHint')}
-      </Text>
+      <Text>{translate('hunting.intro')}</Text>
+      <Text size="sm">{translate('hunting.accountHint')}</Text>
 
       <Paper withBorder p="md">
         <Title order={3} mb="sm">
@@ -208,7 +206,7 @@ export default function HuntingPage() {
           {flagField('adOn', translate('hunting.adOn'))}
           {flagField('offlinePackageOn', translate('hunting.offlinePackageOn'))}
         </Group>
-        <Text mt="xs" size="xs" c="dimmed">
+        <Text mt="xs" size="xs">
           {translate('hunting.wallNote')}
         </Text>
       </Paper>
@@ -222,7 +220,7 @@ export default function HuntingPage() {
           {numberField('currentExpPercent', translate('hunting.currentExpPercent'), 0, 100)}
           {numberField('targetLevel', translate('hunting.targetLevel'), 0)}
         </SimpleGrid>
-        <Text mt="xs" size="xs" c="dimmed">
+        <Text mt="xs" size="xs">
           {translate('hunting.levelNote')}
         </Text>
       </Paper>
@@ -251,15 +249,13 @@ export default function HuntingPage() {
             </Stack>
           ))}
         </SimpleGrid>
-        <Text mt="xs" size="xs" c="dimmed">
+        <Text mt="xs" size="xs">
           {translate('hunting.bonusScopeNote')}
         </Text>
       </Paper>
 
       <Title order={3}>{translate('hunting.resultTitle')}</Title>
-      <Text size="sm" c="dimmed">
-        {translate('hunting.resultNote', { kills: myKills.toLocaleString('ko-KR') })}
-      </Text>
+      <Text size="sm">{translate('hunting.resultNote', { kills: myKills.toLocaleString('ko-KR') })}</Text>
       {stage.status === 'loading' && <Text>{translate('hunting.loading')}</Text>}
       {stage.status === 'failed' && <Alert color="red">{translate('hunting.loadFailed')}</Alert>}
       {result?.kind === 'badFloor' && (
@@ -282,22 +278,16 @@ export default function HuntingPage() {
               })),
             ].map((item) => (
               <Paper key={item.label} withBorder p="md">
-                <Text size="sm" c="dimmed">
-                  {item.label}
-                </Text>
+                <Text size="sm">{item.label}</Text>
                 <SimpleGrid cols={2} mt={4} spacing="xs">
                   <Box>
-                    <Text size="xs" c="dimmed">
-                      {translate('hunting.offline')}
-                    </Text>
+                    <Text size="xs">{translate('hunting.offline')}</Text>
                     <Text size="xl" fw={700}>
                       {item.offline}
                     </Text>
                   </Box>
                   <Box>
-                    <Text size="xs" c="dimmed">
-                      {translate('hunting.online')}
-                    </Text>
+                    <Text size="xs">{translate('hunting.online')}</Text>
                     <Text size="xl" fw={700}>
                       {item.online}
                     </Text>
@@ -343,20 +333,16 @@ export default function HuntingPage() {
                   <Text fw={700}>
                     {translate('hunting.floorLabel', { floor: view.row.floor.toLocaleString('ko-KR') })}
                   </Text>
-                  <Text size="sm" c="dimmed">
-                    {kindText(view.row)}
-                  </Text>
+                  <Text size="sm">{kindText(view.row)}</Text>
                   {wallBadge(view.row)}
-                  <Text size="sm" c="dimmed">
+                  <Text size="sm">
                     {translate('hunting.perKill', { gold: formatLog(view.goldLog), exp: formatLog(view.expLog) })}
                   </Text>
                 </Group>
                 <SimpleGrid cols={3} mt={6} spacing="xs">
                   {RESOURCES.map((resource) => (
                     <Box key={resource}>
-                      <Text size="xs" c="dimmed">
-                        {resourceName(resource)}
-                      </Text>
+                      <Text size="xs">{resourceName(resource)}</Text>
                       <Text fw={700} c={tone(view.ratio[resource])}>
                         {translate('hunting.killsUnit', { kills: formatKills(view.row.required[resource]) })}
                       </Text>
@@ -367,7 +353,7 @@ export default function HuntingPage() {
                   ))}
                 </SimpleGrid>
                 {view.targetMinutes && (
-                  <Text size="xs" c="dimmed" mt={4}>
+                  <Text size="xs" mt={4}>
                     {translate('hunting.targetTime', {
                       online: durationText(view.targetMinutes.online),
                       offline: durationText(view.targetMinutes.offline),
@@ -440,7 +426,7 @@ export default function HuntingPage() {
         </Stack>
       )}
 
-      <Text size="sm" c="dimmed">
+      <Text size="sm">
         {translate('hunting.reportPrefix')}{' '}
         <Anchor href={REPORT_URL} target="_blank" rel="noopener">
           {translate('hunting.reportLink')}

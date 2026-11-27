@@ -30,8 +30,8 @@ export const DPM_CONSTS = {
     DAISY_SMALL_SPIDERS: 12,
     DAISY_BIG_SPIDERS: [3, 5] as readonly number[],
   },
-  /** 일괄 계산 (batchRecommend.ts): 특성 추천은 2개씩, 카드 추천은 3개씩 동시에 */
-  BATCH: { MASTERY_LANES: 2, CARD_LANES: 3 },
+  /** 일괄 계산 (batchRecommend.ts): 대상 하나씩 차례로 (카드 추천은 작업자 하나가 하위 작업자를 더 띄워서, 여러 개를 동시에 돌리면 작업자가 너무 많아진다) */
+  BATCH: { MASTERY_LANES: 1, CARD_LANES: 1 },
   /**
    * 특성 추천 규칙 (쿨타임 · 시간은 빼고 공격마다 한 번씩 대미지 합으로 비교, evaluate.ts oneCastEachLog):
    * - FIXED: 늘 최대 레벨로 찍는 특성 (광폭화 7, 이성 유지 8, 마나 체인 23)

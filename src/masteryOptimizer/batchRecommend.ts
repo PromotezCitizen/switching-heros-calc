@@ -1,6 +1,6 @@
 /**
  * 일괄 계산 (순서 "특성 뒤 카드"):
- * 특성 추천 묶음 (MASTERY_BUNDLES 앞 대상) 을 BATCH.MASTERY_LANES 개씩 동시에 돌리고, 다 끝나면 카드 추천 묶음 (TARGET_BUNDLES 앞 대상) 을
+ * 특성 추천 묶음 (MASTERY_BUNDLES 앞 대상) 을 BATCH.MASTERY_LANES 개씩 (지금 1개씩 차례로) 돌리고, 다 끝나면 카드 추천 묶음 (TARGET_BUNDLES 앞 대상) 을
  * BATCH.CARD_LANES 개씩 돌린다. 대상 하나가 끝날 때마다 그 대상의 저장 칸에 결과를 넣는다 (화면의 개별 추천과 같은 칸 · 같은 모양).
  * 멈추면 돌던 작업자를 끝내고, 끝나지 않은 대상의 결과는 버린다 (멈추면 중간 결과 버림)
  */

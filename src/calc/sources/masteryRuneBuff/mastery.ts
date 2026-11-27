@@ -103,6 +103,11 @@ export function learnedTraitValue(traits: MasteryTrait[], values: CalcValues, st
   return level > 0 ? traitValue(trait, level) : 0;
 }
 
+/** 스탯 이름 → 그 스탯의 특성 번호 (없으면 undefined) */
+export function traitNoOfStat(traits: MasteryTrait[], statName: string): string | undefined {
+  return traits.find((item) => item.statName === statName)?.rNo;
+}
+
 /** 기존 HTML plainNumber: 소수 둘째 자리, 천 단위 쉼표 */
 export function plainNumber(value: number): string {
   return Number(value.toFixed(PLAIN_NUMBER_DECIMALS)).toLocaleString('ko-KR');
@@ -147,6 +152,7 @@ export function masteryLines(
             source: sourceLabel('calc.ultimate.heroSwapSource', { name, percent: swapUptimePercent }),
             stat: heroSwap[1],
             value: (traitValue(trait, level) * swapUptimePercent) / 100,
+            traitNo: trait.rNo,
           },
         ];
       }
@@ -155,6 +161,7 @@ export function masteryLines(
           source: sourceLabel('calc.mastery.lineSource', { name, level }),
           stat: trait.statName,
           value: traitValue(trait, level),
+          traitNo: trait.rNo,
         },
       ];
     });

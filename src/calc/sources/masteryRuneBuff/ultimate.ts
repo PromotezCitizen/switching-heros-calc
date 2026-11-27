@@ -37,6 +37,11 @@ const {
   ULTIMATE_STICKER_COUNT_PATTERN,
   ULTIMATE_STICKER_TARGETS,
   ULTIMATE_HERO_SWAP_KEY,
+  ULTIMATE_ARTIFACT_SLOT_SUM_KEY,
+  ULTIMATE_TRANS_MISSION_KEY,
+  ULTIMATE_PET_REGION_PREFIX,
+  ULTIMATE_LAB_LEVEL_KEY,
+  ULTIMATE_LIBRARY_PATTERN,
 } = CONSTS.masteryRuneBuff;
 const PET_SLOTS = CONSTS.heroWeaponCardPet.pet.SLOTS;
 /** _pow_ / _per_ + 스탯 (밑줄 없는 한 단어) + 개수·조건 꼬리말 (없으면 개수 조건 없는 단순 스탯) */
@@ -148,6 +153,16 @@ export interface UltimateContext {
   stickerCounts?: Record<string, number>;
   /** 장착 5칸 스킬에 켜 둔 문양 수 (equippedSkillPerkCount) */
   skillPerkCount?: number;
+  /** 아티팩트 10칸 슬롯 레벨의 합 */
+  artifactSlotLevelSum?: number;
+  /** 계산하는 히어로가 낀 전용 무기의 클리어한 미션 수 */
+  transMissionCount?: number;
+  /** 속성 → 펫 지역 레벨 (펫 지역이 안 열렸으면 비움) */
+  petRegionLevels?: Record<string, number>;
+  /** 룬 미지의 비석 레벨 (룬 연구소가 안 열렸으면 0) */
+  runeStoneLevel?: number;
+  /** 직업 → 히어로의 기록 책 레벨 */
+  libraryLevels?: Record<string, number>;
 }
 
 /**
@@ -160,6 +175,7 @@ export function ultimateComputable(statName: string): boolean {
   if (GENDER_PAIR_PATTERN.test(statName) || ATTRIBUTE_PAIR_PATTERN.test(statName)) return true;
   const stickerMatch = ULTIMATE_STICKER_COUNT_PATTERN.exec(statName);
   if (stickerMatch) return ULTIMATE_STICKER_TARGETS[stickerMatch[1]] !== undefined;
+  if (ULTIMATE_LIBRARY_PATTERN.test(statName)) return true;
   const match = ULTIMATE_STAT_PATTERN.exec(statName);
   if (!match) return false;
   const [, kind, , countKey] = match;
@@ -176,6 +192,10 @@ export function ultimateComputable(statName: string): boolean {
   return (
     countKey === COSTUME_COUNT_KEY ||
     countKey === ULTIMATE_HERO_SWAP_KEY ||
+    countKey === ULTIMATE_ARTIFACT_SLOT_SUM_KEY ||
+    countKey === ULTIMATE_TRANS_MISSION_KEY ||
+    countKey === ULTIMATE_LAB_LEVEL_KEY ||
+    countKey.startsWith(ULTIMATE_PET_REGION_PREFIX) ||
     ULTIMATE_WEAPON_STAR_SUM_THRESHOLDS[countKey] !== undefined ||
     ULTIMATE_SAME_GRADE_ALCHEMY_THRESHOLDS[countKey] !== undefined ||
     ULTIMATE_COUNT_FIELDS[countKey] !== undefined ||
@@ -228,7 +248,7 @@ export function ultimateLines(
         (pairKey === DIFFERENT_GENDER_KEY && genderPair.different) ||
         (pairKey === SAME_ATTRIBUTE_KEY && attributePair.same) ||
         (pairKey === DIFFERENT_ATTRIBUTE_KEY && attributePair.different);
-      if (applies) result.lines.push({ source: name, stat: `_per_${stat}`, value });
+      if (applies) result.lines.push({ traitNo: trait.rNo, source: name, stat: `_per_${stat}`, value });
       continue;
     }
     // 배지 모양 컬렉션: 그 모양 배지 수만큼 거듭 곱함 (전투 특화 대상은 1슬롯 히어로 특화가 맞을 때만)
@@ -238,6 +258,7 @@ export function ultimateLines(
       const count = context.stickerCounts?.[stickerMatch[1]] ?? 0;
       if (count && (!target.targetUnit || context.targetUnit === target.targetUnit)) {
         result.lines.push({
+          traitNo: trait.rNo,
           source: sourceLabel('calc.ultimate.stickerSource', { name, value, count }),
           stat: target.stat,
           log: multiplierPercentLog(count * Math.log10(value)),
@@ -250,6 +271,7 @@ export function ultimateLines(
       const count = context.skillPerkCount ?? 0;
       if (count) {
         result.lines.push({
+          traitNo: trait.rNo,
           source: sourceLabel('calc.ultimate.perkSource', { name, count }),
           stat: ULTIMATE_PERK_COUNT_TARGETS[trait.statName],
           value: value * count,
@@ -257,10 +279,24 @@ export function ultimateLines(
       }
       continue;
     }
+    // 히어로의 기록 책 레벨 × 값 %: 그 직업 히어로 스킬 데미지 (직업 판정은 스탯 이름이 한다)
+    const libraryMatch = ULTIMATE_LIBRARY_PATTERN.exec(trait.statName);
+    if (libraryMatch) {
+      const bookLevel = context.libraryLevels?.[libraryMatch[2]] ?? 0;
+      if (bookLevel) {
+        result.lines.push({
+          traitNo: trait.rNo,
+          source: sourceLabel('calc.ultimate.countSource', { name, count: bookLevel }),
+          stat: `_per_${libraryMatch[1]}`,
+          value: value * bookLevel,
+        });
+      }
+      continue;
+    }
     const [, kind, target, countKey] = ULTIMATE_STAT_PATTERN.exec(trait.statName) as RegExpExecArray;
     const stat = `_per_${target}`;
     if (!countKey) {
-      result.lines.push({ source: name, stat: trait.statName, value });
+      result.lines.push({ traitNo: trait.rNo, source: name, stat: trait.statName, value });
     } else if (kind === 'pow') {
       // × 값^개수: 불·물·땅 / 남자·여자 히어로 (편성 = 1·2슬롯), 장착 펫 속성, 장착 스킬 종류
       let count: number;
@@ -278,14 +314,39 @@ export function ultimateLines(
       }
       if (count) {
         result.lines.push({
+          traitNo: trait.rNo,
           source: sourceLabel(labelKey, { name, value, count }),
           stat,
           log: multiplierPercentLog(count * Math.log10(value)),
         });
       }
+    } else if (
+      countKey === ULTIMATE_ARTIFACT_SLOT_SUM_KEY ||
+      countKey === ULTIMATE_TRANS_MISSION_KEY ||
+      countKey === ULTIMATE_LAB_LEVEL_KEY ||
+      countKey.startsWith(ULTIMATE_PET_REGION_PREFIX)
+    ) {
+      // 개수 × 값 %: 아티팩트 칸 레벨 합, 전용 무기 클리어 미션 수, 룬 미지의 비석 레벨, 펫 지역 레벨
+      const count =
+        countKey === ULTIMATE_ARTIFACT_SLOT_SUM_KEY
+          ? (context.artifactSlotLevelSum ?? 0)
+          : countKey === ULTIMATE_TRANS_MISSION_KEY
+            ? (context.transMissionCount ?? 0)
+            : countKey === ULTIMATE_LAB_LEVEL_KEY
+              ? (context.runeStoneLevel ?? 0)
+              : (context.petRegionLevels?.[countKey.slice(ULTIMATE_PET_REGION_PREFIX.length)] ?? 0);
+      if (count) {
+        result.lines.push({
+          traitNo: trait.rNo,
+          source: sourceLabel('calc.ultimate.countSource', { name, count }),
+          stat,
+          value: value * count,
+        });
+      }
     } else if (countKey === COSTUME_COUNT_KEY) {
       if (costumes) {
         result.lines.push({
+          traitNo: trait.rNo,
           source: sourceLabel('calc.ultimate.costumeSource', { name, count: costumes }),
           stat,
           value: value * costumes,
@@ -296,6 +357,7 @@ export function ultimateLines(
       const record = integerFieldValue(values, relicLinkFieldId(ULTIMATE_DUNGEON_RECORD_KEYS[countKey]));
       if (record) {
         result.lines.push({
+          traitNo: trait.rNo,
           source: sourceLabel('calc.ultimate.dungeonSource', { name, count: record }),
           stat,
           value: value * record,
@@ -306,6 +368,7 @@ export function ultimateLines(
       const starSum = context.weaponStarSum ?? 0;
       if (starSum >= ULTIMATE_WEAPON_STAR_SUM_THRESHOLDS[countKey]) {
         result.lines.push({
+          traitNo: trait.rNo,
           source: sourceLabel('calc.ultimate.weaponStarSource', { name, count: starSum }),
           stat,
           value,
@@ -316,6 +379,7 @@ export function ultimateLines(
       const sameGrade = context.alchemySameGradeCount ?? 0;
       if (sameGrade >= ULTIMATE_SAME_GRADE_ALCHEMY_THRESHOLDS[countKey]) {
         result.lines.push({
+          traitNo: trait.rNo,
           source: sourceLabel('calc.ultimate.alchemySameGradeSource', { name, count: sameGrade }),
           stat,
           value,
@@ -326,6 +390,7 @@ export function ultimateLines(
       const count = Math.max(Number(values[ULTIMATE_COUNT_FIELDS[countKey]]) || 0, 0);
       if (count) {
         result.lines.push({
+          traitNo: trait.rNo,
           source: sourceLabel('calc.ultimate.countSource', { name, count }),
           stat,
           value: value * count,
@@ -336,6 +401,7 @@ export function ultimateLines(
       const uptime = context.swapUptimePercent ?? 0;
       if (uptime > 0) {
         result.lines.push({
+          traitNo: trait.rNo,
           source: sourceLabel('calc.ultimate.heroSwapSource', { name, percent: uptime }),
           stat,
           value: (value * uptime) / 100,
@@ -343,7 +409,12 @@ export function ultimateLines(
       }
     } else if (context.targetUnit === ULTIMATE_TARGET_UNIT_KEYS[countKey]) {
       // 전투 특화 히어로 스탯: 계산하는 히어로 (1슬롯) 의 전투 특화가 같을 때만
-      result.lines.push({ source: sourceLabel('calc.ultimate.targetUnitSource', { name }), stat, value });
+      result.lines.push({
+        traitNo: trait.rNo,
+        source: sourceLabel('calc.ultimate.targetUnitSource', { name }),
+        stat,
+        value,
+      });
     }
   }
   return result;

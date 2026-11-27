@@ -17,6 +17,7 @@ import {
   masteryTraits,
   plainNumber,
   rushChanceCounts,
+  traitNoOfStat,
 } from '@/calc/sources/masteryRuneBuff/mastery';
 import type { SourceLabel } from '@/calc/sources/masteryRuneBuff/sourceLabel';
 import { cardKillSpeedLines } from '@/calc/sources/heroWeaponCardPet/card';
@@ -40,10 +41,18 @@ export function compoundPercent(value: number, stacks: number = BATTLE.COMPOUND_
 export function battleStatLines(values: CalcValues, masteryTable: RawTable, sourceLabel: SourceLabel): Line[] {
   const traits = masteryTraits(masteryTable);
   const lines: Line[] = [];
-  const add = (stat: string, value: number, sourceKey: string, params: Record<string, string | number> = {}) => {
-    if (value) lines.push({ source: sourceLabel(sourceKey, params), stat, value });
+  const add = (
+    traitStat: string,
+    stat: string,
+    value: number,
+    sourceKey: string,
+    params: Record<string, string | number> = {},
+  ) => {
+    if (value)
+      lines.push({ source: sourceLabel(sourceKey, params), stat, value, traitNo: traitNoOfStat(traits, traitStat) });
   };
   add(
+    STATS.SPEAR_ATTACK_SPEED_UP,
     STATS.ATTACK_SPEED,
     compoundPercent(learnedTraitValue(traits, values, STATS.SPEAR_ATTACK_SPEED_UP)),
     'calc.buff.battle.spearAttackSpeedSource',
@@ -51,27 +60,32 @@ export function battleStatLines(values: CalcValues, masteryTable: RawTable, sour
   );
   // 13 추진력: 표 값은 발동 확률이라 공격속도에는 고정 50 (찍었을 때만)
   add(
+    STATS.DOUBLE_ATTACK_SPEED_UP,
     STATS.ATTACK_SPEED,
     learnedTraitValue(traits, values, STATS.DOUBLE_ATTACK_SPEED_UP) ? BATTLE.DOUBLE_ATTACK_SPEED_UP_PERCENT : 0,
     'calc.buff.battle.doubleAttackSpeedSource',
   );
   add(
+    STATS.BERSERK_ADD_SPEED,
     STATS.ATTACK_SPEED,
     learnedTraitValue(traits, values, STATS.BERSERK_ADD_SPEED),
     'calc.buff.battle.berserkSpeedSource',
   );
   add(
+    STATS.SMITE_ADD_SPEED,
     STATS.ATTACK_SPEED,
     learnedTraitValue(traits, values, STATS.SMITE_ADD_SPEED),
     'calc.buff.battle.smiteSpeedSource',
   );
   add(
+    STATS.SMITE_CRITICAL_RATE_UP,
     STATS.CRITICAL_RATE,
     compoundPercent(learnedTraitValue(traits, values, STATS.SMITE_CRITICAL_RATE_UP)),
     'calc.buff.battle.smiteCriticalRateSource',
     { stacks: BATTLE.COMPOUND_STACKS },
   );
   add(
+    STATS.SUPER_CRITICAL_CHAIN,
     STATS.CRITICAL_DAMAGE_SUM,
     compoundPercent(learnedTraitValue(traits, values, STATS.SUPER_CRITICAL_CHAIN)),
     'calc.buff.battle.superCriticalChainSource',
@@ -118,21 +132,31 @@ export function battleDamageLines(
 ): Line[] {
   const traits = masteryTraits(masteryTable);
   const lines: Line[] = [];
-  const add = (value: number, sourceKey: string, params: Record<string, string | number> = {}) => {
-    if (value) lines.push({ source: sourceLabel(sourceKey, params), stat: STATS.ATTACK_PERCENT, value });
+  const add = (traitStat: string, value: number, sourceKey: string, params: Record<string, string | number> = {}) => {
+    if (value)
+      lines.push({
+        source: sourceLabel(sourceKey, params),
+        stat: STATS.ATTACK_PERCENT,
+        value,
+        traitNo: traitNoOfStat(traits, traitStat),
+      });
   };
   // 문턱을 넘은 RUSH_STEP 개수 × 특성 값 (연타 폭주 103 과 같은 꼴)
   const addRush = (stat: string, chance: number, threshold: number, sourceKey: string) => {
     if (!rushChanceCounts(values, chance)) return;
     const steps = Math.floor((chance - threshold) / BATTLE.RUSH_STEP);
     if (steps > 0)
-      add(learnedTraitValue(traits, values, stat) * steps, sourceKey, { chance: plainNumber(chance), steps });
+      add(stat, learnedTraitValue(traits, values, stat) * steps, sourceKey, { chance: plainNumber(chance), steps });
   };
   if (magicGuardOn)
-    add(learnedTraitValue(traits, values, STATS.BARRIER_FULL_DAMAGE), 'calc.buff.battle.barrierFullSource');
+    add(
+      STATS.BARRIER_FULL_DAMAGE,
+      learnedTraitValue(traits, values, STATS.BARRIER_FULL_DAMAGE),
+      'calc.buff.battle.barrierFullSource',
+    );
   const doubleAttack = chances.doubleAttack ?? 0;
   if (doubleAttack > DOUBLE_ATTACK_THRESHOLD) {
-    add(learnedTraitValue(traits, values, STATS.OVERCHARGE), 'calc.buff.battle.overchargeSource', {
+    add(STATS.OVERCHARGE, learnedTraitValue(traits, values, STATS.OVERCHARGE), 'calc.buff.battle.overchargeSource', {
       chance: plainNumber(doubleAttack),
       threshold: DOUBLE_ATTACK_THRESHOLD,
     });
@@ -143,6 +167,7 @@ export function battleDamageLines(
   );
   if (overSteps > 0 && rushChanceCounts(values, superCritical)) {
     add(
+      STATS.SUPER_CRITICAL_OVER_DAMAGE,
       learnedTraitValue(traits, values, STATS.SUPER_CRITICAL_OVER_DAMAGE) * overSteps,
       'calc.buff.battle.superCriticalOverSource',
       { chance: plainNumber(superCritical), steps: overSteps },
@@ -150,27 +175,42 @@ export function battleDamageLines(
   }
   const spearAttack = chances.spearAttack ?? 0;
   if (spearAttack > BATTLE.SPEAR_ATTACK_THRESHOLD) {
-    add(learnedTraitValue(traits, values, STATS.SPEAR_ATTACK_OVER_DAMAGE), 'calc.buff.battle.spearOverSource', {
-      chance: plainNumber(spearAttack),
-      threshold: BATTLE.SPEAR_ATTACK_THRESHOLD,
-    });
+    add(
+      STATS.SPEAR_ATTACK_OVER_DAMAGE,
+      learnedTraitValue(traits, values, STATS.SPEAR_ATTACK_OVER_DAMAGE),
+      'calc.buff.battle.spearOverSource',
+      {
+        chance: plainNumber(spearAttack),
+        threshold: BATTLE.SPEAR_ATTACK_THRESHOLD,
+      },
+    );
   }
   addRush(STATS.SPEAR_ATTACK_RUSH, spearAttack, BATTLE.SPEAR_ATTACK_THRESHOLD, 'calc.buff.battle.spearRushSource');
   // 212 · 213 은 액티브 스킬을 쓸 때 걸린다
   const skillCombo = chances.skillCombo ?? 0;
   if (activeSkillOn && skillCombo > BATTLE.SKILL_COMBO_THRESHOLD) {
-    add(learnedTraitValue(traits, values, STATS.SKILL_COMBO_OVER_DAMAGE), 'calc.buff.battle.skillComboOverSource', {
-      chance: plainNumber(skillCombo),
-      threshold: BATTLE.SKILL_COMBO_THRESHOLD,
-    });
+    add(
+      STATS.SKILL_COMBO_OVER_DAMAGE,
+      learnedTraitValue(traits, values, STATS.SKILL_COMBO_OVER_DAMAGE),
+      'calc.buff.battle.skillComboOverSource',
+      {
+        chance: plainNumber(skillCombo),
+        threshold: BATTLE.SKILL_COMBO_THRESHOLD,
+      },
+    );
     addRush(STATS.SKILL_COMBO_RUSH, skillCombo, BATTLE.SKILL_COMBO_THRESHOLD, 'calc.buff.battle.skillComboRushSource');
   }
   const smite = chances.smite ?? 0;
   if (smite > BATTLE.SMITE_THRESHOLD) {
-    add(learnedTraitValue(traits, values, STATS.SMITE_OVER_DAMAGE), 'calc.buff.battle.smiteOverSource', {
-      chance: plainNumber(smite),
-      threshold: BATTLE.SMITE_THRESHOLD,
-    });
+    add(
+      STATS.SMITE_OVER_DAMAGE,
+      learnedTraitValue(traits, values, STATS.SMITE_OVER_DAMAGE),
+      'calc.buff.battle.smiteOverSource',
+      {
+        chance: plainNumber(smite),
+        threshold: BATTLE.SMITE_THRESHOLD,
+      },
+    );
   }
   addRush(STATS.SMITE_RUSH, smite, BATTLE.SMITE_THRESHOLD, 'calc.buff.battle.smiteRushSource');
   return lines;

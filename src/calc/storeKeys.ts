@@ -1,3 +1,4 @@
+import { CONSTS } from '@/CONSTS';
 import { ACCOUNT_KEYS, readAccountInputs } from '@/account/accountKeys';
 
 /** 계산식 확인기 입력 칸을 저장소에 넣을 때 붙이는 접두사 (칸 이름은 기존 HTML 의 data-key 그대로) */
@@ -8,6 +9,13 @@ const PREFIX_LENGTH = CALC_KEY_PREFIX.length;
 /** 계정 공통 값 → 계산식 확인기에서 쓰는 칸 이름 (계산 칸에서 따로 받지 않고 "공통 입력" 값을 읽는다) */
 const ACCOUNT_FIELD_ALIASES: Record<string, string> = {
   fairyBondLevel: ACCOUNT_KEYS.fairyLevel,
+  // 아티팩트 칸 레벨 (차원의 돌 탭과 같이 씀): 얼티밋 1018, 1019 의 칸 레벨 합
+  ...Object.fromEntries(
+    CONSTS.dimensionStone.PARTS.map((part: string) => [
+      CONSTS.dimensionStone.LEVEL_KEY_PREFIX + part,
+      CONSTS.dimensionStone.LEVEL_KEY_PREFIX + part,
+    ]),
+  ),
 };
 
 /** 저장소 값 전체에서 계산식 확인기 칸만 접두사를 떼어 돌려주고, 계정 공통 값을 해당 칸 이름으로 붙인다 */

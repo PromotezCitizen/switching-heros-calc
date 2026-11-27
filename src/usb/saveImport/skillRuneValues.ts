@@ -28,6 +28,8 @@ export interface SkillSave {
 
 export interface RuneSave {
   attributeData: { coreLv: number; runeLv: number[] };
+  /** 룬 연구소: attLvDic 키 0 = 미지의 비석 레벨, 1~3 = 불, 물, 땅 */
+  labData?: { attLvDic: SaveDictionary<number, number> };
 }
 
 export function skillRuneValues(
@@ -90,6 +92,13 @@ export function skillRuneValues(
         values[`skillPerk_${skillId}_${targetLevel}`] = perkType ?? '';
       });
     }
+  });
+
+  // 룬 미지의 비석 레벨 (얼티밋 2021~2023): 저장에 없으면 1
+  runSection(notes, '미지의 비석', () => {
+    if (!rune.labData) return;
+    const { RUNE_STONE_LEVEL_FIELD, RUNE_STONE_DEFAULT_LEVEL } = CONSTS.masteryRuneBuff;
+    values[RUNE_STONE_LEVEL_FIELD] = String(readDictionary(rune.labData.attLvDic).get(0) ?? RUNE_STONE_DEFAULT_LEVEL);
   });
 
   // 속성 룬: 코어 레벨, 룬 칸 = 코어 × 10 + 룬 레벨

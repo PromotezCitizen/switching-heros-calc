@@ -36,6 +36,9 @@ export function swappedHeroValues(values: CalcValues): CalcValues | null {
   const [firstSssField, secondSssField] = SWAP.SSS_OPTION_COUNT_FIELDS;
   swapped[firstSssField] = values[secondSssField] ?? '';
   swapped[secondSssField] = values[firstSssField] ?? '';
+  const [firstMissionField, secondMissionField] = CONSTS.masteryRuneBuff.TRANS_MISSION_FIELDS;
+  swapped[firstMissionField] = values[secondMissionField] ?? '';
+  swapped[secondMissionField] = values[firstMissionField] ?? '';
   for (const slot of SKILL_EQUIP_SLOT_NUMBERS) {
     const first = skillEquipField(slot);
     const second = `${SWAP.SECOND_SKILL_EQUIP_PREFIX}${slot}`;

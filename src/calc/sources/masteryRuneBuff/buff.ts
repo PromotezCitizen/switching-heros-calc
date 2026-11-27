@@ -15,6 +15,7 @@ import { equippedExclusiveStar } from '@/calc/sources/heroWeaponCardPet/weapon';
 import { hasEquippedActiveSkill } from '@/calc/sources/skill/skill';
 import {
   learnedTraitValue,
+  traitNoOfStat,
   masteryLevel,
   masteryTraits,
   plainNumber,
@@ -180,6 +181,7 @@ export function stackLines(
         source: sourceLabel('calc.buff.doubleAttackStackSource', { stacks: DOUBLE_ATTACK_MAX_STACKS }),
         stat: STATS.ATTACK_PERCENT,
         value: perStack * DOUBLE_ATTACK_MAX_STACKS,
+        traitNo: traitNoOfStat(traits, STATS.DOUBLE_ATTACK_STACK),
       });
     }
     const fullStack = learnedTraitValue(traits, values, STATS.DOUBLE_ATTACK_FULL_STACK);
@@ -188,6 +190,7 @@ export function stackLines(
         source: sourceLabel('calc.buff.doubleAttackFullStackSource', { stacks: DOUBLE_ATTACK_MAX_STACKS }),
         stat: STATS.ATTACK_PERCENT,
         value: fullStack,
+        traitNo: traitNoOfStat(traits, STATS.DOUBLE_ATTACK_FULL_STACK),
       });
     }
   }
@@ -288,6 +291,7 @@ export function superCriticalStrikeLines(
       }),
       stat: STATS.CRITICAL_DAMAGE_PERCENT,
       value: percent,
+      traitNo: traitNoOfStat(masteryTraits(masteryTable), STATS.SUPER_CRITICAL_TO_CRITICAL_DAMAGE),
     },
   ];
 }
@@ -347,6 +351,7 @@ export function buffLines(
       source: sourceLabel('calc.buff.berserkSource', { stacks }),
       stat: STATS.ATTACK_PERCENT,
       log: multiplierPercentLog(berserkMultiplierLog(masteryTable, stacks)),
+      traitNo: traitNoOfStat(masteryTraits(masteryTable), STATS.BERSERK),
     });
   }
   if (killerApplies(values)) {
@@ -357,6 +362,12 @@ export function buffLines(
     });
   }
   const rush = doubleAttackRushPercent(masteryTable, values, doubleAttack);
-  if (rush) lines.push({ source: sourceLabel('calc.buff.rushSource'), stat: STATS.ATTACK_PERCENT, value: rush });
+  if (rush)
+    lines.push({
+      source: sourceLabel('calc.buff.rushSource'),
+      stat: STATS.ATTACK_PERCENT,
+      value: rush,
+      traitNo: traitNoOfStat(masteryTraits(masteryTable), STATS.DOUBLE_ATTACK_RUSH),
+    });
   return lines;
 }

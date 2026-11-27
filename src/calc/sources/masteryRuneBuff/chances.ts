@@ -117,6 +117,7 @@ export function chanceUltimateLines(
           }),
           stat: STATS.ATTACK_PERCENT,
           log: multiplierPercentLog(count * Math.log10(value)),
+          traitNo: trait.rNo,
         });
       }
       continue;
@@ -137,6 +138,7 @@ export function chanceUltimateLines(
       }),
       stat: STATS.ATTACK_PERCENT,
       value: traitValue(trait, level),
+      traitNo: trait.rNo,
     });
   }
   return lines;
